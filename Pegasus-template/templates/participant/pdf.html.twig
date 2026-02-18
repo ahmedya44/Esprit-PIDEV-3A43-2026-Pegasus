@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Registre des Participants</title>
+    <style>
+        body { font-family: sans-serif; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3366cc; padding-bottom: 10px; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #777; }
+        .event-header { background-color: #3366cc; color: white; padding: 10px; margin-top: 20px; font-weight: bold; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f8f9fa; color: #333; font-size: 12px; }
+        .status-confirmé { color: #28a745; font-weight: bold; }
+        .status-en-attente { color: #ffc107; font-weight: bold; }
+        .status-annulé { color: #dc3545; font-weight: bold; }
+        .metadata { font-size: 11px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Registre des Participants</h1>
+        <p>Généré le : {{ "now"|date("d/m/Y H:i") }}</p>
+    </div>
+
+    {% set lastEventId = null %}
+    {% for participant in participants %}
+        {% if lastEventId != (participant.evenement ? participant.evenement.id : 0) %}
+            {% if not loop.first %}
+                </tbody></table>
+            {% endif %}
+            
+            <div class="event-header">
+                {{ participant.evenement ? participant.evenement.titre : 'Inscriptions Diverses' }}
+                <span style="font-size: 12px; font-weight: normal; margin-left: 20px;">
+                    ({{ participant.evenement ? participant.evenement.date|date('d/m/Y') : '-' }})
+                </span>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Nom</th>
+                        <th style="width: 30%;">Email</th>
+                        <th style="width: 20%;">Téléphone</th>
+                        <th style="width: 20%;">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+            {% set lastEventId = (participant.evenement ? participant.evenement.id : 0) %}
+        {% endif %}
+        
+        <tr>
+            <td><strong>{{ participant.nom }}</strong></td>
+            <td>{{ participant.email }}</td>
+            <td>{{ participant.telephone }}</td>
+            <td class="status-{{ participant.statut|lower|replace({' ': '-', 'é': 'e'}) }}">
+                {{ participant.statut }}
+            </td>
+        </tr>
+
+        {% if loop.last %}
+            </tbody></table>
+        {% endif %}
+    {% else %}
+        <p style="text-align: center; margin-top: 50px; color: #777;">Aucun participant trouvé.</p>
+    {% endfor %}
+
+    <div class="footer">
+        Page <span class="pagenum"></span> - Pegasus Events Manager
+    </div>
+</body>
+</html>

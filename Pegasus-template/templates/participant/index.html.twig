@@ -1,0 +1,208 @@
+{% extends 'back/base.html.twig' %}
+
+{% block title %}Liste des Participants - Kaiadmin{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h4 class="page-title">Gestion des Inscriptions</h4>
+    <ul class="breadcrumbs">
+        <li class="nav-home">
+            <a href="{{ path('back_page', {path: 'index'}) }}">
+                <i class="icon-home"></i>
+            </a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="{{ path('app_participant_index') }}">Participants</a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="#">Liste</a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h4 class="card-title">Liste des Participants</h4>
+                    <div class="ms-auto">
+                        <div class="d-inline-block me-2">
+                            <select id="status-classification" class="form-select form-select-sm border-info">
+                                <option value="" selected>Toutes les Classifications</option>
+                                <option value="Confirmé">Classification: Confirmé</option>
+                                <option value="En attente">Classification: En attente</option>
+                                <option value="Annulé">Classification: Annulé</option>
+                            </select>
+                        </div>
+                        <a href="{{ path('app_participant_export_pdf') }}" class="btn btn-danger btn-round me-2">
+                            <i class="fas fa-file-pdf"></i> Exporter PDF
+                        </a>
+                        <a href="{{ path('app_participant_new') }}" class="btn btn-primary btn-round">
+                            <i class="fa fa-plus"></i> Ajouter un participant
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="participant-table" class="display table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th style="display:none;">ID_Evenement</th>{# Pour le groupement #}
+                                <th>Participant</th>
+                                <th>Contact</th>
+                                <th class="text-center">Statut</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for participant in participants %}
+                            <tr>
+                                <td style="display:none;">
+                                    {{ participant.evenement ? participant.evenement.id : 0 }} - {{ participant.evenement ? participant.evenement.titre : 'Sans Événement' }}
+                                    {% if participant.evenement %}
+                                        <span class="event-date" style="display:none;">({{ participant.evenement.date|date('d/m/Y') }})</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm me-2">
+                                            <span class="avatar-title rounded-circle border border-white bg-primary small text-white">
+                                                {{ participant.nom|slice(0, 1)|upper }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ participant.nom }}</div>
+                                            <div class="text-muted small">ID: #{{ participant.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <small><i class="far fa-envelope me-1 text-muted"></i> {{ participant.email }}</small>
+                                        <small><i class="fas fa-phone-alt me-1 text-muted"></i> {{ participant.telephone }}</small>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    {% set statusClass = 'badge-secondary' %}
+                                    {% if participant.statut == 'Confirmé' %}{% set statusClass = 'badge-success' %}
+                                    {% elseif participant.statut == 'En attente' %}{% set statusClass = 'badge-warning' %}
+                                    {% elseif participant.statut == 'Annulé' %}{% set statusClass = 'badge-danger' %}
+                                    {% endif %}
+                                    <span class="badge {{ statusClass }}">{{ participant.statut }}</span>
+                                </td>
+                                <td>
+                                    <div class="form-button-action justify-content-end">
+                                        <a href="{{ path('app_participant_show', {'id': participant.id}) }}" class="btn btn-link btn-secondary p-1" data-bs-toggle="tooltip" title="Voir">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_participant_edit', {'id': participant.id}) }}" class="btn btn-link btn-primary p-1" data-bs-toggle="tooltip" title="Modifier">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
+                                        {# Quick Status Actions #}
+                                        {% if participant.statut != 'Confirmé' %}
+                                            <form method="post" action="{{ path('app_participant_update_status', {'id': participant.id, 'status': 'Confirmé'}) }}" style="display:inline-block;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ participant.id) }}">
+                                                <button class="btn btn-link btn-success p-1" data-bs-toggle="tooltip" title="Confirmer">
+                                                    <i class="fa fa-check-circle"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        {% if participant.statut != 'Annulé' %}
+                                            <form method="post" action="{{ path('app_participant_update_status', {'id': participant.id, 'status': 'Annulé'}) }}" style="display:inline-block;">
+                                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ participant.id) }}">
+                                                <button class="btn btn-link btn-warning p-1" data-bs-toggle="tooltip" title="Annuler l'inscription">
+                                                    <i class="fa fa-times-circle"></i>
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        <form method="post" action="{{ path('app_participant_delete', {'id': participant.id}) }}" onsubmit="return confirm('Supprimer définitivement ce participant ?');" style="display:inline-block;">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ participant.id) }}">
+                                            <button class="btn btn-link btn-danger p-1" data-bs-toggle="tooltip" title="Supprimer">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="fas fa-users fa-3x mb-3 opacity-25"></i>
+                                        <p>Aucun participant trouvé</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+        var groupColumn = 0;
+        var table = $('#participant-table').DataTable({
+            "columnDefs": [
+                { "visible": false, "targets": groupColumn }
+            ],
+            "order": [[ groupColumn, 'asc' ]],
+            "displayLength": 25,
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/French.json"
+            },
+            "drawCallback": function ( settings ) {
+                var api = this.api();
+                var rows = api.rows( {page:'current'} ).nodes();
+                var last=null;
+ 
+                api.column(groupColumn, {page:'current'} ).data().each( function ( group, i ) {
+                    if ( last !== group ) {
+                        var groupDisplay = group.split(' - ')[1];
+                        var groupDate = $(rows).eq(i).find('.event-date').text();
+                        
+                        $(rows).eq( i ).before(
+                            '<tr class="group bg-secondary text-white shadow-sm"><td colspan="4" class="py-3 px-4"><div class="d-flex align-items-center"><i class="fas fa-calendar-alt me-2"></i><h5 class="mb-0 fw-bold">'+groupDisplay+' <small class="ms-2 opacity-75">'+groupDate+'</small></h5></div></td></tr>'
+                        );
+ 
+                        last = group;
+                    }
+                } );
+            }
+        });
+
+        // Status Classification Filter
+        $('#status-classification').on('change', function() {
+            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+            table.column(3).search(val ? '^' + val + '$' : '', true, false).draw();
+        });
+ 
+        // Order by the grouping
+        $('#participant-table tbody').on( 'click', 'tr.group', function () {
+            var currentOrder = table.order()[0];
+            if ( currentOrder[0] === groupColumn && currentOrder[1] === 'asc' ) {
+                table.order( [ groupColumn, 'desc' ] ).draw();
+            }
+            else {
+                table.order( [ groupColumn, 'asc' ] ).draw();
+            }
+        } );
+    });
+</script>
+{% endblock %}

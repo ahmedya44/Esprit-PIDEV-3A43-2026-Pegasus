@@ -1,0 +1,103 @@
+{% extends 'back/base.html.twig' %}
+
+{% block title %}Détails du Participant - Kaiadmin{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h4 class="page-title">Gestion des Inscriptions</h4>
+    <ul class="breadcrumbs">
+        <li class="nav-home">
+            <a href="{{ path('back_page', {path: 'index'}) }}">
+                <i class="icon-home"></i>
+            </a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="{{ path('app_participant_index') }}">Participants</a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="#">Fiche Participant</a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card card-round">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <h4 class="card-title">Informations Participant #{{ participant.id }}</h4>
+                    <div class="ms-auto">
+                        <a href="{{ path('app_participant_edit', {'id': participant.id}) }}" class="btn btn-primary btn-round btn-sm me-2">
+                            <i class="fa fa-edit me-1"></i> Modifier
+                        </a>
+                        <a href="{{ path('app_participant_index') }}" class="btn btn-secondary btn-round btn-sm">
+                            <i class="fa fa-arrow-left me-1"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="avatar avatar-xxl mb-3 mx-auto">
+                        <span class="avatar-title rounded-circle border border-white bg-primary fa-3x text-white">
+                            {{ participant.nom|slice(0, 1)|upper }}
+                        </span>
+                    </div>
+                    <h3 class="fw-bold text-dark">{{ participant.nom }}</h3>
+                    {% set statusClass = 'badge-secondary' %}
+                    {% if participant.statut == 'Confirmé' %}{% set statusClass = 'badge-success' %}
+                    {% elseif participant.statut == 'En attente' %}{% set statusClass = 'badge-warning' %}
+                    {% elseif participant.statut == 'Annulé' %}{% set statusClass = 'badge-danger' %}
+                    {% endif %}
+                    <span class="badge {{ statusClass }} p-2">{{ participant.statut }}</span>
+                </div>
+
+                <div class="row g-4 mt-2">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded border-start border-primary border-4 mb-3">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Email</label>
+                            <span class="fw-bold"><i class="far fa-envelope me-2 text-primary"></i> {{ participant.email }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded border-start border-info border-4 mb-3">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Téléphone</label>
+                            <span class="fw-bold"><i class="fas fa-phone-alt me-2 text-info"></i> {{ participant.telephone }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded border-start border-success border-4 mb-3">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Inscrit à l'événement</label>
+                            <span class="fw-bold text-dark">
+                                <i class="fa fa-calendar-check me-2 text-success"></i> 
+                                {{ participant.evenement ? participant.evenement.titre : 'Aucun événement' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded border-start border-secondary border-4 mb-3">
+                            <label class="text-muted small fw-bold text-uppercase d-block mb-1">Date d'inscription</label>
+                            <span class="fw-bold text-muted">
+                                <i class="far fa-clock me-2 text-secondary"></i> 
+                                {{ participant.dateInscription ? participant.dateInscription|date('d/m/Y H:i') : 'N/A' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+                
+                <div class="d-flex justify-content-center mt-4">
+                    {{ include('participant/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
