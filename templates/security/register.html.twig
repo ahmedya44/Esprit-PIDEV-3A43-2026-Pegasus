@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+
+  <title> Feane - Sign Up {{ selected_role_label is defined ? '(' ~ selected_role_label ~ ')' : '' }} </title>
+
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+
+  <!--owl slider stylesheet -->
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <!-- nice select  -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha512-CruCP+TD3yXzlvvijET8wV5WxxEh5H8P4cmz0RFbKK6FlZ2sYl3AEsKlLPHbniXKSrDdFewhbmBK5skbdsASbQ==" crossorigin="anonymous" />
+  <!-- font awesome style -->
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+
+  <!-- Custom styles for this template -->
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    .auth_section {
+      padding: 60px 0;
+      min-height: 500px;
+    }
+
+    .auth_container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .auth_container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #ff7f5c;
+      box-shadow: 0 0 5px rgba(255, 127, 92, 0.3);
+    }
+
+    .form-group small {
+      display: block;
+      color: #999;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .form-group .form-error {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background-color: #ff7f5c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-submit:hover {
+      background-color: #ff6b3f;
+    }
+
+    .auth_link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .auth_link a {
+      color: #ff7f5c;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth_link a:hover {
+      text-decoration: underline;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .required-star {
+      color: #dc3545;
+      margin-left: 4px;
+      font-weight: 700;
+    }
+
+    .password-field {
+      position: relative;
+    }
+
+    .password-field input {
+      padding-right: 42px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+  </style>
+</head>
+
+<body class="sub_page">
+
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+    <!-- header section strats -->
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="{{ path('front_home') }}">
+            <span>
+              Feane
+            </span>
+          </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav  mx-auto ">
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_home') }}">Home </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_about') }}">About</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
+              </li>
+            </ul>
+            <div class="user_option">
+              <a href="" class="user_link">
+                <i class="fa fa-user" aria-hidden="true"></i>
+              </a>
+              <a class="cart_link" href="#">
+                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
+                  <g>
+                    <g>
+                      <path d="M345.6,338.862c-29.184,0-53.248,23.552-53.248,53.248c0,29.184,23.552,53.248,53.248,53.248
+                   c29.184,0,53.248-23.552,53.248-53.248C398.336,362.926,374.784,338.862,345.6,338.862z" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <path d="M439.296,84.91c-1.024,0-2.56-0.512-4.096-0.512H112.64l-5.12-34.304C104.448,27.566,84.992,10.67,61.952,10.67H20.48
+                   C9.216,10.67,0,19.886,0,31.15c0,11.264,9.216,20.48,20.48,20.48h41.472c2.56,0,4.608,2.048,5.12,4.608l31.744,216.064
+                   c4.096,27.136,27.648,47.616,55.296,47.616h212.992c26.624,0,49.664-18.944,55.296-45.056l33.28-166.4
+                   C457.728,97.71,450.56,86.958,439.296,84.91z" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <path d="M215.04,389.55c-1.024-28.16-24.576-50.688-52.736-50.688c-29.696,1.536-52.224,26.112-51.2,55.296
+                   c1.024,28.16,24.064,50.688,52.224,50.688h1.024C193.536,443.31,216.576,418.734,215.04,389.55z" />
+                    </g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                  <g>
+                  </g>
+                </svg>
+              </a>
+              <form class="form-inline">
+                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+              </form>
+              <a href="" class="order_online">
+                Order Online
+              </a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <!-- end header section -->
+  </div>
+
+  <!-- auth section -->
+  <section class="auth_section layout_padding">
+    <div class="container">
+      <div class="auth_container">
+        <h2>Create {{ selected_role_label is defined ? selected_role_label : 'User' }} Account</h2>
+        {% if selected_role is defined %}
+          <div class="auth_link" style="margin-top: -10px; margin-bottom: 15px;">
+            <a href="{{ path('app_register') }}">Change account type</a>
+          </div>
+        {% endif %}
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+          {% if form_errors(form) %}
+            <div class="alert alert-danger">
+              {{ form_errors(form) }}
+            </div>
+          {% endif %}
+
+          <div class="form-group">
+            <label for="{{ form.email.vars.id }}">Email<span class="required-star">*</span></label>
+            {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder': 'Enter your email'}}) }}
+            {% if form_errors(form.email) %}
+              <div class="form-error">
+                {{ form_errors(form.email) }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.username.vars.id }}">Username<span class="required-star">*</span></label>
+            {{ form_widget(form.username, {'attr': {'class': 'form-control', 'placeholder': 'Choose a username'}}) }}
+            {% if form_errors(form.username) %}
+              <div class="form-error">
+                {{ form_errors(form.username) }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.plainPassword.first.vars.id }}">Password<span class="required-star">*</span></label>
+            <div class="password-field">
+              {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control js-password-input', 'placeholder': 'Enter a password'}}) }}
+              <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
+                <i class="fa fa-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            {% if form_errors(form.plainPassword.first) %}
+              <div class="form-error">
+                {{ form_errors(form.plainPassword.first) }}
+              </div>
+            {% endif %}
+            <small>Password must be at least 6 characters</small>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.plainPassword.second.vars.id }}">Confirm password<span class="required-star">*</span></label>
+            <div class="password-field">
+              {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control js-password-input', 'placeholder': 'Confirm your password'}}) }}
+              <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
+                <i class="fa fa-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            {% if form_errors(form.plainPassword.second) %}
+              <div class="form-error">
+                {{ form_errors(form.plainPassword.second) }}
+              </div>
+            {% endif %}
+            {% if form_errors(form.plainPassword) %}
+              <div class="form-error">
+                {{ form_errors(form.plainPassword) }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form_label(form.phone, 'Phone (optional)') }}
+            {{ form_widget(form.phone, {'attr': {'class': 'form-control', 'placeholder': 'Enter your phone number'}}) }}
+            {% if form_errors(form.phone) %}
+              <div class="form-error">
+                {{ form_errors(form.phone) }}
+              </div>
+            {% endif %}
+          </div>
+
+          {% if form.birthDate is defined %}
+            <div class="form-group">
+              {{ form_label(form.birthDate, 'Birth date (optional)') }}
+              {{ form_widget(form.birthDate, {'attr': {'class': 'form-control'}}) }}
+              {% if form_errors(form.birthDate) %}
+                <div class="form-error">
+                  {{ form_errors(form.birthDate) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.companyName is defined %}
+            <div class="form-group">
+              <label for="{{ form.companyName.vars.id }}">Company name<span class="required-star">*</span></label>
+              {{ form_widget(form.companyName, {'attr': {'class': 'form-control', 'placeholder': 'Enter your company name'}}) }}
+              {% if form_errors(form.companyName) %}
+                <div class="form-error">
+                  {{ form_errors(form.companyName) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.website is defined %}
+            <div class="form-group">
+              {{ form_label(form.website, 'Website (optional)') }}
+              {{ form_widget(form.website, {'attr': {'class': 'form-control', 'placeholder': 'https://example.com'}}) }}
+              {% if form_errors(form.website) %}
+                <div class="form-error">
+                  {{ form_errors(form.website) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.address is defined %}
+            <div class="form-group">
+              {{ form_label(form.address, 'Address (optional)') }}
+              {{ form_widget(form.address, {'attr': {'class': 'form-control', 'placeholder': 'Enter your address'}}) }}
+              {% if form_errors(form.address) %}
+                <div class="form-error">
+                  {{ form_errors(form.address) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.description is defined %}
+            <div class="form-group">
+              {{ form_label(form.description, 'Description (optional)') }}
+              {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Tell us about your brand'}}) }}
+              {% if form_errors(form.description) %}
+                <div class="form-error">
+                  {{ form_errors(form.description) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.bio is defined %}
+            <div class="form-group">
+              {{ form_label(form.bio, 'Bio (optional)') }}
+              {{ form_widget(form.bio, {'attr': {'class': 'form-control', 'placeholder': 'Tell us about yourself'}}) }}
+              {% if form_errors(form.bio) %}
+                <div class="form-error">
+                  {{ form_errors(form.bio) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.styles is defined %}
+            <div class="form-group">
+              {{ form_label(form.styles, 'Styles (optional)') }}
+              {{ form_widget(form.styles, {'attr': {'class': 'form-control', 'placeholder': 'e.g. Pop, Jazz, Electro'}}) }}
+              {% if form_errors(form.styles) %}
+                <div class="form-error">
+                  {{ form_errors(form.styles) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.facebook is defined %}
+            <div class="form-group">
+              {{ form_label(form.facebook, 'Facebook URL (optional)') }}
+              {{ form_widget(form.facebook, {'attr': {'class': 'form-control', 'placeholder': 'https://facebook.com/your-page'}}) }}
+              {% if form_errors(form.facebook) %}
+                <div class="form-error">
+                  {{ form_errors(form.facebook) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.instagram is defined %}
+            <div class="form-group">
+              {{ form_label(form.instagram, 'Instagram URL (optional)') }}
+              {{ form_widget(form.instagram, {'attr': {'class': 'form-control', 'placeholder': 'https://instagram.com/your-account'}}) }}
+              {% if form_errors(form.instagram) %}
+                <div class="form-error">
+                  {{ form_errors(form.instagram) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.portfolioUrl is defined %}
+            <div class="form-group">
+              {{ form_label(form.portfolioUrl, 'Portfolio URL (optional)') }}
+              {{ form_widget(form.portfolioUrl, {'attr': {'class': 'form-control', 'placeholder': 'https://your-portfolio.com'}}) }}
+              {% if form_errors(form.portfolioUrl) %}
+                <div class="form-error">
+                  {{ form_errors(form.portfolioUrl) }}
+                </div>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <button type="submit" class="btn-submit">Sign Up</button>
+        {{ form_end(form) }}
+
+        <div class="auth_link">
+          Already have an account? <a href="{{ path('app_login') }}">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- end auth section -->
+
+  <!-- footer section -->
+  <footer class="footer_section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 footer-col">
+          <div class="footer_contact">
+            <h4>
+              Contact Us
+            </h4>
+            <div class="contact_link_box">
+              <a href="">
+                <i class="fa fa-map-marker" aria-hidden="true"></i>
+                <span>
+                  Location
+                </span>
+              </a>
+              <a href="">
+                <i class="fa fa-phone" aria-hidden="true"></i>
+                <span>
+                  Call +01 1234567890
+                </span>
+              </a>
+              <a href="">
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                <span>
+                  Email info@feane.com
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 footer-col">
+          <div class="footer_detail">
+            <a href="" class="footer-logo">
+              Feane
+            </a>
+            <p>
+              Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with
+            </p>
+          </div>
+        </div>
+        <div class="col-md-4 footer-col">
+          <div class="footer_social">
+            <a href="">
+              <i class="fa fa-facebook" aria-hidden="true"></i>
+            </a>
+            <a href="">
+              <i class="fa fa-twitter" aria-hidden="true"></i>
+            </a>
+            <a href="">
+              <i class="fa fa-linkedin" aria-hidden="true"></i>
+            </a>
+            <a href="">
+              <i class="fa fa-instagram" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- footer section -->
+
+  <!-- jQery -->
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <!-- popper js -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <!-- bootstrap js -->
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <!-- owl slider -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <!-- custom js -->
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+  <script>
+    document.querySelectorAll('.js-password-toggle').forEach(function (toggleButton) {
+      toggleButton.addEventListener('click', function () {
+        var passwordInput = toggleButton.parentElement.querySelector('.js-password-input');
+        var icon = toggleButton.querySelector('i');
+        if (!passwordInput || !icon) {
+          return;
+        }
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+  </script>
+
+</body>
+
+</html>

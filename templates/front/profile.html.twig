@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+
+  <title>Feane - Profile</title>
+
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    .profile_section {
+      padding: 70px 0;
+    }
+
+    .profile_card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+    }
+
+    .profile_title {
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+
+    .avatar_wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .avatar_box {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid #ffbe33;
+      background: #f7f7f7;
+    }
+
+    .avatar_img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar_add_btn {
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: #ffbe33;
+      color: #fff;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile_item {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .profile_item:last-child {
+      border-bottom: none;
+    }
+
+    .profile_label {
+      color: #666;
+      font-weight: 600;
+    }
+
+    .profile_value {
+      color: #1a1a1a;
+      text-align: right;
+      word-break: break-word;
+    }
+  </style>
+</head>
+
+<body class="sub_page">
+
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="{{ path('front_home') }}">
+            <span>Feane</span>
+          </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav  mx-auto ">
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_home') }}">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
+            </ul>
+            <div class="user_option">
+              <a href="{{ path('front_profile') }}" class="user_link profile_link">
+                <i class="fa fa-user" aria-hidden="true"></i>
+                <span class="profile_name">{{ app.user.username }}</span>
+              </a>
+              <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">Logout</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <section class="profile_section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="profile_card">
+            <h3 class="profile_title">My Profile</h3>
+
+            {% for message in app.flashes('success') %}
+              <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+            {% for message in app.flashes('danger') %}
+              <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+
+            <div class="avatar_wrap">
+              <form id="avatarForm" method="post" enctype="multipart/form-data">
+                <div class="avatar_box">
+                  <img class="avatar_img" src="{{ profile_user.avatarUrl ? asset(profile_user.avatarUrl) : asset('front/images/client1.jpg') }}" alt="Profile picture">
+                  <input id="avatarInput" type="file" name="avatar" accept="image/png,image/jpeg,image/webp" style="display: none;">
+                  <button type="button" class="avatar_add_btn" id="avatarAddBtn" title="Change picture">+</button>
+                </div>
+              </form>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <a href="{{ path('front_profile_edit') }}" class="btn btn-warning">Modify Profile</a>
+            </div>
+
+            <div class="profile_item">
+              <span class="profile_label">Username</span>
+              <span class="profile_value">{{ profile_user.username }}</span>
+            </div>
+            <div class="profile_item">
+              <span class="profile_label">Email</span>
+              <span class="profile_value">{{ profile_user.email }}</span>
+            </div>
+            <div class="profile_item">
+              <span class="profile_label">Phone</span>
+              <span class="profile_value">{{ profile_user.phone ?: 'Not set' }}</span>
+            </div>
+            <div class="profile_item">
+              <span class="profile_label">Account Type</span>
+              <span class="profile_value">{{ account_type }}</span>
+            </div>
+            <div class="profile_item">
+              <span class="profile_label">Account Status</span>
+              <span class="profile_value">{{ profile_user.status.value }}</span>
+            </div>
+            <div class="profile_item">
+              <span class="profile_label">Created At</span>
+              <span class="profile_value">{{ profile_user.createdAt ? profile_user.createdAt|date('Y-m-d H:i') : 'N/A' }}</span>
+            </div>
+
+            {% for label, value in extra_fields %}
+              <div class="profile_item">
+                <span class="profile_label">{{ label }}</span>
+                <span class="profile_value">{{ value }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+  <script>
+    document.getElementById('avatarAddBtn').addEventListener('click', function () {
+      document.getElementById('avatarInput').click();
+    });
+
+    document.getElementById('avatarInput').addEventListener('change', function () {
+      if (this.files && this.files.length > 0) {
+        document.getElementById('avatarForm').submit();
+      }
+    });
+  </script>
+</body>
+
+</html>
+

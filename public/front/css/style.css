@@ -170,6 +170,7 @@ a:focus {
   color: #ffffff;
   text-align: center;
   text-transform: uppercase;
+  white-space: nowrap;
   border-radius: 5px;
   -webkit-transition: all 0.3s;
   transition: all 0.3s;
@@ -203,6 +204,7 @@ a:focus {
 
 .user_option a {
   margin: 0 10px;
+  white-space: nowrap;
 }
 
 .user_option .user_link {
@@ -210,6 +212,30 @@ a:focus {
 }
 
 .user_option .user_link:hover {
+  color: #ffbe33;
+}
+
+.user_option .profile_link {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.user_option .profile_link .profile_name {
+  margin-left: 6px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.user_option .profile_link:hover .profile_name {
   color: #ffbe33;
 }
 
@@ -242,6 +268,7 @@ a:focus {
   background-color: #ffbe33;
   color: #ffffff;
   border-radius: 45px;
+  white-space: nowrap;
   -webkit-transition: all 0.3s;
   transition: all 0.3s;
   border: none;
@@ -249,6 +276,53 @@ a:focus {
 
 .user_option .order_online:hover {
   background-color: #e69c00;
+}
+
+.user_option .auth_btn {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 45px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: all 0.3s;
+  margin: 0 6px;
+}
+
+.user_option .auth_btn--filled {
+  background-color: #ffbe33;
+  border: 1px solid #ffbe33;
+  color: #ffffff;
+}
+
+.user_option .auth_btn--filled:hover {
+  background-color: #e69c00;
+  border-color: #e69c00;
+  color: #ffffff;
+}
+
+.user_option .auth_btn--outline {
+  background-color: transparent;
+  border: 1px solid #ffbe33;
+  color: #ffbe33;
+}
+
+.user_option .auth_btn--outline:hover {
+  background-color: #ffbe33;
+  border-color: #ffbe33;
+  color: #ffffff;
+}
+
+.user_option .auth_btn--danger {
+  background-color: #ffbe33;
+  border: 1px solid #ffbe33;
+  color: #ffffff;
+}
+
+.user_option .auth_btn--danger:hover {
+  background-color: #e69c00;
+  border-color: #e69c00;
+  color: #ffffff;
 }
 
 .custom_nav-container .navbar-toggler {

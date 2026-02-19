@@ -91,8 +91,15 @@
                         <span class="sub-item">Dashboard 1</span>
                       </a>
                     </li>
+
                   </ul>
                 </div>
+              </li>
+                            <li class="nav-item">
+                <a href="{{ path('back_users') }}">
+                  <i class="fas fa-users"></i>
+                  <p>Users</p>
+                </a>
               </li>
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
@@ -659,14 +666,14 @@
                   >
                     <div class="avatar-sm">
                       <img
-                        src="{{ asset('back/img/profile.jpg') }}"
+                        src="{{ app.user and app.user.avatarUrl ? asset(app.user.avatarUrl) : asset('back/img/profile.jpg') }}"
                         alt="..."
                         class="avatar-img rounded-circle"
                       />
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>
-                      <span class="fw-bold">Hizrian</span>
+                      <span class="fw-bold">{{ app.user ? app.user.username : 'Admin' }}</span>
                     </span>
                   </a>
                   <ul class="dropdown-menu dropdown-user animated fadeIn">
@@ -675,31 +682,26 @@
                         <div class="user-box">
                           <div class="avatar-lg">
                             <img
-                              src="{{ asset('back/img/profile.jpg') }}"
+                              src="{{ app.user and app.user.avatarUrl ? asset(app.user.avatarUrl) : asset('back/img/profile.jpg') }}"
                               alt="image profile"
                               class="avatar-img rounded"
                             />
                           </div>
                           <div class="u-text">
-                            <h4>Hizrian</h4>
-                            <p class="text-muted">hello@example.com</p>
-                            <a
-                              href="profile.html"
-                              class="btn btn-xs btn-secondary btn-sm"
-                              >View Profile</a
-                            >
+                            <h4>{{ app.user ? app.user.username : 'Admin' }}</h4>
+                            <p class="text-muted">{{ app.user ? app.user.email : 'admin@example.com' }}</p>
                           </div>
                         </div>
                       </li>
                       <li>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">My Profile</a>
+                        <a class="dropdown-item" href="{{ path('back_profile') }}">My Profile</a>
                         <a class="dropdown-item" href="#">My Balance</a>
                         <a class="dropdown-item" href="#">Inbox</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Account Setting</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Logout</a>
+                        <a class="dropdown-item" href="{{ path('app_back_logout') }}">Logout</a>
                       </li>
                     </div>
                   </ul>
@@ -995,3 +997,10 @@
     <script src="{{ asset('back/js/setting-demo2.js') }}"></script>
   </body>
 </html>
+
+
+
+
+
+
+
