@@ -57,14 +57,14 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('front_home') }}">Home </a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
+              <li class="nav-item active">
+                <a class="nav-link" href="{{ path('front_menu') }}">Menu <span class="sr-only">(current)</span> </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('front_about') }}">About</a>
               </li>
-              <li class="nav-item active">
-                <a class="nav-link" href="{{ path('front_book') }}">Book Table <span class="sr-only">(current)</span> </a>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_courses') }}">Courses</a>
@@ -144,66 +144,77 @@
     <!-- end header section -->
   </div>
 
-  <!-- book section -->
-  <section class="book_section layout_padding">
+  <!-- food section -->
+
+  <section class="food_section layout_padding">
     <div class="container">
-      <div class="heading_container">
+      <div class="heading_container heading_center">
         <h2>
-          Book A Table
+          Our Courses
         </h2>
       </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form_container">
-            <form action="">
-              <div>
-                <input type="text" class="form-control" placeholder="Your Name" />
-              </div>
-              <div>
-                <input type="text" class="form-control" placeholder="Phone Number" />
-              </div>
-              <div>
-                <input type="email" class="form-control" placeholder="Your Email" />
-              </div>
-              <div>
-                <select class="form-control nice-select wide">
-                  <option value="" disabled selected>
-                    How many persons?
-                  </option>
-                  <option value="">
-                    2
-                  </option>
-                  <option value="">
-                    3
-                  </option>
-                  <option value="">
-                    4
-                  </option>
-                  <option value="">
-                    5
-                  </option>
-                </select>
-              </div>
-              <div>
-                <input type="date" class="form-control">
-              </div>
-              <div class="btn_box">
-                <button>
-                  Book Now
-                </button>
-              </div>
-            </form>
+
+      <ul class="filters_menu">
+        <li class="active" data-filter="*">All</li>
+        <li data-filter=".burger">music</li>
+        <li data-filter=".pizza">art</li>
+      </ul>
+
+      <div class="filters-content">
+        <div class="row grid">
+  {% for course in courses %}
+    <div class="col-sm-6 col-lg-4 all">
+      <div class="box">
+        <div>
+          <div class="img-box">
+            {# change image field name if yours is different #}
+            {% if course.thumbnailUrl %}
+              <img src="{{ course.thumbnailUrl }}" alt="{{ course.title }}">
+            {% else %}
+              <img src="{{ asset('front/images/f1.png') }}" alt="{{ course.title }}">
+            {% endif %}
           </div>
-        </div>
-        <div class="col-md-6">
-          <div class="map_container ">
-            <div id="googleMap"></div>
+
+          <div class="detail-box">
+            <h5>{{ course.title }}</h5>
+
+            {% if course.description is defined and course.description %}
+              <p>{{ course.description|slice(0, 120) }}{% if course.description|length > 120 %}...{% endif %}</p>
+            {% endif %}
+
+            <div class="options">
+              {# if you have price field: #}
+              {% if course.price is defined and course.price is not null %}
+                <h6>{{ course.price }} DT</h6>
+              {% endif %}
+
+              <a href="#" class="btn btn-warning btn-sm disabled" tabindex="-1" aria-disabled="true">
+                View
+              </a>
+            </div>
           </div>
+
         </div>
       </div>
     </div>
+  {% else %}
+    <div class="col-12">
+      <div class="alert alert-info text-center">
+        No courses found in the database.
+      </div>
+    </div>
+  {% endfor %}
+</div>
+      </div>
+      <div class="btn-box">
+        <a href="">
+          View More
+        </a>
+      </div>
+    </div>
   </section>
-  <!-- end book section -->
+
+  <!-- end food section -->
 
   <!-- footer section -->
   <footer class="footer_section">
