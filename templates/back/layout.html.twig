@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>{% block title %}Backoffice{% endblock %}</title>
+  <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+  <link rel="icon" href="{{ asset('back/img/kaiadmin/favicon.ico') }}" type="image/x-icon" />
+
+  <script src="{{ asset('back/js/plugin/webfont/webfont.min.js') }}"></script>
+  <script>
+    WebFont.load({
+      google: { families: ["Public Sans:300,400,500,600,700"] },
+      custom: {
+        families: [
+          "Font Awesome 5 Solid",
+          "Font Awesome 5 Regular",
+          "Font Awesome 5 Brands",
+          "simple-line-icons",
+        ],
+        urls: ["{{ asset('back/css/fonts.min.css') }}"],
+      },
+      active: function () { sessionStorage.fonts = true; },
+    });
+  </script>
+
+  <link rel="stylesheet" href="{{ asset('back/css/bootstrap.min.css') }}" />
+  <link rel="stylesheet" href="{{ asset('back/css/plugins.min.css') }}" />
+  <link rel="stylesheet" href="{{ asset('back/css/kaiadmin.min.css') }}" />
+</head>
+<body>
+  <div class="wrapper">
+    <div class="sidebar" data-background-color="dark">
+      <div class="sidebar-logo">
+        <div class="logo-header" data-background-color="dark">
+          <a href="{{ path('back_dashboard') }}" class="logo">
+            <img src="{{ asset('back/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+          </a>
+          <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
+            <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+          <ul class="nav nav-secondary">
+            <li class="nav-item">
+              <a href="{{ path('back_dashboard') }}"><i class="fas fa-home"></i><p>Dashboard</p></a>
+            </li>
+            <li class="nav-section">
+              <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
+              <h4 class="text-section">Forum</h4>
+            </li>
+            <li class="nav-item">
+              <a href="{{ path('admin_forum_posts_index') }}"><i class="fas fa-comments"></i><p>Sujets</p></a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ path('admin_forum_comments_index') }}"><i class="fas fa-comment-dots"></i><p>Commentaires</p></a>
+            </li>
+            <li class="nav-item">
+              <a href="{{ path('front_home') }}"><i class="fas fa-globe"></i><p>Voir le site</p></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-panel">
+      <div class="container">
+        <div class="page-inner">
+          {% block body %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ asset('back/js/core/jquery-3.7.1.min.js') }}"></script>
+  <script src="{{ asset('back/js/core/popper.min.js') }}"></script>
+  <script src="{{ asset('back/js/core/bootstrap.min.js') }}"></script>
+  <script src="{{ asset('back/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+  <script src="{{ asset('back/js/kaiadmin.min.js') }}"></script>
+
+  <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+  <script>
+    document.querySelectorAll('textarea.js-ckeditor').forEach(function (el) {
+      if (el.dataset.ckeditorReady) {
+        return;
+      }
+
+      ClassicEditor.create(el).then(function () {
+        el.dataset.ckeditorReady = '1';
+      }).catch(function () {
+        // Keep native textarea if CDN is unavailable.
+      });
+    });
+  </script>
+</body>
+</html>

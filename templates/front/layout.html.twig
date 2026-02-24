@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+
+  <title>{% block title %}Feane{% endblock %}</title>
+
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha512-CruCP+TD3yXzlvvijET8wV5WxxEh5H8P4cmz0RFbKK6FlZ2sYl3AEsKlLPHbniXKSrDdFewhbmBK5skbdsASbQ==" crossorigin="anonymous" />
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    .forum-shell {
+      padding: 40px 0 70px;
+      background: #f5f5f5;
+      min-height: 60vh;
+    }
+    .forum-card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      padding: 24px;
+    }
+  </style>
+
+  {% block extra_styles %}{% endblock %}
+</head>
+<body class="{% block body_class %}sub_page{% endblock %}">
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="{{ path('front_home') }}">
+            <span>Feane</span>
+          </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto">
+              <li class="nav-item {% if (active_nav|default('')) == 'home' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_home') }}">Home</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'menu' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'about' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_about') }}">About</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'book' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'forum' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('forum_index') }}">Forum</a>
+              </li>
+            </ul>
+            <div class="d-flex align-items-center">
+              {% if app.user %}
+                <span class="text-white mr-2 small">{{ app.user.displayName }}</span>
+                <a class="btn btn-sm btn-outline-light" href="{{ path('app_logout') }}">Logout</a>
+              {% else %}
+                <a class="btn btn-sm btn-outline-light" href="{{ path('app_login') }}">Login</a>
+              {% endif %}
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  {% block body %}{% endblock %}
+
+  <footer class="footer_section">
+    <div class="container">
+      <div class="footer-info">
+        <p>
+          &copy; <span id="displayYear"></span> All Rights Reserved By
+          <a href="https://html.design/">Free Html Templates</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <script src="https://unpkg.com/isotope-layout@3.0.4/dist/isotope.pkgd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+
+  <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+  <script>
+    document.querySelectorAll('textarea.js-ckeditor').forEach(function (el) {
+      if (el.dataset.ckeditorReady) {
+        return;
+      }
+
+      ClassicEditor.create(el).then(function () {
+        el.dataset.ckeditorReady = '1';
+      }).catch(function () {
+        // Keep native textarea if CDN is unavailable.
+      });
+    });
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

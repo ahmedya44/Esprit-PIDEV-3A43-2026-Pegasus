@@ -1,0 +1,26 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'forum' %}
+
+{% block title %}Modifier commentaire - Forum{% endblock %}
+
+{% block body %}
+<section class="forum-shell">
+    <div class="container">
+        <div class="forum-card">
+            <h2 class="mb-4">Modifier le commentaire</h2>
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="form-group">
+                {{ form_label(form.content, 'Commentaire') }}
+                {{ form_widget(form.content) }}
+                {{ form_errors(form.content) }}
+            </div>
+            <a href="{{ path('forum_show', {id: post.id}) }}" class="btn btn-outline-dark">Annuler</a>
+            <button type="submit" class="btn btn-warning">Enregistrer</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</section>
+{% endblock %}

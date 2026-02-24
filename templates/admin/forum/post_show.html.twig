@@ -1,0 +1,154 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Admin - Sujet: {{ translatedPost.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success" role="alert">{{ message }}</div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+    {% endfor %}
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h1 class="h4 mb-0">{{ translatedPost.title }}</h1>
+                    {% if post.status == 'OPEN' %}
+                        <span class="badge bg-success">Ouvert</span>
+                    {% elseif post.status == 'CLOSED' %}
+                        <span class="badge bg-warning text-dark">Ferme</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Cache</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        <strong>Auteur:</strong> {{ post.authorName }} ({{ post.authorEmail }})<br>
+                        <strong>Cree:</strong> {{ post.createdAt|format_datetime('medium', 'short') }}
+                        {% if post.updatedAt %}
+                            <br><strong>Modifie:</strong> {{ post.updatedAt|format_datetime('medium', 'short') }}
+                        {% endif %}
+                    </p>
+                    {% if post.imageName %}
+                        <div class="mb-3">
+                            <img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="Image du sujet {{ translatedPost.title }}" class="img-fluid rounded" style="max-height: 420px;">
+                        </div>
+                    {% endif %}
+                    <div class="post-content">{{ translatedPost.content|nl2br }}</div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">Moderation</h5></div>
+                <div class="card-body d-flex gap-2 flex-wrap">
+                    <form method="post" action="{{ path('admin_forum_post_status', {id: post.id, status: 'OPEN'}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('status_' ~ post.id ~ '_OPEN') }}">
+                        <button type="submit" class="btn btn-success {% if post.status == 'OPEN' %}active{% endif %}">Passer en Ouvert</button>
+                    </form>
+                    <form method="post" action="{{ path('admin_forum_post_status', {id: post.id, status: 'CLOSED'}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('status_' ~ post.id ~ '_CLOSED') }}">
+                        <button type="submit" class="btn btn-warning {% if post.status == 'CLOSED' %}active{% endif %}">Passer en Ferme</button>
+                    </form>
+                    <form method="post" action="{{ path('admin_forum_post_status', {id: post.id, status: 'HIDDEN'}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('status_' ~ post.id ~ '_HIDDEN') }}">
+                        <button type="submit" class="btn btn-secondary {% if post.status == 'HIDDEN' %}active{% endif %}">Passer en Cache</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0">Traduire ce post</h5></div>
+                <div class="card-body">
+                    <form method="post" action="{{ path('admin_forum_post_translate', {id: post.id}) }}" class="row g-2">
+                        <input type="hidden" name="_token" value="{{ csrf_token('translate_post_' ~ post.id) }}">
+                        <div class="col-md-3">
+                            <label class="form-label">Langue cible</label>
+                            <select name="target_locale" class="form-select" required>
+                                {% for locale, label in translatableLocales %}
+                                    <option value="{{ locale }}">{{ label }} ({{ locale }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label">Titre traduit</label>
+                            <input type="text" name="translated_title" class="form-control" placeholder="Laisser vide pour traduction automatique API">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Contenu traduit</label>
+                            <textarea name="translated_content" rows="4" class="form-control js-ckeditor" placeholder="Laisser vide pour traduction automatique API"></textarea>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-outline-primary">Enregistrer la traduction</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <h3 class="h5 mb-3">Commentaires ({{ post.commentaires|length }})</h3>
+
+            {% if post.commentaires %}
+                <div class="comments-list mb-4">
+                    {% for commentaire in post.commentaires %}
+                        {% set translatedComment = translatedComments[commentaire.id] ?? commentaire %}
+                        <div class="card mb-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ commentaire.authorName }}</strong>
+                                    <small class="text-muted">({{ commentaire.authorEmail }})</small><br>
+                                    <small class="text-muted">{{ commentaire.createdAt|format_datetime('medium', 'short') }}</small>
+                                </div>
+                                <div>
+                                    <a href="{{ path('admin_forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-primary">Modifier</a>
+                                    <a href="{{ path('admin_forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-info">Traduire</a>
+                                    <form method="post" action="{{ path('admin_forum_comment_delete', {id: commentaire.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce commentaire ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ commentaire.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="card-body">{{ translatedComment.content|nl2br }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info mb-4">Aucun commentaire.</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header"><h5 class="mb-0">Actions</h5></div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ path('admin_forum_post_edit', {id: post.id}) }}" class="list-group-item list-group-item-action">Modifier</a>
+                    <form method="post" action="{{ path('admin_forum_post_delete', {id: post.id}) }}" style="display:contents;" onsubmit="return confirm('Supprimer ce sujet et ses commentaires ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ post.id) }}">
+                        <button type="submit" class="list-group-item list-group-item-action text-danger border-top">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0">Informations</h5></div>
+                <div class="card-body">
+                    <small>
+                        <strong>ID:</strong> {{ post.id }}<br>
+                        <strong>Cree:</strong> {{ post.createdAt|format_datetime('short', 'short') }}<br>
+                        {% if post.updatedAt %}<strong>Modifie:</strong> {{ post.updatedAt|format_datetime('short', 'short') }}<br>{% endif %}
+                        <strong>Commentaires:</strong> {{ post.commentaires|length }}<br>
+                        <strong>Statut:</strong> {{ post.status }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4 d-flex gap-2">
+        <a href="{{ path('admin_forum_posts_index') }}" class="btn btn-secondary">Retour a la liste</a>
+        <a href="{{ path('admin_forum_stats_index') }}" class="btn btn-outline-info">Voir les statistiques</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'forum' %}
+
+{% block title %}Modifier sujet - Forum{% endblock %}
+
+{% block body %}
+<section class="forum-shell">
+    <div class="container">
+        <div class="forum-card">
+            <h2 class="mb-4">Modifier le sujet</h2>
+
+            {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <div class="form-group">
+                {{ form_label(form.title, 'Titre') }}
+                {{ form_widget(form.title) }}
+                {{ form_errors(form.title) }}
+            </div>
+            <div class="form-group">
+                {{ form_label(form.content, 'Contenu') }}
+                {{ form_widget(form.content) }}
+                {{ form_errors(form.content) }}
+            </div>
+            {% if post.imageName %}
+                <div class="mb-3">
+                    <img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="Image du sujet" class="img-fluid rounded" style="max-height: 240px;">
+                </div>
+            {% endif %}
+            <div class="form-group">
+                {{ form_label(form.imageFile) }}
+                {{ form_widget(form.imageFile) }}
+                {{ form_errors(form.imageFile) }}
+            </div>
+            <a href="{{ path('forum_show', {id: post.id}) }}" class="btn btn-outline-dark">Annuler</a>
+            <button type="submit" class="btn btn-warning">Enregistrer</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'forum' %}
+
+{% block title %}Forum Feed{% endblock %}
+{% block extra_styles %}
+<style>
+  .feed-shell {
+    background: #f0f2f5;
+    min-height: 70vh;
+    padding: 24px 0 56px;
+  }
+  .feed-container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .feed-card {
+    background: #fff;
+    border: 1px solid #dfe3e8;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    padding: 14px 16px;
+  }
+  .feed-toolbar {
+    position: sticky;
+    top: 14px;
+    z-index: 10;
+  }
+  .post-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 0;
+    color: #1c1e21;
+  }
+  .post-meta {
+    color: #65676b;
+    font-size: 0.86rem;
+  }
+  .post-content {
+    color: #1c1e21;
+    line-height: 1.5;
+  }
+  .post-image {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e6e9ed;
+  }
+  .rating-display-stars {
+    --rating: 0;
+    position: relative;
+    display: inline-block;
+    font-size: 0.95rem;
+    line-height: 1;
+    vertical-align: middle;
+    top: -1px;
+  }
+  .rating-display-stars::before {
+    content: '★★★★★';
+    color: #d0d5dd;
+  }
+  .rating-display-stars::after {
+    content: '★★★★★';
+    color: #f4b400;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc((var(--rating) / 5) * 100%);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="feed-shell">
+    <div class="container">
+        <div class="feed-container">
+            <div class="feed-card feed-toolbar mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1 class="h5 mb-0">Forum Feed</h1>
+                    <div class="d-flex gap-2">
+                        <a href="{{ path('forum_stats') }}" class="btn btn-outline-info btn-sm">Statistiques</a>
+                        {% if app.user %}
+                            <a href="{{ path('forum_new') }}" class="btn btn-warning btn-sm">Creer un post</a>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="btn btn-warning btn-sm">Se connecter pour publier</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <form method="get" class="row g-2">
+                    <div class="col-md-7">
+                        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher un post..." oninput="this.form.requestSubmit()">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-control" onchange="this.form.requestSubmit()">
+                            <option value="">Tous les statuts</option>
+                            <option value="OPEN" {% if status == 'OPEN' %}selected{% endif %}>Ouvert</option>
+                            <option value="CLOSED" {% if status == 'CLOSED' %}selected{% endif %}>Ferme</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-dark w-100">Filtrer</button>
+                    </div>
+                </form>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success" role="alert">{{ message }}</div>
+            {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger" role="alert">{{ message }}</div>
+            {% endfor %}
+
+            {% if pagination|length > 0 %}
+                {% for post in pagination %}
+                    {% set translatedPost = post|translate_object(app.request.locale) %}
+                    {% set rating = ratingSummaries[post.id] ?? {avg: 0, count: 0} %}
+                    <article class="feed-card mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <p class="mb-1 post-title">{{ translatedPost.title }}</p>
+                                <div class="post-meta">
+                                    {{ post.authorName }} • {{ post.createdAt|format_datetime('medium', 'short') }}
+                                </div>
+                            </div>
+                            {% if post.status == 'OPEN' %}
+                                <span class="badge badge-success">Ouvert</span>
+                            {% else %}
+                                <span class="badge badge-warning">Ferme</span>
+                            {% endif %}
+                        </div>
+
+                        {% set cleanPostContent = translatedPost.content|striptags|replace({'&nbsp;': ' '})|trim %}
+                        <div class="post-content mb-2">
+                            {{ cleanPostContent|slice(0, 280) }}{% if cleanPostContent|length > 280 %}...{% endif %}
+                        </div>
+
+                        {% if post.imageName %}
+                            <div class="mb-2">
+                                <img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="Image du post {{ translatedPost.title }}" class="post-image">
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-2">
+                            <small class="text-muted">
+                                {{ post.commentaires|length }} commentaire(s) •
+                                {% if rating.count > 0 %}
+                                    <span class="rating-display-stars" style="--rating: {{ rating.avg|number_format(2, '.', '') }};"></span>
+                                    {{ rating.avg|number_format(2, '.', '') }}/5
+                                {% else %}
+                                    Aucune note
+                                {% endif %}
+                                ({{ rating.count }} vote{{ rating.count > 1 ? 's' : '' }})
+                            </small>
+                            <a href="{{ path('forum_show', {id: post.id}) }}" class="btn btn-sm btn-outline-primary">Voir le post</a>
+                        </div>
+                    </article>
+                {% endfor %}
+
+                <div class="mt-3 d-flex justify-content-center">
+                    {{ knp_pagination_render(pagination) }}
+                </div>
+            {% else %}
+                <div class="feed-card">
+                    <div class="alert alert-info mb-0">Aucun post trouve.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
