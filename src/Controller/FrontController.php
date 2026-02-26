@@ -22,6 +22,15 @@ final class FrontController extends AbstractController
         return $this->render('front/menu.html.twig');
     }
 
+    #[Route('/produit', name: 'front_produit_legacy', methods: ['GET'])]
+    #[Route('/produit/', name: 'front_produit_legacy_slash', methods: ['GET'])]
+    #[Route('/produits', name: 'front_produits_legacy', methods: ['GET'])]
+    #[Route('/produits/', name: 'front_produits_legacy_slash', methods: ['GET'])]
+    public function produitsLegacy(): Response
+    {
+        return $this->redirectToRoute('front_menu');
+    }
+
     #[Route('/about', name: 'front_about', methods: ['GET'])]
     public function about(): Response
     {
