@@ -1,4 +1,72 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+  <div class="row g-3">
+    <div class="col-md-6">{{ form_row(form.nom, {'attr': {'class': 'form-control'}}) }}</div>
+    <div class="col-md-3">{{ form_row(form.prix, {'attr': {'class': 'form-control'}}) }}</div>
+    <div class="col-md-3">{{ form_row(form.stock, {'attr': {'class': 'form-control'}}) }}</div>
+    <div class="col-12">
+      {{ form_row(form.description, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+      <div class="d-flex align-items-center gap-2 mt-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="generateProduitDescriptionBtn">Generate AI Description</button>
+        <small id="generateProduitDescriptionStatus" class="text-muted"></small>
+      </div>
+    </div>
+    <div class="col-md-6">{{ form_row(form.imageFile, {'attr': {'class': 'form-control'}}) }}</div>
+    <div class="col-md-6">{{ form_row(form.statut, {'attr': {'class': 'form-control'}}) }}</div>
+  </div>
+  <div class="d-flex gap-2 justify-content-end mt-3">
+    <a href="{{ path('app_produit_index') }}" class="btn btn-outline-dark">Cancel</a>
+    <button class="btn btn-warning">{{ button_label|default('Save') }}</button>
+  </div>
 {{ form_end(form) }}
+
+<script>
+  (function () {
+    var btn = document.getElementById('generateProduitDescriptionBtn');
+    var status = document.getElementById('generateProduitDescriptionStatus');
+    var nameInput = document.querySelector('input[name$="[nom]"]');
+    var descInput = document.querySelector('textarea[name$="[description]"]');
+
+    if (!btn || !nameInput || !descInput) {
+      return;
+    }
+
+    function setStatus(text, isError) {
+      if (!status) return;
+      status.textContent = text;
+      status.className = isError ? 'text-danger' : 'text-muted';
+    }
+
+    btn.addEventListener('click', function () {
+      var name = String(nameInput.value || '').trim();
+      if (!name) {
+        setStatus('Enter product name first.', true);
+        return;
+      }
+
+      btn.disabled = true;
+      setStatus('Generating...', false);
+
+      fetch('{{ path('app_produit_ai_description') }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name })
+      })
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (data) {
+          if (!data || !data.description) {
+            setStatus('Generation failed. Retry.', true);
+            return;
+          }
+          descInput.value = data.description;
+          descInput.dispatchEvent(new Event('input', { bubbles: true }));
+          setStatus('Description generated.', false);
+        })
+        .catch(function () {
+          setStatus('Generation failed. Retry.', true);
+        })
+        .finally(function () {
+          btn.disabled = false;
+        });
+    });
+  })();
+</script>

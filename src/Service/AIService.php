@@ -15,6 +15,43 @@ class AIService
         $this->client = $client;
     }
 
+    public function generateProductDescription(string $name): string
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return 'A quality product selected for its reliable performance and everyday usefulness.';
+        }
+
+        $prefixes = [
+            'A carefully selected',
+            'A modern',
+            'A premium',
+            'A practical',
+            'A refined',
+        ];
+        $benefits = [
+            'designed to improve comfort and daily use.',
+            'crafted with attention to quality and durability.',
+            'offering a balanced combination of style and performance.',
+            'made for users looking for reliability and simplicity.',
+            'adapted to both personal and professional needs.',
+        ];
+        $useCases = [
+            'Ideal for everyday use.',
+            'A solid choice for regular use at home or work.',
+            'Suitable for people who value quality and efficiency.',
+            'Easy to integrate into your daily routine.',
+            'Built to deliver consistent results over time.',
+        ];
+
+        $seed = abs(crc32(mb_strtolower($name)));
+        $prefix = $prefixes[$seed % count($prefixes)];
+        $benefit = $benefits[$seed % count($benefits)];
+        $useCase = $useCases[$seed % count($useCases)];
+
+        return sprintf('%s %s %s %s', $prefix, $name, $benefit, $useCase);
+    }
+
     // Génération d'images sans API - services gratuits
     public function generateImage(string $title, string $description): ?string
     {

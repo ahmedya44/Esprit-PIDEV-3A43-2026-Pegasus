@@ -1,64 +1,50 @@
-{% extends 'base_front.html.twig' %}
+{% extends 'front/layout.html.twig' %}
 
-{% block title %}{{ produit.nom }} - Pegasus{% endblock %}
+{% set active_nav = 'market' %}
+
+{% block title %}{{ produit.nom }}{% endblock %}
 
 {% block body %}
-<section class="food_section layout_padding-bottom">
+<section class="forum-shell">
   <div class="container">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="img-box">
+    <div class="forum-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">{{ produit.nom }}</h1>
+        <a href="{{ path('app_produit_index') }}" class="btn btn-sm btn-outline-secondary">Back to Market</a>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3 mb-md-0">
           {% if produit.image %}
-            <img src="{{ asset('uploads/images/produits/' ~ produit.image) }}" alt="{{ produit.nom }}" style="width: 100%; border-radius: 10px;">
+            <img src="{{ asset('uploads/images/produits/' ~ produit.image) }}" alt="{{ produit.nom }}" class="img-fluid rounded" style="max-height: 420px; width: 100%; object-fit: cover;">
           {% else %}
-            <img src="{{ asset('front/images/f1.png') }}" alt="{{ produit.nom }}" style="width: 100%; border-radius: 10px;">
+            <img src="{{ asset('front/images/f1.png') }}" alt="{{ produit.nom }}" class="img-fluid rounded" style="max-height: 420px; width: 100%; object-fit: cover;">
           {% endif %}
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="detail-box">
-          <h2>{{ produit.nom }}</h2>
-          <p>{{ produit.description }}</p>
-          <h4 style="color: #ffbe33;">{{ produit.prix }} €</h4>
-          <p>Stock : {{ produit.stock }}</p>
-          {% if produit.categorie %}
-            <p>Catégorie : {{ produit.categorie.nom }}</p>
-          {% endif %}
-          <p>
-            Statut : 
-            {% if produit.statut == 'disponible' %}
-              <span style="color: green; font-weight: bold;">Disponible</span>
-            {% elseif produit.statut == 'rupture' %}
-              <span style="color: red; font-weight: bold;">Rupture de stock</span>
-            {% elseif produit.statut == 'bientot' %}
-              <span style="color: orange; font-weight: bold;">Bientôt disponible</span>
-            {% else %}
-              <span style="color: grey; font-weight: bold;">Archivé</span>
+        <div class="col-md-6">
+          <p class="text-muted">{{ produit.description ?: 'No description available.' }}</p>
+          <ul class="list-unstyled mb-4">
+            <li><strong>Price:</strong> {{ produit.prix }} EUR</li>
+            <li><strong>Stock:</strong> {{ produit.stock }}</li>
+            <li><strong>Status:</strong> {{ produit.statut }}</li>
+            {% if produit.categorie %}
+              <li><strong>Category:</strong> {{ produit.categorie.nom }}</li>
             {% endif %}
-          </p>
+          </ul>
 
           {% if produit.statut == 'disponible' %}
-            <form method="POST" action="{{ path('app_panier_ajouter', {'id': produit.id}) }}" style="margin-top: 20px;">
+            <form method="post" action="{{ path('app_panier_ajouter', {'id': produit.id}) }}" class="mb-3">
               <input type="hidden" name="_token" value="{{ csrf_token('panier') }}">
-              <div class="d-flex align-items-center" style="gap: 10px;">
-                <input type="number" name="quantite" value="1" min="1" max="{{ produit.stock }}" 
-                       class="form-control" style="width: 80px;">
-                <button type="submit" class="btn" style="background-color: #ffbe33; border: none; font-weight: bold; padding: 10px 20px;">
-                  <i class="fa fa-shopping-cart"></i> Ajouter au panier
-                </button>
+              <div class="d-flex gap-2 align-items-center">
+                <input type="number" name="quantite" value="1" min="1" max="{{ produit.stock }}" class="form-control" style="width: 90px;">
+                <button type="submit" class="btn btn-warning"><i class="fa fa-shopping-cart"></i> Add to cart</button>
               </div>
             </form>
           {% endif %}
 
-          <div style="margin-top: 20px;">
-            <a href="{{ path('app_produit_index') }}" class="btn1">Retour à la liste</a>
-            <a href="{{ path('app_panier_index') }}" class="btn1" style="margin-left: 10px;">
-              <i class="fa fa-shopping-cart"></i> Voir le panier
-            </a>
-          </div>
-
-          <div style="margin-top: 10px;">
-            <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" class="btn btn-sm btn-secondary">Modifier</a>
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ path('app_panier_index') }}" class="btn btn-outline-dark">View cart</a>
+            <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" class="btn btn-outline-primary">Edit</a>
             {{ include('produit/_delete_form.html.twig') }}
           </div>
         </div>

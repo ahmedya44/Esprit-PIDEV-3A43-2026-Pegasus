@@ -6,8 +6,10 @@ use App\Entity\Produit;
 use App\Form\ProduitType;
 use App\Repository\ProduitRepository;
 use App\Repository\CategorieRepository;
+use App\Service\AIService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -52,6 +54,25 @@ final class ProduitController extends AbstractController
         return $this->render('produit/new.html.twig', [
             'produit' => $produit,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/ai/description', name: 'app_produit_ai_description', methods: ['POST'])]
+    public function aiDescription(Request $request, AIService $aiService): JsonResponse
+    {
+        try {
+            $payload = $request->toArray();
+        } catch (\Throwable) {
+            return $this->json(['error' => 'Invalid request payload.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $name = trim((string) ($payload['name'] ?? ''));
+        if ($name === '') {
+            return $this->json(['error' => 'Product name is required.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        return $this->json([
+            'description' => $aiService->generateProductDescription($name),
         ]);
     }
 

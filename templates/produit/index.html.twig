@@ -1,120 +1,79 @@
-{% extends 'base_front.html.twig' %}
+{% extends 'front/layout.html.twig' %}
 
-{% block title %}Nos Produits - Pegasus{% endblock %}
+{% set active_nav = 'market' %}
+
+{% block title %}Market{% endblock %}
 
 {% block body %}
-<section class="food_section layout_padding-bottom">
+<section class="forum-shell">
   <div class="container">
-    <div class="heading_container heading_center">
-      <h2>Nos Produits</h2>
-    </div>
-
-    <!-- Barre de recherche et filtres -->
-    <div class="row mt-4 mb-4">
-      <div class="col-12">
-        <form method="GET" action="{{ path('app_produit_index') }}">
-          <div class="row g-2">
-            <div class="col-md-5">
-              <input type="text" name="search" value="{{ search }}" 
-                     class="form-control" placeholder="Rechercher un produit...">
-            </div>
-            <div class="col-md-3">
-              <select name="categorie" class="form-control">
-                <option value="">Toutes les catégories</option>
-                {% for categorie in categories %}
-                  <option value="{{ categorie.id }}" {% if categorieId == categorie.id ~ '' %}selected{% endif %}>
-                    {{ categorie.nom }}
-                  </option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-md-3">
-              <select name="tri" class="form-control">
-                <option value="">Trier par...</option>
-                <option value="prix_asc" {% if tri == 'prix_asc' %}selected{% endif %}>Prix croissant</option>
-                <option value="prix_desc" {% if tri == 'prix_desc' %}selected{% endif %}>Prix décroissant</option>
-                <option value="nom_asc" {% if tri == 'nom_asc' %}selected{% endif %}>Nom A-Z</option>
-                <option value="nom_desc" {% if tri == 'nom_desc' %}selected{% endif %}>Nom Z-A</option>
-              </select>
-            </div>
-            <div class="col-md-1">
-              <button type="submit" class="btn btn-warning w-100" style="background-color: #ffbe33; border:none;">
-                <i class="fa fa-search"></i>
-              </button>
-            </div>
-          </div>
-          {% if search or categorieId or tri %}
-            <div class="mt-2">
-              <a href="{{ path('app_produit_index') }}" class="btn btn-sm btn-secondary">
-                Réinitialiser les filtres
-              </a>
-            </div>
-          {% endif %}
-        </form>
+    <div class="forum-card">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 mb-1">Market</h1>
+          <p class="text-muted mb-0">Browse all products.</p>
+        </div>
+        <a href="{{ path('app_produit_new') }}" class="btn btn-warning">Add Product</a>
       </div>
-    </div>
 
-    <!-- Liste des produits -->
-    <div class="row grid">
-      {% for produit in produits %}
-        <div class="col-sm-6 col-lg-4">
-          <div class="box">
-            <div>
-              <div class="img-box">
-                {% if produit.image %}
-                  <img src="{{ asset('uploads/images/produits/' ~ produit.image) }}" alt="{{ produit.nom }}">
-                {% else %}
-                  <img src="{{ asset('front/images/f1.png') }}" alt="{{ produit.nom }}">
-                {% endif %}
-              </div>
-              <div class="detail-box">
-                <h5>{{ produit.nom }}</h5>
-                <p>{{ produit.description|slice(0, 80) }}{% if produit.description|length > 80 %}...{% endif %}</p>
-                {% if produit.categorie %}
-                  <span class="badge" style="background-color: #ffbe33; color: #000; font-size: 0.75rem;">
-                    {{ produit.categorie.nom }}
-                  </span>
-                {% endif %}
-                <div class="options">
-                  <h6>{{ produit.prix }} €</h6>
-                  <a href="{{ path('app_produit_show', {'id': produit.id}) }}">
-                    <i class="fa fa-eye"></i>
-                  </a>
+      {% for type, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="alert alert-{{ type == 'error' ? 'danger' : type }} mb-3">{{ message }}</div>
+        {% endfor %}
+      {% endfor %}
+
+      <form method="get" action="{{ path('app_produit_index') }}" class="row g-2 mb-4" data-live-search-form="1">
+        <div class="col-md-5">
+          <input type="text" name="search" value="{{ search }}" class="form-control" placeholder="Search products..." data-live-search-input="1">
+        </div>
+        <div class="col-md-3">
+          <select name="categorie" class="form-control" data-live-search-filter="1">
+            <option value="">All categories</option>
+            {% for categorie in categories %}
+              <option value="{{ categorie.id }}" {% if categorieId == categorie.id ~ '' %}selected{% endif %}>{{ categorie.nom }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select name="tri" class="form-control" data-live-search-filter="1">
+            <option value="">Sort by...</option>
+            <option value="prix_asc" {% if tri == 'prix_asc' %}selected{% endif %}>Price low to high</option>
+            <option value="prix_desc" {% if tri == 'prix_desc' %}selected{% endif %}>Price high to low</option>
+            <option value="nom_asc" {% if tri == 'nom_asc' %}selected{% endif %}>Name A-Z</option>
+            <option value="nom_desc" {% if tri == 'nom_desc' %}selected{% endif %}>Name Z-A</option>
+          </select>
+        </div>
+        <div class="col-md-1">
+          <button type="submit" class="btn btn-dark w-100"><i class="fa fa-search"></i></button>
+        </div>
+      </form>
+
+      <div class="row">
+        {% for produit in produits %}
+          <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+              {% if produit.image %}
+                <img src="{{ asset('uploads/images/produits/' ~ produit.image) }}" class="card-img-top" alt="{{ produit.nom }}" style="height: 220px; object-fit: cover;">
+              {% else %}
+                <img src="{{ asset('front/images/f1.png') }}" class="card-img-top" alt="{{ produit.nom }}" style="height: 220px; object-fit: cover;">
+              {% endif %}
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ produit.nom }}</h5>
+                <p class="card-text text-muted">{{ produit.description ? produit.description|slice(0, 100) : 'No description' }}{% if produit.description and produit.description|length > 100 %}...{% endif %}</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <strong>{{ produit.prix }} EUR</strong>
+                  <a href="{{ path('app_produit_show', {'id': produit.id}) }}" class="btn btn-sm btn-outline-dark">Details</a>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      {% else %}
-        <div class="col-12 text-center">
-          <p>Aucun produit trouvé.</p>
-          <a href="{{ path('app_produit_index') }}" class="btn1">Voir tous les produits</a>
-        </div>
-      {% endfor %}
+        {% else %}
+          <div class="col-12">
+            <div class="alert alert-light border text-center mb-0">No products found.</div>
+          </div>
+        {% endfor %}
+      </div>
     </div>
-
   </div>
 </section>
-{% endblock %}
-
-{% block javascripts %}
-  <script>
-    // Recherche automatique après 500ms de pause
-    document.querySelector('input[name="search"]').addEventListener('input', function() {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(function() {
-        document.querySelector('form').submit();
-      }, 500);
-    });
-
-    // Filtre catégorie automatique
-    document.querySelector('select[name="categorie"]').addEventListener('change', function() {
-      document.querySelector('form').submit();
-    });
-
-    // Tri automatique
-    document.querySelector('select[name="tri"]').addEventListener('change', function() {
-      document.querySelector('form').submit();
-    });
-  </script>
 {% endblock %}
