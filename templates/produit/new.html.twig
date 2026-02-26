@@ -1,0 +1,21 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Ajouter un produit - Pegasus{% endblock %}
+
+{% block body %}
+<section class="food_section layout_padding-bottom">
+  <div class="container">
+    <div class="heading_container heading_center">
+      <h2>Ajouter un produit</h2>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="box" style="padding: 30px;">
+          {{ include('produit/_form.html.twig') }}
+          <a href="{{ path('app_produit_index') }}" class="btn1" style="margin-top: 10px;">Retour à la liste</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
