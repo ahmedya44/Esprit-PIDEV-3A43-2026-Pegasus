@@ -113,7 +113,7 @@ class ForumController extends AbstractController
         $post = new Post();
         $post->setStatus(Post::STATUS_OPEN);
         $post->setOwner($user);
-        $post->setAuthorName($user->getDisplayName());
+        $post->setAuthorName($user->getUsername());
         $post->setAuthorEmail($user->getEmail());
 
         $form = $this->createForm(PostType::class, $post, ['is_admin' => false]);
@@ -124,7 +124,7 @@ class ForumController extends AbstractController
 
             $owner = $post->getOwner();
             if ($owner instanceof User) {
-                $post->setAuthorName($owner->getDisplayName());
+                $post->setAuthorName($owner->getUsername());
                 $post->setAuthorEmail($owner->getEmail());
             }
 
@@ -322,7 +322,7 @@ class ForumController extends AbstractController
         $commentaire = new Commentaire();
         $commentaire->setPost($post);
         $commentaire->setOwner($user);
-        $commentaire->setAuthorName($user->getDisplayName());
+        $commentaire->setAuthorName($user->getUsername());
         $commentaire->setAuthorEmail($user->getEmail());
         $locale = $this->selectedTranslationLocale($request);
         $commentActionParams = ['id' => $post->getId()];
@@ -339,7 +339,7 @@ class ForumController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $owner = $commentaire->getOwner();
             if ($owner instanceof User) {
-                $commentaire->setAuthorName($owner->getDisplayName());
+                $commentaire->setAuthorName($owner->getUsername());
                 $commentaire->setAuthorEmail($owner->getEmail());
             }
 
@@ -662,3 +662,4 @@ class ForumController extends AbstractController
         }
     }
 }
+

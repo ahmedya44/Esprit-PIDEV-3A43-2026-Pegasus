@@ -18,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-#[Route('/admin/forum', name: 'admin_forum_')]
+#[Route('/back/forum', name: 'admin_forum_')]
 class ForumAdminController extends AbstractController
 {
     private const TRANSLATABLE_LOCALES = [
@@ -79,7 +79,7 @@ class ForumAdminController extends AbstractController
 
         $post = new Post();
         $post->setOwner($user);
-        $post->setAuthorName($user->getDisplayName());
+        $post->setAuthorName($user->getUsername());
         $post->setAuthorEmail($user->getEmail());
 
         $form = $this->createForm(PostType::class, $post, ['is_admin' => true]);
@@ -88,7 +88,7 @@ class ForumAdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $owner = $post->getOwner();
             if ($owner instanceof User) {
-                $post->setAuthorName($owner->getDisplayName());
+                $post->setAuthorName($owner->getUsername());
                 $post->setAuthorEmail($owner->getEmail());
             }
 
@@ -140,7 +140,7 @@ class ForumAdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $owner = $post->getOwner();
             if ($owner instanceof User) {
-                $post->setAuthorName($owner->getDisplayName());
+                $post->setAuthorName($owner->getUsername());
                 $post->setAuthorEmail($owner->getEmail());
             }
 
@@ -285,7 +285,7 @@ class ForumAdminController extends AbstractController
         $currentLang = $this->resolveAdminLocale($request);
 
         if ($commentaire->getOwner() !== null) {
-            $commentaire->setAuthorName($commentaire->getOwner()->getDisplayName());
+            $commentaire->setAuthorName($commentaire->getOwner()->getUsername());
             $commentaire->setAuthorEmail($commentaire->getOwner()->getEmail());
         }
 
@@ -532,3 +532,4 @@ class ForumAdminController extends AbstractController
         ];
     }
 }
+

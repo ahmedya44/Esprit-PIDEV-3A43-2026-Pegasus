@@ -92,21 +92,203 @@
       <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
           <ul class="nav nav-secondary">
+            <li class="nav-item active">
+              <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="dashboard">
+                <ul class="nav nav-collapse">
+                  <li>
+                    <a href="../demo1/index.html">
+                      <span class="sub-item">Dashboard 1</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
             <li class="nav-item">
-              <a href="{{ path('back_dashboard') }}"><i class="fas fa-home"></i><p>Dashboard</p></a>
+              <a href="{{ path('back_users') }}">
+                <i class="fas fa-users"></i>
+                <p>Users</p>
+              </a>
             </li>
             <li class="nav-section">
-              <span class="sidebar-mini-icon"><i class="fa fa-ellipsis-h"></i></span>
+              <span class="sidebar-mini-icon">
+                <i class="fa fa-ellipsis-h"></i>
+              </span>
               <h4 class="text-section">Forum</h4>
             </li>
             <li class="nav-item">
-              <a href="{{ path('admin_forum_posts_index') }}"><i class="fas fa-comments"></i><p>Sujets</p></a>
+              <a data-bs-toggle="collapse" href="#forumMenu">
+                <i class="fas fa-comments"></i>
+                <p>Forum</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="forumMenu">
+                <ul class="nav nav-collapse">
+                  <li>
+                    <a href="{{ path('admin_forum_posts_index') }}">
+                      <span class="sub-item">Sujets</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{{ path('admin_forum_comments_index') }}">
+                      <span class="sub-item">Commentaires</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{{ path('admin_forum_stats_index') }}">
+                      <span class="sub-item">Statistiques</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{{ path('admin_forum_post_new') }}">
+                      <span class="sub-item">Nouveau sujet</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-section">
+              <span class="sidebar-mini-icon">
+                <i class="fa fa-ellipsis-h"></i>
+              </span>
+              <h4 class="text-section">Components</h4>
             </li>
             <li class="nav-item">
-              <a href="{{ path('admin_forum_comments_index') }}"><i class="fas fa-comment-dots"></i><p>Commentaires</p></a>
+              <a data-bs-toggle="collapse" href="#base">
+                <i class="fas fa-layer-group"></i>
+                <p>Base</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="base">
+                <ul class="nav nav-collapse">
+                  <li><a href="components/avatars.html"><span class="sub-item">Avatars</span></a></li>
+                  <li><a href="components/buttons.html"><span class="sub-item">Buttons</span></a></li>
+                  <li><a href="components/gridsystem.html"><span class="sub-item">Grid System</span></a></li>
+                  <li><a href="components/panels.html"><span class="sub-item">Panels</span></a></li>
+                  <li><a href="components/notifications.html"><span class="sub-item">Notifications</span></a></li>
+                  <li><a href="components/sweetalert.html"><span class="sub-item">Sweet Alert</span></a></li>
+                  <li><a href="components/font-awesome-icons.html"><span class="sub-item">Font Awesome Icons</span></a></li>
+                  <li><a href="components/simple-line-icons.html"><span class="sub-item">Simple Line Icons</span></a></li>
+                  <li><a href="components/typography.html"><span class="sub-item">Typography</span></a></li>
+                </ul>
+              </div>
             </li>
             <li class="nav-item">
-              <a href="{{ path('front_home') }}"><i class="fas fa-globe"></i><p>Voir le site</p></a>
+              <a data-bs-toggle="collapse" href="#sidebarLayouts">
+                <i class="fas fa-th-list"></i>
+                <p>Sidebar Layouts</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="sidebarLayouts">
+                <ul class="nav nav-collapse">
+                  <li><a href="sidebar-style-2.html"><span class="sub-item">Sidebar Style 2</span></a></li>
+                  <li><a href="icon-menu.html"><span class="sub-item">Icon Menu</span></a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#forms">
+                <i class="fas fa-pen-square"></i>
+                <p>Forms</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="forms">
+                <ul class="nav nav-collapse">
+                  <li><a href="forms/forms.html"><span class="sub-item">Basic Form</span></a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#tables">
+                <i class="fas fa-table"></i>
+                <p>Tables</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="tables">
+                <ul class="nav nav-collapse">
+                  <li><a href="tables/tables.html"><span class="sub-item">Basic Table</span></a></li>
+                  <li><a href="tables/datatables.html"><span class="sub-item">Datatables</span></a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#maps">
+                <i class="fas fa-map-marker-alt"></i>
+                <p>Maps</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="maps">
+                <ul class="nav nav-collapse">
+                  <li><a href="maps/googlemaps.html"><span class="sub-item">Google Maps</span></a></li>
+                  <li><a href="maps/jsvectormap.html"><span class="sub-item">Jsvectormap</span></a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#charts">
+                <i class="far fa-chart-bar"></i>
+                <p>Charts</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="charts">
+                <ul class="nav nav-collapse">
+                  <li><a href="charts/charts.html"><span class="sub-item">Chart Js</span></a></li>
+                  <li><a href="charts/sparkline.html"><span class="sub-item">Sparkline</span></a></li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a href="widgets.html">
+                <i class="fas fa-desktop"></i>
+                <p>Widgets</p>
+                <span class="badge badge-success">4</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="../../documentation/index.html">
+                <i class="fas fa-file"></i>
+                <p>Documentation</p>
+                <span class="badge badge-secondary">1</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#submenu">
+                <i class="fas fa-bars"></i>
+                <p>Menu Levels</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="submenu">
+                <ul class="nav nav-collapse">
+                  <li>
+                    <a data-bs-toggle="collapse" href="#subnav1">
+                      <span class="sub-item">Level 1</span>
+                      <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="subnav1">
+                      <ul class="nav nav-collapse subnav">
+                        <li><a href="#"><span class="sub-item">Level 2</span></a></li>
+                        <li><a href="#"><span class="sub-item">Level 2</span></a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li>
+                    <a data-bs-toggle="collapse" href="#subnav2">
+                      <span class="sub-item">Level 1</span>
+                      <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="subnav2">
+                      <ul class="nav nav-collapse subnav">
+                        <li><a href="#"><span class="sub-item">Level 2</span></a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li><a href="#"><span class="sub-item">Level 1</span></a></li>
+                </ul>
+              </div>
             </li>
           </ul>
         </div>
@@ -152,6 +334,226 @@
         // Keep native textarea if CDN is unavailable.
       });
     });
+  </script>
+  <script>
+    (function () {
+      var endpoint = '{{ path('forum_ai_autocomplete') }}';
+      var csrfToken = '{{ csrf_token('forum_ai_autocomplete') }}';
+
+      function normalizePlainText(value) {
+        return String(value || '')
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function getFieldText(field) {
+        if (field._ckeditorInstance) {
+          return normalizePlainText(field._ckeditorInstance.getData());
+        }
+        return normalizePlainText(field.value);
+      }
+
+      function setFieldText(field, value) {
+        if (field._ckeditorInstance) {
+          field._ckeditorInstance.setData(value);
+          field._ckeditorInstance.editing.view.focus();
+          return;
+        }
+        field.value = value;
+        field.focus();
+        field.setSelectionRange(field.value.length, field.value.length);
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      function bindAutocomplete(field) {
+        var fieldType = field.getAttribute('data-ai-field');
+        if (!fieldType || field.dataset.aiBound === '1') {
+          return;
+        }
+        field.dataset.aiBound = '1';
+
+        var box = document.createElement('div');
+        box.className = 'ai-suggest-box';
+        box.innerHTML = '<div class="ai-suggest-title">Suggestions IA</div><div class="ai-suggest-items"></div>';
+        var list = box.querySelector('.ai-suggest-items');
+        field.parentNode.appendChild(box);
+
+        var timer = null;
+        var lastQuery = '';
+        var lastRequestedText = '';
+        var lastRequestedAt = 0;
+        var lastSuggestions = [];
+        var inflightController = null;
+        var requestCache = new Map();
+
+        function closeBox() {
+          box.classList.remove('is-open');
+          list.innerHTML = '';
+        }
+
+        function renderSuggestions(suggestions) {
+          list.innerHTML = '';
+          if (!Array.isArray(suggestions) || suggestions.length === 0) {
+            closeBox();
+            return;
+          }
+
+          suggestions.forEach(function (text) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'ai-suggest-item';
+            btn.textContent = text;
+            btn.addEventListener('mousedown', function (event) {
+              event.preventDefault();
+              setFieldText(field, text);
+              closeBox();
+            });
+            list.appendChild(btn);
+          });
+
+          box.classList.add('is-open');
+        }
+
+        function renderFromLocal(text) {
+          if (!Array.isArray(lastSuggestions) || lastSuggestions.length === 0) {
+            closeBox();
+            return;
+          }
+
+          var lowered = text.toLowerCase();
+          var filtered = lastSuggestions.filter(function (item) {
+            return String(item).toLowerCase().indexOf(lowered) === 0;
+          });
+
+          if (filtered.length === 0) {
+            closeBox();
+            return;
+          }
+
+          renderSuggestions(filtered);
+        }
+
+        function collectContext() {
+          var form = field.form;
+          if (!form) {
+            return '';
+          }
+
+          if (fieldType === 'post_title') {
+            var c = form.querySelector('[data-ai-field="post_content"]');
+            return c ? getFieldText(c) : '';
+          }
+          if (fieldType === 'post_content') {
+            var t = form.querySelector('[data-ai-field="post_title"]');
+            return t ? getFieldText(t) : '';
+          }
+
+          var p = form.querySelector('[data-ai-field="post_title"]');
+          return p ? getFieldText(p) : '';
+        }
+
+        function requestSuggestions() {
+          var text = getFieldText(field);
+          if (text.length < 1) {
+            closeBox();
+            return;
+          }
+          if (text === lastQuery) {
+            renderFromLocal(text);
+            return;
+          }
+          lastQuery = text;
+
+          var context = collectContext();
+          var cacheKey = fieldType + '|' + text + '|' + context;
+          if (requestCache.has(cacheKey)) {
+            var cached = requestCache.get(cacheKey);
+            lastSuggestions = Array.isArray(cached) ? cached : [];
+            renderSuggestions(lastSuggestions);
+            return;
+          }
+
+          var now = Date.now();
+          var minGapMs = 1200;
+          var grewEnough = Math.abs(text.length - lastRequestedText.length) >= 3;
+          var isFirstLetter = text.length === 1;
+          if (!isFirstLetter && (now - lastRequestedAt) < minGapMs && !grewEnough) {
+            renderFromLocal(text);
+            return;
+          }
+
+          if (inflightController) {
+            inflightController.abort();
+          }
+          inflightController = new AbortController();
+
+          fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': csrfToken,
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            signal: inflightController.signal,
+            body: JSON.stringify({
+              field: fieldType,
+              text: text,
+              context: context
+            })
+          })
+            .then(function (response) { return response.ok ? response.json() : null; })
+            .then(function (data) {
+              inflightController = null;
+              if (!data || !Array.isArray(data.suggestions)) {
+                closeBox();
+                return;
+              }
+              lastRequestedAt = Date.now();
+              lastRequestedText = text;
+              lastSuggestions = data.suggestions;
+              requestCache.set(cacheKey, data.suggestions);
+              renderSuggestions(data.suggestions);
+            })
+            .catch(function (error) {
+              inflightController = null;
+              if (error && error.name === 'AbortError') {
+                return;
+              }
+              closeBox();
+            });
+        }
+
+        function schedule() {
+          if (timer) {
+            clearTimeout(timer);
+          }
+          timer = setTimeout(requestSuggestions, 350);
+        }
+
+        field.addEventListener('input', schedule);
+        field.addEventListener('blur', function () {
+          setTimeout(closeBox, 180);
+        });
+        box.addEventListener('mousedown', function (event) {
+          event.preventDefault();
+        });
+
+        if (field._ckeditorInstance) {
+          field._ckeditorInstance.model.document.on('change:data', schedule);
+        } else {
+          field.addEventListener('ckeditor:ready', function (event) {
+            var editor = event.detail && event.detail.editor ? event.detail.editor : field._ckeditorInstance;
+            if (editor) {
+              editor.model.document.on('change:data', schedule);
+            }
+          });
+        }
+      }
+
+      document.querySelectorAll('[data-ai-autocomplete="1"]').forEach(bindAutocomplete);
+    })();
   </script>
   <script>
     (function () {

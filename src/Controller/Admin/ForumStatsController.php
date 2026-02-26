@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/forum/stats', name: 'admin_forum_stats_')]
+#[Route('/back/forum/stats', name: 'admin_forum_stats_')]
 class ForumStatsController extends AbstractController
 {
     #[Route('', name: 'index', methods: ['GET'])]

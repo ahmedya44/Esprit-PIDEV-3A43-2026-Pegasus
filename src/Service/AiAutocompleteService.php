@@ -67,12 +67,22 @@ class AiAutocompleteService
 
     private function buildGeminiUrl(): string
     {
+        $baseUrl = rtrim(trim($this->apiUrl), '/');
         $model = trim($this->model);
-        if (str_starts_with($model, 'models/')) {
+
+        if ($model === '') {
+            return $baseUrl . '/models/gemini-2.5-flash:generateContent';
+        }
+
+        if (!str_starts_with($model, 'models/')) {
+            $model = 'models/' . $model;
+        }
+
+        if (str_ends_with($baseUrl, '/models') && str_starts_with($model, 'models/')) {
             $model = substr($model, strlen('models/'));
         }
 
-        return rtrim($this->apiUrl, '/') . '/' . $model . ':generateContent';
+        return $baseUrl . '/' . $model . ':generateContent';
     }
 
     private function buildPrompt(string $field, string $text, string $context, string $locale, int $limit): string

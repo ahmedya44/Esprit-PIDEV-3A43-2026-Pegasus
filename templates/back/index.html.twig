@@ -95,11 +95,48 @@
                   </ul>
                 </div>
               </li>
-                            <li class="nav-item">
+              <li class="nav-item">
                 <a href="{{ path('back_users') }}">
                   <i class="fas fa-users"></i>
                   <p>Users</p>
                 </a>
+              </li>
+              <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                <h4 class="text-section">Forum</h4>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#forumMenu">
+                  <i class="fas fa-comments"></i>
+                  <p>Forum</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="forumMenu">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ path('admin_forum_posts_index') }}">
+                        <span class="sub-item">Sujets</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ path('admin_forum_comments_index') }}">
+                        <span class="sub-item">Commentaires</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ path('admin_forum_stats_index') }}">
+                        <span class="sub-item">Statistiques</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a href="{{ path('admin_forum_post_new') }}">
+                        <span class="sub-item">Nouveau sujet</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
               </li>
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
