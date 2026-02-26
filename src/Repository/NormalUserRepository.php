@@ -16,6 +16,25 @@ class NormalUserRepository extends ServiceEntityRepository
         parent::__construct($registry, NormalUser::class);
     }
 
+    /**
+     * @return list<NormalUser>
+     */
+    public function findAllForBackOffice(string $sortBy = 'createdAt', string $sortDir = 'DESC'): array
+    {
+        $allowed = ['createdAt', 'username', 'email', 'status', 'id'];
+        if (!in_array($sortBy, $allowed, true)) {
+            $sortBy = 'createdAt';
+        }
+
+        $sortDir = strtoupper($sortDir) === 'ASC' ? 'ASC' : 'DESC';
+
+        return $this->createQueryBuilder('n')
+            ->orderBy('n.'.$sortBy, $sortDir)
+            ->addOrderBy('n.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return NormalUser[] Returns an array of NormalUser objects
     //     */

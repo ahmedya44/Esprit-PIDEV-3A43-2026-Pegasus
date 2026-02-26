@@ -46,6 +46,7 @@ security:
     access_control:
         - { path: ^/back/login$, roles: PUBLIC_ACCESS }
         - { path: ^/back/logout$, roles: PUBLIC_ACCESS }
+        - { path: ^/back/connect/google, roles: PUBLIC_ACCESS }
         - { path: ^/back, roles: ROLE_ADMIN }
 
 when@test:

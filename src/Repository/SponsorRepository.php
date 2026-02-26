@@ -16,6 +16,25 @@ class SponsorRepository extends ServiceEntityRepository
         parent::__construct($registry, Sponsor::class);
     }
 
+    /**
+     * @return list<Sponsor>
+     */
+    public function findAllForBackOffice(string $sortBy = 'createdAt', string $sortDir = 'DESC'): array
+    {
+        $allowed = ['createdAt', 'username', 'email', 'status', 'id'];
+        if (!in_array($sortBy, $allowed, true)) {
+            $sortBy = 'createdAt';
+        }
+
+        $sortDir = strtoupper($sortDir) === 'ASC' ? 'ASC' : 'DESC';
+
+        return $this->createQueryBuilder('s')
+            ->orderBy('s.'.$sortBy, $sortDir)
+            ->addOrderBy('s.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Sponsor[] Returns an array of Sponsor objects
     //     */

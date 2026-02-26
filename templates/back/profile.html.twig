@@ -762,21 +762,44 @@
                     <input id="usersSearch" type="text" class="form-control js-users-search" placeholder="Type username, email, phone, status...">
                   </div>
 
+                  <form method="get" action="{{ path('back_users') }}" class="row g-2 align-items-end mb-3">
+                    <div class="col-md-4">
+                      <label class="form-label mb-1">Sort by</label>
+                      <select class="form-select form-select-sm" name="sort_by">
+                        <option value="createdAt" {{ sort_by|default('createdAt') == 'createdAt' ? 'selected' : '' }}>Created At</option>
+                        <option value="username" {{ sort_by|default('createdAt') == 'username' ? 'selected' : '' }}>Username</option>
+                        <option value="email" {{ sort_by|default('createdAt') == 'email' ? 'selected' : '' }}>Email</option>
+                        <option value="status" {{ sort_by|default('createdAt') == 'status' ? 'selected' : '' }}>Status</option>
+                        <option value="id" {{ sort_by|default('createdAt') == 'id' ? 'selected' : '' }}>ID</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label mb-1">Direction</label>
+                      <select class="form-select form-select-sm" name="sort_dir">
+                        <option value="DESC" {{ sort_dir|default('DESC') == 'DESC' ? 'selected' : '' }}>Descending</option>
+                        <option value="ASC" {{ sort_dir|default('DESC') == 'ASC' ? 'selected' : '' }}>Ascending</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2">
+                      <button class="btn btn-primary btn-sm w-100" type="submit">Apply</button>
+                    </div>
+                  </form>
+
                   <h5 class="mb-3">Admins</h5>
                   <div class="table-responsive mb-4">
                     <table class="table table-striped table-bordered js-users-table">
                       <thead>
                         <tr>
-                          <th class="js-sortable" data-type="number">ID</th>
-                          <th class="js-sortable">Username</th>
-                          <th class="js-sortable">Email</th>
-                          <th class="js-sortable">Roles</th>
-                          <th class="js-sortable">Phone</th>
-                          <th class="js-sortable">Avatar URL</th>
-                          <th class="js-sortable">Created At</th>
-                          <th class="js-sortable">Status</th>
-                          <th class="js-sortable">Birth Date</th>
-                          <th class="js-sortable">Super Admin</th>
+                          <th>ID</th>
+                          <th>Username</th>
+                          <th>Email</th>
+                          <th>Roles</th>
+                          <th>Phone</th>
+                          <th>Avatar URL</th>
+                          <th>Created At</th>
+                          <th>Status</th>
+                          <th>Birth Date</th>
+                          <th>Super Admin</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -829,21 +852,21 @@
                     <table class="table table-striped table-bordered js-users-table">
                       <thead>
                         <tr>
-                          <th class="js-sortable" data-type="number">ID</th>
-                          <th class="js-sortable">Username</th>
-                          <th class="js-sortable">Email</th>
-                          <th class="js-sortable">Roles</th>
-                          <th class="js-sortable">Phone</th>
-                          <th class="js-sortable">Avatar URL</th>
-                          <th class="js-sortable">Created At</th>
-                          <th class="js-sortable">Status</th>
-                          <th class="js-sortable">Birth Date</th>
-                          <th class="js-sortable">Bio</th>
-                          <th class="js-sortable">Styles</th>
-                          <th class="js-sortable">Facebook</th>
-                          <th class="js-sortable">Instagram</th>
-                          <th class="js-sortable">Portfolio URL</th>
-                          <th class="js-sortable">Verified</th>
+                          <th>ID</th>
+                          <th>Username</th>
+                          <th>Email</th>
+                          <th>Roles</th>
+                          <th>Phone</th>
+                          <th>Avatar URL</th>
+                          <th>Created At</th>
+                          <th>Status</th>
+                          <th>Birth Date</th>
+                          <th>Bio</th>
+                          <th>Styles</th>
+                          <th>Facebook</th>
+                          <th>Instagram</th>
+                          <th>Portfolio URL</th>
+                          <th>Verified</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -905,19 +928,19 @@
                     <table class="table table-striped table-bordered js-users-table">
                       <thead>
                         <tr>
-                          <th class="js-sortable" data-type="number">ID</th>
-                          <th class="js-sortable">Username</th>
-                          <th class="js-sortable">Email</th>
-                          <th class="js-sortable">Roles</th>
-                          <th class="js-sortable">Phone</th>
-                          <th class="js-sortable">Avatar URL</th>
-                          <th class="js-sortable">Created At</th>
-                          <th class="js-sortable">Status</th>
-                          <th class="js-sortable">Company Name</th>
-                          <th class="js-sortable">Website</th>
-                          <th class="js-sortable">Address</th>
-                          <th class="js-sortable">Description</th>
-                          <th class="js-sortable">Verified</th>
+                          <th>ID</th>
+                          <th>Username</th>
+                          <th>Email</th>
+                          <th>Roles</th>
+                          <th>Phone</th>
+                          <th>Avatar URL</th>
+                          <th>Created At</th>
+                          <th>Status</th>
+                          <th>Company Name</th>
+                          <th>Website</th>
+                          <th>Address</th>
+                          <th>Description</th>
+                          <th>Verified</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -977,15 +1000,15 @@
                     <table class="table table-striped table-bordered js-users-table">
                       <thead>
                         <tr>
-                          <th class="js-sortable" data-type="number">ID</th>
-                          <th class="js-sortable">Username</th>
-                          <th class="js-sortable">Email</th>
-                          <th class="js-sortable">Roles</th>
-                          <th class="js-sortable">Phone</th>
-                          <th class="js-sortable">Avatar URL</th>
-                          <th class="js-sortable">Created At</th>
-                          <th class="js-sortable">Status</th>
-                          <th class="js-sortable">Birth Date</th>
+                          <th>ID</th>
+                          <th>Username</th>
+                          <th>Email</th>
+                          <th>Roles</th>
+                          <th>Phone</th>
+                          <th>Avatar URL</th>
+                          <th>Created At</th>
+                          <th>Status</th>
+                          <th>Birth Date</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
@@ -1013,10 +1036,6 @@
                                     </select>
                                     <button class="btn btn-outline-primary" type="submit">Apply</button>
                                   </div>
-                                </form>
-                                <form method="post" action="{{ path('back_users_promote_admin', {'id': u.id}) }}" onsubmit="return confirm('Are you sure you want to upgrade this normal user to admin?');">
-                                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_promote_admin_' ~ u.id) }}">
-                                  <button class="btn btn-sm btn-outline-success" type="submit">Promote to Admin</button>
                                 </form>
                               {% else %}
                                 -
@@ -1186,42 +1205,10 @@
         });
       }
 
-      document.querySelectorAll('.js-users-table').forEach(function (table) {
-        table.querySelectorAll('th.js-sortable').forEach(function (header, index) {
-          header.style.cursor = 'pointer';
-          header.title = 'Click to sort';
-          header.addEventListener('click', function () {
-            var type = header.dataset.type || 'text';
-            var asc = header.dataset.order !== 'asc';
-            header.dataset.order = asc ? 'asc' : 'desc';
-
-            var tbody = table.querySelector('tbody');
-            var rows = Array.from(tbody.querySelectorAll('tr')).filter(function (row) {
-              return !row.querySelector('td[colspan]');
-            });
-
-            rows.sort(function (a, b) {
-              var av = a.children[index].textContent.trim();
-              var bv = b.children[index].textContent.trim();
-
-              if (type === 'number') {
-                av = parseFloat(av) || 0;
-                bv = parseFloat(bv) || 0;
-                return asc ? av - bv : bv - av;
-              }
-
-              return asc ? av.localeCompare(bv) : bv.localeCompare(av);
-            });
-
-            rows.forEach(function (row) {
-              tbody.appendChild(row);
-            });
-          });
-        });
-      });
     </script>
   </body>
 </html>
+
 
 
 

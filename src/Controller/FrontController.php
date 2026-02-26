@@ -9,9 +9,11 @@ use App\Entity\Artiste;
 use App\Entity\NormalUser;
 use App\Entity\Sponsor;
 use App\Entity\User;
+use App\Repository\PasskeyCredentialRepository;
+use App\Service\AvatarService;
+use App\Service\CloudflareStylizerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,7 +49,13 @@ final class FrontController extends AbstractController
     }
 
     #[Route('/profile', name: 'front_profile', methods: ['GET', 'POST'])]
-    public function profile(Request $request, EntityManagerInterface $entityManager): Response
+    public function profile(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        AvatarService $avatarService,
+        CloudflareStylizerService $cloudflareStylizerService,
+        PasskeyCredentialRepository $passkeyCredentialRepository
+    ): Response
     {
         $user = $this->getUser();
 
@@ -56,45 +64,127 @@ final class FrontController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            $token = (string) $request->request->get('_csrf_token', '');
+            if (!$this->isCsrfTokenValid('profile_avatar_update', $token)) {
+                $this->addFlash('danger', 'Invalid request token.');
+
+                return $this->redirectToRoute('front_profile');
+            }
+
+            $presetAvatar = trim((string) $request->request->get('preset_avatar', ''));
+            $stylizedAvatar = trim((string) $request->request->get('stylized_avatar', ''));
             /** @var UploadedFile|null $avatarFile */
             $avatarFile = $request->files->get('avatar');
+            /** @var UploadedFile|null $stylizeSourceFile */
+            $stylizeSourceFile = $request->files->get('stylize_source');
+            $stylizeStyle = strtolower(trim((string) $request->request->get('stylize_style', 'anime')));
 
-            if (!$avatarFile instanceof UploadedFile) {
-                $this->addFlash('danger', 'Please select an image file.');
+            if ('' !== $stylizedAvatar) {
+                if (!$avatarService->isPublicAvatarPathAllowed($stylizedAvatar)) {
+                    $this->addFlash('danger', 'Invalid stylized avatar selection.');
 
-                return $this->redirectToRoute('front_profile');
-            }
+                    return $this->redirectToRoute('front_profile');
+                }
 
-            $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-            if (!in_array($avatarFile->getMimeType(), $allowedMimeTypes, true)) {
-                $this->addFlash('danger', 'Only JPG, PNG, and WEBP images are allowed.');
-
-                return $this->redirectToRoute('front_profile');
-            }
-
-            if ($avatarFile->getSize() > 2 * 1024 * 1024) {
-                $this->addFlash('danger', 'Image size must be 2MB or less.');
-
-                return $this->redirectToRoute('front_profile');
-            }
-
-            $uploadDir = $this->getParameter('kernel.project_dir').'/public/profilePics';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0775, true);
-            }
-
-            $extension = $avatarFile->guessExtension() ?: 'jpg';
-            $fileName = sprintf('user_%d_%s.%s', $user->getId(), bin2hex(random_bytes(6)), $extension);
-
-            try {
-                $avatarFile->move($uploadDir, $fileName);
-            } catch (FileException) {
-                $this->addFlash('danger', 'Could not upload image. Please try again.');
+                $user->setAvatarUrl($stylizedAvatar);
+                $entityManager->persist($user);
+                $entityManager->flush();
+                $request->getSession()->remove('stylized_avatar_options');
+                $this->addFlash('success', 'Stylized avatar applied.');
 
                 return $this->redirectToRoute('front_profile');
             }
 
-            $user->setAvatarUrl('profilePics/'.$fileName);
+            if ($stylizeSourceFile instanceof UploadedFile) {
+                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                if (!in_array($stylizeSourceFile->getMimeType(), $allowedMimeTypes, true)) {
+                    $this->addFlash('danger', 'Only JPG, PNG, and WEBP images are allowed.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                if ($stylizeSourceFile->getSize() > 5 * 1024 * 1024) {
+                    $this->addFlash('danger', 'Image size must be 5MB or less for stylization.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                $allowedStyles = ['anime', 'comic', 'pixar'];
+                if (!in_array($stylizeStyle, $allowedStyles, true)) {
+                    $this->addFlash('danger', 'Invalid stylization style selected.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                $prepared = $avatarService->prepareStylizedOutput($user, $stylizeStyle);
+
+                try {
+                    $generatedBinary = $cloudflareStylizerService->generateStyle($stylizeSourceFile, $stylizeStyle);
+                } catch (\Throwable $exception) {
+                    $this->addFlash('danger', 'Stylization API failed. '.$exception->getMessage());
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                if (!is_string($generatedBinary) || '' === $generatedBinary) {
+                    $this->addFlash('danger', 'Stylization failed. Try another image or retry in a few minutes.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                $writeOk = @file_put_contents($prepared['absolute_path'], $generatedBinary);
+                if (false === $writeOk) {
+                    $this->addFlash('danger', 'Stylization failed. Try another image or retry in a few minutes.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                $existing = $request->getSession()->get('stylized_avatar_options', []);
+                if (!is_array($existing)) {
+                    $existing = [];
+                }
+                $existing[$stylizeStyle] = $prepared['public_path'];
+                $request->getSession()->set('stylized_avatar_options', $existing);
+                $this->addFlash('success', ucfirst($stylizeStyle).' style generated. You can generate other styles too.');
+
+                return $this->redirectToRoute('front_profile');
+            }
+
+            if ('' !== $presetAvatar) {
+                $presetAvatars = $avatarService->listPresetAvatars();
+                if (!in_array($presetAvatar, $presetAvatars, true)) {
+                    $this->addFlash('danger', 'Invalid avatar selection.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                $user->setAvatarUrl($presetAvatar);
+            } elseif ($avatarFile instanceof UploadedFile) {
+                $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                if (!in_array($avatarFile->getMimeType(), $allowedMimeTypes, true)) {
+                    $this->addFlash('danger', 'Only JPG, PNG, and WEBP images are allowed.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                if ($avatarFile->getSize() > 2 * 1024 * 1024) {
+                    $this->addFlash('danger', 'Image size must be 2MB or less.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+
+                try {
+                    $user->setAvatarUrl($avatarService->storeUploadedAvatar($user, $avatarFile));
+                } catch (\RuntimeException) {
+                    $this->addFlash('danger', 'Could not upload image. Please try again.');
+
+                    return $this->redirectToRoute('front_profile');
+                }
+            } else {
+                $this->addFlash('danger', 'Please choose a preset avatar or upload an image.');
+
+                return $this->redirectToRoute('front_profile');
+            }
             $entityManager->persist($user);
             $entityManager->flush();
             $this->addFlash('success', 'Profile picture updated.');
@@ -144,11 +234,17 @@ final class FrontController extends AbstractController
 
         $extraFields = array_filter($extraFields, static fn ($value): bool => null !== $value && '' !== trim((string) $value));
 
+        $passkeys = $passkeyCredentialRepository->findByUser($user);
+
         return $this->render('front/profile.html.twig', [
             'profile_user' => $user,
             'account_type' => $accountType,
             'role_key' => $roleKey,
             'extra_fields' => $extraFields,
+            'preset_avatars' => $avatarService->listPresetAvatars(),
+            'stylized_avatar_options' => $request->getSession()->get('stylized_avatar_options', []),
+            'passkey_count' => count($passkeys),
+            'passkeys' => $passkeys,
         ]);
     }
 

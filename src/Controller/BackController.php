@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Entity\Admin;
 use App\Entity\Artiste;
-use App\Entity\NormalUser;
 use App\Entity\Sponsor;
 use App\Enum\AccountStatus;
 use App\Repository\AdminRepository;
@@ -65,6 +64,7 @@ final class BackController extends AbstractController
 
     #[Route('/users', name: 'users', methods: ['GET'])]
     public function users(
+        Request $request,
         AdminRepository $adminRepository,
         ArtisteRepository $artisteRepository,
         SponsorRepository $sponsorRepository,
@@ -76,15 +76,27 @@ final class BackController extends AbstractController
         }
 
         $isSuperAdmin = $user instanceof Admin && $user->isSuperAdmin();
+        $sortBy = (string) $request->query->get('sort_by', 'createdAt');
+        $sortDir = strtoupper((string) $request->query->get('sort_dir', 'DESC'));
+
+        $allowedSortBy = ['createdAt', 'username', 'email', 'status', 'id'];
+        if (!in_array($sortBy, $allowedSortBy, true)) {
+            $sortBy = 'createdAt';
+        }
+        if (!in_array($sortDir, ['ASC', 'DESC'], true)) {
+            $sortDir = 'DESC';
+        }
 
         return $this->render('back/profile.html.twig', [
             'users_page' => true,
-            'admins' => $adminRepository->findAll(),
-            'artistes' => $artisteRepository->findAll(),
-            'sponsors' => $sponsorRepository->findAll(),
-            'normal_users' => $normalUserRepository->findAll(),
+            'admins' => $adminRepository->findAllForBackOffice($sortBy, $sortDir),
+            'artistes' => $artisteRepository->findAllForBackOffice($sortBy, $sortDir),
+            'sponsors' => $sponsorRepository->findAllForBackOffice($sortBy, $sortDir),
+            'normal_users' => $normalUserRepository->findAllForBackOffice($sortBy, $sortDir),
             'status_options' => AccountStatus::cases(),
             'is_super_admin' => $isSuperAdmin,
+            'sort_by' => $sortBy,
+            'sort_dir' => $sortDir,
         ]);
     }
 
@@ -133,8 +145,7 @@ final class BackController extends AbstractController
     public function usersPromoteAdmin(
         int $id,
         Request $request,
-        UserRepository $userRepository,
-        EntityManagerInterface $entityManager
+        UserRepository $userRepository
     ): RedirectResponse {
         $superAdmin = $this->requireSuperAdmin();
         if (!$superAdmin instanceof Admin) {
@@ -148,17 +159,13 @@ final class BackController extends AbstractController
         }
 
         $user = $userRepository->find($id);
-        if (!$user instanceof NormalUser) {
-            $this->addFlash('danger', 'Only normal users can be promoted with this action.');
+        if (!$user instanceof User) {
+            $this->addFlash('danger', 'User not found.');
 
             return $this->redirectToRoute('back_users');
         }
 
-        $user->setRoles(['ROLE_ADMIN']);
-        $entityManager->persist($user);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'User promoted to admin role.');
+        $this->addFlash('warning', 'Promoting users to admin is disabled.');
 
         return $this->redirectToRoute('back_users');
     }

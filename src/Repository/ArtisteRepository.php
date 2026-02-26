@@ -16,6 +16,25 @@ class ArtisteRepository extends ServiceEntityRepository
         parent::__construct($registry, Artiste::class);
     }
 
+    /**
+     * @return list<Artiste>
+     */
+    public function findAllForBackOffice(string $sortBy = 'createdAt', string $sortDir = 'DESC'): array
+    {
+        $allowed = ['createdAt', 'username', 'email', 'status', 'id'];
+        if (!in_array($sortBy, $allowed, true)) {
+            $sortBy = 'createdAt';
+        }
+
+        $sortDir = strtoupper($sortDir) === 'ASC' ? 'ASC' : 'DESC';
+
+        return $this->createQueryBuilder('a')
+            ->orderBy('a.'.$sortBy, $sortDir)
+            ->addOrderBy('a.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Artiste[] Returns an array of Artiste objects
     //     */

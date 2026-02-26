@@ -11,11 +11,16 @@ use App\Entity\Sponsor;
 use App\Entity\User;
 use App\Enum\AccountStatus;
 use App\Form\ForgotPasswordRequestType;
+use App\Form\GoogleSignupCompleteType;
 use App\Form\ResetPasswordType;
 use App\Form\UserType;
+use App\Service\AvatarService;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
@@ -28,6 +33,152 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 final class SecurityController extends AbstractController
 {
+    #[Route('/connect/google', name: 'app_connect_google_start', methods: ['GET'])]
+    public function connectGoogleStart(ClientRegistry $clientRegistry): RedirectResponse
+    {
+        return $clientRegistry
+            ->getClient('google_main')
+            ->redirect(['openid', 'profile', 'email'], []);
+    }
+
+    #[Route('/connect/google/check', name: 'app_connect_google_check', methods: ['GET'])]
+    public function connectGoogleCheck(
+        Request $request,
+        ClientRegistry $clientRegistry,
+        EntityManagerInterface $entityManager,
+        Security $security
+    ): Response {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('front_home');
+        }
+
+        try {
+            $client = $clientRegistry->getClient('google_main');
+            $accessToken = $client->getAccessToken();
+            $googleUser = $client->fetchUserFromToken($accessToken);
+        } catch (\Throwable) {
+            $this->addFlash('danger', 'Google sign-in failed. Please try again.');
+
+            return $this->redirectToRoute('app_login');
+        }
+
+        $email = trim((string) $googleUser->getEmail());
+        if ('' === $email) {
+            $this->addFlash('danger', 'Google account did not provide an email address.');
+
+            return $this->redirectToRoute('app_login');
+        }
+
+        $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        if ($existingUser instanceof User) {
+            try {
+                $security->login($existingUser, null, 'main');
+            } catch (\Throwable) {
+                $this->addFlash('danger', 'This account cannot sign in yet. Please check account status.');
+
+                return $this->redirectToRoute('app_login');
+            }
+            $this->addFlash('success', 'Signed in with Google.');
+
+            return $this->redirectToRoute('front_home');
+        }
+
+        $request->getSession()->set('google_signup_pending', [
+            'email' => $email,
+            'name' => trim((string) $googleUser->getName()),
+            'avatar' => trim((string) $googleUser->getAvatar()),
+        ]);
+
+        return $this->redirectToRoute('app_google_signup_complete');
+    }
+
+    #[Route('/connect/google/complete-signup', name: 'app_google_signup_complete', methods: ['GET', 'POST'])]
+    public function googleSignupComplete(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        AvatarService $avatarService,
+        UserPasswordHasherInterface $passwordHasher,
+        Security $security
+    ): Response {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('front_home');
+        }
+
+        $pending = $request->getSession()->get('google_signup_pending');
+        if (!is_array($pending) || !isset($pending['email'])) {
+            $this->addFlash('danger', 'Google sign-up session expired. Please try again.');
+
+            return $this->redirectToRoute('app_register');
+        }
+
+        $email = trim((string) $pending['email']);
+        if ('' === $email) {
+            $this->addFlash('danger', 'Google sign-up session is invalid. Please try again.');
+
+            return $this->redirectToRoute('app_register');
+        }
+
+        $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+        if ($existingUser instanceof User) {
+            $request->getSession()->remove('google_signup_pending');
+            try {
+                $security->login($existingUser, null, 'main');
+            } catch (\Throwable) {
+                $this->addFlash('danger', 'This account cannot sign in yet. Please check account status.');
+
+                return $this->redirectToRoute('app_login');
+            }
+
+            return $this->redirectToRoute('front_home');
+        }
+
+        $newUser = (new NormalUser())
+            ->setEmail($email)
+            ->setRoles(['ROLE_USER'])
+            ->setStatus(AccountStatus::ACTIVE);
+
+        $suggestedUsername = trim((string) ($pending['name'] ?? ''));
+        if ('' !== $suggestedUsername) {
+            $newUser->setUsername($suggestedUsername);
+        }
+
+        $googleAvatar = trim((string) ($pending['avatar'] ?? ''));
+        if ('' !== $googleAvatar && strlen($googleAvatar) <= 255 && str_starts_with($googleAvatar, 'http')) {
+            $newUser->setAvatarUrl($googleAvatar);
+        }
+
+        $form = $this->createForm(GoogleSignupCompleteType::class, $newUser);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (null === $newUser->getAvatarUrl() || '' === trim((string) $newUser->getAvatarUrl())) {
+                $starterAvatar = $avatarService->pickRandomPresetAvatar();
+                if (null !== $starterAvatar) {
+                    $newUser->setAvatarUrl($starterAvatar);
+                }
+            }
+
+            $randomPassword = bin2hex(random_bytes(24));
+            $newUser->setPassword($passwordHasher->hashPassword($newUser, $randomPassword));
+            $newUser->setEmailVerificationToken(null);
+            $newUser->setEmailVerificationTokenExpiresAt(null);
+
+            $entityManager->persist($newUser);
+            $entityManager->flush();
+
+            $request->getSession()->remove('google_signup_pending');
+            $security->login($newUser, null, 'main');
+            $this->addFlash('success', 'Account created with Google.');
+
+            return $this->redirectToRoute('front_home');
+        }
+
+        return $this->render('security/google_complete_signup.html.twig', [
+            'form' => $form->createView(),
+            'google_email' => $email,
+        ]);
+    }
+
     #[Route('/login', name: 'app_login', methods: ['GET', 'POST'])]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -116,7 +267,8 @@ final class SecurityController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
-        MailerInterface $mailer
+        MailerInterface $mailer,
+        AvatarService $avatarService
     ): Response
     {
         if ($this->getUser()) {
@@ -138,6 +290,12 @@ final class SecurityController extends AbstractController
             $verificationToken = bin2hex(random_bytes(32));
             $user->setEmailVerificationToken($verificationToken);
             $user->setEmailVerificationTokenExpiresAt(new \DateTimeImmutable('+24 hours'));
+            if (null === $user->getAvatarUrl() || '' === trim((string) $user->getAvatarUrl())) {
+                $starterAvatar = $avatarService->pickRandomPresetAvatar();
+                if (null !== $starterAvatar) {
+                    $user->setAvatarUrl($starterAvatar);
+                }
+            }
 
             $entityManager->persist($user);
             $entityManager->flush();

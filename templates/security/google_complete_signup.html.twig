@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -9,136 +8,34 @@
   <meta name="description" content="" />
   <meta name="author" content="" />
   <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
-
-  <title> Feane - Choose Account Type </title>
-
+  <title>Feane - Complete Sign Up</title>
   <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha512-CruCP+TD3yXzlvvijET8wV5WxxEh5H8P4cmz0RFbKK6FlZ2sYl3AEsKlLPHbniXKSrDdFewhbmBK5skbdsASbQ==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
   <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
   <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
   <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
-
   <style>
-    .auth_section {
-      padding: 60px 0;
-      min-height: 500px;
-    }
-
-    .auth_container {
-      background: white;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      max-width: 650px;
-      margin: 0 auto;
-    }
-
-    .auth_container h2 {
-      text-align: center;
-      margin-bottom: 10px;
-      color: #1a1a1a;
-      font-weight: 600;
-    }
-
-    .auth_container p {
-      text-align: center;
-      color: #666;
-      margin-bottom: 25px;
-    }
-
-    .role_grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 15px;
-    }
-
-    .role_card {
-      display: block;
-      border: 1px solid #eee;
-      border-radius: 8px;
-      padding: 18px;
-      text-decoration: none;
-      color: #1a1a1a;
-      transition: all 0.2s ease;
-      background-color: #fff;
-    }
-
-    .role_card:hover {
-      border-color: #ff7f5c;
-      box-shadow: 0 6px 18px rgba(255, 127, 92, 0.2);
-      transform: translateY(-2px);
-      color: #1a1a1a;
-    }
-
-    .role_card h4 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .role_card span {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .auth_link {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    .auth_link a {
-      color: #ff7f5c;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .btn-google {
-      width: 100%;
-      padding: 12px;
-      background-color: #ffffff;
-      color: #333;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-top: 18px;
-      margin-bottom: 8px;
-    }
-
-    .btn-google:hover {
-      background-color: #f7f7f7;
-      text-decoration: none;
-      color: #333;
-    }
-
-    @media (max-width: 767px) {
-      .role_grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    .auth_section { padding: 60px 0; min-height: 500px; }
+    .auth_container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.1); max-width: 520px; margin: 0 auto; }
+    .auth_container h2 { text-align: center; margin-bottom: 16px; color: #1a1a1a; font-weight: 600; }
+    .auth_subtitle { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; color: #1a1a1a; font-weight: 500; }
+    .form-control { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
+    .form-control:focus { outline: none; border-color: #ff7f5c; box-shadow: 0 0 5px rgba(255,127,92,.3); }
+    .form-error { color: #dc3545; font-size: 12px; margin-top: 5px; }
+    .btn-submit { width: 100%; padding: 12px; background-color: #ff7f5c; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; }
+    .btn-submit:hover { background-color: #ff6b3f; }
   </style>
 </head>
-
 <body class="sub_page">
   <div class="hero_area">
-    <div class="bg-box">
-      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
-    </div>
+    <div class="bg-box"><img src="{{ asset('front/images/hero-bg.jpg') }}" alt=""></div>
     <header class="header_section">
       <div class="container">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}">
-            <span>Feane</span>
-          </a>
+          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Feane</span></a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class=""> </span>
           </button>
@@ -158,31 +55,31 @@
   <section class="auth_section layout_padding">
     <div class="container">
       <div class="auth_container">
-        <h2>Choose Account Type</h2>
-        <p>Select the role you want before continuing to sign up.</p>
+        <h2>Complete Your Sign Up</h2>
+        <div class="auth_subtitle">Google account: <strong>{{ google_email }}</strong></div>
 
-        <div class="role_grid">
-          <a class="role_card" href="{{ path('app_register_role', {'role': 'artiste'}) }}">
-            <h4>Artiste</h4>
-            <span>Create an artist account.</span>
-          </a>
-          <a class="role_card" href="{{ path('app_register_role', {'role': 'sponsor'}) }}">
-            <h4>Sponsor</h4>
-            <span>Create a sponsor account.</span>
-          </a>
-          <a class="role_card" href="{{ path('app_register_role', {'role': 'normal'}) }}">
-            <h4>Normal User</h4>
-            <span>Create a regular user account.</span>
-          </a>
-        </div>
-        <a href="{{ path('app_connect_google_start') }}" class="btn-google">
-          <i class="fa fa-google" aria-hidden="true"></i>
-          Sign Up with Google
-        </a>
+        {% for message in app.flashes('danger') %}
+          <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
 
-        <div class="auth_link">
-          Already have an account? <a href="{{ path('app_login') }}">Sign In</a>
-        </div>
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+          <div class="form-group">
+            {{ form_label(form.username, 'Username') }}
+            {{ form_widget(form.username, {'attr': {'class': 'form-control'}}) }}
+            {% if form_errors(form.username) %}<div class="form-error">{{ form_errors(form.username) }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            {{ form_label(form.phone, 'Phone (optional)') }}
+            {{ form_widget(form.phone, {'attr': {'class': 'form-control'}}) }}
+            {% if form_errors(form.phone) %}<div class="form-error">{{ form_errors(form.phone) }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            {{ form_label(form.birthDate, 'Birth date (optional)') }}
+            {{ form_widget(form.birthDate, {'attr': {'class': 'form-control'}}) }}
+            {% if form_errors(form.birthDate) %}<div class="form-error">{{ form_errors(form.birthDate) }}</div>{% endif %}
+          </div>
+          <button type="submit" class="btn-submit">Create Account</button>
+        {{ form_end(form) }}
       </div>
     </div>
   </section>
@@ -224,5 +121,4 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
   <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
-
 </html>
