@@ -39,6 +39,8 @@ final class WebAuthnController extends AbstractController
         if ('' === $email) {
             return $this->json(['error' => 'Email is required for passkey login.'], Response::HTTP_BAD_REQUEST);
         }
+        $mode = strtolower(trim((string) ($payload['mode'] ?? 'device')));
+        $phoneMode = $mode === 'phone';
 
         $user = $userRepository->findOneBy(['email' => $email]);
         if (!$user instanceof User || $user->getStatus() !== AccountStatus::ACTIVE) {
@@ -55,7 +57,44 @@ final class WebAuthnController extends AbstractController
             static fn (PasskeyCredential $credential): ByteBuffer => ByteBuffer::fromBase64Url((string) $credential->getCredentialId()),
             $credentials
         );
-        $options = $webauthn->getGetArgs($credentialIds, 60, false, false, false, false, true, 'required');
+        $optionsRaw = $webauthn->getGetArgs($credentialIds, 60, false, false, false, false, true, 'required');
+        $encodedOptions = json_encode($optionsRaw);
+        $options = is_string($encodedOptions) ? json_decode($encodedOptions, true) : null;
+        if (!is_array($options)) {
+            return $this->json(['error' => 'Unable to build passkey login options.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        // Allow cross-device (phone) login chooser to appear by providing transport hints.
+        if (isset($options['publicKey']['allowCredentials']) && is_array($options['publicKey']['allowCredentials'])) {
+            foreach ($options['publicKey']['allowCredentials'] as $index => $allowCredential) {
+                if (!is_array($allowCredential)) {
+                    continue;
+                }
+
+                $credential = $credentials[$index] ?? null;
+                $transports = [];
+                if ($credential instanceof PasskeyCredential) {
+                    $stored = (string) ($credential->getTransports() ?? '');
+                    if ('' !== $stored) {
+                        $transports = array_values(array_filter(array_map(static fn (string $t): string => trim($t), explode(',', $stored))));
+                    }
+                }
+
+                if ($phoneMode && !in_array('hybrid', $transports, true)) {
+                    $transports[] = 'hybrid';
+                }
+
+                if ([] !== $transports) {
+                    $options['publicKey']['allowCredentials'][$index]['transports'] = $transports;
+                }
+            }
+        }
+
+        if ($phoneMode) {
+            $options['publicKey']['userVerification'] = 'preferred';
+            $options['hints'] = ['hybrid'];
+        }
+
         $challenge = $this->byteBufferToBase64Url($webauthn->getChallenge());
 
         $request->getSession()->set('passkey_login', [
@@ -167,10 +206,18 @@ final class WebAuthnController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function registerOptions(Request $request, PasskeyCredentialRepository $passkeyCredentialRepository): JsonResponse
     {
+        try {
+            $payload = $request->toArray();
+        } catch (\Throwable) {
+            $payload = [];
+        }
+
         $user = $this->getUser();
         if (!$user instanceof User) {
             return $this->json(['error' => 'You must be logged in.'], Response::HTTP_UNAUTHORIZED);
         }
+        $mode = strtolower(trim((string) ($payload['mode'] ?? 'device')));
+        $phoneMode = $mode === 'phone';
 
         $credentials = $passkeyCredentialRepository->findByUser($user);
         $excludeIds = array_map(
@@ -179,7 +226,7 @@ final class WebAuthnController extends AbstractController
         );
 
         $webauthn = $this->createWebAuthn($request);
-        $options = $webauthn->getCreateArgs(
+        $optionsRaw = $webauthn->getCreateArgs(
             (string) $user->getId(),
             (string) $user->getEmail(),
             (string) ($user->getUsername() ?: $user->getEmail()),
@@ -189,6 +236,18 @@ final class WebAuthnController extends AbstractController
             false,
             $excludeIds
         );
+        $encodedOptions = json_encode($optionsRaw);
+        $options = is_string($encodedOptions) ? json_decode($encodedOptions, true) : null;
+        if (!is_array($options)) {
+            return $this->json(['error' => 'Unable to build passkey registration options.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        if ($phoneMode) {
+            $options['publicKey']['authenticatorSelection']['authenticatorAttachment'] = 'cross-platform';
+            $options['publicKey']['authenticatorSelection']['residentKey'] = 'preferred';
+            $options['publicKey']['userVerification'] = 'preferred';
+            $options['hints'] = ['hybrid', 'security-key'];
+        }
 
         $challenge = $this->byteBufferToBase64Url($webauthn->getChallenge());
         $request->getSession()->set('passkey_register', [

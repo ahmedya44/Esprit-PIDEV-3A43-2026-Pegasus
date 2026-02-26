@@ -1,127 +1,158 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>{{ art.title }} - Détail</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        .art-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .art-image {
-            width: 100%;
-            max-height: 600px;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .art-info {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        .view-counter {
-            background: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .back-btn:hover {
-            background: rgba(0,0,0,0.9);
-            transform: scale(1.1);
-        }
-    </style>
-</head>
-<body class="bg-light">
-    <button class="back-btn" onclick="history.back()">
-        <i class="fas fa-arrow-left"></i>
-    </button>
+{% extends 'front/layout.html.twig' %}
 
-    <div class="art-container">
-        <div class="row">
-            <div class="col-lg-8">
-                <img src="{{ art.imageUrl }}" alt="{{ art.title }}" class="art-image">
-            </div>
-            <div class="col-lg-4">
-                <div class="art-info">
-                    <div class="view-counter">
-                        <i class="fas fa-eye"></i> {{ totalViews }} vues
-                    </div>
-                    
-                    <h1 class="mb-4">{{ art.title }}</h1>
-                    
-                    <div class="mb-4">
-                        <h5>Description</h5>
-                        <p>{{ art.description }}</p>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <h5>Détails</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Statut:</strong> 
-                                {% if art.status == 'active' %}
-                                    <span class="badge bg-success">Publié</span>
-                                {% elseif art.status == 'en attente' %}
-                                    <span class="badge bg-warning">En attente</span>
-                                {% elseif art.status == 'archived' %}
-                                    <span class="badge bg-secondary">Archivé</span>
-                                {% else %}
-                                    <span class="badge bg-dark">{{ art.status }}</span>
-                                {% endif %}
-                            </li>
-                            <li><strong>Date de création:</strong> {{ art.createdAt|date('d/m/Y H:i') }}</li>
-                            <li><strong>ID:</strong> #{{ art.id }}</li>
-                        </ul>
-                    </div>
-                    
-                    {% if recentViews|length > 0 %}
-                    <div class="mb-4">
-                        <h5>Activité récente</h5>
-                        <small class="text-muted">
-                            Dernière vue: {{ recentViews[0].viewedAt|date('d/m/Y H:i') }}
-                        </small>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="d-grid gap-2">
-                        <a href="{{ path('front_gallery') }}" class="btn btn-primary">
-                            <i class="fas fa-images"></i> Retour à la galerie
-                        </a>
-                        <a href="{{ path('front_gallery_edit', {'id': art.id}) }}" class="btn btn-warning">
-                            <i class="fas fa-edit"></i> Modifier
-                        </a>
-                    </div>
-                </div>
-            </div>
+{% set active_nav = 'gallery' %}
+
+{% block title %}{{ art.title }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .gallery-pill-count {
+    font-size: .78rem;
+    border-radius: 999px;
+    padding: 2px 8px;
+    border: 1px solid #ffbe33;
+    color: #ffbe33;
+  }
+  .gallery-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ffbe33;
+    color: #ffbe33;
+    background: transparent;
+    cursor: pointer;
+  }
+  .gallery-icon-btn:hover {
+    background: #ffbe33 !important;
+    color: #222 !important;
+  }
+  .gallery-icon-btn.is-active {
+    background: #ffbe33 !important;
+    color: #222 !important;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="forum-shell">
+  <div class="container">
+    <div class="forum-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">{{ art.title }}</h1>
+        <a href="{{ path('front_gallery') }}" class="btn btn-sm btn-outline-secondary">Back to Gallery</a>
+      </div>
+
+      {% set imageSrc = art.imageUrl ? ((art.imageUrl starts with('http') or art.imageUrl starts with('/')) ? art.imageUrl : asset('images/products/' ~ art.imageUrl)) : '' %}
+      {% if imageSrc %}
+        <div class="mb-3">
+          <img src="{{ imageSrc }}" alt="{{ art.title }}" class="img-fluid rounded" style="max-height:500px; width: 100%; object-fit: contain;">
         </div>
-    </div>
+      {% endif %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+      <div class="mb-3 text-muted"><i class="fa fa-eye"></i> {{ totalViews }} views</div>
+      <div class="mb-3 d-flex gap-2 align-items-center">
+        <button type="button" class="gallery-icon-btn js-favorite-btn" data-art-id="{{ art.id }}" data-art-title="{{ art.title|e('html_attr') }}" aria-label="Favorite" title="Favorite">
+          <i class="fa fa-heart"></i>
+        </button>
+        <span class="gallery-pill-count"><i class="fa fa-heart-o"></i> <span class="js-fav-count" data-art-id="{{ art.id }}">0</span></span>
+        <button type="button" class="gallery-icon-btn js-like-btn" data-art-id="{{ art.id }}" aria-label="Like" title="Like">
+          <i class="fa fa-thumbs-up"></i>
+        </button>
+        <span class="gallery-pill-count"><i class="fa fa-thumbs-up"></i> <span class="js-like-count" data-art-id="{{ art.id }}">0</span></span>
+      </div>
+      <p>{{ art.description }}</p>
+
+      <ul class="list-unstyled text-muted mb-4">
+        <li><strong>Status:</strong> {{ art.status }}</li>
+        <li><strong>Created:</strong> {{ art.createdAt ? art.createdAt|date('Y-m-d H:i') : '-' }}</li>
+        <li><strong>ID:</strong> #{{ art.id }}</li>
+      </ul>
+
+      <div class="d-flex gap-2">
+        <a href="{{ path('front_gallery_edit', {'id': art.id}) }}" class="btn btn-warning">Edit</a>
+        <a href="{{ path('front_gallery') }}" class="btn btn-outline-dark">Gallery</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    function getLikeState() {
+      try { return JSON.parse(localStorage.getItem('gallery_likes') || '{}'); } catch (e) { return {}; }
+    }
+    function setLikeState(state) { localStorage.setItem('gallery_likes', JSON.stringify(state)); }
+    function getFavoriteState() {
+      try { return JSON.parse(localStorage.getItem('gallery_favorites') || '{}'); } catch (e) { return {}; }
+    }
+    function setFavoriteState(state) { localStorage.setItem('gallery_favorites', JSON.stringify(state)); }
+
+    function render() {
+      var likes = getLikeState();
+      var fav = getFavoriteState();
+      document.querySelectorAll('.js-like-count').forEach(function (el) {
+        var id = String(el.getAttribute('data-art-id'));
+        el.textContent = likes[id] ? '1' : '0';
+      });
+      document.querySelectorAll('.js-fav-count').forEach(function (el) {
+        var id = String(el.getAttribute('data-art-id'));
+        el.textContent = fav[id] ? '1' : '0';
+      });
+      document.querySelectorAll('.js-like-btn').forEach(function (btn) {
+        var id = String(btn.getAttribute('data-art-id'));
+        var active = !!likes[id];
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('title', active ? 'Liked' : 'Like');
+      });
+      document.querySelectorAll('.js-favorite-btn').forEach(function (btn) {
+        var id = String(btn.getAttribute('data-art-id'));
+        var active = !!fav[id];
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('title', active ? 'Favorited' : 'Favorite');
+      });
+    }
+
+    document.querySelectorAll('.js-like-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = String(btn.getAttribute('data-art-id'));
+        var likes = getLikeState();
+        likes[id] = !likes[id];
+        setLikeState(likes);
+        render();
+      });
+    });
+
+    document.querySelectorAll('.js-favorite-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = String(btn.getAttribute('data-art-id'));
+        var title = String(btn.getAttribute('data-art-title') || '');
+        var fav = getFavoriteState();
+        var willAdd = !fav[id];
+        var url = willAdd ? '/api/favorites/add' : '/api/favorites/remove';
+        var payload = willAdd ? { art_id: parseInt(id, 10), art_title: title } : { art_id: parseInt(id, 10) };
+
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (!data || data.success !== true) return;
+            fav[id] = willAdd;
+            setFavoriteState(fav);
+            render();
+          })
+          .catch(function () {});
+      });
+    });
+
+    render();
+  })();
+</script>
+{% endblock %}

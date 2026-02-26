@@ -19,9 +19,19 @@ final class Version20260224091512 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE art ADD COLUMN ai_generated_image VARCHAR(255) DEFAULT NULL');
-        $this->addSql('ALTER TABLE art ADD COLUMN is_ai_generated BOOLEAN DEFAULT 0 NOT NULL');
+        if (!$schema->hasTable('art')) {
+            $this->addSql('CREATE TABLE art (id INT AUTO_INCREMENT NOT NULL, title VARCHAR(255) NOT NULL, description LONGTEXT NOT NULL, image_url VARCHAR(500) NOT NULL, status VARCHAR(50) NOT NULL, created_at DATETIME NOT NULL, title_en VARCHAR(255) DEFAULT NULL, description_en LONGTEXT DEFAULT NULL, ai_generated_image VARCHAR(255) DEFAULT NULL, is_ai_generated TINYINT(1) DEFAULT 0 NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+
+            return;
+        }
+
+        $table = $schema->getTable('art');
+        if (!$table->hasColumn('ai_generated_image')) {
+            $this->addSql('ALTER TABLE art ADD ai_generated_image VARCHAR(255) DEFAULT NULL');
+        }
+        if (!$table->hasColumn('is_ai_generated')) {
+            $this->addSql('ALTER TABLE art ADD is_ai_generated TINYINT(1) DEFAULT 0 NOT NULL');
+        }
     }
 
     public function down(Schema $schema): void

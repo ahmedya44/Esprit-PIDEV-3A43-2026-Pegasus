@@ -1,119 +1,39 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Modifier une œuvre</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        .form-container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .page-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .btn-back {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-back:hover {
-            background: rgba(0,0,0,0.9);
-            transform: scale(1.1);
-        }
-        .current-image {
-            max-width: 200px;
-            max-height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body class="bg-light">
-    <button class="btn-back" onclick="history.back()">
-        <i class="fas fa-arrow-left"></i>
-    </button>
+{% extends 'front/layout.html.twig' %}
 
-    <div class="form-container">
-        <div class="page-header">
-            <h1 class="display-4 fw-bold">✏️ Modifier une œuvre</h1>
-            <p class="lead">Modifiez les informations de l'œuvre ci-dessous</p>
+{% set active_nav = 'gallery' %}
+
+{% block title %}Edit Artwork{% endblock %}
+
+{% block body %}
+<section class="forum-shell">
+  <div class="container">
+    <div class="forum-card" style="max-width: 900px; margin: 0 auto;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Edit Artwork</h1>
+        <a href="{{ path('front_gallery') }}" class="btn btn-sm btn-outline-secondary">Back</a>
+      </div>
+
+      {% if art.imageUrl %}
+        {% set imageSrc = (art.imageUrl starts with('http') or art.imageUrl starts with('/')) ? art.imageUrl : asset('images/products/' ~ art.imageUrl) %}
+        <div class="mb-3">
+          <img src="{{ imageSrc }}" alt="{{ art.title }}" class="img-fluid rounded" style="max-height:220px;">
         </div>
+      {% endif %}
 
-        {% if art.imageUrl %}
-            <div class="text-center mb-4">
-                <img src="{{ art.imageUrl }}" alt="{{ art.title }}" class="current-image">
-            </div>
-        {% endif %}
-
-        {{ form_start(form) }}
-            <div class="mb-3">
-                {{ form_label(form.title, 'Titre de l\'œuvre', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
-                {% if form.title.vars.errors|length > 0 %}
-                    <div class="alert alert-danger mt-2">
-                        {% for error in form.title.vars.errors %}
-                            <small>{{ error.message }}</small>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="mb-3">
-                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5}}) }}
-                {% if form.description.vars.errors|length > 0 %}
-                    <div class="alert alert-danger mt-2">
-                        {% for error in form.description.vars.errors %}
-                            <small>{{ error.message }}</small>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="mb-4">
-                {{ form_label(form.imageFile, 'Image de l\'œuvre', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
-                {% if form.imageFile.vars.errors|length > 0 %}
-                    <div class="alert alert-danger mt-2">
-                        {% for error in form.imageFile.vars.errors %}
-                            <small>{{ error.message }}</small>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-save"></i> Mettre à jour l'œuvre
-                </button>
-                <a href="{{ path('front_gallery') }}" class="btn btn-secondary btn-lg">
-                    <i class="fas fa-times"></i> Annuler
-                </a>
-            </div>
-        {{ form_end(form) }}
+      {{ form_start(form) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.imageFile) }}
+        {% do form.isAiGenerated.setRendered() %}
+        {% do form.aiGeneratedImage.setRendered() %}
+        {% do form.titleEn.setRendered() %}
+        {% do form.descriptionEn.setRendered() %}
+        <div class="d-flex gap-2 justify-content-end">
+          <a href="{{ path('front_gallery') }}" class="btn btn-outline-dark">Cancel</a>
+          <button type="submit" class="btn btn-warning">Update</button>
+        </div>
+      {{ form_end(form) }}
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}

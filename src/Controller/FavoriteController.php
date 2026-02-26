@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class FavoriteController extends AbstractController
@@ -163,12 +164,29 @@ final class FavoriteController extends AbstractController
         ]);
     }
 
-    #[Route('/mes-favoris', name: 'favorites_page', methods: ['GET'])]
-    public function favoritesPage(): \Symfony\Component\HttpFoundation\Response
+    #[Route('/favorites', name: 'favorites_page', methods: ['GET'])]
+    #[Route('/mes-favoris', name: 'favorites_page_legacy', methods: ['GET'])]
+    public function favoritesPage(): Response
     {
+        $arts = $this->artRepository->findBy([], ['createdAt' => 'DESC']);
+        $arts = array_values(array_filter($arts, static function (Art $art): bool {
+            $status = strtolower((string) $art->getStatus());
+            return $status === 'active' || $status === 'published';
+        }));
+
+        $artCatalog = array_map(static function (Art $art): array {
+            return [
+                'id' => $art->getId(),
+                'title' => $art->getTitle(),
+                'description' => $art->getDescription(),
+                'imageUrl' => $art->getImageUrl(),
+                'status' => $art->getStatus(),
+                'createdAt' => $art->getCreatedAt()?->format('c'),
+            ];
+        }, $arts);
+
         return $this->render('front/favorites.html.twig', [
-            'favorites' => array_values($this->favorites),
-            'count' => count($this->favorites)
+            'artCatalog' => $artCatalog,
         ]);
     }
 }

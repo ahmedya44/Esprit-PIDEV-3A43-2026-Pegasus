@@ -96,10 +96,20 @@
                 </div>
               </li>
               <li class="nav-item">
-                <a href="{{ path('back_users') }}">
+                <a data-bs-toggle="collapse" href="#usersMenu">
                   <i class="fas fa-users"></i>
                   <p>Users</p>
+                  <span class="caret"></span>
                 </a>
+                <div class="collapse" id="usersMenu">
+                  <ul class="nav nav-collapse">
+                    <li><a href="{{ path('back_users') }}"><span class="sub-item">All Users</span></a></li>
+                    <li><a href="{{ path('app_admin_index') }}"><span class="sub-item">Admins</span></a></li>
+                    <li><a href="{{ path('app_artiste_index') }}"><span class="sub-item">Artistes</span></a></li>
+                    <li><a href="{{ path('app_sponsor_index') }}"><span class="sub-item">Sponsors</span></a></li>
+                    <li><a href="{{ path('app_normal_user_index') }}"><span class="sub-item">Normal Users</span></a></li>
+                  </ul>
+                </div>
               </li>
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
@@ -135,6 +145,24 @@
                         <span class="sub-item">Nouveau sujet</span>
                       </a>
                     </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-section">
+                <span class="sidebar-mini-icon">
+                  <i class="fa fa-ellipsis-h"></i>
+                </span>
+                <h4 class="text-section">Gallery</h4>
+              </li>
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#galleryMenu">
+                  <i class="fas fa-images"></i>
+                  <p>Gallery</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="galleryMenu">
+                  <ul class="nav nav-collapse">
+                    <li><a href="{{ path('back_art_index') }}"><span class="sub-item">Manage Art</span></a></li>
                   </ul>
                 </div>
               </li>

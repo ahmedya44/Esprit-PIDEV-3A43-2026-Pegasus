@@ -1,221 +1,233 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Mes Favoris</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        .favorites-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .card {
-            position: relative;
-            transition: transform 0.3s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .action-buttons {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .action-buttons .btn {
-            padding: 8px 12px;
-            margin-left: 5px;
-            border-radius: 4px;
-            font-size: 14px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .btn-favorite {
-            background: #e74c3c;
-            color: white;
-            border: none;
-        }
-        .btn-favorite:hover {
-            background: #c0392b;
-            transform: scale(1.1);
-        }
-        .btn-favorite.is-favorite {
-            background: #27ae60;
-        }
-        .btn-favorite.is-favorite:hover {
-            background: #229954;
-        }
-    </style>
-</head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ path('front_home') }}">🎨 Galerie</a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ path('front_gallery') }}">🖼️ Galerie</a>
-                <a class="nav-link" href="{{ path('front_gallery_new') }}">➕ Ajouter</a>
-                <a class="nav-link" href="{{ path('back_dashboard') }}">🔧 Admin</a>
-            </div>
-        </div>
-    </nav>
+{% extends 'front/layout.html.twig' %}
 
-    <!-- Messages Flash -->
-    {% for type, messages in app.session.flashbag.all() %}
-        {% for message in messages %}
-            <div class="alert alert-{{ type == 'success' ? 'success' : 'danger' }} alert-dismissible fade show m-3" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endfor %}
+{% set active_nav = 'favorites' %}
 
-    <div class="favorites-container">
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold">❤️ Mes Favoris</h1>
-            <p class="lead">Retrouvez toutes vos œuvres préférées</p>
-        </div>
+{% block title %}My Favorites{% endblock %}
 
-        <div class="text-left mb-4">
-            <a class="btn btn-primary" href="{{ path('front_gallery') }}">🔙 Retour à la galerie</a>
-        </div>
+{% block extra_styles %}
+<style>
+  .fav-grid-card {
+    border: 1px solid #dedede;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    height: 100%;
+  }
+  .fav-grid-card img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    background: #f1f1f1;
+  }
+  .fav-grid-body {
+    padding: 14px;
+  }
+  .fav-grid-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .fav-grid-desc {
+    color: #666;
+    font-size: .92rem;
+    min-height: 42px;
+  }
+  .fav-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ffbe33;
+    color: #ffbe33;
+    background: transparent;
+    cursor: pointer;
+  }
+  .fav-icon-btn:hover,
+  .fav-icon-btn.is-active {
+    background: #ffbe33;
+    color: #222;
+  }
+  .fav-empty {
+    border: 1px dashed #d4d4d4;
+    border-radius: 10px;
+    padding: 20px;
+    color: #6b7280;
+    text-align: center;
+    background: #fafafa;
+  }
+</style>
+{% endblock %}
 
-        <div class="row" id="favorites-container">
-            <!-- Les favoris seront chargés dynamiquement -->
+{% block body %}
+<section class="forum-shell">
+  <div class="container">
+    <div class="forum-card">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 mb-1">My Likes & Favorites</h1>
+          <p class="text-muted mb-0">Arts you liked or added to favorites.</p>
         </div>
+        <a href="{{ path('front_gallery') }}" class="btn btn-warning">Back to Gallery</a>
+      </div>
 
-        <div id="no-favorites" class="col-12" style="display: none;">
-            <div class="alert alert-info text-center">
-                <h4>💔 Aucun favori</h4>
-                <p>Vous n'avez pas encore ajouté d'œuvres à vos favoris.</p>
-                <a href="{{ path('front_gallery') }}" class="btn btn-primary">🎨 Parcourir la galerie</a>
-            </div>
-        </div>
+      <h2 class="h5 mb-3">Favorites</h2>
+      <div class="row" id="favorites-grid"></div>
+      <div class="fav-empty mb-4" id="favorites-empty" style="display:none;">No favorite arts yet.</div>
+
+      <h2 class="h5 mb-3">Liked</h2>
+      <div class="row" id="likes-grid"></div>
+      <div class="fav-empty" id="likes-empty" style="display:none;">No liked arts yet.</div>
     </div>
+  </div>
+</section>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadFavorites();
+{% block extra_scripts %}
+<script>
+  (function () {
+    var arts = {{ artCatalog|json_encode|raw }};
+    var artsById = {};
+    arts.forEach(function (art) {
+      artsById[String(art.id)] = art;
+    });
+
+    function getLikeState() {
+      try { return JSON.parse(localStorage.getItem('gallery_likes') || '{}'); } catch (e) { return {}; }
+    }
+    function setLikeState(state) {
+      localStorage.setItem('gallery_likes', JSON.stringify(state));
+    }
+    function getFavoriteState() {
+      try { return JSON.parse(localStorage.getItem('gallery_favorites') || '{}'); } catch (e) { return {}; }
+    }
+    function setFavoriteState(state) {
+      localStorage.setItem('gallery_favorites', JSON.stringify(state));
+    }
+
+    function imageSrc(raw) {
+      if (!raw) return '';
+      if (raw.indexOf('http') === 0 || raw.indexOf('/') === 0) return raw;
+      return '/images/products/' + raw;
+    }
+
+    function createCard(art, flags) {
+      var col = document.createElement('div');
+      col.className = 'col-md-4 mb-4';
+
+      var img = imageSrc(art.imageUrl);
+      var safeTitle = String(art.title || 'Artwork');
+      var safeDesc = String(art.description || '');
+      if (safeDesc.length > 110) safeDesc = safeDesc.slice(0, 110) + '...';
+
+      col.innerHTML = '' +
+        '<div class="fav-grid-card">' +
+          (img ? '<a href="/art/' + art.id + '"><img src="' + img + '" alt="' + safeTitle.replace(/"/g, '&quot;') + '"></a>' : '<div style="height:210px;background:#f1f1f1;"></div>') +
+          '<div class="fav-grid-body">' +
+            '<div class="fav-grid-title">' + safeTitle + '</div>' +
+            '<div class="fav-grid-desc">' + safeDesc + '</div>' +
+            '<div class="mt-3 d-flex justify-content-between align-items-center">' +
+              '<div class="d-flex gap-2">' +
+                '<button type="button" class="fav-icon-btn js-toggle-favorite ' + (flags.favorite ? 'is-active' : '') + '" data-art-id="' + art.id + '" data-art-title="' + safeTitle.replace(/"/g, '&quot;') + '" title="Favorite"><i class="fa fa-heart"></i></button>' +
+                '<button type="button" class="fav-icon-btn js-toggle-like ' + (flags.like ? 'is-active' : '') + '" data-art-id="' + art.id + '" title="Like"><i class="fa fa-thumbs-up"></i></button>' +
+              '</div>' +
+              '<a class="btn btn-sm btn-outline-secondary" href="/art/' + art.id + '">Details</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      return col;
+    }
+
+    function favoriteIdsFromServer() {
+      return fetch('/api/favorites')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || data.success !== true || !Array.isArray(data.favorites)) {
+            return [];
+          }
+          return data.favorites.map(function (f) { return String(f.art_id); });
+        })
+        .catch(function () { return []; });
+    }
+
+    function render() {
+      var likesState = getLikeState();
+      var localFavState = getFavoriteState();
+
+      favoriteIdsFromServer().then(function (serverFavIds) {
+        var favSet = {};
+        serverFavIds.forEach(function (id) { favSet[String(id)] = true; });
+        Object.keys(localFavState).forEach(function (id) {
+          if (localFavState[id]) favSet[String(id)] = true;
         });
 
-        function loadFavorites() {
-            fetch('/api/favorites')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.favorites.length > 0) {
-                    displayFavorites(data.favorites);
-                } else {
-                    showNoFavorites();
-                }
+        var likeSet = {};
+        Object.keys(likesState).forEach(function (id) {
+          if (likesState[id]) likeSet[String(id)] = true;
+        });
+
+        var favGrid = document.getElementById('favorites-grid');
+        var likesGrid = document.getElementById('likes-grid');
+        favGrid.innerHTML = '';
+        likesGrid.innerHTML = '';
+
+        var favIds = Object.keys(favSet).filter(function (id) { return !!artsById[id]; });
+        var likeIds = Object.keys(likeSet).filter(function (id) { return !!artsById[id]; });
+
+        favIds.forEach(function (id) {
+          favGrid.appendChild(createCard(artsById[id], { favorite: true, like: !!likeSet[id] }));
+        });
+        likeIds.forEach(function (id) {
+          likesGrid.appendChild(createCard(artsById[id], { favorite: !!favSet[id], like: true }));
+        });
+
+        document.getElementById('favorites-empty').style.display = favIds.length ? 'none' : 'block';
+        document.getElementById('likes-empty').style.display = likeIds.length ? 'none' : 'block';
+
+        bindActions();
+      });
+    }
+
+    function bindActions() {
+      document.querySelectorAll('.js-toggle-like').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = String(btn.getAttribute('data-art-id'));
+          var likes = getLikeState();
+          likes[id] = !likes[id];
+          setLikeState(likes);
+          render();
+        });
+      });
+
+      document.querySelectorAll('.js-toggle-favorite').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = String(btn.getAttribute('data-art-id'));
+          var title = String(btn.getAttribute('data-art-title') || 'Artwork');
+          var fav = getFavoriteState();
+          var willAdd = !fav[id];
+          var url = willAdd ? '/api/favorites/add' : '/api/favorites/remove';
+          var payload = willAdd ? { art_id: parseInt(id, 10), art_title: title } : { art_id: parseInt(id, 10) };
+
+          fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+              if (!data || data.success !== true) return;
+              fav[id] = willAdd;
+              setFavoriteState(fav);
+              render();
             })
-            .catch(error => {
-                console.error('Erreur chargement favoris:', error);
-                showNoFavorites();
-            });
-        }
+            .catch(function () {});
+        });
+      });
+    }
 
-        function displayFavorites(favorites) {
-            const container = document.getElementById('favorites-container');
-            container.innerHTML = '';
-
-            favorites.forEach(favorite => {
-                const card = createFavoriteCard(favorite);
-                container.appendChild(card);
-            });
-        }
-
-        function createFavoriteCard(favorite) {
-            const col = document.createElement('div');
-            col.className = 'col-md-4 mb-4';
-            
-            col.innerHTML = `
-                <div class="card h-100">
-                    <div class="action-buttons">
-                        <button class="btn btn-sm btn-favorite is-favorite" onclick="removeFavorite(${favorite.art_id})" title="Retirer des favoris">
-                            <i class="fa fa-heart"></i>
-                        </button>
-                        <a href="/art/${favorite.art_id}" class="btn btn-sm btn-info" title="Voir détails">
-                            <i class="fa fa-eye"></i>
-                        </a>
-                    </div>
-                    <a href="/art/${favorite.art_id}">
-                        ${favorite.art_image ? 
-                            `<img class="card-img-top" src="${favorite.art_image}" alt="${favorite.art_title}" style="height: 200px; object-fit: cover;" onerror="this.src='https://picsum.photos/400/200?random=${favorite.art_id}';">` :
-                            `<div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <i class="fas fa-image fa-3x text-muted"></i>
-                            </div>`
-                        }
-                    </a>
-                    <div class="card-body">
-                        <h5 class="card-title">${favorite.art_title}</h5>
-                        <small class="text-muted">Ajouté le ${new Date(favorite.created_at).toLocaleDateString()}</small>
-                    </div>
-                </div>
-            `;
-            
-            return col;
-        }
-
-        function showNoFavorites() {
-            document.getElementById('favorites-container').style.display = 'none';
-            document.getElementById('no-favorites').style.display = 'block';
-        }
-
-        function removeFavorite(artId) {
-            if (!confirm('Retirer cette œuvre des favoris ?')) return;
-
-            fetch('/api/favorites/remove', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ art_id: artId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    loadFavorites(); // Recharger la liste
-                    showNotification(data.message, 'success');
-                }
-            })
-            .catch(error => {
-                console.error('Erreur retrait favoris:', error);
-                showNotification('Erreur lors du retrait des favoris', 'error');
-            });
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'warning'} position-fixed`;
-            notification.style.cssText = `
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                min-width: 300px;
-                animation: slideIn 0.3s ease-out;
-            `;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-                ${message}
-                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.remove();
-                }
-            }, 3000);
-        }
-    </script>
-</body>
-</html>
+    render();
+  })();
+</script>
+{% endblock %}

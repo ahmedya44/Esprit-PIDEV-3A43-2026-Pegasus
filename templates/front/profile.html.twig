@@ -246,6 +246,7 @@
               <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
               <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
               <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a></li>
               <li class="nav-item"><a class="nav-link" href="{{ path('forum_index') }}">Forum</a></li>
             </ul>
             <div class="user_option">
@@ -360,7 +361,10 @@
                   <strong>Passkey Login</strong>
                   <div style="font-size: 13px; color: #666;">Registered passkeys: {{ passkey_count|default(0) }}</div>
                 </div>
-                <button type="button" class="btn btn-dark btn-sm mt-2 mt-sm-0" id="registerPasskeyBtn">Add This Device</button>
+                <div class="d-flex gap-2 mt-2 mt-sm-0">
+                  <button type="button" class="btn btn-dark btn-sm" id="registerPasskeyBtn">Add This Device</button>
+                  <button type="button" class="btn btn-outline-dark btn-sm" id="registerPhonePasskeyBtn">Add iPhone/Android</button>
+                </div>
               </div>
 
               {% if passkeys is not empty %}
@@ -457,7 +461,7 @@
       return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
-    async function registerPasskey() {
+    async function registerPasskey(mode) {
       if (!ensurePasskeyCompatibleOrigin()) {
         return;
       }
@@ -471,7 +475,7 @@
         const optionsRes = await fetch('{{ path('app_passkey_register_options') }}', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({})
+          body: JSON.stringify({ mode: mode || 'device' })
         });
         const optionsData = await optionsRes.json();
         if (!optionsRes.ok) {
@@ -506,7 +510,8 @@
           transports: credential.response.getTransports ? credential.response.getTransports() : []
         };
 
-        const labelInput = prompt('Device label (optional). Example: My iPhone');
+        const defaultLabel = mode === 'phone' ? 'My iPhone/Android' : 'My device';
+        const labelInput = prompt('Device label (optional). Example: ' + defaultLabel);
         if (labelInput && labelInput.trim().length > 0) {
           verifyPayload.label = labelInput.trim().slice(0, 120);
         }
@@ -530,7 +535,12 @@
 
     const registerPasskeyBtn = document.getElementById('registerPasskeyBtn');
     if (registerPasskeyBtn) {
-      registerPasskeyBtn.addEventListener('click', registerPasskey);
+      registerPasskeyBtn.addEventListener('click', function () { registerPasskey('device'); });
+    }
+
+    const registerPhonePasskeyBtn = document.getElementById('registerPhonePasskeyBtn');
+    if (registerPhonePasskeyBtn) {
+      registerPhonePasskeyBtn.addEventListener('click', function () { registerPasskey('phone'); });
     }
 
     document.getElementById('avatarImageTrigger').addEventListener('click', function () {

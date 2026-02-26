@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Art;
 use App\Form\ArtType;
 use App\Repository\ArtRepository;
+use App\Service\FreeTranslationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,13 +56,31 @@ final class GalleryController extends AbstractController
     }
 
     #[Route('/gallery/new', name: 'front_gallery_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        FreeTranslationService $translationService
+    ): Response
     {
         $art = new Art();
         $form = $this->createForm(ArtType::class, $art);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Ensure EN fields are filled even if front-end translation button fails.
+            if (trim((string) $art->getTitleEn()) === '') {
+                $translatedTitle = $translationService->translateText((string) $art->getTitle(), 'en', 'fr');
+                if (is_string($translatedTitle) && trim($translatedTitle) !== '') {
+                    $art->setTitleEn(trim($translatedTitle));
+                }
+            }
+            if (trim((string) $art->getDescriptionEn()) === '') {
+                $translatedDescription = $translationService->translateText((string) $art->getDescription(), 'en', 'fr');
+                if (is_string($translatedDescription) && trim($translatedDescription) !== '') {
+                    $art->setDescriptionEn(trim($translatedDescription));
+                }
+            }
+
             $art->setCreatedAt(new \DateTime());
             $art->setStatus('en attente'); // En attente de validation admin
             

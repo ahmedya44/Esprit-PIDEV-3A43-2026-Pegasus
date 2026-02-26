@@ -133,6 +133,26 @@
       background-color: #111;
       color: #fff;
     }
+    .btn-passkey-phone {
+      width: 100%;
+      padding: 12px;
+      background-color: #fff;
+      color: #222831;
+      border: 1px solid #222831;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-passkey-phone:hover {
+      background-color: #f4f5f7;
+      color: #111;
+    }
 
     .btn-google:hover {
       background-color: #f7f7f7;
@@ -231,6 +251,9 @@
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('forum_index') }}">Forum</a>
@@ -370,6 +393,10 @@
           <i class="fa fa-id-badge" aria-hidden="true"></i>
           Sign In with Passkey
         </button>
+        <button type="button" class="btn-passkey-phone" id="passkeyPhoneLoginBtn">
+          <i class="fa fa-mobile" aria-hidden="true"></i>
+          Sign In with Passkey (Phone)
+        </button>
         <a href="{{ path('app_connect_google_start') }}" class="btn-google">
           <i class="fa fa-google" aria-hidden="true"></i>
           Continue with Google
@@ -485,7 +512,7 @@
       return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
-    async function loginWithPasskey() {
+    async function loginWithPasskey(mode) {
       if (!ensurePasskeyCompatibleOrigin()) {
         return;
       }
@@ -507,7 +534,7 @@
         const optionsRes = await fetch('{{ path('app_passkey_login_options') }}', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email })
+          body: JSON.stringify({ email: email, mode: mode || 'device' })
         });
         const optionsData = await optionsRes.json();
         if (!optionsRes.ok) {
@@ -523,7 +550,12 @@
           }));
         }
 
-        const assertion = await navigator.credentials.get({ publicKey: publicKey });
+        const requestPayload = { publicKey: publicKey };
+        if (mode === 'phone') {
+          requestPayload.mediation = 'optional';
+        }
+
+        const assertion = await navigator.credentials.get(requestPayload);
         if (!assertion) {
           throw new Error('No passkey assertion returned.');
         }
@@ -558,7 +590,12 @@
 
     const passkeyBtn = document.getElementById('passkeyLoginBtn');
     if (passkeyBtn) {
-      passkeyBtn.addEventListener('click', loginWithPasskey);
+      passkeyBtn.addEventListener('click', function () { loginWithPasskey('device'); });
+    }
+
+    const passkeyPhoneBtn = document.getElementById('passkeyPhoneLoginBtn');
+    if (passkeyPhoneBtn) {
+      passkeyPhoneBtn.addEventListener('click', function () { loginWithPasskey('phone'); });
     }
 
     document.querySelectorAll('.js-password-toggle').forEach(function (toggleButton) {

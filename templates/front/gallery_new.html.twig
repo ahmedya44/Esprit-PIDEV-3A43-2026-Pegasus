@@ -1,247 +1,134 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Ajouter une œuvre</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        .form-container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .page-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .btn-back {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-back:hover {
-            background: rgba(0,0,0,0.9);
-            transform: scale(1.1);
-        }
-    </style>
-</head>
-<body class="bg-light">
-    <button class="btn-back" onclick="history.back()">
-        <i class="fas fa-arrow-left"></i>
-    </button>
+{% extends 'front/layout.html.twig' %}
 
-    <div class="form-container">
-        <div class="page-header">
-            <h1 class="display-4 fw-bold">🎨 Ajouter une œuvre</h1>
-            <p class="lead">Remplissez le formulaire ci-dessous pour ajouter une nouvelle œuvre à la galerie</p>
+{% set active_nav = 'gallery' %}
+
+{% block title %}Add Artwork{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .translate-status {
+    font-size: .9rem;
+    color: #6b7280;
+    min-height: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="forum-shell">
+  <div class="container">
+    <div class="forum-card" style="max-width: 900px; margin: 0 auto;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Add Artwork</h1>
+        <a href="{{ path('front_gallery') }}" class="btn btn-sm btn-outline-secondary">Back</a>
+      </div>
+
+      {{ form_start(form) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.description) }}
+        <div class="mb-3 d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="translate-art-btn">
+            Translate (FR -> EN)
+          </button>
+          <span id="translate-art-status" class="translate-status"></span>
         </div>
-
-        {{ form_start(form) }}
-            <div class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    {{ form_label(form.title, 'Titre de l\'œuvre', {'label_attr': {'class': 'form-label mb-0'}}) }}
-                    <div>
-                        <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="translateField('title')">
-                            <i class="fas fa-language"></i> Traduire
-                        </button>
-                    </div>
-                </div>
-                {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Entrez le titre...', 'id': 'art_title'}}) }}
-                <small class="form-text text-muted" id="title-lang-indicator">Français</small>
-                {% if form.title.vars.errors|length > 0 %}
-                    <div class="alert alert-danger mt-2">
-                        {% for error in form.title.vars.errors %}
-                            <small>{{ error.message }}</small>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label mb-0'}}) }}
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="translateField('description')">
-                        <i class="fas fa-language"></i> Traduire
-                    </button>
-                </div>
-                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5, 'placeholder': 'Décrivez votre œuvre...', 'id': 'art_description'}}) }}
-                <small class="form-text text-muted" id="desc-lang-indicator">Français</small>
-                {% if form.description.vars.errors|length > 0 %}
-                    <div class="alert alert-danger mt-2">
-                        {% for error in form.description.vars.errors %}
-                            <small>{{ error.message }}</small>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="mb-3">
-                {{ form_label(form.imageFile, 'Image de l\'œuvre', {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control', 'id': 'image-file'}}) }}
-                {% if form.imageFile.vars.errors|length > 0 %}
-                    <div class="alert alert-danger mt-2">
-                        {% for error in form.imageFile.vars.errors %}
-                            <small>{{ error.message }}</small>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="mb-3">
-                {{ form_label(form.isAiGenerated, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(form.isAiGenerated, {'attr': {'id': 'is-ai-generated'}}) }}
-                <small class="form-text text-muted">Cochez si l'image a été générée par IA</small>
-            </div>
-
-            {{ form_widget(form.aiGeneratedImage) }}
-            {{ form_widget(form.titleEn) }}
-            {{ form_widget(form.descriptionEn) }}
-
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="fas fa-save"></i> Enregistrer l'œuvre
-                </button>
-                <a href="{{ path('front_gallery') }}" class="btn btn-secondary btn-lg">
-                    <i class="fas fa-times"></i> Annuler
-                </a>
-            </div>
-        {{ form_end(form) }}
+        {{ form_row(form.imageFile) }}
+        {% do form.isAiGenerated.setRendered() %}
+        {% do form.aiGeneratedImage.setRendered() %}
+        <div style="display:none;">
+          {{ form_widget(form.titleEn) }}
+          {{ form_widget(form.descriptionEn) }}
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+          <a href="{{ path('front_gallery') }}" class="btn btn-outline-dark">Cancel</a>
+          <button type="submit" class="btn btn-warning">Save</button>
+        </div>
+      {{ form_end(form) }}
     </div>
+  </div>
+</section>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        let translationTimeout;
-        let currentLang = {
-            title: 'fr',
-            description: 'fr'
-        };
+{% block extra_scripts %}
+<script>
+  (function () {
+    var translateBtn = document.getElementById('translate-art-btn');
+    var statusEl = document.getElementById('translate-art-status');
+    var titleFr = document.getElementById('art_title') || document.querySelector('input[name$="[title]"]');
+    var descFr = document.getElementById('art_description') || document.querySelector('textarea[name$="[description]"]');
+    var titleEn = document.getElementById('title-en') || document.querySelector('input[name$="[titleEn]"]');
+    var descEn = document.getElementById('description-en') || document.querySelector('textarea[name$="[descriptionEn]"]');
 
-        async function translateText(text) {
-            if (!text.trim()) return '';
-            
-            try {
-                const response = await fetch('/api/translate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        text: text,
-                        targetLang: 'en',
-                        sourceLang: 'fr'
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Translation failed');
-                }
-                
-                const data = await response.json();
-                return data.translatedText || '';
-            } catch (error) {
-                console.error('Translation error:', error);
-                return '';
-            }
-        }
+    if (!translateBtn || !titleFr || !descFr || !titleEn || !descEn) {
+      return;
+    }
 
-        async function translateField(fieldType) {
-            // Utiliser les sélecteurs Symfony natifs
-            const input = document.querySelector(fieldType === 'title' ? 'input[name="art[title]"]' : 'textarea[name="art[description]"]');
-            const indicator = document.getElementById(fieldType + '-lang-indicator');
-            const translateBtn = event.target;
-            
-            if (!input.value.trim()) {
-                alert('Veuillez entrer du texte avant de traduire');
-                return;
-            }
-            
-            translateBtn.disabled = true;
-            translateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traduction...';
-            
-            if (currentLang[fieldType] === 'fr') {
-                // Traduire vers l'anglais
-                const translatedText = await translateText(input.value);
-                if (translatedText) {
-                    input.value = translatedText;
-                    currentLang[fieldType] = 'en';
-                    indicator.textContent = 'Anglais';
-                    translateBtn.innerHTML = '<i class="fas fa-language"></i> Français';
-                }
-            } else {
-                // Revenir au français (on garde l'original en mémoire)
-                currentLang[fieldType] = 'fr';
-                indicator.textContent = 'Français';
-                translateBtn.innerHTML = '<i class="fas fa-language"></i> Traduire';
-                // Note: pour simplifier, on ne garde pas l'original français
-            }
-            
-            translateBtn.disabled = false;
-        }
+    function setStatus(text, isError) {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.style.color = isError ? '#dc2626' : '#6b7280';
+    }
 
-        function showImagePreview(imageUrl) {
-            console.log('showImagePreview called with:', imageUrl); // Debug
-            
-            if (!imageUrl) {
-                console.error('No image URL provided');
-                return;
-            }
-            
-            let preview = document.getElementById('image-preview');
-            if (!preview) {
-                console.log('Creating preview element'); // Debug
-                preview = document.createElement('div');
-                preview.id = 'image-preview';
-                preview.className = 'mt-3 p-3 border rounded';
-                preview.innerHTML = '<h6>Aperçu de l\'image:</h6><img src="" style="max-width: 200px; max-height: 200px;" class="img-fluid rounded">';
-                
-                // Trouver le conteneur parent de l'input URL
-                const urlInput = document.querySelector('input[name="art[imageUrl]"]');
-                if (urlInput && urlInput.parentNode) {
-                    urlInput.parentNode.appendChild(preview);
-                } else {
-                    console.error('Could not find URL input parent');
-                    return;
-                }
-            }
-            
-            const img = preview.querySelector('img');
-            if (img) {
-                img.src = imageUrl;
-                console.log('Image preview updated'); // Debug
-            } else {
-                console.error('Could not find img element in preview');
-            }
-        }
-
-        // Ajouter un écouteur pour l'aperçu automatique
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlInput = document.querySelector('input[name="art[imageUrl]"]');
-            if (urlInput) {
-                urlInput.addEventListener('blur', function() {
-                    if (this.value.trim()) {
-                        showImagePreview(this.value);
-                    }
-                });
-            }
+    function translateText(text, sourceLang, targetLang) {
+      return fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          sourceLang: sourceLang,
+          targetLang: targetLang
+        })
+      })
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (data) {
+          if (!data || data.error || !data.translatedText) {
+            throw new Error('translation_failed');
+          }
+          return data.translatedText;
         });
-    </script>
-</body>
-</html>
+    }
+
+    translateBtn.addEventListener('click', function () {
+      var titleValue = String(titleFr.value || '').trim();
+      var descValue = String(descFr.value || '').trim();
+      if (!titleValue && !descValue) {
+        setStatus('Add title or description first.', true);
+        return;
+      }
+
+      translateBtn.disabled = true;
+      setStatus('Translating...', false);
+
+      var originalTitle = titleValue;
+      var originalDesc = descValue;
+
+      Promise.all([
+        titleValue ? translateText(titleValue, 'fr', 'en') : Promise.resolve(''),
+        descValue ? translateText(descValue, 'fr', 'en') : Promise.resolve('')
+      ])
+        .then(function (results) {
+          var translatedTitle = results[0] || '';
+          var translatedDesc = results[1] || '';
+
+          if (translatedTitle) {
+            titleEn.value = translatedTitle;
+            titleFr.value = translatedTitle;
+          }
+          if (translatedDesc) {
+            descEn.value = translatedDesc;
+            descFr.value = translatedDesc;
+          }
+
+          var changed = (translatedTitle && translatedTitle !== originalTitle) || (translatedDesc && translatedDesc !== originalDesc);
+          setStatus(changed ? 'Translation applied to fields.' : 'No visible change (text may already be English).', false);
+        })
+        .catch(function () {
+          setStatus('Translation failed. Please retry.', true);
+        })
+        .finally(function () {
+          translateBtn.disabled = false;
+        });
+    });
+  })();
+</script>
+{% endblock %}
