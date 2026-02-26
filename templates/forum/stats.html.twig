@@ -16,13 +16,13 @@
                 </div>
             </div>
 
-            <form method="get" class="row g-2">
+            <form method="get" class="row g-2" data-live-search-form="1" data-live-delay="160">
                 <div class="col-md-4">
                     <label class="form-label mb-1">Filtre statut</label>
-                    <select name="status" class="form-control" onchange="this.form.requestSubmit()">
+                    <select name="status" class="form-control" data-live-search-filter="1">
                         <option value="">Tous</option>
                         <option value="OPEN" {% if status == 'OPEN' %}selected{% endif %}>Ouvert</option>
-                        <option value="CLOSED" {% if status == 'CLOSED' %}selected{% endif %}>Ferme</option>
+                        <option value="HIDDEN" {% if status == 'HIDDEN' %}selected{% endif %}>Cache</option>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex align-items-end">

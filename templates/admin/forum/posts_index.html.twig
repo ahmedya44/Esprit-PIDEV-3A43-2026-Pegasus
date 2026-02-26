@@ -1,6 +1,24 @@
 {% extends 'back/layout.html.twig' %}
 
 {% block title %}Admin Forum - Sujets{% endblock %}
+{% block extra_styles %}
+<style>
+  .admin-icon-actions {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .admin-icon-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+{% endblock %}
 
 {% block body %}
 <div class="container-fluid mt-5">
@@ -16,12 +34,12 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" class="row g-3">
+            <form method="get" class="row g-3" data-live-search-form="1" data-live-delay="280">
                 <div class="col-md-5">
-                    <input type="search" name="q" class="form-control" placeholder="Rechercher titre ou contenu..." value="{{ q }}" oninput="this.form.requestSubmit()">
+                    <input type="search" name="q" class="form-control" placeholder="Rechercher titre ou contenu..." value="{{ q }}" data-live-search-input="1">
                 </div>
                 <div class="col-md-3">
-                    <select name="status" class="form-select" onchange="this.form.requestSubmit()">
+                    <select name="status" class="form-select" data-live-search-filter="1">
                         <option value="">Tous les statuts</option>
                         <option value="OPEN" {% if status == 'OPEN' %}selected{% endif %}>Ouvert</option>
                         <option value="CLOSED" {% if status == 'CLOSED' %}selected{% endif %}>Ferme</option>
@@ -60,10 +78,11 @@
                 <tbody>
                     {% for post in pagination %}
                         {% set translatedPost = post|translate_object(app.request.locale) %}
+                        {% set cleanTitle = translatedPost.title|striptags|replace({'&nbsp;': ' '})|trim %}
                         <tr>
                             <td>
                                 <a href="{{ path('admin_forum_post_show', {id: post.id}) }}" class="text-decoration-none">
-                                    {{ translatedPost.title|slice(0, 55) }}{% if translatedPost.title|length > 55 %}...{% endif %}
+                                    {{ cleanTitle|slice(0, 55) }}{% if cleanTitle|length > 55 %}...{% endif %}
                                 </a>
                             </td>
                             <td>{{ post.authorName }}</td>
@@ -86,12 +105,20 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{{ path('admin_forum_post_show', {id: post.id}) }}" class="btn btn-sm btn-outline-primary">Voir</a>
-                                <a href="{{ path('admin_forum_post_edit', {id: post.id}) }}" class="btn btn-sm btn-outline-warning">Modifier</a>
-                                <form method="post" action="{{ path('admin_forum_post_delete', {id: post.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce sujet ?');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ post.id) }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
-                                </form>
+                                <div class="admin-icon-actions">
+                                    <a href="{{ path('admin_forum_post_show', {id: post.id}) }}" class="btn btn-sm btn-outline-primary admin-icon-btn" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('admin_forum_post_edit', {id: post.id}) }}" class="btn btn-sm btn-outline-warning admin-icon-btn" title="Modifier">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <form method="post" action="{{ path('admin_forum_post_delete', {id: post.id}) }}" class="d-inline" data-confirm-title="Supprimer le sujet" data-confirm-message="Supprimer ce sujet ?">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ post.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger admin-icon-btn" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}

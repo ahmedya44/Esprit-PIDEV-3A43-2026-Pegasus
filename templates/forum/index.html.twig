@@ -20,6 +20,12 @@
     border-radius: 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     padding: 14px 16px;
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+  }
+  .feed-card.is-opening {
+    transform: perspective(900px) rotateX(6deg) translateY(-4px) scale(0.985);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18);
+    opacity: .92;
   }
   .feed-toolbar {
     position: sticky;
@@ -58,11 +64,11 @@
     top: -1px;
   }
   .rating-display-stars::before {
-    content: '★★★★★';
+    content: "\2605\2605\2605\2605\2605";
     color: #d0d5dd;
   }
   .rating-display-stars::after {
-    content: '★★★★★';
+    content: "\2605\2605\2605\2605\2605";
     color: #f4b400;
     position: absolute;
     top: 0;
@@ -91,15 +97,15 @@
                     </div>
                 </div>
 
-                <form method="get" class="row g-2">
+                <form method="get" class="row g-2" data-live-search-form="1" data-live-delay="280">
                     <div class="col-md-7">
-                        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher un post..." oninput="this.form.requestSubmit()">
+                        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Rechercher un post..." data-live-search-input="1">
                     </div>
                     <div class="col-md-3">
-                        <select name="status" class="form-control" onchange="this.form.requestSubmit()">
+                        <select name="status" class="form-control" data-live-search-filter="1">
                             <option value="">Tous les statuts</option>
                             <option value="OPEN" {% if status == 'OPEN' %}selected{% endif %}>Ouvert</option>
-                            <option value="CLOSED" {% if status == 'CLOSED' %}selected{% endif %}>Ferme</option>
+                            <option value="HIDDEN" {% if status == 'HIDDEN' %}selected{% endif %}>Cache</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -127,10 +133,14 @@
                                     {{ post.authorName }} • {{ post.createdAt|format_datetime('medium', 'short') }}
                                 </div>
                             </div>
-                            {% if post.status == 'OPEN' %}
-                                <span class="badge badge-success">Ouvert</span>
-                            {% else %}
-                                <span class="badge badge-warning">Ferme</span>
+                            {% if is_granted('ROLE_ADMIN') or (app.user and post.owner and app.user.id == post.owner.id) %}
+                                {% if post.status == 'OPEN' %}
+                                    <span class="badge badge-success">Ouvert</span>
+                                {% elseif post.status == 'CLOSED' %}
+                                    <span class="badge badge-warning">Ferme</span>
+                                {% else %}
+                                    <span class="badge badge-dark">Cache</span>
+                                {% endif %}
                             {% endif %}
                         </div>
 
@@ -156,7 +166,7 @@
                                 {% endif %}
                                 ({{ rating.count }} vote{{ rating.count > 1 ? 's' : '' }})
                             </small>
-                            <a href="{{ path('forum_show', {id: post.id}) }}" class="btn btn-sm btn-outline-primary">Voir le post</a>
+                            <a href="{{ path('forum_show', {id: post.id}) }}" class="btn btn-sm btn-outline-primary js-open-post">Voir le post</a>
                         </div>
                     </article>
                 {% endfor %}
@@ -173,3 +183,25 @@
     </div>
 </section>
 {% endblock %}
+{% block extra_scripts %}
+<script>
+  (function () {
+    document.querySelectorAll('.js-open-post').forEach(function (link) {
+      link.addEventListener('click', function (event) {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+        event.preventDefault();
+        var card = link.closest('.feed-card');
+        if (card) {
+          card.classList.add('is-opening');
+        }
+        window.setTimeout(function () {
+          window.location.href = link.href;
+        }, 140);
+      });
+    });
+  })();
+</script>
+{% endblock %}
+

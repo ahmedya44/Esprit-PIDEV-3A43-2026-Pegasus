@@ -12,11 +12,14 @@ use App\Form\PostRatingType;
 use App\Repository\CommentaireRepository;
 use App\Repository\PostRepository;
 use App\Repository\PostRatingRepository;
+use App\Service\AiAutocompleteService;
 use App\Service\BadWordsDetectorService;
+use App\Service\GiphyService;
 use App\Service\TranslationApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -36,22 +39,27 @@ class ForumController extends AbstractController
         private ObjectTranslator $objectTranslator,
         private BadWordsDetectorService $badWordsDetector,
         private TranslationApiService $translationApi,
+        private AiAutocompleteService $aiAutocomplete,
+        private GiphyService $giphyService,
     ) {
     }
 
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(Request $request): Response
     {
+        $viewer = $this->getUser();
+        $viewer = $viewer instanceof User ? $viewer : null;
+
         $page = max(1, $request->query->getInt('page', 1));
         $q = trim((string) $request->query->get('q', ''));
         $status = (string) $request->query->get('status', '');
 
-        if (!in_array($status, [Post::STATUS_OPEN, Post::STATUS_CLOSED], true)) {
+        if (!in_array($status, [Post::STATUS_OPEN, Post::STATUS_HIDDEN], true)) {
             $status = '';
         }
 
         $pagination = $this->paginator->paginate(
-            $this->postRepository->createFrontListQueryBuilder($q, $status),
+            $this->postRepository->createFrontListQueryBuilder($q, $status, $viewer, $this->isGranted('ROLE_ADMIN')),
             $page,
             10
         );
@@ -75,7 +83,7 @@ class ForumController extends AbstractController
     public function stats(Request $request): Response
     {
         $status = (string) $request->query->get('status', '');
-        if (!in_array($status, ['', Post::STATUS_OPEN, Post::STATUS_CLOSED], true)) {
+        if (!in_array($status, ['', Post::STATUS_OPEN, Post::STATUS_HIDDEN], true)) {
             $status = '';
         }
 
@@ -113,6 +121,8 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->applyAllowedViewersFromForm($post, $form->get('allowedViewerIds')->getData());
+
             $owner = $post->getOwner();
             if ($owner instanceof User) {
                 $post->setAuthorName($owner->getDisplayName());
@@ -140,11 +150,58 @@ class ForumController extends AbstractController
         ]);
     }
 
+    #[Route('/ai/autocomplete', name: 'ai_autocomplete', methods: ['POST'])]
+    public function aiAutocomplete(Request $request): JsonResponse
+    {
+        $this->requireAuthenticatedUser();
+
+        $csrfToken = (string) $request->headers->get('X-CSRF-Token', '');
+        if (!$this->isCsrfTokenValid('forum_ai_autocomplete', $csrfToken)) {
+            return $this->json(['error' => 'Invalid CSRF token'], Response::HTTP_FORBIDDEN);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        if (!is_array($payload)) {
+            return $this->json(['suggestions' => []]);
+        }
+
+        $field = (string) ($payload['field'] ?? '');
+        $text = trim((string) ($payload['text'] ?? ''));
+        $context = trim((string) ($payload['context'] ?? ''));
+
+        if (!in_array($field, ['post_title', 'post_content'], true)) {
+            return $this->json(['suggestions' => []]);
+        }
+
+        if ($text === '') {
+            return $this->json(['suggestions' => []]);
+        }
+
+        $suggestions = $this->aiAutocomplete->suggest($field, strip_tags($text), strip_tags($context), $request->getLocale(), 4);
+
+        return $this->json([
+            'suggestions' => $suggestions,
+        ]);
+    }
+
+    #[Route('/gifs/search', name: 'gif_search', methods: ['GET'])]
+    public function gifSearch(Request $request): JsonResponse
+    {
+        $this->requireAuthenticatedUser();
+
+        $query = trim((string) $request->query->get('q', ''));
+        $limit = max(1, min(24, $request->query->getInt('limit', 16)));
+
+        return $this->json([
+            'items' => $this->giphyService->search($query, $limit),
+        ]);
+    }
+
     #[Route('/{id}', name: 'show', methods: ['GET'])]
     #[Route('/post/{id}', name: 'show_legacy', methods: ['GET'])]
     public function show(Post $post, Request $request): Response
     {
-        if ($post->isHidden()) {
+        if (!$this->canAccessPost($post)) {
             throw $this->createNotFoundException('Ce sujet n\'existe pas.');
         }
 
@@ -176,7 +233,7 @@ class ForumController extends AbstractController
 
         return $this->render('forum/show.html.twig', [
             'post' => $post,
-            'translatedPost' => $this->translatedPostPayload($post, $locale, $request),
+            'translatedPost' => $this->translatedPostPayload($post, $locale),
             'translatedComments' => $this->translatedComments($post, $locale),
             'commentForm' => $commentFormView,
             'ratingForm' => $ratingForm->createView(),
@@ -189,7 +246,7 @@ class ForumController extends AbstractController
     #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Post $post, Request $request): Response
     {
-        if ($post->isHidden()) {
+        if (!$this->canAccessPost($post)) {
             throw $this->createNotFoundException('Ce sujet ne peut pas etre modifie.');
         }
         $this->denyUnlessOwnerOrAdmin($post->getOwner());
@@ -198,6 +255,8 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->applyAllowedViewersFromForm($post, $form->get('allowedViewerIds')->getData());
+
             if ($this->hasForbiddenWords([$post->getTitle(), $post->getContent()])) {
                 $this->addFlash('error', 'Le sujet contient des mots interdits.');
 
@@ -243,7 +302,7 @@ class ForumController extends AbstractController
     {
         $user = $this->requireAuthenticatedUser();
 
-        if ($post->isHidden()) {
+        if (!$this->canAccessPost($post)) {
             throw $this->createNotFoundException('Ce sujet n\'existe pas.');
         }
 
@@ -301,7 +360,7 @@ class ForumController extends AbstractController
 
                 return $this->render('forum/show.html.twig', [
                     'post' => $post,
-                    'translatedPost' => $this->translatedPostPayload($post, $locale, $request),
+                    'translatedPost' => $this->translatedPostPayload($post, $locale),
                     'translatedComments' => $this->translatedComments($post, $locale),
                     'commentForm' => $form->createView(),
                     'ratingForm' => $ratingForm->createView(),
@@ -336,7 +395,7 @@ class ForumController extends AbstractController
 
         return $this->render('forum/show.html.twig', [
             'post' => $post,
-            'translatedPost' => $this->translatedPostPayload($post, $locale, $request),
+            'translatedPost' => $this->translatedPostPayload($post, $locale),
             'translatedComments' => $this->translatedComments($post, $locale),
             'commentForm' => $form->createView(),
             'ratingForm' => $ratingForm->createView(),
@@ -351,7 +410,7 @@ class ForumController extends AbstractController
     {
         $user = $this->requireAuthenticatedUser();
 
-        if ($post->isHidden()) {
+        if (!$this->canAccessPost($post)) {
             throw $this->createNotFoundException('Ce sujet n\'existe pas.');
         }
 
@@ -478,7 +537,7 @@ class ForumController extends AbstractController
         return in_array($requested, self::AVAILABLE_LOCALES, true) ? $requested : null;
     }
 
-    private function translatedPostPayload(Post $post, ?string $locale, Request $request): object
+    private function translatedPostPayload(Post $post, ?string $locale): object
     {
         if ($locale === null) {
             return (object) [
@@ -544,6 +603,63 @@ class ForumController extends AbstractController
         $user = $this->getUser();
         if (!$user instanceof User || !$owner instanceof User || $user->getId() !== $owner->getId()) {
             throw $this->createAccessDeniedException('Acces refuse: vous n\'etes pas proprietaire de ce contenu.');
+        }
+    }
+
+    private function canAccessPost(Post $post): bool
+    {
+        if (!$post->isHidden()) {
+            return true;
+        }
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return true;
+        }
+
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return false;
+        }
+
+        if ($post->getOwner() instanceof User && $post->getOwner()->getId() === $user->getId()) {
+            return true;
+        }
+
+        foreach ($post->getAllowedViewers() as $viewer) {
+            if ($viewer->getId() === $user->getId()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function applyAllowedViewersFromForm(Post $post, mixed $rawIds): void
+    {
+        $post->clearAllowedViewers();
+
+        if (!$post->isHidden()) {
+            return;
+        }
+
+        $ids = preg_split('/[^0-9]+/', (string) $rawIds) ?: [];
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+
+        if ($ids === []) {
+            return;
+        }
+
+        $users = $this->entityManager->getRepository(User::class)->findBy(['id' => $ids]);
+        foreach ($users as $user) {
+            if (!$user instanceof User) {
+                continue;
+            }
+
+            if ($post->getOwner() instanceof User && $post->getOwner()->getId() === $user->getId()) {
+                continue;
+            }
+
+            $post->addAllowedViewer($user);
         }
     }
 }

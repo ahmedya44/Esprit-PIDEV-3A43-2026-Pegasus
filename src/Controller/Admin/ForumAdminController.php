@@ -118,18 +118,14 @@ class ForumAdminController extends AbstractController
     #[Route('/post/{id}', name: 'post_show', methods: ['GET'])]
     public function postShow(Post $post, Request $request): Response
     {
-        $locale = $request->getLocale();
-
-        $translatedComments = [];
-        foreach ($post->getCommentaires() as $commentaire) {
-            $translatedComments[$commentaire->getId()] = $this->objectTranslator->translate($commentaire, $locale);
-        }
+        $locale = $this->resolveAdminLocale($request);
 
         return $this->render('admin/forum/post_show.html.twig', [
             'post' => $post,
-            'translatedPost' => $this->objectTranslator->translate($post, $locale),
-            'translatedComments' => $translatedComments,
+            'translatedPost' => $this->translatedPostPayload($post, $locale),
+            'translatedComments' => $this->translatedCommentsPayload($post, $locale),
             'translatableLocales' => self::TRANSLATABLE_LOCALES,
+            'activeLocale' => $locale,
         ]);
     }
 
@@ -213,6 +209,8 @@ class ForumAdminController extends AbstractController
     #[Route('/post/{id}/translate', name: 'post_translate', methods: ['POST'])]
     public function translatePost(Post $post, Request $request): Response
     {
+        $returnLang = $this->resolvePostedLocale($request);
+
         if (!$this->isCsrfTokenValid('translate_post_' . $post->getId(), (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token');
         }
@@ -221,7 +219,7 @@ class ForumAdminController extends AbstractController
         if (!array_key_exists($targetLocale, self::TRANSLATABLE_LOCALES)) {
             $this->addFlash('error', 'Langue cible invalide.');
 
-            return $this->redirectToRoute('admin_forum_post_show', ['id' => $post->getId()]);
+            return $this->redirectToRoute('admin_forum_post_show', ['id' => $post->getId(), 'lang' => $returnLang]);
         }
 
         $translatedTitle = trim((string) $request->request->get('translated_title', ''));
@@ -238,13 +236,13 @@ class ForumAdminController extends AbstractController
         if ($translatedTitle === '' && $translatedContent === '') {
             $this->addFlash('error', 'Aucune traduction a enregistrer.');
 
-            return $this->redirectToRoute('admin_forum_post_show', ['id' => $post->getId()]);
+            return $this->redirectToRoute('admin_forum_post_show', ['id' => $post->getId(), 'lang' => $returnLang]);
         }
 
         if ($this->hasForbiddenWords([$translatedTitle, $translatedContent])) {
             $this->addFlash('error', 'La traduction contient des mots interdits.');
 
-            return $this->redirectToRoute('admin_forum_post_show', ['id' => $post->getId()]);
+            return $this->redirectToRoute('admin_forum_post_show', ['id' => $post->getId(), 'lang' => $returnLang]);
         }
 
         if ($translatedTitle !== '') {
@@ -260,7 +258,7 @@ class ForumAdminController extends AbstractController
 
         $this->addFlash('success', sprintf('Traduction du post en %s enregistree.', self::TRANSLATABLE_LOCALES[$targetLocale]));
 
-        return $this->redirectToRoute('admin_forum_post_show', ['id' => $post->getId()]);
+        return $this->redirectToRoute('admin_forum_post_show', ['id' => $post->getId(), 'lang' => $targetLocale]);
     }
 
     #[Route('/comments', name: 'comments_index', methods: ['GET'])]
@@ -286,6 +284,8 @@ class ForumAdminController extends AbstractController
     #[Route('/comment/{id}/edit', name: 'comment_edit', methods: ['GET', 'POST'])]
     public function commentEdit(Commentaire $commentaire, Request $request): Response
     {
+        $currentLang = $this->resolveAdminLocale($request);
+
         if ($commentaire->getOwner() !== null) {
             $commentaire->setAuthorName($commentaire->getOwner()->getDisplayName());
             $commentaire->setAuthorEmail($commentaire->getOwner()->getEmail());
@@ -303,6 +303,7 @@ class ForumAdminController extends AbstractController
                     'commentaire' => $commentaire,
                     'post' => $commentaire->getPost(),
                     'translatableLocales' => self::TRANSLATABLE_LOCALES,
+                    'activeLocale' => $currentLang,
                 ], new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
             }
 
@@ -311,7 +312,10 @@ class ForumAdminController extends AbstractController
 
             $this->addFlash('success', 'Le commentaire a ete modifie.');
 
-            return $this->redirectToRoute('admin_forum_post_show', ['id' => $commentaire->getPost()->getId()]);
+            return $this->redirectToRoute('admin_forum_post_show', [
+                'id' => $commentaire->getPost()->getId(),
+                'lang' => $currentLang,
+            ]);
         }
 
         return $this->render('admin/forum/comment_edit.html.twig', [
@@ -319,12 +323,15 @@ class ForumAdminController extends AbstractController
             'commentaire' => $commentaire,
             'post' => $commentaire->getPost(),
             'translatableLocales' => self::TRANSLATABLE_LOCALES,
+            'activeLocale' => $currentLang,
         ]);
     }
 
     #[Route('/comment/{id}/translate', name: 'comment_translate', methods: ['POST'])]
     public function translateComment(Commentaire $commentaire, Request $request): Response
     {
+        $returnLang = $this->resolvePostedLocale($request);
+
         if (!$this->isCsrfTokenValid('translate_comment_' . $commentaire->getId(), (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Invalid CSRF token');
         }
@@ -333,7 +340,10 @@ class ForumAdminController extends AbstractController
         if (!array_key_exists($targetLocale, self::TRANSLATABLE_LOCALES)) {
             $this->addFlash('error', 'Langue cible invalide.');
 
-            return $this->redirectToRoute('admin_forum_post_show', ['id' => $commentaire->getPost()->getId()]);
+            return $this->redirectToRoute('admin_forum_post_show', [
+                'id' => $commentaire->getPost()->getId(),
+                'lang' => $returnLang,
+            ]);
         }
 
         $translatedContent = trim((string) $request->request->get('translated_content', ''));
@@ -344,13 +354,19 @@ class ForumAdminController extends AbstractController
         if ($translatedContent === '') {
             $this->addFlash('error', 'Le contenu traduit est vide.');
 
-            return $this->redirectToRoute('admin_forum_post_show', ['id' => $commentaire->getPost()->getId()]);
+            return $this->redirectToRoute('admin_forum_post_show', [
+                'id' => $commentaire->getPost()->getId(),
+                'lang' => $returnLang,
+            ]);
         }
 
         if ($this->hasForbiddenWords([$translatedContent])) {
             $this->addFlash('error', 'La traduction du commentaire contient des mots interdits.');
 
-            return $this->redirectToRoute('admin_forum_post_show', ['id' => $commentaire->getPost()->getId()]);
+            return $this->redirectToRoute('admin_forum_post_show', [
+                'id' => $commentaire->getPost()->getId(),
+                'lang' => $returnLang,
+            ]);
         }
 
         $this->upsertTranslation('commentaire', (string) $commentaire->getId(), $targetLocale, 'content', $translatedContent);
@@ -360,7 +376,10 @@ class ForumAdminController extends AbstractController
 
         $this->addFlash('success', sprintf('Traduction du commentaire en %s enregistree.', self::TRANSLATABLE_LOCALES[$targetLocale]));
 
-        return $this->redirectToRoute('admin_forum_post_show', ['id' => $commentaire->getPost()->getId()]);
+        return $this->redirectToRoute('admin_forum_post_show', [
+            'id' => $commentaire->getPost()->getId(),
+            'lang' => $targetLocale,
+        ]);
     }
 
     #[Route('/comment/{id}/delete', name: 'comment_delete', methods: ['POST'])]
@@ -423,5 +442,96 @@ class ForumAdminController extends AbstractController
         }
 
         return $user;
+    }
+
+    private function resolveAdminLocale(Request $request): ?string
+    {
+        $requested = trim((string) $request->query->get('lang', ''));
+        if ($requested === '' || $requested === 'orig') {
+            return null;
+        }
+
+        if ($requested !== '' && array_key_exists($requested, self::TRANSLATABLE_LOCALES)) {
+            return $requested;
+        }
+
+        $requestLocale = $request->getLocale();
+        if (array_key_exists($requestLocale, self::TRANSLATABLE_LOCALES)) {
+            return $requestLocale;
+        }
+
+        return null;
+    }
+
+    private function resolvePostedLocale(Request $request): string
+    {
+        $posted = trim((string) $request->request->get('return_lang', ''));
+        if ($posted !== '' && array_key_exists($posted, self::TRANSLATABLE_LOCALES)) {
+            return $posted;
+        }
+
+        return $this->resolveAdminLocale($request) ?? 'fr';
+    }
+
+    /**
+     * @return array<int, object>
+     */
+    private function translatedCommentsPayload(Post $post, ?string $locale): array
+    {
+        $translated = [];
+
+        foreach ($post->getCommentaires() as $commentaire) {
+            $content = $commentaire->getContent();
+            if ($locale !== null) {
+                $translatedComment = $this->objectTranslator->translate($commentaire, $locale);
+                $translatedContent = (string) $translatedComment->getContent();
+                if ($translatedContent === $content) {
+                    $apiTranslated = $this->translationApi->translate($content, $locale, 'auto');
+                    if (is_string($apiTranslated) && trim($apiTranslated) !== '') {
+                        $translatedContent = $apiTranslated;
+                    }
+                }
+                $content = $translatedContent;
+            }
+
+            $translated[$commentaire->getId()] = (object) [
+                'content' => $content,
+            ];
+        }
+
+        return $translated;
+    }
+
+    private function translatedPostPayload(Post $post, ?string $locale): object
+    {
+        if ($locale === null) {
+            return (object) [
+                'title' => (string) $post->getTitle(),
+                'content' => (string) $post->getContent(),
+            ];
+        }
+
+        $translatedPost = $this->objectTranslator->translate($post, $locale);
+        $title = (string) $translatedPost->getTitle();
+        $content = (string) $translatedPost->getContent();
+
+        if ($title === $post->getTitle()) {
+            $apiTitle = $this->translationApi->translate($post->getTitle(), $locale, 'auto');
+            if (is_string($apiTitle) && trim($apiTitle) !== '') {
+                $title = $apiTitle;
+            }
+        }
+
+        if ($content === $post->getContent()) {
+            $apiContent = $this->translationApi->translate($post->getContent(), $locale, 'auto');
+            if (is_string($apiContent) && trim($apiContent) !== '') {
+                $content = $apiContent;
+            }
+        }
+
+        return (object) [
+            'title' => $title,
+            'content' => $content,
+        ];
     }
 }

@@ -4,6 +4,12 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    gemini_api_url: 'https://generativelanguage.googleapis.com/v1beta/models'
+    gemini_model: 'gemma-3-4b-it'
+    giphy_rating: 'pg-13'
+    gif_provider: 'klipy'
+    klipy_api_url: 'https://api.klipy.com/v2'
+    klipy_client_key: 'pegasus_forum'
 
 services:
     # default configuration for services in *this* file
@@ -19,6 +25,21 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    App\Service\AiAutocompleteService:
+        arguments:
+            $apiKey: '%env(string:GEMINI_API_KEY)%'
+            $model: '%env(default:gemini_model:GEMINI_MODEL)%'
+            $apiUrl: '%env(default:gemini_api_url:GEMINI_API_URL)%'
+
+    App\Service\GiphyService:
+        arguments:
+            $provider: '%env(default:gif_provider:GIF_PROVIDER)%'
+            $klipyApiKey: '%env(string:KLIPY_API_KEY)%'
+            $klipyClientKey: '%env(default:klipy_client_key:KLIPY_CLIENT_KEY)%'
+            $klipyApiUrl: '%env(default:klipy_api_url:KLIPY_API_URL)%'
+            $giphyApiKey: '%env(string:GIPHY_API_KEY)%'
+            $rating: '%env(default:giphy_rating:GIPHY_RATING)%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

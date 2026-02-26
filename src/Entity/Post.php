@@ -96,11 +96,19 @@ class Post
     #[ORM\OneToMany(targetEntity: PostRating::class, mappedBy: 'post', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $ratings;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'forum_post_allowed_viewer')]
+    private Collection $allowedViewers;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->commentaires = new ArrayCollection();
         $this->ratings = new ArrayCollection();
+        $this->allowedViewers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -303,6 +311,37 @@ class Post
         if ($this->ratings->removeElement($rating) && $rating->getPost() === $this) {
             $rating->setPost(null);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getAllowedViewers(): Collection
+    {
+        return $this->allowedViewers;
+    }
+
+    public function addAllowedViewer(User $user): self
+    {
+        if (!$this->allowedViewers->contains($user)) {
+            $this->allowedViewers->add($user);
+        }
+
+        return $this;
+    }
+
+    public function removeAllowedViewer(User $user): self
+    {
+        $this->allowedViewers->removeElement($user);
+
+        return $this;
+    }
+
+    public function clearAllowedViewers(): self
+    {
+        $this->allowedViewers->clear();
 
         return $this;
     }

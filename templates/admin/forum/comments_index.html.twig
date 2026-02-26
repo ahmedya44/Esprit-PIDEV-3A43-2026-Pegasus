@@ -12,9 +12,9 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" class="row g-3">
+            <form method="get" class="row g-3" data-live-search-form="1" data-live-delay="280">
                 <div class="col-md-8">
-                    <input type="search" name="search" class="form-control" placeholder="Rechercher par email..." value="{{ search }}" oninput="this.form.requestSubmit()">
+                    <input type="search" name="search" class="form-control" placeholder="Rechercher par email..." value="{{ search }}" data-live-search-input="1">
                 </div>
                 <div class="col-md-4">
                     <button type="submit" class="btn btn-outline-secondary w-100">Rechercher</button>
@@ -47,13 +47,15 @@
                     {% for comment in comments %}
                         {% set translatedComment = comment|translate_object(app.request.locale) %}
                         {% set translatedPost = comment.post|translate_object(app.request.locale) %}
+                        {% set cleanCommentContent = translatedComment.content|striptags|replace({'&nbsp;': ' '})|trim %}
+                        {% set cleanPostTitle = translatedPost.title|striptags|replace({'&nbsp;': ' '})|trim %}
                         <tr>
-                            <td><small>{{ translatedComment.content|slice(0, 50) }}{% if translatedComment.content|length > 50 %}...{% endif %}</small></td>
+                            <td><small>{{ cleanCommentContent|slice(0, 50) }}{% if cleanCommentContent|length > 50 %}...{% endif %}</small></td>
                             <td>{{ comment.authorName }}</td>
                             <td><small><a href="?search={{ comment.authorEmail }}">{{ comment.authorEmail }}</a></small></td>
                             <td>
                                 <a href="{{ path('admin_forum_post_show', {id: comment.post.id}) }}" class="text-decoration-none">
-                                    {{ translatedPost.title|slice(0, 30) }}{% if translatedPost.title|length > 30 %}...{% endif %}
+                                    {{ cleanPostTitle|slice(0, 30) }}{% if cleanPostTitle|length > 30 %}...{% endif %}
                                 </a>
                             </td>
                             <td><small>{{ comment.createdAt|format_datetime('short', 'short') }}</small></td>
@@ -61,7 +63,7 @@
                                 <a href="{{ path('admin_forum_comment_edit', {id: comment.id}) }}" class="btn btn-sm btn-outline-primary" title="Modifier">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form method="post" action="{{ path('admin_forum_comment_delete', {id: comment.id}) }}" style="display:inline;" onsubmit="return confirm('Etes-vous sur ?');">
+                                <form method="post" action="{{ path('admin_forum_comment_delete', {id: comment.id}) }}" style="display:inline;" data-confirm-title="Supprimer le commentaire" data-confirm-message="Etes-vous sur ?">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ comment.id) }}">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
                                         <i class="fas fa-trash"></i>

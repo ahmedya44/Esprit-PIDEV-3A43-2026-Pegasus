@@ -1,4 +1,4 @@
-﻿{% extends 'front/layout.html.twig' %}
+{% extends 'front/layout.html.twig' %}
 
 {% set active_nav = 'forum' %}
 
@@ -31,7 +31,7 @@
     margin: 0;
   }
   .star-rating-input label::before {
-    content: '★';
+    content: "\2605";
     position: absolute;
     left: 0;
     top: 0;
@@ -52,11 +52,11 @@
     line-height: 1;
   }
   .rating-display-stars::before {
-    content: '★★★★★';
+    content: "\2605\2605\2605\2605\2605";
     color: #d0d5dd;
   }
   .rating-display-stars::after {
-    content: '★★★★★';
+    content: "\2605\2605\2605\2605\2605";
     color: #f4b400;
     position: absolute;
     top: 0;
@@ -64,6 +64,72 @@
     width: calc((var(--rating) / 5) * 100%);
     overflow: hidden;
     white-space: nowrap;
+  }
+  @keyframes postReveal3d {
+    from {
+      opacity: 0;
+      transform: perspective(900px) rotateX(10deg) translateY(16px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: perspective(900px) rotateX(0deg) translateY(0) scale(1);
+    }
+  }
+  .forum-shell .forum-card {
+    animation: postReveal3d .32s ease-out both;
+  }
+  .forum-shell .forum-card:nth-of-type(2) { animation-delay: .04s; }
+  .forum-shell .forum-card:nth-of-type(3) { animation-delay: .08s; }
+  .forum-shell .forum-card:nth-of-type(4) { animation-delay: .12s; }
+  .action-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .icon-action-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 0;
+  }
+  .comment-card {
+    border: 1px solid #eceff5;
+    border-radius: 12px;
+    background: #fff;
+    padding: 12px 14px;
+  }
+  .gif-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    max-height: 290px;
+    overflow: auto;
+    border: 1px solid #eef1f6;
+    border-radius: 10px;
+    padding: 8px;
+    background: #fafbff;
+  }
+  .gif-picker-item {
+    border: 1px solid #dde3ef;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #fff;
+    padding: 0;
+  }
+  .gif-picker-item.is-active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,.18);
+  }
+  .gif-picker-item img {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    display: block;
   }
 </style>
 {% endblock %}
@@ -86,6 +152,8 @@
                     <span class="badge badge-success">Ouvert</span>
                 {% elseif post.status == 'CLOSED' %}
                     <span class="badge badge-warning">Ferme</span>
+                {% else %}
+                    <span class="badge badge-dark">Cache</span>
                 {% endif %}
             </div>
 
@@ -136,21 +204,21 @@
                 {{ form_errors(ratingForm) }}
                 {% if app.user %}
                 <div class="form-row">
-                    <div class="form-group col-md-10">
+                    <div class="form-group col-md-12">
                         {{ form_label(ratingForm.value) }}
                         <div class="star-rating-input">
                             {% for choice in ratingForm.value|reverse %}
-                                {{ form_widget(choice) }}
+                                {{ form_widget(choice, {attr: {onchange: 'this.form.submit()'}}) }}
                                 {% set isHalf = choice.vars.value ends with '.5' %}
                                 <label class="{{ isHalf ? 'star-left' : 'star-right' }}" for="{{ choice.vars.id }}" title="{{ choice.vars.value }}/5"></label>
                             {% endfor %}
                         </div>
                         {{ form_errors(ratingForm.value) }}
                     </div>
-                    <div class="form-group col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">Noter</button>
-                    </div>
                 </div>
+                <noscript>
+                    <button type="submit" class="btn btn-primary">Noter</button>
+                </noscript>
                 {% else %}
                     <div class="alert alert-info mb-0">
                         Connectez-vous pour noter ce post.
@@ -161,11 +229,17 @@
             </div>
 
             {% if is_granted('ROLE_ADMIN') or (app.user and post.owner and app.user.id == post.owner.id) %}
-                <a href="{{ path('forum_edit', {id: post.id}) }}" class="btn btn-sm btn-outline-dark">Modifier</a>
-                <form method="post" action="{{ path('forum_delete', {id: post.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce sujet ?');">
+                <div class="action-row">
+                <a href="{{ path('forum_edit', {id: post.id}) }}" class="btn btn-sm btn-outline-dark icon-action-btn" title="Modifier">
+                    <i class="fa fa-pencil"></i>
+                </a>
+                <form method="post" action="{{ path('forum_delete', {id: post.id}) }}" class="d-inline" data-confirm-title="Supprimer le sujet" data-confirm-message="Supprimer ce sujet ?">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ post.id) }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger icon-action-btn" title="Supprimer">
+                        <i class="fa fa-trash"></i>
+                    </button>
                 </form>
+                </div>
             {% endif %}
         </div>
 
@@ -175,16 +249,27 @@
             {% if post.commentaires %}
                 {% for commentaire in post.commentaires %}
                     {% set translatedComment = translatedComments[commentaire.id] ?? commentaire %}
-                    <div class="mb-3 pb-3 border-bottom">
+                    <div class="mb-3 pb-3 border-bottom comment-card">
                         <strong>{{ commentaire.authorName }}</strong>
                         <small class="text-muted">({{ commentaire.authorEmail }}) - {{ commentaire.createdAt|format_datetime('medium', 'short') }}</small>
                         <p class="mb-2 mt-2">{{ translatedComment.content|striptags|replace({'&nbsp;': ' '})|trim|nl2br }}</p>
+                        {% if commentaire.gifUrl %}
+                            <div class="mb-2">
+                                <img src="{{ commentaire.gifUrl }}" alt="GIF commentaire {{ commentaire.id }}" class="img-fluid rounded" style="max-height: 260px;">
+                            </div>
+                        {% endif %}
                         {% if is_granted('ROLE_ADMIN') or (app.user and commentaire.owner and app.user.id == commentaire.owner.id) %}
-                            <a href="{{ path('forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-dark">Modifier</a>
-                            <form method="post" action="{{ path('forum_comment_delete', {id: commentaire.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce commentaire ?');">
+                            <div class="action-row">
+                            <a href="{{ path('forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-dark icon-action-btn" title="Modifier">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                            <form method="post" action="{{ path('forum_comment_delete', {id: commentaire.id}) }}" class="d-inline" data-confirm-title="Supprimer le commentaire" data-confirm-message="Supprimer ce commentaire ?">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ commentaire.id) }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger icon-action-btn" title="Supprimer">
+                                    <i class="fa fa-trash"></i>
+                                </button>
                             </form>
+                            </div>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -204,6 +289,14 @@
                     {{ form_widget(commentForm.content) }}
                     {{ form_errors(commentForm.content) }}
                 </div>
+                <div class="form-group">
+                    <label class="form-label d-block">GIF</label>
+                    {% include 'forum/_gif_picker.html.twig' with {
+                        field: commentForm.gifUrl,
+                        endpoint: path('forum_gif_search'),
+                        auto_submit_on_pick: true
+                    } %}
+                </div>
                 <button type="submit" class="btn btn-warning">Poster</button>
                 {{ form_end(commentForm) }}
             </div>
@@ -219,4 +312,108 @@
         <a href="{{ path('forum_index') }}" class="btn btn-dark">Retour au forum</a>
     </div>
 </section>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  (function () {
+    function initGifPicker(root) {
+      var endpoint = root.dataset.endpoint || '';
+      var inputId = root.dataset.inputId || '';
+      var autoSubmitOnPick = root.dataset.autoSubmitOnPick === '1';
+      var hiddenInput = inputId ? document.getElementById(inputId) : null;
+      var form = hiddenInput ? hiddenInput.form : root.closest('form');
+      var queryInput = root.querySelector('.js-gif-query');
+      var searchBtn = root.querySelector('.js-gif-search-btn');
+      var grid = root.querySelector('.js-gif-results');
+      var selectedWrap = root.querySelector('.js-gif-selected-wrap');
+      var selectedImg = root.querySelector('.js-gif-selected-img');
+      var clearBtn = root.querySelector('.js-gif-clear');
+
+      if (!endpoint || !hiddenInput || !queryInput || !searchBtn || !grid || !selectedWrap || !selectedImg || !clearBtn) {
+        return;
+      }
+
+      var timer = null;
+      var submitting = false;
+
+      function setSelected(url) {
+        hiddenInput.value = url || '';
+        if (url) {
+          selectedImg.src = url;
+          selectedWrap.style.display = '';
+        } else {
+          selectedImg.src = '';
+          selectedWrap.style.display = 'none';
+        }
+
+        grid.querySelectorAll('.gif-picker-item').forEach(function (node) {
+          node.classList.toggle('is-active', node.dataset.url === url);
+        });
+      }
+
+      function render(items) {
+        grid.innerHTML = '';
+        if (!Array.isArray(items) || items.length === 0) {
+          grid.innerHTML = '<small class="text-muted">Aucun GIF trouve.</small>';
+          return;
+        }
+
+        items.forEach(function (item) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'gif-picker-item';
+          button.dataset.url = item.url || '';
+          button.title = item.title || 'GIF';
+          button.innerHTML = '<img src="' + (item.preview || item.url || '') + '" alt="' + (item.title || 'GIF') + '">';
+          button.addEventListener('click', function () {
+            setSelected(button.dataset.url || '');
+            if (autoSubmitOnPick && form && !submitting) {
+              submitting = true;
+              if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+              } else {
+                form.submit();
+              }
+            }
+          });
+          grid.appendChild(button);
+        });
+
+        if (hiddenInput.value) {
+          setSelected(hiddenInput.value);
+        }
+      }
+
+      function search() {
+        var q = (queryInput.value || '').trim();
+        fetch(endpoint + '?q=' + encodeURIComponent(q) + '&limit=18', {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) { render(data && data.items ? data.items : []); })
+          .catch(function () { render([]); });
+      }
+
+      queryInput.addEventListener('input', function () {
+        if (timer) {
+          clearTimeout(timer);
+        }
+        timer = setTimeout(search, 300);
+      });
+      queryInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          search();
+        }
+      });
+      searchBtn.addEventListener('click', search);
+      clearBtn.addEventListener('click', function () { setSelected(''); });
+
+      setSelected(hiddenInput.value || '');
+      search();
+    }
+
+    document.querySelectorAll('[data-gif-picker]').forEach(initGifPicker);
+  })();
+</script>
 {% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Post;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -17,13 +18,22 @@ class PostRepository extends ServiceEntityRepository
         parent::__construct($registry, Post::class);
     }
 
-    public function createFrontListQueryBuilder(?string $q = null, ?string $status = null): QueryBuilder
+    public function createFrontListQueryBuilder(?string $q = null, ?string $status = null, ?User $viewer = null, bool $isAdmin = false): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('p')
-            ->where('p.status != :hidden')
-            ->setParameter('hidden', Post::STATUS_HIDDEN);
+        $qb = $this->createQueryBuilder('p');
 
-        if (in_array($status, [Post::STATUS_OPEN, Post::STATUS_CLOSED], true)) {
+        if (!$isAdmin) {
+            if ($viewer instanceof User) {
+                $qb->where('p.status != :hidden OR p.owner = :viewer OR :viewer MEMBER OF p.allowedViewers')
+                    ->setParameter('hidden', Post::STATUS_HIDDEN)
+                    ->setParameter('viewer', $viewer);
+            } else {
+                $qb->where('p.status != :hidden')
+                    ->setParameter('hidden', Post::STATUS_HIDDEN);
+            }
+        }
+
+        if (in_array($status, [Post::STATUS_OPEN, Post::STATUS_HIDDEN], true)) {
             $qb->andWhere('p.status = :status')
                 ->setParameter('status', $status);
         }

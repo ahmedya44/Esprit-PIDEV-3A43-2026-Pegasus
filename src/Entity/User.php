@@ -14,6 +14,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'uniq_user_email', columns: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER)]
@@ -33,12 +38,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::STRING)]
     private string $password = '';
 
-    #[ORM\Column(type: Types::STRING, length: 120)]
+    #[ORM\Column(type: Types::STRING, length: 180)]
     #[Assert\NotBlank]
-    private string $displayName = '';
+    private string $username = '';
 
-    #[ORM\Column(type: Types::BOOLEAN)]
-    private bool $isActive = true;
+    #[ORM\Column(type: Types::STRING, length: 30, nullable: true)]
+    private ?string $phone = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $avatarUrl = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $createdAt;
+
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private string $status = 'PENDING';
+
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private string $dtype = 'normal';
+
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: true, unique: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $resetTokenExpiresAt = null;
+
+    #[ORM\Column(type: Types::STRING, length: 64, nullable: true, unique: true)]
+    private ?string $emailVerificationToken = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $emailVerificationTokenExpiresAt = null;
 
     public function getId(): ?int
     {
@@ -57,26 +86,134 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getDisplayName(): string
+    public function getUsername(): string
     {
-        return $this->displayName;
+        return $this->username;
     }
 
-    public function setDisplayName(string $displayName): self
+    public function setUsername(string $username): self
     {
-        $this->displayName = trim($displayName);
+        $this->username = trim($username);
 
         return $this;
     }
 
-    public function isActive(): bool
+    public function getDisplayName(): string
     {
-        return $this->isActive;
+        return $this->username;
     }
 
-    public function setIsActive(bool $isActive): self
+    public function setDisplayName(string $displayName): self
     {
-        $this->isActive = $isActive;
+        $this->username = trim($displayName);
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getAvatarUrl(): ?string
+    {
+        return $this->avatarUrl;
+    }
+
+    public function setAvatarUrl(?string $avatarUrl): self
+    {
+        $this->avatarUrl = $avatarUrl;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getDtype(): string
+    {
+        return $this->dtype;
+    }
+
+    public function setDtype(string $dtype): self
+    {
+        $this->dtype = $dtype;
+
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+
+        return $this;
+    }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->resetTokenExpiresAt;
+    }
+
+    public function setResetTokenExpiresAt(?\DateTimeImmutable $resetTokenExpiresAt): self
+    {
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
+
+        return $this;
+    }
+
+    public function getEmailVerificationToken(): ?string
+    {
+        return $this->emailVerificationToken;
+    }
+
+    public function setEmailVerificationToken(?string $emailVerificationToken): self
+    {
+        $this->emailVerificationToken = $emailVerificationToken;
+
+        return $this;
+    }
+
+    public function getEmailVerificationTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->emailVerificationTokenExpiresAt;
+    }
+
+    public function setEmailVerificationTokenExpiresAt(?\DateTimeImmutable $emailVerificationTokenExpiresAt): self
+    {
+        $this->emailVerificationTokenExpiresAt = $emailVerificationTokenExpiresAt;
 
         return $this;
     }
@@ -123,4 +260,3 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
     }
 }
-

@@ -1,6 +1,24 @@
 {% extends 'back/layout.html.twig' %}
 
 {% block title %}Admin - Sujet: {{ translatedPost.title }}{% endblock %}
+{% block extra_styles %}
+<style>
+  .admin-icon-actions {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .admin-icon-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+{% endblock %}
 
 {% block body %}
 <div class="container mt-5">
@@ -16,7 +34,8 @@
         <div class="col-md-8">
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h1 class="h4 mb-0">{{ translatedPost.title }}</h1>
+                    {% set cleanPostTitle = translatedPost.title|striptags|replace({'&nbsp;': ' '})|trim %}
+                    <h1 class="h4 mb-0">{{ cleanPostTitle }}</h1>
                     {% if post.status == 'OPEN' %}
                         <span class="badge bg-success">Ouvert</span>
                     {% elseif post.status == 'CLOSED' %}
@@ -26,6 +45,23 @@
                     {% endif %}
                 </div>
                 <div class="card-body">
+                    <div class="mb-3">
+                        <span class="text-muted me-2">Afficher en :</span>
+                        <a
+                            href="{{ path('admin_forum_post_show', {id: post.id}) }}"
+                            class="btn btn-sm {{ activeLocale is null ? 'btn-primary' : 'btn-outline-secondary' }} me-1 mb-1"
+                        >
+                            Original
+                        </a>
+                        {% for locale, label in translatableLocales %}
+                            <a
+                                href="{{ path('admin_forum_post_show', {id: post.id, lang: locale}) }}"
+                                class="btn btn-sm {{ activeLocale == locale ? 'btn-primary' : 'btn-outline-secondary' }} me-1 mb-1"
+                            >
+                                {{ label }} ({{ locale }})
+                            </a>
+                        {% endfor %}
+                    </div>
                     <p class="text-muted small mb-3">
                         <strong>Auteur:</strong> {{ post.authorName }} ({{ post.authorEmail }})<br>
                         <strong>Cree:</strong> {{ post.createdAt|format_datetime('medium', 'short') }}
@@ -35,10 +71,11 @@
                     </p>
                     {% if post.imageName %}
                         <div class="mb-3">
-                            <img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="Image du sujet {{ translatedPost.title }}" class="img-fluid rounded" style="max-height: 420px;">
+                            <img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="Image du sujet {{ cleanPostTitle }}" class="img-fluid rounded" style="max-height: 420px;">
                         </div>
                     {% endif %}
-                    <div class="post-content">{{ translatedPost.content|nl2br }}</div>
+                    {% set cleanPostContent = translatedPost.content|striptags|replace({'&nbsp;': ' '})|trim %}
+                    <div class="post-content">{{ cleanPostContent|nl2br }}</div>
                 </div>
             </div>
 
@@ -60,40 +97,13 @@
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header"><h5 class="mb-0">Traduire ce post</h5></div>
-                <div class="card-body">
-                    <form method="post" action="{{ path('admin_forum_post_translate', {id: post.id}) }}" class="row g-2">
-                        <input type="hidden" name="_token" value="{{ csrf_token('translate_post_' ~ post.id) }}">
-                        <div class="col-md-3">
-                            <label class="form-label">Langue cible</label>
-                            <select name="target_locale" class="form-select" required>
-                                {% for locale, label in translatableLocales %}
-                                    <option value="{{ locale }}">{{ label }} ({{ locale }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-9">
-                            <label class="form-label">Titre traduit</label>
-                            <input type="text" name="translated_title" class="form-control" placeholder="Laisser vide pour traduction automatique API">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Contenu traduit</label>
-                            <textarea name="translated_content" rows="4" class="form-control js-ckeditor" placeholder="Laisser vide pour traduction automatique API"></textarea>
-                        </div>
-                        <div class="col-12 text-end">
-                            <button type="submit" class="btn btn-outline-primary">Enregistrer la traduction</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
             <h3 class="h5 mb-3">Commentaires ({{ post.commentaires|length }})</h3>
 
             {% if post.commentaires %}
                 <div class="comments-list mb-4">
                     {% for commentaire in post.commentaires %}
                         {% set translatedComment = translatedComments[commentaire.id] ?? commentaire %}
+                        {% set cleanCommentContent = translatedComment.content|striptags|replace({'&nbsp;': ' '})|trim %}
                         <div class="card mb-3">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <div>
@@ -102,15 +112,30 @@
                                     <small class="text-muted">{{ commentaire.createdAt|format_datetime('medium', 'short') }}</small>
                                 </div>
                                 <div>
-                                    <a href="{{ path('admin_forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-primary">Modifier</a>
-                                    <a href="{{ path('admin_forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-info">Traduire</a>
-                                    <form method="post" action="{{ path('admin_forum_comment_delete', {id: commentaire.id}) }}" class="d-inline" onsubmit="return confirm('Supprimer ce commentaire ?');">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ commentaire.id) }}">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Supprimer</button>
-                                    </form>
+                                    <div class="admin-icon-actions">
+                                        <a href="{{ path('admin_forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-primary admin-icon-btn" title="Modifier">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <a href="{{ path('admin_forum_comment_edit', {id: commentaire.id, lang: activeLocale}) }}" class="btn btn-sm btn-outline-info admin-icon-btn" title="Traduire">
+                                            <i class="fas fa-language"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('admin_forum_comment_delete', {id: commentaire.id}) }}" class="d-inline" data-confirm-title="Supprimer le commentaire" data-confirm-message="Supprimer ce commentaire ?">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ commentaire.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger admin-icon-btn" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="card-body">{{ translatedComment.content|nl2br }}</div>
+                            <div class="card-body">
+                                <div>{{ cleanCommentContent|nl2br }}</div>
+                                {% if commentaire.gifUrl %}
+                                    <div class="mt-2">
+                                        <img src="{{ commentaire.gifUrl }}" alt="GIF commentaire {{ commentaire.id }}" class="img-fluid rounded" style="max-height: 240px;">
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                     {% endfor %}
                 </div>
@@ -124,7 +149,7 @@
                 <div class="card-header"><h5 class="mb-0">Actions</h5></div>
                 <div class="list-group list-group-flush">
                     <a href="{{ path('admin_forum_post_edit', {id: post.id}) }}" class="list-group-item list-group-item-action">Modifier</a>
-                    <form method="post" action="{{ path('admin_forum_post_delete', {id: post.id}) }}" style="display:contents;" onsubmit="return confirm('Supprimer ce sujet et ses commentaires ?');">
+                    <form method="post" action="{{ path('admin_forum_post_delete', {id: post.id}) }}" style="display:contents;" data-confirm-title="Supprimer le sujet" data-confirm-message="Supprimer ce sujet et ses commentaires ?">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete_post_' ~ post.id) }}">
                         <button type="submit" class="list-group-item list-group-item-action text-danger border-top">Supprimer</button>
                     </form>
@@ -147,7 +172,7 @@
     </div>
 
     <div class="mb-4 d-flex gap-2">
-        <a href="{{ path('admin_forum_posts_index') }}" class="btn btn-secondary">Retour a la liste</a>
+        <a href="{{ path('admin_forum_posts_index', {lang: activeLocale}) }}" class="btn btn-secondary">Retour a la liste</a>
         <a href="{{ path('admin_forum_stats_index') }}" class="btn btn-outline-info">Voir les statistiques</a>
     </div>
 </div>
