@@ -1,0 +1,22 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Modifier {{ produit.nom }} - Pegasus{% endblock %}
+
+{% block body %}
+<section class="food_section layout_padding-bottom">
+  <div class="container">
+    <div class="heading_container heading_center">
+      <h2>Modifier le produit</h2>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="box" style="padding: 30px;">
+          {{ include('produit/_form.html.twig', {'button_label': 'Modifier'}) }}
+          <a href="{{ path('app_produit_index') }}" class="btn1" style="margin-top: 10px;">Retour à la liste</a>
+          {{ include('produit/_delete_form.html.twig') }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

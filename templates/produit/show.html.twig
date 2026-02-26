@@ -1,0 +1,69 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}{{ produit.nom }} - Pegasus{% endblock %}
+
+{% block body %}
+<section class="food_section layout_padding-bottom">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="img-box">
+          {% if produit.image %}
+            <img src="{{ asset('uploads/images/produits/' ~ produit.image) }}" alt="{{ produit.nom }}" style="width: 100%; border-radius: 10px;">
+          {% else %}
+            <img src="{{ asset('front/images/f1.png') }}" alt="{{ produit.nom }}" style="width: 100%; border-radius: 10px;">
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="detail-box">
+          <h2>{{ produit.nom }}</h2>
+          <p>{{ produit.description }}</p>
+          <h4 style="color: #ffbe33;">{{ produit.prix }} €</h4>
+          <p>Stock : {{ produit.stock }}</p>
+          {% if produit.categorie %}
+            <p>Catégorie : {{ produit.categorie.nom }}</p>
+          {% endif %}
+          <p>
+            Statut : 
+            {% if produit.statut == 'disponible' %}
+              <span style="color: green; font-weight: bold;">Disponible</span>
+            {% elseif produit.statut == 'rupture' %}
+              <span style="color: red; font-weight: bold;">Rupture de stock</span>
+            {% elseif produit.statut == 'bientot' %}
+              <span style="color: orange; font-weight: bold;">Bientôt disponible</span>
+            {% else %}
+              <span style="color: grey; font-weight: bold;">Archivé</span>
+            {% endif %}
+          </p>
+
+          {% if produit.statut == 'disponible' %}
+            <form method="POST" action="{{ path('app_panier_ajouter', {'id': produit.id}) }}" style="margin-top: 20px;">
+              <input type="hidden" name="_token" value="{{ csrf_token('panier') }}">
+              <div class="d-flex align-items-center" style="gap: 10px;">
+                <input type="number" name="quantite" value="1" min="1" max="{{ produit.stock }}" 
+                       class="form-control" style="width: 80px;">
+                <button type="submit" class="btn" style="background-color: #ffbe33; border: none; font-weight: bold; padding: 10px 20px;">
+                  <i class="fa fa-shopping-cart"></i> Ajouter au panier
+                </button>
+              </div>
+            </form>
+          {% endif %}
+
+          <div style="margin-top: 20px;">
+            <a href="{{ path('app_produit_index') }}" class="btn1">Retour à la liste</a>
+            <a href="{{ path('app_panier_index') }}" class="btn1" style="margin-left: 10px;">
+              <i class="fa fa-shopping-cart"></i> Voir le panier
+            </a>
+          </div>
+
+          <div style="margin-top: 10px;">
+            <a href="{{ path('app_produit_edit', {'id': produit.id}) }}" class="btn btn-sm btn-secondary">Modifier</a>
+            {{ include('produit/_delete_form.html.twig') }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
