@@ -14,16 +14,27 @@ return [
         '/_profiler/phpinfo' => [[['_route' => '_profiler_phpinfo', '_controller' => 'web_profiler.controller.profiler::phpinfoAction'], null, null, null, false, false, null]],
         '/_profiler/xdebug' => [[['_route' => '_profiler_xdebug', '_controller' => 'web_profiler.controller.profiler::xdebugAction'], null, null, null, false, false, null]],
         '/_profiler/open' => [[['_route' => '_profiler_open_file', '_controller' => 'web_profiler.controller.profiler::openAction'], null, null, null, false, false, null]],
-        '/admin/art/archives-data' => [[['_route' => 'art_archives_data', '_controller' => 'App\\Controller\\ArtArchiveController::getArchivedArts'], null, ['GET' => 0], null, false, false, null]],
-        '/admin' => [[['_route' => 'back_dashboard', '_controller' => 'App\\Controller\\BackController::dashboard'], null, ['GET' => 0], null, false, false, null]],
-        '/admin/art' => [[['_route' => 'back_art_list', '_controller' => 'App\\Controller\\BackController::artList'], null, ['GET' => 0], null, false, false, null]],
-        '/admin/art-archives' => [[['_route' => 'back_art_archives', '_controller' => 'App\\Controller\\BackController::artArchives'], null, ['GET' => 0], null, false, false, null]],
+        '/api/art-chatbot' => [[['_route' => 'api_art_chatbot', '_controller' => 'App\\Controller\\ArtChatbotController::chat'], null, ['POST' => 0], null, false, false, null]],
+        '/api/chatbot-suggestions' => [[['_route' => 'api_chatbot_suggestions', '_controller' => 'App\\Controller\\ArtChatbotController::getSuggestions'], null, ['GET' => 0], null, false, false, null]],
+        '/api/chatbot-info' => [[['_route' => 'api_chatbot_info', '_controller' => 'App\\Controller\\ArtChatbotController::getInfo'], null, ['GET' => 0], null, false, false, null]],
+        '/admin' => [[['_route' => 'back_', '_controller' => 'App\\Controller\\BackController::dashboard'], null, null, null, false, false, null]],
+        '/admin/dashboard' => [[['_route' => 'back_dashboard', '_controller' => 'App\\Controller\\BackController::adminDashboard'], null, ['GET' => 0], null, false, false, null]],
+        '/api/favorites/add' => [[['_route' => 'api_favorites_add', '_controller' => 'App\\Controller\\FavoriteController::addFavorite'], null, ['POST' => 0], null, false, false, null]],
+        '/api/favorites/remove' => [[['_route' => 'api_favorites_remove', '_controller' => 'App\\Controller\\FavoriteController::removeFavorite'], null, ['POST' => 0], null, false, false, null]],
+        '/api/favorites' => [[['_route' => 'api_favorites_list', '_controller' => 'App\\Controller\\FavoriteController::getFavorites'], null, ['GET' => 0], null, false, false, null]],
+        '/mes-favoris' => [[['_route' => 'favorites_page', '_controller' => 'App\\Controller\\FavoriteController::favoritesPage'], null, ['GET' => 0], null, false, false, null]],
         '/' => [[['_route' => 'front_home', '_controller' => 'App\\Controller\\FrontController::home'], null, ['GET' => 0], null, false, false, null]],
         '/menu' => [[['_route' => 'front_menu', '_controller' => 'App\\Controller\\FrontController::menu'], null, ['GET' => 0], null, false, false, null]],
         '/about' => [[['_route' => 'front_about', '_controller' => 'App\\Controller\\FrontController::about'], null, ['GET' => 0], null, false, false, null]],
         '/book' => [[['_route' => 'front_book', '_controller' => 'App\\Controller\\FrontController::book'], null, ['GET' => 0], null, false, false, null]],
         '/gallery' => [[['_route' => 'front_gallery', '_controller' => 'App\\Controller\\GalleryController::index'], null, ['GET' => 0], null, false, false, null]],
         '/gallery/new' => [[['_route' => 'front_gallery_new', '_controller' => 'App\\Controller\\GalleryController::new'], null, ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        '/api/daily-inspiration' => [[['_route' => 'api_daily_inspiration', '_controller' => 'App\\Controller\\InspirationController::getDailyInspiration'], null, ['GET' => 0], null, false, false, null]],
+        '/api/random-inspiration' => [[['_route' => 'api_random_inspiration', '_controller' => 'App\\Controller\\InspirationController::getRandomInspiration'], null, ['GET' => 0], null, false, false, null]],
+        '/api/ml-chatbot' => [[['_route' => 'api_ml_chatbot', '_controller' => 'App\\Controller\\MLArtChatbotController::chat'], null, ['POST' => 0], null, false, false, null]],
+        '/api/ml-chatbot/learn' => [[['_route' => 'api_ml_chatbot_learn', '_controller' => 'App\\Controller\\MLArtChatbotController::learn'], null, ['POST' => 0], null, false, false, null]],
+        '/api/ml-chatbot/stats' => [[['_route' => 'api_ml_chatbot_stats', '_controller' => 'App\\Controller\\MLArtChatbotController::getStats'], null, ['GET' => 0], null, false, false, null]],
+        '/api/ml-chatbot/info' => [[['_route' => 'api_ml_chatbot_info', '_controller' => 'App\\Controller\\MLArtChatbotController::getInfo'], null, ['GET' => 0], null, false, false, null]],
         '/api/stats' => [[['_route' => 'api_stats', '_controller' => 'App\\Controller\\StatsController::getStats'], null, ['GET' => 0], null, false, false, null]],
         '/api/translate' => [[['_route' => 'api_translate', '_controller' => 'App\\Controller\\TranslateController::translate'], null, ['POST' => 0], null, false, false, null]],
     ],
@@ -48,32 +59,23 @@ return [
                     .')'
                 .')'
                 .'|/a(?'
-                    .'|dmin/(?'
-                        .'|art/([^/]++)/(?'
-                            .'|restore(*:238)'
-                            .'|archive(*:253)'
-                            .'|delete(?'
-                                .'|(*:270)'
-                            .')'
-                            .'|update\\-status(?'
-                                .'|(*:296)'
-                            .')'
-                            .'|edit(*:309)'
-                        .')'
-                        .'|([A-Za-z0-9_\\-/]+)\\.html(*:342)'
-                    .')'
                     .'|rt/([^/]++)(?'
-                        .'|(*:365)'
-                        .'|/(?'
-                            .'|like(*:381)'
-                            .'|view(*:393)'
-                        .')'
+                        .'|(*:221)'
+                        .'|/view(*:234)'
                     .')'
-                    .'|pi/art/([^/]++)/views(*:424)'
+                    .'|dmin/art/([^/]++)/(?'
+                        .'|edit(*:268)'
+                        .'|delete(*:282)'
+                        .'|status(*:296)'
+                    .')'
+                    .'|pi/(?'
+                        .'|favorites/check/([^/]++)(*:335)'
+                        .'|art/([^/]++)/views(*:361)'
+                    .')'
                 .')'
-                .'|/gallery/([^/]++)/(?'
-                    .'|edit(*:458)'
-                    .'|delete(*:472)'
+                .'|/gallery/(?'
+                    .'|edit/([^/]++)(*:396)'
+                    .'|delete/([^/]++)(*:419)'
                 .')'
             .')/?$}sDu',
     ],
@@ -86,25 +88,16 @@ return [
         168 => [[['_route' => '_profiler_exception', '_controller' => 'web_profiler.controller.exception_panel::body'], ['token'], null, null, false, false, null]],
         181 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception_panel::stylesheet'], ['token'], null, null, false, false, null]],
         191 => [[['_route' => '_profiler', '_controller' => 'web_profiler.controller.profiler::panelAction'], ['token'], null, null, false, true, null]],
-        238 => [[['_route' => 'admin_art_restore', '_controller' => 'App\\Controller\\ArtArchiveController::restore'], ['id'], ['POST' => 0], null, false, false, null]],
-        253 => [[['_route' => 'admin_art_archive', '_controller' => 'App\\Controller\\ArtArchiveController::archive'], ['id'], ['POST' => 0], null, false, false, null]],
-        270 => [
-            [['_route' => 'admin_art_delete', '_controller' => 'App\\Controller\\ArtArchiveController::delete'], ['id'], ['POST' => 0], null, false, false, null],
-            [['_route' => 'back_art_delete', '_controller' => 'App\\Controller\\BackController::delete'], ['id'], ['POST' => 0], null, false, false, null],
-        ],
-        296 => [
-            [['_route' => 'admin_art_update_status', '_controller' => 'App\\Controller\\ArtArchiveController::updateStatus'], ['id'], ['POST' => 0], null, false, false, null],
-            [['_route' => 'back_art_update_status', '_controller' => 'App\\Controller\\BackController::updateStatus'], ['id'], ['POST' => 0], null, false, false, null],
-        ],
-        309 => [[['_route' => 'back_art_edit', '_controller' => 'App\\Controller\\BackController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        342 => [[['_route' => 'back_page', '_controller' => 'App\\Controller\\BackController::page'], ['path'], ['GET' => 0], null, false, false, null]],
-        365 => [[['_route' => 'art_detail', '_controller' => 'App\\Controller\\ArtDetailController::show'], ['id'], ['GET' => 0], null, false, true, null]],
-        381 => [[['_route' => 'art_like', '_controller' => 'App\\Controller\\LikeController::toggleLike'], ['id'], ['POST' => 0], null, false, false, null]],
-        393 => [[['_route' => 'art_view', '_controller' => 'App\\Controller\\ViewController::addView'], ['id'], ['POST' => 0], null, false, false, null]],
-        424 => [[['_route' => 'api_art_views', '_controller' => 'App\\Controller\\ViewController::getViewsCount'], ['id'], ['GET' => 0], null, false, false, null]],
-        458 => [[['_route' => 'front_gallery_edit', '_controller' => 'App\\Controller\\GalleryController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
-        472 => [
-            [['_route' => 'front_gallery_delete', '_controller' => 'App\\Controller\\GalleryController::delete'], ['id'], ['POST' => 0], null, false, false, null],
+        221 => [[['_route' => 'art_detail', '_controller' => 'App\\Controller\\ArtDetailController::show'], ['id'], ['GET' => 0], null, false, true, null]],
+        234 => [[['_route' => 'record_view', '_controller' => 'App\\Controller\\ViewController::recordView'], ['id'], ['POST' => 0], null, false, false, null]],
+        268 => [[['_route' => 'back_art_edit', '_controller' => 'App\\Controller\\BackController::editArt'], ['id'], ['GET' => 0, 'POST' => 1], null, false, false, null]],
+        282 => [[['_route' => 'back_art_delete', '_controller' => 'App\\Controller\\BackController::deleteArt'], ['id'], ['POST' => 0], null, false, false, null]],
+        296 => [[['_route' => 'back_art_update_status', '_controller' => 'App\\Controller\\BackController::updateStatus'], ['id'], ['POST' => 0], null, false, false, null]],
+        335 => [[['_route' => 'api_favorites_check', '_controller' => 'App\\Controller\\FavoriteController::checkFavorite'], ['artId'], ['GET' => 0], null, false, true, null]],
+        361 => [[['_route' => 'get_views', '_controller' => 'App\\Controller\\ViewController::getViews'], ['id'], ['GET' => 0], null, false, false, null]],
+        396 => [[['_route' => 'front_gallery_edit', '_controller' => 'App\\Controller\\GalleryController::edit'], ['id'], ['GET' => 0, 'POST' => 1], null, false, true, null]],
+        419 => [
+            [['_route' => 'front_gallery_delete', '_controller' => 'App\\Controller\\GalleryController::delete'], ['id'], ['POST' => 0], null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],
     ],

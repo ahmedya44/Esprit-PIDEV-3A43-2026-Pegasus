@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Mes Favoris</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .favorites-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .action-buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .action-buttons .btn {
+            padding: 8px 12px;
+            margin-left: 5px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .btn-favorite {
+            background: #e74c3c;
+            color: white;
+            border: none;
+        }
+        .btn-favorite:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+        .btn-favorite.is-favorite {
+            background: #27ae60;
+        }
+        .btn-favorite.is-favorite:hover {
+            background: #229954;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('front_home') }}">🎨 Galerie</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ path('front_gallery') }}">🖼️ Galerie</a>
+                <a class="nav-link" href="{{ path('front_gallery_new') }}">➕ Ajouter</a>
+                <a class="nav-link" href="{{ path('back_dashboard') }}">🔧 Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages Flash -->
+    {% for type, messages in app.session.flashbag.all() %}
+        {% for message in messages %}
+            <div class="alert alert-{{ type == 'success' ? 'success' : 'danger' }} alert-dismissible fade show m-3" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="favorites-container">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold">❤️ Mes Favoris</h1>
+            <p class="lead">Retrouvez toutes vos œuvres préférées</p>
+        </div>
+
+        <div class="text-left mb-4">
+            <a class="btn btn-primary" href="{{ path('front_gallery') }}">🔙 Retour à la galerie</a>
+        </div>
+
+        <div class="row" id="favorites-container">
+            <!-- Les favoris seront chargés dynamiquement -->
+        </div>
+
+        <div id="no-favorites" class="col-12" style="display: none;">
+            <div class="alert alert-info text-center">
+                <h4>💔 Aucun favori</h4>
+                <p>Vous n'avez pas encore ajouté d'œuvres à vos favoris.</p>
+                <a href="{{ path('front_gallery') }}" class="btn btn-primary">🎨 Parcourir la galerie</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFavorites();
+        });
+
+        function loadFavorites() {
+            fetch('/api/favorites')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.favorites.length > 0) {
+                    displayFavorites(data.favorites);
+                } else {
+                    showNoFavorites();
+                }
+            })
+            .catch(error => {
+                console.error('Erreur chargement favoris:', error);
+                showNoFavorites();
+            });
+        }
+
+        function displayFavorites(favorites) {
+            const container = document.getElementById('favorites-container');
+            container.innerHTML = '';
+
+            favorites.forEach(favorite => {
+                const card = createFavoriteCard(favorite);
+                container.appendChild(card);
+            });
+        }
+
+        function createFavoriteCard(favorite) {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 mb-4';
+            
+            col.innerHTML = `
+                <div class="card h-100">
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-favorite is-favorite" onclick="removeFavorite(${favorite.art_id})" title="Retirer des favoris">
+                            <i class="fa fa-heart"></i>
+                        </button>
+                        <a href="/art/${favorite.art_id}" class="btn btn-sm btn-info" title="Voir détails">
+                            <i class="fa fa-eye"></i>
+                        </a>
+                    </div>
+                    <a href="/art/${favorite.art_id}">
+                        ${favorite.art_image ? 
+                            `<img class="card-img-top" src="${favorite.art_image}" alt="${favorite.art_title}" style="height: 200px; object-fit: cover;" onerror="this.src='https://picsum.photos/400/200?random=${favorite.art_id}';">` :
+                            `<div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>`
+                        }
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">${favorite.art_title}</h5>
+                        <small class="text-muted">Ajouté le ${new Date(favorite.created_at).toLocaleDateString()}</small>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+
+        function showNoFavorites() {
+            document.getElementById('favorites-container').style.display = 'none';
+            document.getElementById('no-favorites').style.display = 'block';
+        }
+
+        function removeFavorite(artId) {
+            if (!confirm('Retirer cette œuvre des favoris ?')) return;
+
+            fetch('/api/favorites/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ art_id: artId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadFavorites(); // Recharger la liste
+                    showNotification(data.message, 'success');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur retrait favoris:', error);
+                showNotification('Erreur lors du retrait des favoris', 'error');
+            });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'warning'} position-fixed`;
+            notification.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
