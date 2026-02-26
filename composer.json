@@ -12,6 +12,8 @@
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/migrations": "3.9.5",
         "doctrine/orm": "^3.6",
+        "giphy/giphy-php-client": "^1.0",
+        "knplabs/knp-paginator-bundle": "*",
         "knpuniversity/oauth2-client-bundle": "^2.20",
         "lbuchs/webauthn": "^2.2",
         "league/oauth2-google": "^4.1",
@@ -48,7 +50,8 @@
         "symfony/web-link": "6.4.*",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "vich/uploader-bundle": "*"
     },
     "config": {
         "allow-plugins": {

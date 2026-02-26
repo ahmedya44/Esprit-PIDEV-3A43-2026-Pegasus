@@ -1,0 +1,81 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Admin - Créer un sujet{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="h3 mb-4">Créer un nouveau sujet</h1>
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+
+                    <div class="mb-3">
+                        {{ form_label(form.title, 'Titre du sujet') }}
+                        {{ form_widget(form.title) }}
+                        {% if form.title.vars.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.title.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.content, 'Contenu') }}
+                        {{ form_widget(form.content) }}
+                        {% if form.content.vars.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.content.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.imageFile) }}
+                        {{ form_widget(form.imageFile) }}
+                        {% if form.imageFile.vars.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.imageFile.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.status, 'Statut') }}
+                        {{ form_widget(form.status) }}
+                        {% if form.status.vars.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.status.vars.errors %}
+                                    {{ error.message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ path('admin_forum_posts_index') }}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary">Créer le sujet</button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

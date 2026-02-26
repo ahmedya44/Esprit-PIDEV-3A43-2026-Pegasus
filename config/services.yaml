@@ -20,5 +20,20 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    App\Service\AiAutocompleteService:
+        arguments:
+            $apiKey: '%env(string:AI_AUTOCOMPLETE_API_KEY)%'
+            $model: '%env(string:AI_AUTOCOMPLETE_MODEL)%'
+            $apiUrl: '%env(string:AI_AUTOCOMPLETE_API_URL)%'
+
+    App\Service\GiphyService:
+        arguments:
+            $provider: '%env(string:GIF_PROVIDER)%'
+            $klipyApiKey: '%env(string:KLIPY_API_KEY)%'
+            $klipyClientKey: '%env(string:KLIPY_CLIENT_KEY)%'
+            $klipyApiUrl: '%env(string:KLIPY_API_URL)%'
+            $giphyApiKey: '%env(string:GIPHY_API_KEY)%'
+            $rating: '%env(string:GIF_RATING)%'
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
