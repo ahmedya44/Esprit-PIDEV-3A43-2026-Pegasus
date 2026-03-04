@@ -94,6 +94,13 @@
                   </ul>
                 </div>
               </li>
+              <li class="nav-item {{ app.request.attributes.get('_route') starts with 'app_evenement' ? 'active' : '' }}">
+                <a href="{{ path('app_evenement_index') }}">
+                  <i class="fas fa-calendar-alt"></i>
+                  <p>Evenements</p>
+                </a>
+              </li>
+
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
                   <i class="fa fa-ellipsis-h"></i>

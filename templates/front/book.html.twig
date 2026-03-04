@@ -66,6 +66,21 @@
               <li class="nav-item active">
                 <a class="nav-link" href="{{ path('front_book') }}">Book Table <span class="sr-only">(current)</span> </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_evenements_index') }}">Evenements</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_register') }}">Sign Up</a>
+              </li>
+              {% if app.user %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ path('app_logout') }}">Logout ({{ app.user.userIdentifier }})</a>
+                </li>
+              {% else %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ path('app_login') }}">Login</a>
+                </li>
+              {% endif %}
             </ul>
             <div class="user_option">
               <a href="" class="user_link">
