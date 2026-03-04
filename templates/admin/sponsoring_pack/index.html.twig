@@ -1,0 +1,62 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Packs de Sponsoring{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-0"><i class="fa fa-star-o mr-2"></i> Packs de Sponsoring</h2>
+        <a href="{{ path('admin_sponsoring_pack_new') }}" class="btn btn-primary">
+            <i class="fa fa-plus mr-1"></i> Nouveau Pack
+        </a>
+    </div>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="thead-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Nom du Pack</th>
+                        <th>Description</th>
+                        <th>Prix (DT)</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pack in packs %}
+                    <tr>
+                        <td>{{ pack.id }}</td>
+                        <td><strong>{{ pack.nomPack }}</strong></td>
+                        <td class="text-muted" style="max-width: 300px;">{{ pack.description|slice(0, 80) }}{{ pack.description|length > 80 ? '...' : '' }}</td>
+                        <td><span class="badge badge-success">{{ pack.prix }} DT</span></td>
+                        <td class="text-center">
+                            <a href="{{ path('admin_sponsoring_pack_edit', {'id': pack.id}) }}" class="btn btn-sm btn-warning mr-1">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <form method="post" action="{{ path('admin_sponsoring_pack_delete', {'id': pack.id}) }}" style="display: inline-block;" onsubmit="return confirm('Supprimer ce pack ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ pack.id) }}">
+                                <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">Aucun pack de sponsoring créé.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
