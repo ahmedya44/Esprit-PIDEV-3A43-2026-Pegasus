@@ -71,9 +71,16 @@
               </li>
             </ul>
             <div class="user_option">
-              <a href="" class="user_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
-              </a>
+              {% if app.user %}
+                <a href="{{ path('front_profile') }}" class="user_link profile_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                  <span class="profile_name">{{ app.user.username }}</span>
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="user_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                </a>
+              {% endif %}
               <a class="cart_link" href="#">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
                   <g>
@@ -133,6 +140,18 @@
                   <i class="fa fa-search" aria-hidden="true"></i>
                 </button>
               </form>
+              {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">
+                  Logout
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="auth_btn auth_btn--outline">
+                  Sign In
+                </a>
+                <a href="{{ path('app_register') }}" class="auth_btn auth_btn--filled">
+                  Sign Up
+                </a>
+              {% endif %}
               <a href="" class="order_online">
                 Order Online
               </a>
@@ -311,3 +330,4 @@
 </body>
 
 </html>
+
