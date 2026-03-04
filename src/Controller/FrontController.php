@@ -33,4 +33,10 @@ final class FrontController extends AbstractController
     {
         return $this->render('front/book.html.twig');
     }
+
+    #[Route('/courses', name: 'front_course', methods: ['GET'])]
+    public function course(): Response
+    {
+        return $this->render('front/courses.html.twig');
+    }
 }

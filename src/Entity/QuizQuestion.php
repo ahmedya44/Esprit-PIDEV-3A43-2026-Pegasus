@@ -32,7 +32,12 @@ class QuizQuestion
     /**
      * @var Collection<int, QuizChoice>
      */
-    #[ORM\OneToMany(targetEntity: QuizChoice::class, mappedBy: 'question', orphanRemoval: true)]
+    #[ORM\OneToMany(
+        mappedBy: 'question',
+        targetEntity: QuizChoice::class,
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true
+    )]
     private Collection $quizChoices;
 
     public function __construct()
@@ -101,22 +106,21 @@ class QuizQuestion
         return $this->quizChoices;
     }
 
-    public function addQuizChoice(QuizChoice $quizChoice): static
+    public function addQuizChoice(QuizChoice $choice): static
     {
-        if (!$this->quizChoices->contains($quizChoice)) {
-            $this->quizChoices->add($quizChoice);
-            $quizChoice->setQuestion($this);
+        if (!$this->quizChoices->contains($choice)) {
+            $this->quizChoices->add($choice);
+            $choice->setQuestion($this); // ✅ owning side
         }
 
         return $this;
     }
 
-    public function removeQuizChoice(QuizChoice $quizChoice): static
+    public function removeQuizChoice(QuizChoice $choice): static
     {
-        if ($this->quizChoices->removeElement($quizChoice)) {
-            // set the owning side to null (unless already changed)
-            if ($quizChoice->getQuestion() === $this) {
-                $quizChoice->setQuestion(null);
+        if ($this->quizChoices->removeElement($choice)) {
+            if ($choice->getQuestion() === $this) {
+                $choice->setQuestion(null);
             }
         }
 

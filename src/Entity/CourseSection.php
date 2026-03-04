@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Course;
 use App\Repository\CourseSectionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,7 +24,7 @@ class CourseSection
 
     #[ORM\ManyToOne(inversedBy: 'courseSections')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?course $course = null;
+    private ?Course $course = null;
 
     /**
      * @var Collection<int, CourseVideo>
@@ -65,12 +66,12 @@ class CourseSection
         return $this;
     }
 
-    public function getCourse(): ?course
+    public function getCourse(): ?Course
     {
         return $this->course;
     }
 
-    public function setCourse(?course $course): static
+    public function setCourse(?Course $course): static
     {
         $this->course = $course;
 

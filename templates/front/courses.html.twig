@@ -69,6 +69,9 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_courses') }}">Courses</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('artist_dashboard') }}">Artist Dashboard</a>
+              </li>
             </ul>
             <div class="user_option">
               <a href="" class="user_link">
@@ -144,77 +147,124 @@
     <!-- end header section -->
   </div>
 
-  <!-- food section -->
+      <!-- Courses section -->
+      <section class="food_section layout_padding">
+        <div class="container">
 
-  <section class="food_section layout_padding">
-    <div class="container">
-      <div class="heading_container heading_center">
-        <h2>
-          Our Courses
-        </h2>
-      </div>
-
-      <ul class="filters_menu">
-        <li class="active" data-filter="*">All</li>
-        <li data-filter=".burger">music</li>
-        <li data-filter=".pizza">art</li>
-      </ul>
-
-      <div class="filters-content">
-        <div class="row grid">
-  {% for course in courses %}
-    <div class="col-sm-6 col-lg-4 all">
-      <div class="box">
-        <div>
-          <div class="img-box">
-            {# change image field name if yours is different #}
-            {% if course.thumbnailUrl %}
-              <img src="{{ course.thumbnailUrl }}" alt="{{ course.title }}">
-            {% else %}
-              <img src="{{ asset('front/images/f1.png') }}" alt="{{ course.title }}">
-            {% endif %}
+          <div class="heading_container heading_center mb-4">
+            <h2>Our Courses</h2>
+            <p class="text-muted mb-0">Learn new skills with structured lessons and videos.</p>
           </div>
 
-          <div class="detail-box">
-            <h5>{{ course.title }}</h5>
-
-            {% if course.description is defined and course.description %}
-              <p>{{ course.description|slice(0, 120) }}{% if course.description|length > 120 %}...{% endif %}</p>
-            {% endif %}
-
-            <div class="options">
-              {# if you have price field: #}
-              {% if course.price is defined and course.price is not null %}
-                <h6>{{ course.price }} DT</h6>
-              {% endif %}
-
-              <a href="#" class="btn btn-warning btn-sm disabled" tabindex="-1" aria-disabled="true">
-                View
+          {# Dynamic filters generated from classifier #}
+          <ul class="filters_menu mb-4">
+            <li class="{{ activeCat is empty ? 'active' : '' }}">
+              <a href="{{ path('app_courses') }}" style="color:inherit;text-decoration:none;">
+                All
               </a>
+            </li>
+
+            {% for f in filters %}
+              <li class="{{ activeCat == f.slug ? 'active' : '' }}">
+                <a href="{{ path('app_courses', {cat: f.slug}) }}"
+                  style="color:inherit;text-decoration:none;">
+                  {{ f.label }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+
+          <div class="filters-content">
+            <div class="row grid">
+
+              {% for course in courses %}
+                <div class="col-sm-6 col-lg-4 all">
+                  <div class="box">
+
+                    <a href="{{ path('course_show', { id: course.id }) }}"
+                      class="text-decoration-none text-reset"
+                      style="display:block;">
+
+                      <div class="img-box">
+                        {% if course.thumbnailUrl %}
+                          <img src="{{ course.thumbnailUrl }}" alt="{{ course.title|e }}">
+                        {% else %}
+                          <img src="{{ asset('front/images/f1.png') }}" alt="{{ course.title|e }}">
+                        {% endif %}
+                      </div>
+
+                      <div class="detail-box">
+
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                          <h5 class="mb-1">{{ course.title }}</h5>
+
+                          {% if course.status is defined and course.status %}
+                            <span class="badge bg-warning text-dark" style="height:fit-content;">
+                              {{ course.status }}
+                            </span>
+                          {% endif %}
+                        </div>
+
+                        {# CATEGORY BADGES (AI detected) #}
+                        {% set slugs = classifier.detectSlugs(course) %}
+                        <div class="mb-2">
+                          {% for slug in slugs %}
+                            <span class="badge bg-dark"
+                                  style="border-radius:999px;padding:6px 10px;font-weight:700;">
+                              {{ slug|capitalize }}
+                            </span>
+                          {% endfor %}
+                        </div>
+
+                        {% if course.description is defined and course.description %}
+                          <p class="mb-3">
+                            {{ course.description|striptags|u.truncate(120, '...') }}
+                          </p>
+                        {% else %}
+                          <p class="mb-3 text-muted">No description yet.</p>
+                        {% endif %}
+
+                        <div class="options d-flex align-items-center justify-content-between">
+
+                          {% if course.price is defined and course.price is not null %}
+                            <h6 class="mb-0">{{ course.price }} DT</h6>
+                          {% else %}
+                            <h6 class="mb-0 text-muted"></h6>
+                          {% endif %}
+
+                          <span class="btn btn-warning btn-sm" style="font-weight:800;">
+                            View course →
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                    </a>
+
+                  </div>
+                </div>
+
+              {% else %}
+
+                <div class="col-12">
+                  <div class="alert alert-info text-center mb-0">
+                    No published courses available right now.
+                  </div>
+                </div>
+
+              {% endfor %}
+
             </div>
           </div>
 
-        </div>
-      </div>
-    </div>
-  {% else %}
-    <div class="col-12">
-      <div class="alert alert-info text-center">
-        No courses found in the database.
-      </div>
-    </div>
-  {% endfor %}
-</div>
-      </div>
-      <div class="btn-box">
-        <a href="">
-          View More
-        </a>
-      </div>
-    </div>
-  </section>
+          <div class="btn-box mt-4">
+            <a href="{{ path('app_courses') }}">View More</a>
+          </div>
 
-  <!-- end food section -->
+        </div>
+      </section>
+      <!-- end Courses section -->
 
   <!-- footer section -->
   <footer class="footer_section">
