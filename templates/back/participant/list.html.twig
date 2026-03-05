@@ -1,0 +1,146 @@
+{% extends 'back/base.html.twig' %}
+
+{% block title %}Participants pour {{ evenement.titre }}{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+        <h3 class="fw-bold mb-3">Participants</h3>
+        <ul class="breadcrumbs">
+            <li class="nav-home">
+                <a href="{{ path('back_dashboard') }}">
+                    <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_participant_index') }}">Gestion</a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="#">{{ evenement.titre }}</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center flex-wrap gap-3">
+                        <h4 class="card-title mb-0">Liste des Participants : {{ evenement.titre }}</h4>
+                        <div class="flex-grow-1" style="max-width: 350px;">
+                            <input type="text" id="searchParticipant" class="form-control form-control-sm" placeholder="Rechercher par email context..." style="border-radius: 20px;">
+                        </div>
+                        <div style="min-width: 150px;">
+                            <select id="sortParticipant" class="form-select form-select-sm" style="border-radius: 20px;">
+                                <option value="">Trier par...</option>
+                                <option value="email_asc">Email (A-Z)</option>
+                                <option value="email_desc">Email (Z-A)</option>
+                                <option value="date_desc">Date (Récent)</option>
+                                <option value="date_asc">Date (Ancien)</option>
+                            </select>
+                        </div>
+                        <a href="{{ path('app_participant_export_pdf', {'id': evenement.id}) }}" class="btn btn-danger btn-round ms-auto">
+                            <i class="fa fa-file-pdf"></i>
+                            Export PDF
+                        </a>
+                        <a href="{{ path('app_participant_index') }}" class="btn btn-secondary btn-round ms-2">
+                            <i class="fa fa-arrow-left"></i>
+                            Retour
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Email</th>
+                                    <th>Type</th>
+                                    <th>Date d'inscription</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for participation in evenement.participations %}
+                                <tr>
+                                    <td>{{ participation.id }}</td>
+                                    <td>{{ participation.user.email }}</td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            {{ participation.user.type|default('Utilisateur')|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>{{ participation.createdAt|date('Y-m-d H:i') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Aucun participant pour cet événement.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchParticipant');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                let filter = this.value.toLowerCase();
+                let rows = document.querySelectorAll('.table tbody tr');
+                
+                rows.forEach(row => {
+                    // Vérifier s'il y a plus d'une cellule pour éviter de cacher le message de liste vide
+                    if (row.cells.length > 2) {
+                        let textContext = row.innerText.toLowerCase();
+                        if (textContext.includes(filter)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        }
+
+        const sortSelect = document.getElementById('sortParticipant');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                let tbody = document.querySelector('.table tbody');
+                let rows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.cells.length > 2);
+                let sortValue = this.value;
+
+                if (!sortValue) return;
+
+                rows.sort(function(a, b) {
+                    let valA, valB;
+                    
+                    if (sortValue.startsWith('email')) {
+                        valA = a.cells[1].innerText.trim().toLowerCase();
+                        valB = b.cells[1].innerText.trim().toLowerCase();
+                        return sortValue.endsWith('asc') ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    } else if (sortValue.startsWith('date')) {
+                        valA = new Date(a.cells[3].innerText.trim());
+                        valB = new Date(b.cells[3].innerText.trim());
+                        return sortValue.endsWith('asc') ? valA - valB : valB - valA;
+                    }
+                    return 0;
+                });
+
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        }
+    });
+</script>
+{% endblock %}

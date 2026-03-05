@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Participants - {{ evenement.titre }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { text-align: center; color: #a855f7; }
+        h2 { text-align: center; color: #666; font-size: 16px; margin-top: -10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; font-size: 12px; }
+        th { background-color: #f3f4f6; color: #374151; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Participants</h1>
+    <h2>Événement : {{ evenement.titre }}</h2>
+    
+    <div style="margin-bottom: 20px; font-size: 14px;">
+        <strong>Date :</strong> {{ evenement.date ? evenement.date|date('d/m/Y') : '' }} <br>
+        <strong>Lieu :</strong> {{ evenement.lieu }}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Email</th>
+                <th>Type d'utilisateur</th>
+                <th>Date d'inscription</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for participation in evenement.participations %}
+            <tr>
+                <td>{{ participation.id }}</td>
+                <td>{{ participation.user.email }}</td>
+                <td>{{ participation.user.type|default('Utilisateur')|capitalize }}</td>
+                <td>{{ participation.createdAt|date('d/m/Y H:i') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center;">Aucun participant pour le moment.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 30px; font-size: 10px; color: #666; text-align: center;">
+        Généré le {{ "now"|date('d/m/Y H:i') }}
+    </div>
+</body>
+</html>
