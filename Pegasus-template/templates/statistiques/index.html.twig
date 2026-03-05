@@ -1,0 +1,224 @@
+{% extends 'back/base.html.twig' %}
+
+{% block title %}Statistiques - Kaiadmin{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h4 class="page-title">Tableau de Bord des Statistiques</h4>
+    <ul class="breadcrumbs">
+        <li class="nav-home">
+            <a href="{{ path('back_page', {path: 'index'}) }}">
+                <i class="icon-home"></i>
+            </a>
+        </li>
+        <li class="separator">
+            <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+            <a href="#">Statistiques</a>
+        </li>
+    </ul>
+</div>
+
+<div class="row">
+    <!-- Quick Stats Cards -->
+    <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-primary bubble-shadow-small">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Inscrits Actifs</p>
+                            <h4 class="card-title">{{ totalActiveParticipants }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-success bubble-shadow-small">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Revenu Estimé</p>
+                            <h4 class="card-title">{{ totalRevenue|number_format(2, ',', ' ') }} DT</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-4">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-info bubble-shadow-small">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Total Événements</p>
+                            <h4 class="card-title">{{ totalEvents }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Bar Chart -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Inscriptions par Événement</div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Pie Chart -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Répartition des Statuts</div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Occupancy Details -->
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">Taux d'Occupation par Événement</div>
+            </div>
+            <div class="card-body">
+                {% for item in eventOccupancy %}
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-bold">{{ item.titre }}</span>
+                        <span class="text-muted">{{ item.active }} / {{ item.max }} places ({{ item.percentage }}%)</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        {% set color = 'bg-primary' %}
+                        {% if item.percentage > 80 %}{% set color = 'bg-danger' %}
+                        {% elseif item.percentage > 50 %}{% set color = 'bg-warning' %}
+                        {% endif %}
+                        <div class="progress-bar {{ color }}" role="progressbar" style="width: {{ item.percentage }}%" aria-valuenow="{{ item.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    $(document).ready(function() {
+        // Bar Chart
+        var ctxBar = document.getElementById('barChart').getContext('2d');
+        var myBarChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: {{ eventLabels|json_encode|raw }},
+                datasets: [{
+                    label: "Nombre d'inscrits",
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1,
+                    data: {{ eventData|json_encode|raw }},
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Pie Chart
+        var ctxPie = document.getElementById('pieChart').getContext('2d');
+        var myPieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                datasets: [{
+                    data: [
+                        {{ statusCounts['Confirmé'] }},
+                        {{ statusCounts['En attente'] }},
+                        {{ statusCounts['Annulé'] }}
+                    ],
+                    backgroundColor: [
+                        '#28a745', // Success
+                        '#ffc107', // Warning
+                        '#dc3545'  // Danger
+                    ],
+                    borderWidth: 0
+                }],
+                labels: ['Confirmé', 'En attente', 'Annulé']
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        fontColor: 'rgb(154, 154, 154)',
+                        fontSize: 11,
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                },
+                pieceLabel: {
+                    render: 'percentage',
+                    fontColor: 'white',
+                    fontSize: 14,
+                },
+                tooltips: false,
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                        top: 20,
+                        bottom: 20
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

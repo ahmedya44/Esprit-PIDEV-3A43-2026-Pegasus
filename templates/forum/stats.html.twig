@@ -1,0 +1,91 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'forum' %}
+
+{% block title %}Statistiques Forum{% endblock %}
+
+{% block body %}
+<section class="forum-shell">
+    <div class="container">
+        <div class="forum-card mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h1 class="h3 mb-0">Statistiques Forum</h1>
+                <div class="d-flex gap-2">
+                    <a href="{{ path('forum_index') }}" class="btn btn-outline-secondary">Posts</a>
+                    <a href="{{ path('forum_new') }}" class="btn btn-warning">Ajouter</a>
+                </div>
+            </div>
+
+            <form method="get" class="row g-2" data-live-search-form="1" data-live-delay="160">
+                <div class="col-md-4">
+                    <label class="form-label mb-1">Filtre statut</label>
+                    <select name="status" class="form-control" data-live-search-filter="1">
+                        <option value="">Tous</option>
+                        <option value="OPEN" {% if status == 'OPEN' %}selected{% endif %}>Ouvert</option>
+                        <option value="HIDDEN" {% if status == 'HIDDEN' %}selected{% endif %}>Cache</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-dark w-100">Actualiser</button>
+                </div>
+                <div class="col-md-5 d-flex align-items-end justify-content-end">
+                    <small class="text-muted">Derniere mise a jour: {{ generatedAt|date('Y-m-d H:i') }}</small>
+                </div>
+            </form>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="forum-card text-center">
+                    <div class="text-muted">Posts Ouverts</div>
+                    <div class="display-6">{{ countsByStatus.OPEN|default(0) }}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="forum-card text-center">
+                    <div class="text-muted">Posts Fermes</div>
+                    <div class="display-6">{{ countsByStatus.CLOSED|default(0) }}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="forum-card text-center">
+                    <div class="text-muted">Total Commentaires</div>
+                    <div class="display-6">{{ totalComments }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="forum-card">
+            <h2 class="h5 mb-3">Top posts les plus commentes</h2>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Titre</th>
+                            <th>Statut</th>
+                            <th>Commentaires</th>
+                            <th>Creation</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in topCommentedPosts %}
+                        {% set translatedPost = row.post %}
+                        <tr>
+                            <td>{{ translatedPost.title }}</td>
+                            <td>{{ row.post.status }}</td>
+                            <td>{{ row.nbComments }}</td>
+                            <td>{{ row.post.createdAt|date('Y-m-d H:i') }}</td>
+                            <td><a class="btn btn-sm btn-outline-primary" href="{{ path('forum_show', {id: row.post.id}) }}">Voir</a></td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5" class="text-center text-muted">Aucune donnee</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

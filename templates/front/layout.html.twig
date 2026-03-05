@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+
+  <title>{% block title %}Feane{% endblock %}</title>
+
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha512-CruCP+TD3yXzlvvijET8wV5WxxEh5H8P4cmz0RFbKK6FlZ2sYl3AEsKlLPHbniXKSrDdFewhbmBK5skbdsASbQ==" crossorigin="anonymous" />
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    .forum-shell {
+      padding: 40px 0 70px;
+      background: #f5f5f5;
+      min-height: 60vh;
+    }
+    .forum-card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      padding: 24px;
+    }
+    .confirm3d-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 10, 14, 0.45);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .confirm3d-backdrop.is-open { display: flex; }
+    .confirm3d-modal {
+      width: min(460px, 100%);
+      background: linear-gradient(160deg, #ffffff, #f7f8fb);
+      border: 1px solid #e5e7ef;
+      border-radius: 18px;
+      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.25);
+      transform: perspective(850px) rotateX(9deg) translateY(8px) scale(0.96);
+      opacity: 0;
+      transition: transform .22s ease, opacity .22s ease;
+      overflow: hidden;
+    }
+    .confirm3d-backdrop.is-open .confirm3d-modal {
+      transform: perspective(850px) rotateX(0deg) translateY(0) scale(1);
+      opacity: 1;
+    }
+    .confirm3d-head {
+      padding: 14px 18px;
+      font-weight: 700;
+      color: #111827;
+      border-bottom: 1px solid #eceef4;
+      background: #ffffff;
+    }
+    .confirm3d-body {
+      padding: 16px 18px;
+      color: #374151;
+      line-height: 1.45;
+    }
+    .confirm3d-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 14px 18px 18px;
+    }
+    .ai-suggest-box {
+      margin-top: 8px;
+      border: 1px solid #e6eaf5;
+      border-radius: 10px;
+      background: #fbfcff;
+      padding: 8px;
+      display: none;
+    }
+    .ai-suggest-box.is-open {
+      display: block;
+    }
+    .ai-suggest-title {
+      font-size: .8rem;
+      color: #64748b;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .ai-suggest-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ai-suggest-item {
+      border: 1px solid #d8deee;
+      background: #fff;
+      border-radius: 8px;
+      padding: 7px 10px;
+      text-align: left;
+      font-size: .9rem;
+      line-height: 1.35;
+      cursor: pointer;
+    }
+    .ai-suggest-item:hover {
+      background: #f1f6ff;
+      border-color: #9fb2e6;
+    }
+  </style>
+
+  {% block extra_styles %}{% endblock %}
+</head>
+<body class="{% block body_class %}sub_page{% endblock %}">
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="{{ path('front_home') }}">
+            <span>Feane</span>
+          </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto">
+              <li class="nav-item {% if (active_nav|default('')) == 'home' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_home') }}">Home</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'menu' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'about' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_about') }}">About</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'book' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'gallery' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'forum' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('forum_index') }}">Forum</a>
+              </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'events' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a>
+              </li>
+            </ul>
+            <div class="user_option">
+              {% if app.user %}
+                <a href="{{ path('front_profile') }}" class="user_link profile_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                  <span class="profile_name">{{ app.user.username }}</span>
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="user_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+              <a class="cart_link" href="#">
+                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
+                  <g>
+                    <g>
+                      <path d="M345.6,338.862c-29.184,0-53.248,23.552-53.248,53.248c0,29.184,23.552,53.248,53.248,53.248
+                   c29.184,0,53.248-23.552,53.248-53.248C398.336,362.926,374.784,338.862,345.6,338.862z" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <path d="M439.296,84.91c-1.024,0-2.56-0.512-4.096-0.512H112.64l-5.12-34.304C104.448,27.566,84.992,10.67,61.952,10.67H20.48
+                   C9.216,10.67,0,19.886,0,31.15c0,11.264,9.216,20.48,20.48,20.48h41.472c2.56,0,4.608,2.048,5.12,4.608l31.744,216.064
+                   c4.096,27.136,27.648,47.616,55.296,47.616h212.992c26.624,0,49.664-18.944,55.296-45.056l33.28-166.4
+                   C457.728,97.71,450.56,86.958,439.296,84.91z" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <path d="M215.04,389.55c-1.024-28.16-24.576-50.688-52.736-50.688c-29.696,1.536-52.224,26.112-51.2,55.296
+                   c1.024,28.16,24.064,50.688,52.224,50.688h1.024C193.536,443.31,216.576,418.734,215.04,389.55z" />
+                    </g>
+                  </g>
+                </svg>
+              </a>
+              <form class="form-inline">
+                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+              </form>
+              {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">
+                  Logout
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="auth_btn auth_btn--outline">
+                  Sign In
+                </a>
+                <a href="{{ path('app_register') }}" class="auth_btn auth_btn--filled">
+                  Sign Up
+                </a>
+              {% endif %}
+              <a href="" class="order_online">
+                Order Online
+              </a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  {% block body %}{% endblock %}
+
+  <div id="confirm3d" class="confirm3d-backdrop" aria-hidden="true">
+    <div class="confirm3d-modal" role="dialog" aria-modal="true" aria-labelledby="confirm3d-title">
+      <div class="confirm3d-head" id="confirm3d-title">Confirmation</div>
+      <div class="confirm3d-body" id="confirm3d-message">Voulez-vous continuer ?</div>
+      <div class="confirm3d-actions">
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="confirm3d-cancel">Annuler</button>
+        <button type="button" class="btn btn-danger btn-sm" id="confirm3d-ok">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer_section">
+    <div class="container">
+      <div class="footer-info">
+        <p>
+          &copy; <span id="displayYear"></span> All Rights Reserved By
+          <a href="https://html.design/">Free Html Templates</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <script src="https://unpkg.com/isotope-layout@3.0.4/dist/isotope.pkgd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+
+  <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+  <script>
+    document.querySelectorAll('textarea.js-ckeditor').forEach(function (el) {
+      if (el.dataset.ckeditorReady) {
+        return;
+      }
+
+      ClassicEditor.create(el).then(function (editor) {
+        el.dataset.ckeditorReady = '1';
+        el._ckeditorInstance = editor;
+        el.dispatchEvent(new CustomEvent('ckeditor:ready', { detail: { editor: editor } }));
+      }).catch(function () {
+        // Keep native textarea if CDN is unavailable.
+      });
+    });
+  </script>
+  <script>
+    (function () {
+      var endpoint = '{{ path('forum_ai_autocomplete') }}';
+      var csrfToken = '{{ csrf_token('forum_ai_autocomplete') }}';
+
+      function normalizePlainText(value) {
+        return String(value || '')
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function getFieldText(field) {
+        if (field._ckeditorInstance) {
+          return normalizePlainText(field._ckeditorInstance.getData());
+        }
+        return normalizePlainText(field.value);
+      }
+
+      function setFieldText(field, value) {
+        if (field._ckeditorInstance) {
+          field._ckeditorInstance.setData(value);
+          field._ckeditorInstance.editing.view.focus();
+          return;
+        }
+        field.value = value;
+        field.focus();
+        field.setSelectionRange(field.value.length, field.value.length);
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+
+      function bindAutocomplete(field) {
+        var fieldType = field.getAttribute('data-ai-field');
+        if (!fieldType || field.dataset.aiBound === '1') {
+          return;
+        }
+        field.dataset.aiBound = '1';
+
+        var box = document.createElement('div');
+        box.className = 'ai-suggest-box';
+        box.innerHTML = '<div class="ai-suggest-title">Suggestions IA</div><div class="ai-suggest-items"></div>';
+        var list = box.querySelector('.ai-suggest-items');
+        field.parentNode.appendChild(box);
+
+        var timer = null;
+        var lastQuery = '';
+        var lastRequestedText = '';
+        var lastRequestedAt = 0;
+        var lastSuggestions = [];
+        var inflightController = null;
+        var requestCache = new Map();
+
+        function closeBox() {
+          box.classList.remove('is-open');
+          list.innerHTML = '';
+        }
+
+        function renderSuggestions(suggestions) {
+          list.innerHTML = '';
+          if (!Array.isArray(suggestions) || suggestions.length === 0) {
+            closeBox();
+            return;
+          }
+
+          suggestions.forEach(function (text) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'ai-suggest-item';
+            btn.textContent = text;
+            btn.addEventListener('mousedown', function (event) {
+              event.preventDefault();
+              setFieldText(field, text);
+              closeBox();
+            });
+            list.appendChild(btn);
+          });
+
+          box.classList.add('is-open');
+        }
+
+        function renderFromLocal(text) {
+          if (!Array.isArray(lastSuggestions) || lastSuggestions.length === 0) {
+            closeBox();
+            return;
+          }
+
+          var lowered = text.toLowerCase();
+          var filtered = lastSuggestions.filter(function (item) {
+            return String(item).toLowerCase().indexOf(lowered) === 0;
+          });
+
+          if (filtered.length === 0) {
+            closeBox();
+            return;
+          }
+
+          renderSuggestions(filtered);
+        }
+
+        function collectContext() {
+          var form = field.form;
+          if (!form) {
+            return '';
+          }
+
+          if (fieldType === 'post_title') {
+            var c = form.querySelector('[data-ai-field="post_content"]');
+            return c ? getFieldText(c) : '';
+          }
+          if (fieldType === 'post_content') {
+            var t = form.querySelector('[data-ai-field="post_title"]');
+            return t ? getFieldText(t) : '';
+          }
+
+          var p = form.querySelector('[data-ai-field="post_title"]');
+          return p ? getFieldText(p) : '';
+        }
+
+        function requestSuggestions() {
+          var text = getFieldText(field);
+          if (text.length < 1) {
+            closeBox();
+            return;
+          }
+          if (text === lastQuery) {
+            renderFromLocal(text);
+            return;
+          }
+          lastQuery = text;
+
+          var context = collectContext();
+          var cacheKey = fieldType + '|' + text + '|' + context;
+          if (requestCache.has(cacheKey)) {
+            var cached = requestCache.get(cacheKey);
+            lastSuggestions = Array.isArray(cached) ? cached : [];
+            renderSuggestions(lastSuggestions);
+            return;
+          }
+
+          var now = Date.now();
+          var minGapMs = 1200;
+          var grewEnough = Math.abs(text.length - lastRequestedText.length) >= 3;
+          var isFirstLetter = text.length === 1;
+          if (!isFirstLetter && (now - lastRequestedAt) < minGapMs && !grewEnough) {
+            renderFromLocal(text);
+            return;
+          }
+
+          if (inflightController) {
+            inflightController.abort();
+          }
+          inflightController = new AbortController();
+
+          fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': csrfToken,
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            signal: inflightController.signal,
+            body: JSON.stringify({
+              field: fieldType,
+              text: text,
+              context: context
+            })
+          })
+            .then(function (response) { return response.ok ? response.json() : null; })
+            .then(function (data) {
+              inflightController = null;
+              if (!data || !Array.isArray(data.suggestions)) {
+                closeBox();
+                return;
+              }
+              lastRequestedAt = Date.now();
+              lastRequestedText = text;
+              lastSuggestions = data.suggestions;
+              requestCache.set(cacheKey, data.suggestions);
+              renderSuggestions(data.suggestions);
+            })
+            .catch(function (error) {
+              inflightController = null;
+              if (error && error.name === 'AbortError') {
+                return;
+              }
+              closeBox();
+            });
+        }
+
+        function schedule() {
+          if (timer) {
+            clearTimeout(timer);
+          }
+          timer = setTimeout(requestSuggestions, 350);
+        }
+
+        field.addEventListener('input', schedule);
+        field.addEventListener('blur', function () {
+          setTimeout(closeBox, 180);
+        });
+        box.addEventListener('mousedown', function (event) {
+          event.preventDefault();
+        });
+
+        if (field._ckeditorInstance) {
+          field._ckeditorInstance.model.document.on('change:data', schedule);
+        } else {
+          field.addEventListener('ckeditor:ready', function (event) {
+            var editor = event.detail && event.detail.editor ? event.detail.editor : field._ckeditorInstance;
+            if (editor) {
+              editor.model.document.on('change:data', schedule);
+            }
+          });
+        }
+      }
+
+      document.querySelectorAll('[data-ai-autocomplete="1"]').forEach(bindAutocomplete);
+
+      var backdrop = document.getElementById('confirm3d');
+      if (!backdrop) return;
+      var title = document.getElementById('confirm3d-title');
+      var message = document.getElementById('confirm3d-message');
+      var cancelBtn = document.getElementById('confirm3d-cancel');
+      var okBtn = document.getElementById('confirm3d-ok');
+      var pendingForm = null;
+
+      function closeModal() {
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden', 'true');
+        pendingForm = null;
+      }
+
+      document.addEventListener('click', function (event) {
+        var form = event.target.closest('form[data-confirm-message]');
+        if (!form) return;
+        if (form.dataset.confirmBypass === '1') return;
+        event.preventDefault();
+        pendingForm = form;
+        title.textContent = form.dataset.confirmTitle || 'Confirmation';
+        message.textContent = form.dataset.confirmMessage || 'Voulez-vous continuer ?';
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden', 'false');
+      });
+
+      cancelBtn.addEventListener('click', closeModal);
+      backdrop.addEventListener('click', function (event) {
+        if (event.target === backdrop) closeModal();
+      });
+      okBtn.addEventListener('click', function () {
+        if (!pendingForm) return closeModal();
+        pendingForm.dataset.confirmBypass = '1';
+        pendingForm.submit();
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeModal();
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      var focusStorageKey = 'live_search_focus_state';
+
+      function submitForm(form) {
+        if (typeof form.requestSubmit === 'function') {
+          form.requestSubmit();
+          return;
+        }
+        form.submit();
+      }
+
+      function clearFocusState() {
+        sessionStorage.removeItem(focusStorageKey);
+      }
+
+      function rememberFocusState(form, input) {
+        if (!input || !input.name) {
+          clearFocusState();
+          return;
+        }
+
+        var state = {
+          path: window.location.pathname,
+          action: form.getAttribute('action') || '',
+          fieldName: input.name,
+          selectionStart: typeof input.selectionStart === 'number' ? input.selectionStart : null,
+          selectionEnd: typeof input.selectionEnd === 'number' ? input.selectionEnd : null
+        };
+
+        sessionStorage.setItem(focusStorageKey, JSON.stringify(state));
+      }
+
+      function restoreFocusState() {
+        var raw = sessionStorage.getItem(focusStorageKey);
+        if (!raw) {
+          return;
+        }
+
+        clearFocusState();
+
+        var state = null;
+        try {
+          state = JSON.parse(raw);
+        } catch (e) {
+          return;
+        }
+
+        if (!state || state.path !== window.location.pathname || !state.fieldName) {
+          return;
+        }
+
+        var forms = Array.prototype.slice.call(document.querySelectorAll('form[data-live-search-form="1"]'));
+        for (var i = 0; i < forms.length; i++) {
+          var form = forms[i];
+          var action = form.getAttribute('action') || '';
+          if (action !== state.action) {
+            continue;
+          }
+
+          var candidates = form.querySelectorAll('[data-live-search-input="1"]');
+          for (var j = 0; j < candidates.length; j++) {
+            var candidate = candidates[j];
+            if (candidate.name !== state.fieldName) {
+              continue;
+            }
+
+            try {
+              candidate.focus({ preventScroll: true });
+            } catch (e) {
+              candidate.focus();
+            }
+
+            if (
+              typeof candidate.setSelectionRange === 'function'
+              && typeof state.selectionStart === 'number'
+              && typeof state.selectionEnd === 'number'
+            ) {
+              var max = candidate.value.length;
+              var start = Math.max(0, Math.min(state.selectionStart, max));
+              var end = Math.max(0, Math.min(state.selectionEnd, max));
+              candidate.setSelectionRange(start, end);
+            }
+
+            return;
+          }
+        }
+      }
+
+      restoreFocusState();
+
+      document.querySelectorAll('form[data-live-search-form="1"]').forEach(function (form) {
+        var delay = parseInt(form.getAttribute('data-live-delay') || '300', 10);
+        var timer = null;
+
+        function scheduleSubmit(input) {
+          if (timer) {
+            clearTimeout(timer);
+          }
+          timer = setTimeout(function () {
+            rememberFocusState(form, input);
+            submitForm(form);
+          }, delay);
+        }
+
+        form.querySelectorAll('[data-live-search-input="1"]').forEach(function (input) {
+          input.addEventListener('input', function () {
+            scheduleSubmit(input);
+          });
+          input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              if (timer) {
+                clearTimeout(timer);
+              }
+              rememberFocusState(form, input);
+              submitForm(form);
+            }
+          });
+        });
+
+        form.querySelectorAll('[data-live-search-filter="1"]').forEach(function (filter) {
+          filter.addEventListener('change', function () {
+            if (timer) {
+              clearTimeout(timer);
+            }
+            clearFocusState();
+            submitForm(form);
+          });
+        });
+      });
+    })();
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+

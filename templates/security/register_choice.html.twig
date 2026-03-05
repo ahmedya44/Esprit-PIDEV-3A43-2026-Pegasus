@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+
+  <title> Feane - Choose Account Type </title>
+
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" integrity="sha512-CruCP+TD3yXzlvvijET8wV5WxxEh5H8P4cmz0RFbKK6FlZ2sYl3AEsKlLPHbniXKSrDdFewhbmBK5skbdsASbQ==" crossorigin="anonymous" />
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    .auth_section {
+      padding: 60px 0;
+      min-height: 500px;
+    }
+
+    .auth_container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    .auth_container h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .auth_container p {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .role_grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .role_card {
+      display: block;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 18px;
+      text-decoration: none;
+      color: #1a1a1a;
+      transition: all 0.2s ease;
+      background-color: #fff;
+    }
+
+    .role_card:hover {
+      border-color: #ff7f5c;
+      box-shadow: 0 6px 18px rgba(255, 127, 92, 0.2);
+      transform: translateY(-2px);
+      color: #1a1a1a;
+    }
+
+    .role_card h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .role_card span {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .auth_link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .auth_link a {
+      color: #ff7f5c;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 12px;
+      background-color: #ffffff;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 18px;
+      margin-bottom: 8px;
+    }
+
+    .btn-google:hover {
+      background-color: #f7f7f7;
+      text-decoration: none;
+      color: #333;
+    }
+
+    @media (max-width: 767px) {
+      .role_grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="sub_page">
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="{{ path('front_home') }}">
+            <span>Feane</span>
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav  mx-auto ">
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_home') }}">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('forum_index') }}">Forum</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <section class="auth_section layout_padding">
+    <div class="container">
+      <div class="auth_container">
+        <h2>Choose Account Type</h2>
+        <p>Select the role you want before continuing to sign up.</p>
+
+        <div class="role_grid">
+          <a class="role_card" href="{{ path('app_register_role', {'role': 'artiste'}) }}">
+            <h4>Artiste</h4>
+            <span>Create an artist account.</span>
+          </a>
+          <a class="role_card" href="{{ path('app_register_role', {'role': 'sponsor'}) }}">
+            <h4>Sponsor</h4>
+            <span>Create a sponsor account.</span>
+          </a>
+          <a class="role_card" href="{{ path('app_register_role', {'role': 'normal'}) }}">
+            <h4>Normal User</h4>
+            <span>Create a regular user account.</span>
+          </a>
+        </div>
+        <a href="{{ path('app_connect_google_start') }}" class="btn-google">
+          <i class="fa fa-google" aria-hidden="true"></i>
+          Sign Up with Google
+        </a>
+
+        <div class="auth_link">
+          Already have an account? <a href="{{ path('app_login') }}">Sign In</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer_section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 footer-col">
+          <div class="footer_contact">
+            <h4>Contact Us</h4>
+            <div class="contact_link_box">
+              <a href=""><i class="fa fa-map-marker" aria-hidden="true"></i><span>Location</span></a>
+              <a href=""><i class="fa fa-phone" aria-hidden="true"></i><span>Call +01 1234567890</span></a>
+              <a href=""><i class="fa fa-envelope" aria-hidden="true"></i><span>Email info@feane.com</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 footer-col">
+          <div class="footer_detail">
+            <a href="" class="footer-logo">Feane</a>
+            <p>Necessary, making this the first true generator on the Internet.</p>
+          </div>
+        </div>
+        <div class="col-md-4 footer-col">
+          <div class="footer_social">
+            <a href=""><i class="fa fa-facebook" aria-hidden="true"></i></a>
+            <a href=""><i class="fa fa-twitter" aria-hidden="true"></i></a>
+            <a href=""><i class="fa fa-linkedin" aria-hidden="true"></i></a>
+            <a href=""><i class="fa fa-instagram" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+</body>
+
+</html>

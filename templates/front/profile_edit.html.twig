@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+  <title>Feane - Edit Profile</title>
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+  <style>
+    .profile_section { padding: 70px 0; }
+    .profile_card { background: #fff; border-radius: 10px; box-shadow: 0 2px 14px rgba(0, 0, 0, 0.1); padding: 24px; }
+    .profile_title { margin-bottom: 18px; font-weight: 700; }
+    .password-field { position: relative; }
+    .password-field input { padding-right: 42px; }
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+  </style>
+</head>
+<body class="sub_page">
+  <div class="hero_area">
+    <div class="bg-box"><img src="{{ asset('front/images/hero-bg.jpg') }}" alt=""></div>
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Feane</span></a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"><span class=""> </span></button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav  mx-auto ">
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_home') }}">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('forum_index') }}">Forum</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a></li>
+            </ul>
+            <div class="user_option">
+              <a href="{{ path('front_profile') }}" class="user_link profile_link">
+                <i class="fa fa-user" aria-hidden="true"></i>
+                <span class="profile_name">{{ app.user.username }}</span>
+              </a>
+              <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">Logout</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <section class="profile_section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="profile_card">
+            <h3 class="profile_title">Modify Profile</h3>
+
+            {% for message in app.flashes('success') %}
+              <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+            {% for message in app.flashes('danger') %}
+              <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+
+            <form method="post" action="{{ path('front_profile_update') }}" novalidate>
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_update') }}">
+
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <label>Username</label>
+                  <input type="text" name="username" class="form-control" value="{{ profile_user.username }}" required>
+                </div>
+                <div class="col-md-6 form-group">
+                  <label>Phone</label>
+                  <input type="text" name="phone" class="form-control" value="{{ profile_user.phone }}">
+                </div>
+              </div>
+
+              {% if role_key in ['admin', 'normal', 'artiste'] %}
+                <div class="form-group">
+                  <label>Birth Date</label>
+                  <input type="date" name="birthDate" class="form-control" value="{{ profile_user.birthDate ? profile_user.birthDate|date('Y-m-d') : '' }}">
+                </div>
+              {% endif %}
+
+              {% if role_key == 'artiste' %}
+                <div class="form-group"><label>Bio</label><textarea name="bio" class="form-control" rows="3">{{ profile_user.bio }}</textarea></div>
+                <div class="form-group"><label>Styles</label><input type="text" name="styles" class="form-control" value="{{ profile_user.styles }}"></div>
+                <div class="form-group"><label>Facebook</label><input type="url" name="facebook" class="form-control" value="{{ profile_user.facebook }}"></div>
+                <div class="form-group"><label>Instagram</label><input type="url" name="instagram" class="form-control" value="{{ profile_user.instagram }}"></div>
+                <div class="form-group"><label>Portfolio URL</label><input type="url" name="portfolioUrl" class="form-control" value="{{ profile_user.portfolioUrl }}"></div>
+              {% endif %}
+
+              {% if role_key == 'sponsor' %}
+                <div class="form-group"><label>Company Name</label><input type="text" name="companyName" class="form-control" value="{{ profile_user.companyName }}" required></div>
+                <div class="form-group"><label>Website</label><input type="url" name="website" class="form-control" value="{{ profile_user.website }}"></div>
+                <div class="form-group"><label>Address</label><input type="text" name="address" class="form-control" value="{{ profile_user.address }}"></div>
+                <div class="form-group"><label>Description</label><textarea name="description" class="form-control" rows="3">{{ profile_user.description }}</textarea></div>
+              {% endif %}
+
+              <div style="display: flex; gap: 10px; margin-top: 8px;">
+                <button type="submit" class="btn btn-warning">Save Changes</button>
+                <a href="{{ path('front_profile') }}" class="btn btn-secondary">Cancel</a>
+              </div>
+            </form>
+
+            <hr style="margin: 24px 0;">
+
+            <h4 style="margin-bottom: 14px;">Change Password</h4>
+            <form method="post" action="{{ path('front_profile_change_password') }}" novalidate>
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('change_password') }}">
+
+              <div class="form-group">
+                <label>Current Password</label>
+                <div class="password-field">
+                  <input type="password" name="currentPassword" class="form-control js-password-input" required>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>New Password</label>
+                <div class="password-field">
+                  <input type="password" name="newPassword" class="form-control js-password-input" required>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <div class="password-field">
+                  <input type="password" name="confirmPassword" class="form-control js-password-input" required>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-dark">Change Password</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+  <script>
+    document.querySelectorAll('.js-password-toggle').forEach(function (toggleButton) {
+      toggleButton.addEventListener('click', function () {
+        var passwordInput = toggleButton.parentElement.querySelector('.js-password-input');
+        var icon = toggleButton.querySelector('i');
+        if (!passwordInput || !icon) {
+          return;
+        }
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

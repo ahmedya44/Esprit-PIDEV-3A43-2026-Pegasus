@@ -1,0 +1,31 @@
+<button id="imgbotFab" class="imgbot-fab" type="button" aria-label="Open image bot">
+  <i class="fa fa-sliders"></i>
+</button>
+
+<div id="imgbotPanel" class="imgbot-panel" aria-hidden="true">
+  <div class="imgbot-head">
+    <div class="imgbot-head-left">
+      <span class="imgbot-dot" aria-hidden="true"></span>
+      <div>
+        <div class="imgbot-title">Image Bot</div>
+        <div class="imgbot-sub">Generate images from a prompt</div>
+      </div>
+    </div>
+    <button id="imgbotClose" class="imgbot-close" type="button" aria-label="Close">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <div class="imgbot-body">
+    <div id="imgbotMsgs" class="imgbot-msgs">
+      <div class="imgbot-msg bot">Write a prompt like: <b>"A neon cyberpunk cat"</b></div>
+    </div>
+  </div>
+
+  <div class="imgbot-compose">
+    <input id="imgbotInput" class="imgbot-input" placeholder="Describe the image..." autocomplete="off" />
+    <button id="imgbotSend" class="imgbot-send" type="button" aria-label="Generate image">
+      <i class="fa fa-magic"></i>
+    </button>
+  </div>
+</div>

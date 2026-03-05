@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Événements</title>
+    <style>
+        body { font-family: sans-serif; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3366cc; padding-bottom: 10px; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #777; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; color: #333; }
+        tr:nth-child(even) { background-color: #fafafa; }
+        .price { font-weight: bold; color: #28a745; }
+        .date { color: #555; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Catalogue des Événements</h1>
+        <p>Généré le : {{ "now"|date("d/m/Y H:i") }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Date & Heure</th>
+                <th>Lieu</th>
+                <th>Capacité</th>
+                <th>Prix</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for evenement in evenements %}
+            <tr>
+                <td><strong>{{ evenement.titre }}</strong></td>
+                <td>
+                    <div class="date">{{ evenement.date|date('d/m/Y') }}</div>
+                    <small>{{ evenement.heure|date('H:i') }}</small>
+                </td>
+                <td>{{ evenement.lieu }}</td>
+                <td>{{ evenement.nbInscritsActifs }} / {{ evenement.capaciteMax }}</td>
+                <td class="price">{{ evenement.prix }} DT</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Page <span class="pagenum"></span> - Pegasus Events Manager
+    </div>
+</body>
+</html>
