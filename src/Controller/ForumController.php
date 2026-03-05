@@ -113,8 +113,8 @@ class ForumController extends AbstractController
         $post = new Post();
         $post->setStatus(Post::STATUS_OPEN);
         $post->setOwner($user);
-        $post->setAuthorName($user->getUsername());
-        $post->setAuthorEmail($user->getEmail());
+        $post->setAuthorName($this->userDisplayName($user));
+        $post->setAuthorEmail((string) ($user->getEmail() ?? ''));
 
         $form = $this->createForm(PostType::class, $post, ['is_admin' => false]);
         $form->handleRequest($request);
@@ -124,8 +124,8 @@ class ForumController extends AbstractController
 
             $owner = $post->getOwner();
             if ($owner instanceof User) {
-                $post->setAuthorName($owner->getUsername());
-                $post->setAuthorEmail($owner->getEmail());
+                $post->setAuthorName($this->userDisplayName($owner));
+                $post->setAuthorEmail((string) ($owner->getEmail() ?? ''));
             }
 
             if ($this->hasForbiddenWords([$post->getTitle(), $post->getContent()])) {
@@ -322,8 +322,8 @@ class ForumController extends AbstractController
         $commentaire = new Commentaire();
         $commentaire->setPost($post);
         $commentaire->setOwner($user);
-        $commentaire->setAuthorName($user->getUsername());
-        $commentaire->setAuthorEmail($user->getEmail());
+        $commentaire->setAuthorName($this->userDisplayName($user));
+        $commentaire->setAuthorEmail((string) ($user->getEmail() ?? ''));
         $locale = $this->selectedTranslationLocale($request);
         $commentActionParams = ['id' => $post->getId()];
         if ($locale !== null) {
@@ -339,8 +339,8 @@ class ForumController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $owner = $commentaire->getOwner();
             if ($owner instanceof User) {
-                $commentaire->setAuthorName($owner->getUsername());
-                $commentaire->setAuthorEmail($owner->getEmail());
+                $commentaire->setAuthorName($this->userDisplayName($owner));
+                $commentaire->setAuthorEmail((string) ($owner->getEmail() ?? ''));
             }
 
             if ($this->hasForbiddenWords([$commentaire->getContent()])) {
@@ -420,7 +420,7 @@ class ForumController extends AbstractController
         }
 
         $submittedRating = new PostRating();
-        $submittedRating->setRaterEmail($user->getEmail());
+        $submittedRating->setRaterEmail((string) ($user->getEmail() ?? ''));
         $form = $this->createForm(PostRatingType::class, $submittedRating, [
             'action' => $this->generateUrl('forum_rate', $rateActionParams),
             'method' => 'POST',
@@ -433,7 +433,7 @@ class ForumController extends AbstractController
             return $this->redirectToRoute('forum_show', $rateActionParams);
         }
 
-        $email = mb_strtolower(trim($user->getEmail()));
+        $email = mb_strtolower(trim((string) ($user->getEmail() ?? '')));
         $existingRating = $this->postRatingRepository->findOneBy([
             'post' => $post,
             'raterEmail' => $email,
@@ -479,7 +479,12 @@ class ForumController extends AbstractController
 
             $this->addFlash('success', 'Votre commentaire a ete modifie.');
 
-            return $this->redirectToRoute('forum_show', ['id' => $commentaire->getPost()->getId()]);
+            $post = $commentaire->getPost();
+            if (!$post instanceof Post || $post->getId() === null) {
+                return $this->redirectToRoute('forum_index');
+            }
+
+            return $this->redirectToRoute('forum_show', ['id' => $post->getId()]);
         }
 
         return $this->render('forum/comment_edit.html.twig', [
@@ -498,7 +503,12 @@ class ForumController extends AbstractController
             throw $this->createAccessDeniedException('Invalid CSRF token');
         }
 
-        $postId = $commentaire->getPost()->getId();
+        $post = $commentaire->getPost();
+        if (!$post instanceof Post || $post->getId() === null) {
+            return $this->redirectToRoute('forum_index');
+        }
+
+        $postId = $post->getId();
         $this->entityManager->remove($commentaire);
         $this->entityManager->flush();
 
@@ -519,7 +529,12 @@ class ForumController extends AbstractController
         $translated = [];
 
         foreach ($post->getCommentaires() as $commentaire) {
-            $translated[$commentaire->getId()] = $this->objectTranslator->translate($commentaire, $locale);
+            $commentId = $commentaire->getId();
+            if ($commentId === null) {
+                continue;
+            }
+
+            $translated[$commentId] = $this->objectTranslator->translate($commentaire, $locale);
         }
 
         return $translated;
@@ -548,8 +563,8 @@ class ForumController extends AbstractController
         $translated = $this->objectTranslator->translate($post, $locale);
 
         $payload = (object) [
-            'title' => (string) $translated->getTitle(),
-            'content' => (string) $translated->getContent(),
+            'title' => method_exists($translated, 'getTitle') ? (string) $translated->getTitle() : (string) $post->getTitle(),
+            'content' => method_exists($translated, 'getContent') ? (string) $translated->getContent() : (string) $post->getContent(),
         ];
 
         if ($payload->title === $post->getTitle()) {
@@ -633,6 +648,13 @@ class ForumController extends AbstractController
         return false;
     }
 
+    private function userDisplayName(User $user): string
+    {
+        $username = trim((string) ($user->getUsername() ?? ''));
+
+        return $username !== '' ? $username : (string) ($user->getEmail() ?? '');
+    }
+
     private function applyAllowedViewersFromForm(Post $post, mixed $rawIds): void
     {
         $post->clearAllowedViewers();
@@ -650,10 +672,6 @@ class ForumController extends AbstractController
 
         $users = $this->entityManager->getRepository(User::class)->findBy(['id' => $ids]);
         foreach ($users as $user) {
-            if (!$user instanceof User) {
-                continue;
-            }
-
             if ($post->getOwner() instanceof User && $post->getOwner()->getId() === $user->getId()) {
                 continue;
             }

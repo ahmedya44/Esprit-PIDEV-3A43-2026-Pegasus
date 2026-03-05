@@ -69,7 +69,7 @@ class FrontSponsoringPackController extends AbstractController
     #[Route('/{id}/delete', name: 'front_sponsoring_pack_delete', methods: ['POST'])]
     public function delete(Request $request, SponsoringPack $pack, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$pack->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$pack->getId(), (string) $request->request->get('_token'))) {
             $em->remove($pack);
             $em->flush();
             $this->addFlash('success', 'Pack supprimé.');
@@ -98,9 +98,10 @@ class FrontSponsoringPackController extends AbstractController
     #[Route('/reservations/{id}/accept', name: 'front_sponsoring_reservations_accept', methods: ['POST'])]
     public function acceptReservation(Request $request, ReservationPack $reservation, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('accept'.$reservation->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('accept'.$reservation->getId(), (string) $request->request->get('_token'))) {
             // Verify this artist owns the event
-            if ($reservation->getEvenement()->getArtiste() !== $this->getUser()) {
+            $evenement = $reservation->getEvenement();
+            if (!$evenement || $evenement->getArtiste() !== $this->getUser()) {
                 throw $this->createAccessDeniedException();
             }
 
@@ -115,15 +116,16 @@ class FrontSponsoringPackController extends AbstractController
     #[Route('/reservations/{id}/reject', name: 'front_sponsoring_reservations_reject', methods: ['POST'])]
     public function rejectReservation(Request $request, ReservationPack $reservation, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
-        if ($this->isCsrfTokenValid('reject'.$reservation->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('reject'.$reservation->getId(), (string) $request->request->get('_token'))) {
             // Verify this artist owns the event
-            if ($reservation->getEvenement()->getArtiste() !== $this->getUser()) {
+            $evenement = $reservation->getEvenement();
+            if (!$evenement || $evenement->getArtiste() !== $this->getUser()) {
                 throw $this->createAccessDeniedException();
             }
 
-            $sponsorEmail = $reservation->getUser()->getEmail();
-            $eventName = $reservation->getEvenement()->getTitre();
-            $packName = $reservation->getSponsoringPack()->getNomPack();
+            $sponsorEmail = (string) ($reservation->getUser()?->getEmail() ?? '');
+            $eventName = (string) ($evenement->getTitre() ?? '');
+            $packName = (string) ($reservation->getSponsoringPack()?->getNomPack() ?? '');
 
             // Either set status to 'rejetée' or just remove it
             $em->remove($reservation);

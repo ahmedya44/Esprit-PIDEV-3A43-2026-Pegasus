@@ -64,7 +64,7 @@ class SponsoringPackController extends AbstractController
     #[Route('/{id}/delete', name: 'admin_sponsoring_pack_delete', methods: ['POST'])]
     public function delete(Request $request, SponsoringPack $pack, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$pack->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$pack->getId(), (string) $request->request->get('_token'))) {
             $em->remove($pack);
             $em->flush();
             $this->addFlash('success', 'Pack supprimé.');

@@ -24,7 +24,7 @@ final class BackArtController extends AbstractController
 
         $viewsByArt = [];
         foreach ($arts as $art) {
-            if (!$art instanceof Art || $art->getId() === null) {
+            if ($art->getId() === null) {
                 continue;
             }
             $viewsByArt[$art->getId()] = $artViewRepository->countByArt($art->getId());
@@ -97,4 +97,3 @@ final class BackArtController extends AbstractController
         return $this->redirectToRoute('back_art_index');
     }
 }
-

@@ -132,7 +132,7 @@ final class FrontController extends AbstractController
                     return $this->redirectToRoute('front_profile');
                 }
 
-                if (!is_string($generatedBinary) || '' === $generatedBinary) {
+                if ('' === $generatedBinary) {
                     $this->addFlash('danger', 'Stylization failed. Try another image or retry in a few minutes.');
 
                     return $this->redirectToRoute('front_profile');

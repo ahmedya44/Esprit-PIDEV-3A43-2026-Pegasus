@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class BadWordsDetectorService
@@ -41,7 +40,7 @@ class BadWordsDetectorService
             if (strtolower($contains) === 'true' && $detected === []) {
                 $detected[] = 'profanity_detected';
             }
-        } catch (ExceptionInterface|\Throwable) {
+        } catch (\Throwable) {
             // Keep local detection result on API failure.
         }
 

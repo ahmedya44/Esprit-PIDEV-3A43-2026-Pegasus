@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class TranslationApiService
@@ -45,7 +44,7 @@ class TranslationApiService
                     return $translated;
                 }
             }
-        } catch (ExceptionInterface|\Throwable) {
+        } catch (\Throwable) {
             return null;
         }
 

@@ -4,17 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-
 class AIService
 {
-    private HttpClientInterface $client;
-
-    public function __construct(HttpClientInterface $client)
-    {
-        $this->client = $client;
-    }
-
     // Génération d'images sans API - services gratuits
     public function generateImage(string $title, string $description): ?string
     {
@@ -39,7 +30,10 @@ class AIService
     }
 
     // Analyse d'images sans API - simulation intelligente
-    public function analyzeImage(string $imageUrl): ?array
+    /**
+     * @return array{title: string, description: string}
+     */
+    public function analyzeImage(string $imageUrl): array
     {
         $analysis = $this->simulateImageAnalysis($imageUrl);
         
@@ -49,7 +43,7 @@ class AIService
         ];
     }
 
-    private function generateWithPicsum(string $title, string $description): ?string
+    private function generateWithPicsum(string $title, string $description): string
     {
         $seed = $this->generateSeedFromText($title . ' ' . $description);
         $width = 512;
@@ -58,13 +52,13 @@ class AIService
         return "https://picsum.photos/{$width}/{$height}?random={$seed}";
     }
 
-    private function generateWithLoremPicsum(string $title, string $description): ?string
+    private function generateWithLoremPicsum(string $title, string $description): string
     {
         $seed = $this->generateSeedFromText($title . ' ' . $description);
         return "https://loremflickr.com/512/512/art?random={$seed}";
     }
 
-    private function generateWithPlaceIMG(string $title, string $description): ?string
+    private function generateWithPlaceIMG(string $title, string $description): string
     {
         $keywords = $this->extractKeywords($title . ' ' . $description);
         $category = $this->getCategoryFromKeywords($keywords);
@@ -72,6 +66,9 @@ class AIService
         return "https://placeimg.com/512/512/{$category}";
     }
 
+    /**
+     * @return array{title: string, description: string}
+     */
     private function simulateImageAnalysis(string $imageUrl): array
     {
         $urlHash = md5($imageUrl);
@@ -108,6 +105,9 @@ class AIService
         return crc32($text) % 10000;
     }
 
+    /**
+     * @return list<string>
+     */
     private function extractKeywords(string $text): array
     {
         $keywords = [];
@@ -123,9 +123,12 @@ class AIService
             if (in_array($word, $abstractKeywords)) $keywords[] = 'abstract';
         }
         
-        return array_unique($keywords);
+        return array_values(array_unique($keywords));
     }
 
+    /**
+     * @param list<string> $keywords
+     */
     private function getCategoryFromKeywords(array $keywords): string
     {
         if (in_array('nature', $keywords)) return 'nature';

@@ -19,12 +19,13 @@ final class ViewController extends AbstractController
         $session = $request->getSession();
         $sessionKey = 'viewed_art_' . $id;
         $now = time();
+        $ipAddress = (string) ($request->getClientIp() ?? '0.0.0.0');
         
         // Vérifier si déjà vu dans les dernières 30 secondes
         $lastViewTime = $session->get($sessionKey, 0);
         if ($now - $lastViewTime > 30) {
             // Enregistrer la vue seulement si 30 secondes écoulées
-            $viewRepository->addView($id, $request->getClientIp());
+            $viewRepository->addView($id, $ipAddress);
             $session->set($sessionKey, $now);
             
             // Retourner le nouveau nombre de vues

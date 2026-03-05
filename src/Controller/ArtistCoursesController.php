@@ -154,7 +154,11 @@ final class ArtistCoursesController extends AbstractController
     #[Route('/artist/sections/{id}/delete', name: 'artist_course_sections_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function deleteSection(CourseSection $section, Request $request, EntityManagerInterface $em): Response
     {
-        $courseId = $section->getCourse()->getId();
+        $course = $section->getCourse();
+        $courseId = $course?->getId();
+        if ($courseId === null) {
+            return $this->redirectToRoute('artist_dashboard', ['tab' => 'courses']);
+        }
 
         if ($this->isCsrfTokenValid('delete_section_' . $section->getId(), (string) $request->request->get('_token'))) {
             $em->remove($section);
@@ -195,9 +199,14 @@ final class ArtistCoursesController extends AbstractController
             $em->flush();
 
             $this->addFlash('success', 'Video added successfully.');
+            $course = $section->getCourse();
+            $courseId = $course?->getId();
+            if ($courseId === null) {
+                return $this->redirectToRoute('artist_dashboard', ['tab' => 'courses']);
+            }
 
             return $this->redirectToRoute('artist_courses_builder', [
-                'id' => $section->getCourse()->getId(),
+                'id' => $courseId,
             ]);
         }
 
@@ -211,7 +220,11 @@ final class ArtistCoursesController extends AbstractController
     #[Route('/artist/videos/{id}/delete', name: 'artist_course_videos_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function deleteVideo(CourseVideo $video, Request $request, EntityManagerInterface $em): Response
     {
-        $courseId = $video->getSection()->getCourse()->getId();
+        $course = $video->getSection()?->getCourse();
+        $courseId = $course?->getId();
+        if ($courseId === null) {
+            return $this->redirectToRoute('artist_dashboard', ['tab' => 'courses']);
+        }
 
         if ($this->isCsrfTokenValid('delete_video_' . $video->getId(), (string) $request->request->get('_token'))) {
             $em->remove($video);

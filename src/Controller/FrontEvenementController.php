@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Evenement;
 use App\Entity\Participation;
 use App\Entity\ReservationPack;
+use App\Entity\User;
 use App\Form\EvenementType;
 use App\Repository\EvenementRepository;
 use App\Repository\ParticipationRepository;
@@ -72,7 +73,10 @@ final class FrontEvenementController extends AbstractController
                 }
             }
 
-            $evenement->setArtiste($this->getUser());
+            $currentUser = $this->getUser();
+            if ($currentUser instanceof User) {
+                $evenement->setArtiste($currentUser);
+            }
             $entityManager->persist($evenement);
             $entityManager->flush();
 
@@ -166,7 +170,10 @@ final class FrontEvenementController extends AbstractController
                 'user' => $user,
             ]);
             foreach ($reservations as $reservation) {
-                $reservedPackIds[$reservation->getSponsoringPack()->getId()] = $reservation;
+                $pack = $reservation->getSponsoringPack();
+                if ($pack && $pack->getId() !== null) {
+                    $reservedPackIds[$pack->getId()] = $reservation;
+                }
             }
         }
 
@@ -194,7 +201,7 @@ final class FrontEvenementController extends AbstractController
 
         $user = $this->getUser();
         $pack = $packRepository->find($packId);
-        if (!$user || !$pack) {
+        if (!$user instanceof User || !$pack) {
             return $this->redirectToRoute('front_evenements_sponsor', ['id' => $evenement->getId()]);
         }
 
@@ -245,7 +252,7 @@ final class FrontEvenementController extends AbstractController
 
         $user = $this->getUser();
         $pack = $packRepository->find($packId);
-        if (!$user || !$pack) {
+        if (!$user instanceof User || !$pack) {
             return $this->redirectToRoute('front_evenements_sponsor', ['id' => $evenement->getId()]);
         }
 
@@ -271,7 +278,7 @@ final class FrontEvenementController extends AbstractController
         }
 
         $user = $this->getUser();
-        if (!$user || $this->isGranted('ROLE_ARTISTE') || $evenement->getCapaciteMax() <= 0) {
+        if (!$user instanceof User || $this->isGranted('ROLE_ARTISTE') || $evenement->getCapaciteMax() <= 0) {
             return $this->redirectToRoute('front_evenements_show', ['id' => $evenement->getId()]);
         }
 
@@ -297,7 +304,7 @@ final class FrontEvenementController extends AbstractController
         }
 
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             return $this->redirectToRoute('app_login');
         }
 

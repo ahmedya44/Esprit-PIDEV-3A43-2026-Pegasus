@@ -84,21 +84,28 @@
             <td>{{ course.createdAt ? course.createdAt|date('Y-m-d H:i') : '-' }}</td>
 
             <td class="text-end">
-              <a href="{{ edit_path(course) }}" class="btn btn-sm btn-primary">
-                <i class="fa fa-edit"></i>
-              </a>
+              {% set edit_url = edit_path_template is defined ? edit_path_template|replace({'{id}': course.id}) : null %}
+              {% set delete_url = delete_path_template is defined ? delete_path_template|replace({'{id}': course.id}) : null %}
 
-              <form
-                method="post"
-                action="{{ delete_path(course) }}"
-                style="display:inline-block"
-                onsubmit="return confirm('Delete this course?');"
-              >
-                <input type="hidden" name="_token" value="{{ csrf_token('delete_course_' ~ course.id) }}">
-                <button class="btn btn-sm btn-danger" type="submit">
-                  <i class="fa fa-trash"></i>
-                </button>
-              </form>
+              {% if edit_url %}
+                <a href="{{ edit_url }}" class="btn btn-sm btn-primary">
+                  <i class="fa fa-edit"></i>
+                </a>
+              {% endif %}
+
+              {% if delete_url %}
+                <form
+                  method="post"
+                  action="{{ delete_url }}"
+                  style="display:inline-block"
+                  onsubmit="return confirm('Delete this course?');"
+                >
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete_course_' ~ course.id) }}">
+                  <button class="btn btn-sm btn-danger" type="submit">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </form>
+              {% endif %}
             </td>
           </tr>
         {% else %}

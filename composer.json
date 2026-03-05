@@ -12,6 +12,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/migrations": "3.9.5",
         "doctrine/orm": "^3.6",
+        "dompdf/dompdf": "^3.1",
         "giphy/giphy-php-client": "^1.0",
         "knplabs/knp-paginator-bundle": "*",
         "knpuniversity/oauth2-client-bundle": "^2.20",
@@ -106,6 +107,7 @@
         }
     },
     "require-dev": {
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.5",
         "symfony/browser-kit": "6.4.*",
         "symfony/css-selector": "6.4.*",

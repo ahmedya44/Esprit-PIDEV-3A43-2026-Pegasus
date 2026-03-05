@@ -3,11 +3,9 @@
 namespace App\Service;
 
 use GPH\Api\DefaultApi;
-use GPH\ApiException;
 use GPH\Model\Gif;
 use GPH\Model\GifImages;
 use GPH\Model\InlineResponse200;
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GiphyService
@@ -77,7 +75,7 @@ class GiphyService
                 );
 
             return $this->mapResponse($result);
-        } catch (ApiException|\Throwable) {
+        } catch (\Throwable) {
             return [];
         }
     }
@@ -145,7 +143,7 @@ class GiphyService
             }
 
             return $items;
-        } catch (ExceptionInterface|\Throwable) {
+        } catch (\Throwable) {
             return [];
         }
     }
@@ -169,17 +167,10 @@ class GiphyService
         }
 
         $rows = $result->getData();
-        if (!is_array($rows)) {
-            return [];
-        }
 
         $items = [];
 
         foreach ($rows as $gif) {
-            if (!$gif instanceof Gif) {
-                continue;
-            }
-
             $images = $gif->getImages();
             $originalUrl = $this->extractOriginalUrl($gif, $images);
             if ($originalUrl === '') {
@@ -202,11 +193,9 @@ class GiphyService
     {
         if ($images instanceof GifImages) {
             $original = $images->getOriginal();
-            if (is_object($original) && method_exists($original, 'getUrl')) {
-                $url = (string) $original->getUrl();
-                if ($url !== '') {
-                    return $url;
-                }
+            $url = (string) $original->getUrl();
+            if ($url !== '') {
+                return $url;
             }
         }
 
@@ -220,13 +209,15 @@ class GiphyService
         }
 
         $fixedWidthSmall = $images->getFixedWidthSmall();
-        if (is_object($fixedWidthSmall) && method_exists($fixedWidthSmall, 'getUrl')) {
-            return (string) $fixedWidthSmall->getUrl();
+        $fixedWidthSmallUrl = (string) $fixedWidthSmall->getUrl();
+        if ($fixedWidthSmallUrl !== '') {
+            return $fixedWidthSmallUrl;
         }
 
         $preview = $images->getPreviewGif();
-        if (is_object($preview) && method_exists($preview, 'getUrl')) {
-            return (string) $preview->getUrl();
+        $previewUrl = (string) $preview->getUrl();
+        if ($previewUrl !== '') {
+            return $previewUrl;
         }
 
         return '';

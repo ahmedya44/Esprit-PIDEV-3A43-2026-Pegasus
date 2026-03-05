@@ -79,8 +79,8 @@ class ForumAdminController extends AbstractController
 
         $post = new Post();
         $post->setOwner($user);
-        $post->setAuthorName($user->getUsername());
-        $post->setAuthorEmail($user->getEmail());
+        $post->setAuthorName($this->userDisplayName($user));
+        $post->setAuthorEmail((string) ($user->getEmail() ?? ''));
 
         $form = $this->createForm(PostType::class, $post, ['is_admin' => true]);
         $form->handleRequest($request);
@@ -88,8 +88,8 @@ class ForumAdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $owner = $post->getOwner();
             if ($owner instanceof User) {
-                $post->setAuthorName($owner->getUsername());
-                $post->setAuthorEmail($owner->getEmail());
+                $post->setAuthorName($this->userDisplayName($owner));
+                $post->setAuthorEmail((string) ($owner->getEmail() ?? ''));
             }
 
             if ($this->hasForbiddenWords([$post->getTitle(), $post->getContent()])) {
@@ -140,8 +140,8 @@ class ForumAdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $owner = $post->getOwner();
             if ($owner instanceof User) {
-                $post->setAuthorName($owner->getUsername());
-                $post->setAuthorEmail($owner->getEmail());
+                $post->setAuthorName($this->userDisplayName($owner));
+                $post->setAuthorEmail((string) ($owner->getEmail() ?? ''));
             }
 
             if ($this->hasForbiddenWords([$post->getTitle(), $post->getContent()])) {
@@ -265,7 +265,7 @@ class ForumAdminController extends AbstractController
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 20;
         $offset = ($page - 1) * $limit;
-        $search = $request->query->get('search', '');
+        $search = trim((string) $request->query->get('search', ''));
 
         $comments = $this->commentaireRepository->findRecent($search ?: null, $limit, $offset);
         $total = $this->commentaireRepository->countRecent($search ?: null);
@@ -285,8 +285,9 @@ class ForumAdminController extends AbstractController
         $currentLang = $this->resolveAdminLocale($request);
 
         if ($commentaire->getOwner() !== null) {
-            $commentaire->setAuthorName($commentaire->getOwner()->getUsername());
-            $commentaire->setAuthorEmail($commentaire->getOwner()->getEmail());
+            $owner = $commentaire->getOwner();
+            $commentaire->setAuthorName($this->userDisplayName($owner));
+            $commentaire->setAuthorEmail((string) ($owner->getEmail() ?? ''));
         }
 
         $form = $this->createForm(CommentaireType::class, $commentaire);
@@ -309,9 +310,13 @@ class ForumAdminController extends AbstractController
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Le commentaire a ete modifie.');
+            $post = $commentaire->getPost();
+            if (!$post instanceof Post || $post->getId() === null) {
+                return $this->redirectToRoute('admin_forum_comments_index');
+            }
 
             return $this->redirectToRoute('admin_forum_post_show', [
-                'id' => $commentaire->getPost()->getId(),
+                'id' => $post->getId(),
                 'lang' => $currentLang,
             ]);
         }
@@ -335,11 +340,15 @@ class ForumAdminController extends AbstractController
         }
 
         $targetLocale = (string) $request->request->get('target_locale');
+        $post = $commentaire->getPost();
+        if (!$post instanceof Post || $post->getId() === null) {
+            return $this->redirectToRoute('admin_forum_comments_index');
+        }
         if (!array_key_exists($targetLocale, self::TRANSLATABLE_LOCALES)) {
             $this->addFlash('error', 'Langue cible invalide.');
 
             return $this->redirectToRoute('admin_forum_post_show', [
-                'id' => $commentaire->getPost()->getId(),
+                'id' => $post->getId(),
                 'lang' => $returnLang,
             ]);
         }
@@ -353,7 +362,7 @@ class ForumAdminController extends AbstractController
             $this->addFlash('error', 'Le contenu traduit est vide.');
 
             return $this->redirectToRoute('admin_forum_post_show', [
-                'id' => $commentaire->getPost()->getId(),
+                'id' => $post->getId(),
                 'lang' => $returnLang,
             ]);
         }
@@ -362,7 +371,7 @@ class ForumAdminController extends AbstractController
             $this->addFlash('error', 'La traduction du commentaire contient des mots interdits.');
 
             return $this->redirectToRoute('admin_forum_post_show', [
-                'id' => $commentaire->getPost()->getId(),
+                'id' => $post->getId(),
                 'lang' => $returnLang,
             ]);
         }
@@ -375,7 +384,7 @@ class ForumAdminController extends AbstractController
         $this->addFlash('success', sprintf('Traduction du commentaire en %s enregistree.', self::TRANSLATABLE_LOCALES[$targetLocale]));
 
         return $this->redirectToRoute('admin_forum_post_show', [
-            'id' => $commentaire->getPost()->getId(),
+            'id' => $post->getId(),
             'lang' => $targetLocale,
         ]);
     }
@@ -448,7 +457,7 @@ class ForumAdminController extends AbstractController
             return null;
         }
 
-        if ($requested !== '' && array_key_exists($requested, self::TRANSLATABLE_LOCALES)) {
+        if (array_key_exists($requested, self::TRANSLATABLE_LOCALES)) {
             return $requested;
         }
 
@@ -478,10 +487,12 @@ class ForumAdminController extends AbstractController
         $translated = [];
 
         foreach ($post->getCommentaires() as $commentaire) {
-            $content = $commentaire->getContent();
+            $content = (string) $commentaire->getContent();
             if ($locale !== null) {
                 $translatedComment = $this->objectTranslator->translate($commentaire, $locale);
-                $translatedContent = (string) $translatedComment->getContent();
+                $translatedContent = method_exists($translatedComment, 'getContent')
+                    ? (string) $translatedComment->getContent()
+                    : $content;
                 if ($translatedContent === $content) {
                     $apiTranslated = $this->translationApi->translate($content, $locale, 'auto');
                     if (is_string($apiTranslated) && trim($apiTranslated) !== '') {
@@ -491,7 +502,12 @@ class ForumAdminController extends AbstractController
                 $content = $translatedContent;
             }
 
-            $translated[$commentaire->getId()] = (object) [
+            $commentId = $commentaire->getId();
+            if ($commentId === null) {
+                continue;
+            }
+
+            $translated[$commentId] = (object) [
                 'content' => $content,
             ];
         }
@@ -509,8 +525,12 @@ class ForumAdminController extends AbstractController
         }
 
         $translatedPost = $this->objectTranslator->translate($post, $locale);
-        $title = (string) $translatedPost->getTitle();
-        $content = (string) $translatedPost->getContent();
+        $title = method_exists($translatedPost, 'getTitle')
+            ? (string) $translatedPost->getTitle()
+            : (string) $post->getTitle();
+        $content = method_exists($translatedPost, 'getContent')
+            ? (string) $translatedPost->getContent()
+            : (string) $post->getContent();
 
         if ($title === $post->getTitle()) {
             $apiTitle = $this->translationApi->translate($post->getTitle(), $locale, 'auto');
@@ -530,6 +550,13 @@ class ForumAdminController extends AbstractController
             'title' => $title,
             'content' => $content,
         ];
+    }
+
+    private function userDisplayName(User $user): string
+    {
+        $username = trim((string) ($user->getUsername() ?? ''));
+
+        return $username !== '' ? $username : (string) ($user->getEmail() ?? '');
     }
 }
 

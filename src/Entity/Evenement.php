@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\EvenementRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -53,8 +55,11 @@ class Evenement
     #[Assert\Positive(message: "Le prix doit être un nombre positif")]
     private ?string $prix = null;
 
+    /**
+     * @var Collection<int, Participation>
+     */
     #[ORM\OneToMany(mappedBy: 'evenement', targetEntity: Participation::class, orphanRemoval: true)]
-    private $participations;
+    private Collection $participations;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: true)]
@@ -65,7 +70,7 @@ class Evenement
 
     public function __construct()
     {
-        $this->participations = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->participations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -170,9 +175,9 @@ class Evenement
     }
 
     /**
-     * @return \Doctrine\Common\Collections\Collection<int, Participation>
+     * @return Collection<int, Participation>
      */
-    public function getParticipations(): \Doctrine\Common\Collections\Collection
+    public function getParticipations(): Collection
     {
         return $this->participations;
     }

@@ -44,7 +44,8 @@ final class BackSecurityController extends AbstractController
             return $this->redirectToRoute('app_back_login');
         }
 
-        $email = trim((string) $googleUser->getEmail());
+        $googleData = (array) $googleUser->toArray();
+        $email = trim((string) ($googleData['email'] ?? ''));
         if ('' === $email) {
             $this->addFlash('danger', 'Google account did not provide an email address.');
 

@@ -62,7 +62,8 @@ final class SecurityController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $email = trim((string) $googleUser->getEmail());
+        $googleData = (array) $googleUser->toArray();
+        $email = trim((string) ($googleData['email'] ?? ''));
         if ('' === $email) {
             $this->addFlash('danger', 'Google account did not provide an email address.');
 
@@ -85,8 +86,8 @@ final class SecurityController extends AbstractController
 
         $request->getSession()->set('google_signup_pending', [
             'email' => $email,
-            'name' => trim((string) $googleUser->getName()),
-            'avatar' => trim((string) $googleUser->getAvatar()),
+            'name' => trim((string) ($googleData['name'] ?? '')),
+            'avatar' => trim((string) ($googleData['picture'] ?? '')),
         ]);
 
         return $this->redirectToRoute('app_google_signup_complete');
@@ -332,7 +333,7 @@ final class SecurityController extends AbstractController
     #[Route('/logout', name: 'app_logout')]
     public function logout(): Response
     {
-        // This method can be blank - it will be intercepted by the logout key on your firewall.
+        throw new \LogicException('This method is intercepted by the firewall logout.');
     }
 
     #[Route('/forgot-password', name: 'app_forgot_password_request', methods: ['GET', 'POST'])]
@@ -365,7 +366,7 @@ final class SecurityController extends AbstractController
 
                 $message = (new Email())
                     ->from($fromAddress)
-                    ->to($user->getEmail())
+                    ->to((string) $user->getEmail())
                     ->subject('Reset your password')
                     ->text("We received a password reset request.\n\nUse this link to reset your password:\n".$resetUrl."\n\nThis link expires in 1 hour.");
 

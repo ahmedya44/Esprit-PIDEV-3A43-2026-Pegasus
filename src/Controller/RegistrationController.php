@@ -29,15 +29,8 @@ class RegistrationController extends AbstractController
                 )
             );
 
-            // Assign roles based on type
-            $type = $user->getType();
-            $roles = ['ROLE_USER'];
-            if ($type === 'artiste') {
-                $roles[] = 'ROLE_ARTISTE';
-            } elseif ($type === 'sponsor') {
-                $roles[] = 'ROLE_SPONSOR';
-            }
-            $user->setRoles($roles);
+            // Keep default registration role.
+            $user->setRoles(['ROLE_USER']);
 
             $entityManager->persist($user);
             $entityManager->flush();

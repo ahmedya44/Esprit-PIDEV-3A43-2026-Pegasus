@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class AiAutocompleteService
@@ -58,7 +57,7 @@ class AiAutocompleteService
             if ($suggestions !== []) {
                 return array_slice($suggestions, 0, $limit);
             }
-        } catch (ExceptionInterface|\Throwable) {
+        } catch (\Throwable) {
             return [];
         }
 
@@ -182,7 +181,7 @@ PROMPT;
         if (preg_match('/"suggestions"\s*:\s*\[(.*?)\]/si', $raw, $m) === 1) {
             preg_match_all('/"((?:[^"\\\\]|\\\\.)*)"/', $m[1], $strMatches);
             $items = [];
-            foreach ($strMatches[1] ?? [] as $jsonString) {
+            foreach ($strMatches[1] as $jsonString) {
                 $decodedString = json_decode('"' . $jsonString . '"');
                 if (is_string($decodedString) && trim($decodedString) !== '') {
                     $items[] = $decodedString;

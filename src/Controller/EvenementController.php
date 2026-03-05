@@ -3,10 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Evenement;
+use App\Entity\User;
 use App\Form\EvenementType;
 use App\Repository\EvenementRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,7 +59,7 @@ class EvenementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $imageFile */
+            /** @var UploadedFile|null $imageFile */
             $imageFile = $form->get('image')->getData();
 
             if ($imageFile) {
@@ -65,9 +67,14 @@ class EvenementController extends AbstractController
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
 
+                $targetDirectory = $this->getParameter('evenements_directory');
+                if (!is_string($targetDirectory)) {
+                    throw new \RuntimeException('Invalid evenements_directory parameter.');
+                }
+
                 try {
                     $imageFile->move(
-                        $this->getParameter('evenements_directory'),
+                        $targetDirectory,
                         $newFilename
                     );
                 } catch (FileException $e) {
@@ -77,7 +84,10 @@ class EvenementController extends AbstractController
                 $evenement->setImage($newFilename);
             }
 
-            $evenement->setArtiste($this->getUser());
+            $user = $this->getUser();
+            if ($user instanceof User) {
+                $evenement->setArtiste($user);
+            }
             $entityManager->persist($evenement);
             $entityManager->flush();
 
@@ -110,7 +120,7 @@ class EvenementController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $imageFile */
+            /** @var UploadedFile|null $imageFile */
             $imageFile = $form->get('image')->getData();
 
             if ($imageFile) {
@@ -118,9 +128,14 @@ class EvenementController extends AbstractController
                 $safeFilename = $slugger->slug($originalFilename);
                 $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
 
+                $targetDirectory = $this->getParameter('evenements_directory');
+                if (!is_string($targetDirectory)) {
+                    throw new \RuntimeException('Invalid evenements_directory parameter.');
+                }
+
                 try {
                     $imageFile->move(
-                        $this->getParameter('evenements_directory'),
+                        $targetDirectory,
                         $newFilename
                     );
                 } catch (FileException $e) {
@@ -148,7 +163,7 @@ class EvenementController extends AbstractController
             return $this->redirectToRoute('app_evenement_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        if ($this->isCsrfTokenValid('delete'.$evenement->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$evenement->getId(), (string) $request->request->get('_token'))) {
             $entityManager->remove($evenement);
             $entityManager->flush();
         }
@@ -164,7 +179,7 @@ class EvenementController extends AbstractController
             return $this->redirectToRoute('app_evenement_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        if ($this->isCsrfTokenValid('accept'.$evenement->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('accept'.$evenement->getId(), (string) $request->request->get('_token'))) {
             $evenement->setStatut('acceptée');
             $entityManager->flush();
             $this->addFlash('success', 'L\'événement a été accepté.');
@@ -181,7 +196,7 @@ class EvenementController extends AbstractController
             return $this->redirectToRoute('app_evenement_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        if ($this->isCsrfTokenValid('reject'.$evenement->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('reject'.$evenement->getId(), (string) $request->request->get('_token'))) {
             $entityManager->remove($evenement);
             $entityManager->flush();
             $this->addFlash('success', 'L\'événement a été refusé et supprimé.');

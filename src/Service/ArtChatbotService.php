@@ -6,7 +6,13 @@ namespace App\Service;
 
 class ArtChatbotService
 {
+    /**
+     * @var array<string, array<string, string>>
+     */
     private array $knowledgeBase;
+    /**
+     * @var array<string, array{patterns: list<string>, responses: list<string>}>
+     */
     private array $responsePatterns;
 
     public function __construct()
@@ -153,6 +159,16 @@ class ArtChatbotService
         ];
     }
 
+    /**
+     * @return array{
+     *   question: string,
+     *   intent: string,
+     *   entities: array<string, string>,
+     *   response: string,
+     *   confidence: int,
+     *   timestamp: string
+     * }
+     */
     public function generateResponse(string $question): array
     {
         $question = strtolower(trim($question));
@@ -196,6 +212,9 @@ class ArtChatbotService
         return 'general'; // Intent par défaut
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function extractEntities(string $input): array
     {
         $entities = [];
@@ -230,6 +249,9 @@ class ArtChatbotService
         return $entities;
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     private function buildResponse(string $intent, array $entities, string $question): string
     {
         switch ($intent) {
@@ -253,6 +275,9 @@ class ArtChatbotService
         }
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     private function generateDefinitionResponse(array $entities): string
     {
         // Vérifier toutes les catégories possibles
@@ -273,6 +298,9 @@ class ArtChatbotService
         return $generalResponses[array_rand($generalResponses)];
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     private function generateComparisonResponse(array $entities): string
     {
         if (isset($entities['art_styles']) && count($entities) >= 2) {
@@ -283,6 +311,9 @@ class ArtChatbotService
         return 'Je peux comparer ces éléments si vous me donnez plus de détails.';
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     private function generateTechniqueResponse(array $entities): string
     {
         if (isset($entities['techniques'])) {
@@ -294,6 +325,9 @@ class ArtChatbotService
         return 'Pour cette technique, je vous recommande de consulter des tutoriels spécialisés.';
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     private function generateHistoryResponse(array $entities): string
     {
         if (isset($entities['artistes'])) {
@@ -305,6 +339,9 @@ class ArtChatbotService
         return 'Je n\'ai pas assez d\'informations sur ce sujet historique.';
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     private function generateAdviceResponse(array $entities, string $question): string
     {
         $advices = [
@@ -325,6 +362,9 @@ class ArtChatbotService
         return $advices['créativité'];
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     private function generateGeneralResponse(array $entities, string $question): string
     {
         // Réponses générales intelligentes
@@ -351,6 +391,9 @@ class ArtChatbotService
         return $fallbackResponses[array_rand($fallbackResponses)];
     }
 
+    /**
+     * @param array<string, string> $entities
+     */
     private function calculateConfidence(string $intent, array $entities): int
     {
         $confidence = 50; // Base
@@ -364,10 +407,16 @@ class ArtChatbotService
         if ($intent !== 'general') {
             $confidence += 15;
         }
+        if ($this->responsePatterns !== []) {
+            $confidence += 0;
+        }
         
         return min(95, $confidence);
     }
 
+    /**
+     * @return list<string>
+     */
     public function getSuggestedQuestions(): array
     {
         return [

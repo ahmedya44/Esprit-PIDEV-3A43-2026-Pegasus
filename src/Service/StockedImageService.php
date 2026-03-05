@@ -6,6 +6,9 @@ namespace App\Service;
 
 class StockedImageService
 {
+    /**
+     * @var array<string, string>
+     */
     // Base d'images stockées pour les mots courants
     private array $stockedImages = [
         // Art et peinture
@@ -201,6 +204,9 @@ class StockedImageService
         return $categories[$categoryKeys[$index]];
     }
 
+    /**
+     * @return list<string>
+     */
     public function getAvailableKeywords(): array
     {
         return array_keys($this->stockedImages);

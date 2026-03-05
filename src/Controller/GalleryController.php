@@ -19,8 +19,8 @@ final class GalleryController extends AbstractController
     #[Route('/gallery', name: 'front_gallery', methods: ['GET'])]
     public function index(Request $request, ArtRepository $artRepository): Response
     {
-        $search = $request->query->get('search', '');
-        $sortBy = $request->query->get('sort', 'recent');
+        $search = trim((string) $request->query->get('search', ''));
+        $sortBy = (string) $request->query->get('sort', 'recent');
         
         $arts = $artRepository->findBy([], ['createdAt' => 'DESC']);
         
@@ -32,8 +32,8 @@ final class GalleryController extends AbstractController
         // Filtrage par recherche (titre/description)
         if (!empty($search)) {
             $arts = array_filter($arts, function($art) use ($search) {
-                return stripos($art->getTitle(), $search) !== false || 
-                       stripos($art->getDescription(), $search) !== false;
+                return stripos((string) $art->getTitle(), $search) !== false || 
+                       stripos((string) $art->getDescription(), $search) !== false;
             });
         }
         
@@ -122,7 +122,7 @@ final class GalleryController extends AbstractController
     #[Route('/gallery/delete/{id}', name: 'front_gallery_delete', methods: ['POST'])]
     public function delete(Request $request, Art $art, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$art->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$art->getId(), (string) $request->request->get('_token'))) {
             $entityManager->remove($art);
             $entityManager->flush();
             

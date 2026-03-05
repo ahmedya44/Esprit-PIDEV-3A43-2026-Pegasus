@@ -4,17 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Symfony\Contracts\HttpClient\HttpClientInterface;
-
 class ClientAIService
 {
-    private HttpClientInterface $client;
-
-    public function __construct(HttpClientInterface $client)
-    {
-        $this->client = $client;
-    }
-
     // Génération d'images avec des services gratuits sans API
     public function generateImage(string $title, string $description): ?string
     {
@@ -40,7 +31,10 @@ class ClientAIService
     }
 
     // Analyse d'images avec traitement côté client (simulation)
-    public function analyzeImage(string $imageUrl): ?array
+    /**
+     * @return array{title: string, description: string}
+     */
+    public function analyzeImage(string $imageUrl): array
     {
         // Simulation d'analyse basée sur des patterns
         $analysis = $this->simulateImageAnalysis($imageUrl);
@@ -51,7 +45,7 @@ class ClientAIService
         ];
     }
 
-    private function generateWithPicsum(string $title, string $description): ?string
+    private function generateWithPicsum(string $title, string $description): string
     {
         // Générer une image thématique basée sur les mots-clés
         $seed = $this->generateSeedFromText($title . ' ' . $description);
@@ -61,13 +55,13 @@ class ClientAIService
         return "https://picsum.photos/{$width}/{$height}?random={$seed}";
     }
 
-    private function generateWithLoremPicsum(string $title, string $description): ?string
+    private function generateWithLoremPicsum(string $title, string $description): string
     {
         $seed = $this->generateSeedFromText($title . ' ' . $description);
         return "https://loremflickr.com/512/512/art?random={$seed}";
     }
 
-    private function generateWithPlaceIMG(string $title, string $description): ?string
+    private function generateWithPlaceIMG(string $title, string $description): string
     {
         // Images thématiques basées sur des mots-clés
         $keywords = $this->extractKeywords($title . ' ' . $description);
@@ -76,6 +70,9 @@ class ClientAIService
         return "https://placeimg.com/512/512/{$category}";
     }
 
+    /**
+     * @return array{title: string, description: string}
+     */
     private function simulateImageAnalysis(string $imageUrl): array
     {
         // Extraire des informations de l'URL et générer une analyse
@@ -117,6 +114,9 @@ class ClientAIService
         return crc32($text) % 10000;
     }
 
+    /**
+     * @return list<string>
+     */
     private function extractKeywords(string $text): array
     {
         // Extraire des mots-clés simples
@@ -133,9 +133,12 @@ class ClientAIService
             if (in_array($word, $abstractKeywords)) $keywords[] = 'abstract';
         }
         
-        return array_unique($keywords);
+        return array_values(array_unique($keywords));
     }
 
+    /**
+     * @param list<string> $keywords
+     */
     private function getCategoryFromKeywords(array $keywords): string
     {
         if (in_array('nature', $keywords)) return 'nature';

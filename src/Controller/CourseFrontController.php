@@ -23,7 +23,8 @@ final class CourseFrontController extends AbstractController
         Request $request,
         \App\Service\CourseCategoryClassifier $classifier
     ): Response {
-        $activeCat = $request->query->get('cat'); // art|music|fantasy|other|null
+        $rawActiveCat = $request->query->get('cat');
+        $activeCat = is_string($rawActiveCat) && $rawActiveCat !== '' ? $rawActiveCat : null; // art|music|fantasy|other|null
 
         $allCourses = $courseRepository->findBy(['status' => 'PUBLISHED'], ['id' => 'DESC']);
         $filters = $classifier->buildAvailableFilters($allCourses);
@@ -114,7 +115,8 @@ final class CourseFrontController extends AbstractController
             $candidate = $videoRepo->find((int) $vId);
 
             // must exist + belong to this course
-            if ($candidate && $candidate->getSection()->getCourse()->getId() === $course->getId()) {
+            $candidateCourse = $candidate?->getSection()?->getCourse();
+            if ($candidate instanceof CourseVideo && $candidateCourse?->getId() === $course->getId()) {
                 $candidateId = (string) $candidate->getId();
 
                 // must be unlocked
@@ -278,7 +280,8 @@ final class CourseFrontController extends AbstractController
         if ($course->getStatus() !== 'PUBLISHED') {
             return new JsonResponse(['ok' => false, 'message' => 'Course not available'], 403);
         }
-        if ($video->getSection()->getCourse()->getId() !== $course->getId()) {
+        $videoCourse = $video->getSection()?->getCourse();
+        if (!$videoCourse instanceof Course || $videoCourse->getId() !== $course->getId()) {
             return new JsonResponse(['ok' => false, 'message' => 'Invalid video'], 400);
         }
 

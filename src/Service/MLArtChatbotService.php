@@ -6,9 +6,18 @@ namespace App\Service;
 
 class MLArtChatbotService
 {
+    /**
+     * @var list<array<string, mixed>>
+     */
     private array $trainingData;
+    /**
+     * @var array<string, array<string, mixed>>
+     */
     private array $weights;
     private string $dataFile;
+    /**
+     * @var array<string, int>
+     */
     private array $vocabulary;
 
     public function __construct()
@@ -93,10 +102,15 @@ class MLArtChatbotService
     private function loadTrainingData(): void
     {
         if (file_exists($this->dataFile)) {
-            $savedData = json_decode(file_get_contents($this->dataFile), true);
-            if ($savedData) {
+            $json = file_get_contents($this->dataFile);
+            if (!is_string($json)) {
+                return;
+            }
+
+            $savedData = json_decode($json, true);
+            if (is_array($savedData)) {
                 // Fusionner les données sauvegardées avec les données initiales
-                $this->trainingData = array_merge($this->trainingData, $savedData['training_data'] ?? []);
+                $this->trainingData = array_values(array_merge($this->trainingData, $savedData['training_data'] ?? []));
                 $this->weights = $savedData['weights'] ?? [];
             }
         }
@@ -133,14 +147,21 @@ class MLArtChatbotService
         }
     }
 
+    /**
+     * @return list<string>
+     */
     private function tokenize(string $text): array
     {
         // Tokenisation simple
         $text = strtolower($text);
-        $text = preg_replace('/[^\w\s]/', ' ', $text);
-        return array_filter(explode(' ', $text));
+        $text = preg_replace('/[^\w\s]/', ' ', $text) ?? $text;
+
+        return array_values(array_filter(explode(' ', $text), static fn (string $word): bool => $word !== ''));
     }
 
+    /**
+     * @return array<int, int>
+     */
     private function textToVector(string $text): array
     {
         $vector = array_fill(0, count($this->vocabulary), 0);
@@ -174,6 +195,9 @@ class MLArtChatbotService
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function generateResponse(string $question): array
     {
         $inputVector = $this->textToVector($question);
@@ -225,6 +249,11 @@ class MLArtChatbotService
         ];
     }
 
+    /**
+     * @param array<int, int> $inputVector
+     *
+     * @return array{hash: string, response: string, category: string, confidence: float}|null
+     */
     private function findBestMatch(array $inputVector): ?array
     {
         $bestMatch = null;
@@ -248,6 +277,9 @@ class MLArtChatbotService
         return $bestMatch;
     }
 
+    /**
+     * @param array<int, int> $vector1
+     */
     private function calculateSimilarity(array $vector1, string $hash): float
     {
         // Simplification : calculer la similarité basée sur les mots communs
@@ -268,6 +300,9 @@ class MLArtChatbotService
         return $union > 0 ? $intersection / $union : 0;
     }
 
+    /**
+     * @return list<int>
+     */
     private function reconstructVector(string $hash): array
     {
         // Simplification : reconstruire approximativement le vecteur
@@ -302,13 +337,21 @@ class MLArtChatbotService
         $this->saveTrainingData();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getLearningStats(): array
     {
+        $lastUpdatedTimestamp = file_exists($this->dataFile) ? filemtime($this->dataFile) : false;
+        if (!is_int($lastUpdatedTimestamp)) {
+            $lastUpdatedTimestamp = time();
+        }
+
         return [
             'total_examples' => count($this->trainingData),
             'vocabulary_size' => count($this->vocabulary),
             'categories' => array_count_values(array_column($this->trainingData, 'category')),
-            'last_updated' => date('Y-m-d H:i:s', filemtime($this->dataFile) ?? time()),
+            'last_updated' => date('Y-m-d H:i:s', $lastUpdatedTimestamp),
             'learning_type' => 'Supervised + Reinforcement Learning'
         ];
     }

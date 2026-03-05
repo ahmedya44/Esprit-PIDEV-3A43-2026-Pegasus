@@ -27,7 +27,7 @@ class FreeTranslationService
         foreach ($translations as $translationFunction) {
             try {
                 $result = $translationFunction();
-                if ($result && !empty($result)) {
+                if ($result !== null && $result !== '') {
                     return $result;
                 }
             } catch (\Exception $e) {
@@ -97,6 +97,11 @@ class FreeTranslationService
         return null;
     }
 
+    /**
+     * @param array<array-key, string> $texts
+     *
+     * @return array<array-key, string|null>
+     */
     public function translateArray(array $texts, string $targetLang = 'en'): array
     {
         $results = [];

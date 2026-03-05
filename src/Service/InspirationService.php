@@ -6,6 +6,9 @@ namespace App\Service;
 
 class InspirationService
 {
+    /**
+     * @var list<string>
+     */
     private array $inspirations;
 
     public function __construct()
@@ -78,6 +81,9 @@ class InspirationService
         return $this->inspirations[array_rand($this->inspirations)];
     }
 
+    /**
+     * @return list<string>
+     */
     public function getAllInspirations(): array
     {
         return $this->inspirations;

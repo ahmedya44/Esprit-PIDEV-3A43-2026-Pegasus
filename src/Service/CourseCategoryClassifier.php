@@ -9,6 +9,8 @@ final class CourseCategoryClassifier
     /**
      * Sonata-like categories: slug + label + keywords.
      * You can add more categories/keywords anytime.
+     *
+     * @var list<array{slug: string, label: string, keywords: list<string>}>
      */
     private array $categories = [
         [
@@ -28,17 +30,24 @@ final class CourseCategoryClassifier
         ],
     ];
 
+    /**
+     * @return list<array{slug: string, label: string, keywords: list<string>}>
+     */
     public function getAllCategories(): array
     {
         // Add "Other" at the end
-        return array_merge($this->categories, [
+        return [
+            ...$this->categories,
             ['slug' => 'other', 'label' => 'Other', 'keywords' => []],
-        ]);
+        ];
     }
 
     /**
      * MULTI-label classification: returns multiple slugs for a course.
      * If nothing matches => ["other"].
+     */
+    /**
+     * @return list<string>
      */
     public function detectSlugs(Course $course): array
     {
@@ -81,6 +90,11 @@ final class CourseCategoryClassifier
     /**
      * Build the filter buttons list based on actual courses.
      * Only show categories that exist + always show "Other".
+     */
+    /**
+     * @param iterable<Course> $courses
+     *
+     * @return list<array{slug: string, label: string, keywords: list<string>}>
      */
     public function buildAvailableFilters(iterable $courses): array
     {

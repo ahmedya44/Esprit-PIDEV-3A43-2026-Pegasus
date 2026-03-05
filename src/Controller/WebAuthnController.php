@@ -190,8 +190,13 @@ final class WebAuthnController extends AbstractController
         $entityManager->flush();
         $request->getSession()->remove('passkey_login');
 
+        $passkeyUser = $passkey->getUser();
+        if (!$passkeyUser instanceof User) {
+            return $this->json(['error' => 'Passkey account is invalid.'], Response::HTTP_UNAUTHORIZED);
+        }
+
         try {
-            $security->login($passkey->getUser(), null, 'main');
+            $security->login($passkeyUser, null, 'main');
         } catch (\Throwable) {
             return $this->json(['error' => 'Passkey verified but session login failed.'], Response::HTTP_UNAUTHORIZED);
         }

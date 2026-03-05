@@ -17,21 +17,27 @@ final class ArtDetailController extends AbstractController
     #[Route('/art/{id}', name: 'art_detail', methods: ['GET'])]
     public function show(Art $art, Request $request, ArtViewRepository $viewRepository, EntityManagerInterface $entityManager): Response
     {
+        $artId = $art->getId();
+        if ($artId === null) {
+            throw $this->createNotFoundException('Artwork not found.');
+        }
+
         $session = $request->getSession();
-        $sessionKey = 'viewed_art_' . $art->getId();
+        $sessionKey = 'viewed_art_' . $artId;
         $now = time();
+        $ipAddress = (string) ($request->getClientIp() ?? '0.0.0.0');
         
         // Vérifier si déjà vu dans les dernières 30 secondes
         $lastViewTime = $session->get($sessionKey, 0);
         if ($now - $lastViewTime > 30) {
             // Enregistrer la vue seulement si 30 secondes écoulées
-            $viewRepository->addView($art->getId(), $request->getClientIp());
+            $viewRepository->addView($artId, $ipAddress);
             $session->set($sessionKey, $now);
         }
         
         // Récupérer les vues récentes
-        $recentViews = $viewRepository->findByArt($art->getId());
-        $totalViews = $viewRepository->countByArt($art->getId());
+        $recentViews = $viewRepository->findByArt($artId);
+        $totalViews = $viewRepository->countByArt($artId);
         
         return $this->render('front/art_detail.html.twig', [
             'art' => $art,
