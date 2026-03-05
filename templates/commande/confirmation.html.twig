@@ -1,0 +1,26 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Commande confirmée - Pegasus{% endblock %}
+
+{% block body %}
+<section class="food_section layout_padding-bottom">
+  <div class="container">
+    <div class="text-center mt-5">
+      <i class="fa fa-check-circle" style="font-size: 5rem; color: #ffbe33;"></i>
+      <h2 class="mt-3">Commande confirmée !</h2>
+      <p>Merci pour votre commande. Votre commande numéro <strong>#{{ commande.id }}</strong> a été enregistrée avec succès.</p>
+      <p>Total payé : <strong>{{ commande.total }} €</strong></p>
+      <p>Statut : <strong>{{ commande.statut }}</strong></p>
+      <div class="mt-4">
+        <a href="{{ path('app_commande_ticket', { id: commande.id }) }}" class="btn btn-success mb-2" style="border: none; font-weight: bold; padding: 10px 30px;">
+          <i class="fa fa-file-pdf-o"></i> Télécharger le ticket (PDF)
+        </a>
+        <br>
+        <a href="{{ path('app_produit_index') }}" class="btn" style="background-color: #ffbe33; border: none; font-weight: bold; padding: 10px 30px;">
+          Continuer mes achats
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

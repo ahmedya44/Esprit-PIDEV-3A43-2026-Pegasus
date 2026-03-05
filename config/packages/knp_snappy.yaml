@@ -1,0 +1,12 @@
+knp_snappy:
+    pdf:
+        enabled: true
+        # wkhtmltopdf doit être installé (Windows: choco install wkhtmltopdf)
+        # Optionnel : WKHTMLTOPDF_PATH dans .env pour chemin personnalisé
+        binary: '%env(default:wkhtmltopdf_default:WKHTMLTOPDF_PATH)%'
+        options:
+            encoding: 'UTF-8'
+            no-outline: true
+    image:
+        enabled: true
+        binary: '%env(default:wkhtmltoimage_default:WKHTMLTOIMAGE_PATH)%'

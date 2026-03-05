@@ -1,0 +1,12 @@
+{{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+    {% for field in form %}
+        <div class="form-group mb-3">
+            {{ form_label(field, null, {'label_attr': {'class': 'form-label font-weight-bold'}}) }}
+            {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+            {{ form_errors(field, {'attr': {'class': 'text-danger'}}) }}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary" style="background-color: #ffbe33; border: none; font-weight: bold; color: #000; margin-top: 15px;">
+        {{ button_label|default('Enregistrer') }}
+    </button>
+{{ form_end(form) }}

@@ -1,0 +1,42 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Modifier {{ produit.nom }} - Pegasus{% endblock %}
+
+{% block body %}
+<section class="food_section layout_padding-bottom">
+  <div class="container">
+    <div class="heading_container heading_center">
+      <h2>Modifier le produit</h2>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="box" style="padding: 30px;">
+          {{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+            <input type="hidden" name="_from" value="{{ from }}">
+            {% for field in form %}
+                <div class="form-group mb-3">
+                    {{ form_label(field, null, {'label_attr': {'class': 'form-label font-weight-bold'}}) }}
+                    {{ form_widget(field, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(field, {'attr': {'class': 'text-danger'}}) }}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary" style="background-color: #ffbe33; border: none; font-weight: bold; color: #000; margin-top: 15px;">
+                Modifier
+            </button>
+          {{ form_end(form) }}
+
+          {% if from == 'admin' %}
+            <a href="{{ path('admin_produit_attente') }}" class="btn1" style="margin-top: 10px;">Retour à l'Admin</a>
+          {% elseif from == 'artiste' %}
+            <a href="{{ path('app_produit_mes_produits') }}" class="btn1" style="margin-top: 10px;">Retour à mes produits</a>
+          {% else %}
+            <a href="{{ path('app_produit_index') }}" class="btn1" style="margin-top: 10px;">Retour à la liste</a>
+          {% endif %}
+
+          {{ include('produit/_delete_form.html.twig') }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

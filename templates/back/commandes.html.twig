@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Historique des Achats - Admin</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+    <link rel="icon" href="{{ asset('back/img/kaiadmin/favicon.ico') }}" type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <script src="{{ asset('back/js/plugin/webfont/webfont.min.js') }}"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"],
+          urls: ["{{ asset('back/css/fonts.min.css') }}"],
+        },
+        active: function () { sessionStorage.fonts = true; },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ asset('back/css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('back/css/plugins.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('back/css/kaiadmin.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('back/css/demo.css') }}" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <div class="logo-header" data-background-color="dark">
+            <a href="{{ path('back_dashboard') }}" class="logo">
+              <img src="{{ asset('back/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
+              <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+            </div>
+            <button class="topbar-toggler more"><i class="gg-more-vertical-alt"></i></button>
+          </div>
+        </div>
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+          <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+              <li class="nav-item active">
+                <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+                  <i class="fas fa-home"></i>
+                  <p>Dashboard</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse show" id="dashboard">
+                  <ul class="nav nav-collapse">
+                    <li>
+                      <a href="{{ path('admin_produit_attente') }}">
+                        <span class="sub-item">Gérer Produits</span>
+                      </a>
+                    </li>
+                    <li class="active">
+                      <a href="{{ path('admin_commandes_index') }}">
+                        <span class="sub-item">Historique des achats</span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        <div class="main-header">
+          <div class="main-header-logo">
+            <div class="logo-header" data-background-color="dark">
+              <a href="{{ path('back_dashboard') }}" class="logo">
+                <img src="{{ asset('back/img/kaiadmin/logo_light.svg') }}" alt="navbar brand" class="navbar-brand" height="20" />
+              </a>
+              <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar"><i class="gg-menu-right"></i></button>
+                <button class="btn btn-toggle sidenav-toggler"><i class="gg-menu-left"></i></button>
+              </div>
+              <button class="topbar-toggler more"><i class="gg-more-vertical-alt"></i></button>
+            </div>
+          </div>
+          <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
+            <div class="container-fluid">
+              <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+                <li class="nav-item topbar-user dropdown hidden-caret">
+                  <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+                    <div class="avatar-sm">
+                      <img src="{{ asset('back/img/profile.jpg') }}" alt="..." class="avatar-img rounded-circle" />
+                    </div>
+                    <span class="profile-username">
+                      <span class="op-7">Hi,</span>
+                      <span class="fw-bold">Admin</span>
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+
+        <div class="container">
+          <div class="page-inner">
+            <div class="page-header">
+              <h4 class="page-title">Historique des achats</h4>
+              <ul class="breadcrumbs">
+                <li class="nav-home">
+                  <a href="{{ path('back_dashboard') }}"><i class="icon-home"></i></a>
+                </li>
+                <li class="separator"><i class="icon-arrow-right"></i></li>
+                <li class="nav-item"><a href="#">Commandes</a></li>
+              </ul>
+            </div>
+
+            <div class="page-category">
+              {% for message in app.flashes('success') %}
+                <div class="alert alert-success">{{ message }}</div>
+              {% endfor %}
+
+              <div class="card">
+                <div class="card-header">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="card-title">Historique global des commandes</div>
+                    <span class="badge badge-info">{{ pagination.totalItemCount }} commande(s)</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>N° Commande</th>
+                          <th>Date</th>
+                          <th>Articles</th>
+                          <th>Total</th>
+                          <th>Statut</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for commande in pagination %}
+                        <tr>
+                          <td><strong>#{{ commande.id }}</strong></td>
+                          <td>
+                            <i class="fa fa-calendar text-muted"></i>
+                            {{ commande.dateCommande ? commande.dateCommande|date('d/m/Y à H:i') : 'Date inconnue' }}
+                          </td>
+                          <td>
+                            {% if commande.ligneCommandes|length > 0 %}
+                              {% for ligne in commande.ligneCommandes %}
+                                <span class="badge badge-light text-dark border">
+                                  {{ ligne.produit.nom }} × {{ ligne.quantite }}
+                                </span>
+                              {% endfor %}
+                            {% else %}
+                              <span class="text-muted">—</span>
+                            {% endif %}
+                          </td>
+                          <td><strong class="text-success">{{ commande.total|number_format(2, ',', ' ') }} €</strong></td>
+                          <td>
+                            {% if commande.statut == 'validee' or commande.statut == 'validée' %}
+                              <span class="badge badge-success"><i class="fa fa-check"></i> Validée</span>
+                            {% elseif commande.statut == 'payee' or commande.statut == 'payée' %}
+                              <span class="badge badge-primary"><i class="fa fa-credit-card"></i> Payée (Stripe)</span>
+                            {% elseif commande.statut == 'en_cours' %}
+                              <span class="badge badge-warning"><i class="fa fa-clock-o"></i> En cours</span>
+                            {% elseif commande.statut == 'annulee' or commande.statut == 'annulée' %}
+                              <span class="badge badge-danger"><i class="fa fa-times"></i> Annulée</span>
+                            {% else %}
+                              <span class="badge badge-secondary">{{ commande.statut|capitalize }}</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                          <td colspan="5" class="text-center py-5">
+                            <i class="fa fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucune commande trouvée.</p>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="d-flex justify-content-center mt-3">
+                    {{ knp_pagination_render(pagination) }}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <footer class="footer">
+          <div class="container-fluid d-flex justify-content-between">
+            <nav class="pull-left">
+              <ul class="nav">
+                <li class="nav-item"><a class="nav-link" href="http://www.themekita.com">ThemeKita</a></li>
+              </ul>
+            </nav>
+            <div class="copyright">2024, made with <i class="fa fa-heart heart text-danger"></i> by <a href="http://www.themekita.com">ThemeKita</a></div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script src="{{ asset('back/js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('back/js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('back/js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('back/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js') }}"></script>
+    <script src="{{ asset('back/js/kaiadmin.min.js') }}"></script>
+  </body>
+</html>

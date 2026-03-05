@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket - Commande #{{ commande.id }}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 12px; color: #333; margin: 20px; }
+        .header { text-align: center; border-bottom: 2px solid #ffbe33; padding-bottom: 15px; margin-bottom: 25px; }
+        .header h1 { margin: 0; font-size: 24px; color: #222; }
+        .header .slogan { color: #666; font-size: 11px; margin-top: 5px; }
+        .info-block { margin-bottom: 20px; }
+        .info-block strong { display: inline-block; width: 120px; color: #555; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f5f5f5; font-weight: bold; }
+        .text-right { text-align: right; }
+        .total-row { font-weight: bold; font-size: 14px; background: #fff8e6; }
+        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 10px; color: #888; text-align: center; }
+        .statut { display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: bold; }
+        .statut.payee { background: #d4edda; color: #155724; }
+        .statut.validee { background: #cce5ff; color: #004085; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Pegasus</h1>
+        <p class="slogan">Ticket de caisse / Facture</p>
+    </div>
+
+    <div class="info-block">
+        <strong>N° commande :</strong> #{{ commande.id }}<br>
+        <strong>Date :</strong> {{ commande.dateCommande|date('d/m/Y H:i') }}<br>
+        <strong>Statut :</strong> <span class="statut {{ commande.statut }}">{{ commande.statut }}</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th class="text-right">Qté</th>
+                <th class="text-right">Prix unitaire</th>
+                <th class="text-right">Sous-total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in lignes %}
+            <tr>
+                <td>{{ ligne.produit.nom }}</td>
+                <td class="text-right">{{ ligne.quantite }}</td>
+                <td class="text-right">{{ ligne.prixUnitaire|number_format(2, ',', ' ') }} €</td>
+                <td class="text-right">{{ (ligne.quantite * ligne.prixUnitaire)|number_format(2, ',', ' ') }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="3" class="text-right">Total TTC</td>
+                <td class="text-right">{{ commande.total|number_format(2, ',', ' ') }} €</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="footer">
+        Merci pour votre achat. Pegasus — Ce document fait office de ticket de caisse / facture.
+    </div>
+</body>
+</html>

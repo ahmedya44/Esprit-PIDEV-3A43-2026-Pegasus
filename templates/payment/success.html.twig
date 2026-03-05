@@ -1,0 +1,29 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Paiement Réussi - Pegasus{% endblock %}
+
+{% block body %}
+<section class="layout_padding">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <i class="fa fa-check-circle fa-5x text-success mb-4"></i>
+                <h1 class="display-4">Merci pour votre achat !</h1>
+                <p class="lead">Votre paiement a été traité avec succès.</p>
+                <hr class="my-4">
+                {% if commande is defined and commande %}
+                <p class="mb-3">Téléchargez votre ticket de caisse / facture au format PDF.</p>
+                <a href="{{ path('app_commande_ticket', { id: commande.id }) }}" class="btn btn-success btn-lg mb-3" style="border: none; font-weight: bold; border-radius: 30px; padding: 10px 30px;">
+                    <i class="fa fa-file-pdf-o"></i> Télécharger le ticket (PDF)
+                </a>
+                <br>
+                {% endif %}
+                <p>Vous pouvez maintenant continuer à parcourir nos magnifiques produits.</p>
+                <a href="{{ path('app_produit_index') }}" class="btn btn-warning btn-lg" style="background-color: #ffbe33; border: none; font-weight: bold; color: #000; border-radius: 30px; padding: 10px 30px;">
+                    Retour à la boutique
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

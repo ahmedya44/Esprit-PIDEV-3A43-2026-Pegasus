@@ -1,0 +1,64 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Historique de mes commandes - Pegasus{% endblock %}
+
+{% block body %}
+<section class="food_section layout_padding-bottom">
+  <div class="container">
+    <div class="heading_container heading_center">
+      <h2>Historique de mes achats</h2>
+    </div>
+
+    <div class="row justify-content-center" style="margin-top: 20px;">
+      <div class="col-md-10">
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover">
+            <thead style="background-color: #222831; color: white;">
+              <tr>
+                <th>N° Commande</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Statut</th>
+                <th>Détails</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for commande in pagination %}
+                <tr>
+                  <td style="vertical-align: middle;"><strong>#{{ commande.id }}</strong></td>
+                  <td style="vertical-align: middle;">{{ commande.dateCommande ? commande.dateCommande|date('d/m/Y H:i') : '' }}</td>
+                  <td style="vertical-align: middle; font-weight: bold; color: #ffbe33;">{{ commande.total }} €</td>
+                  <td style="vertical-align: middle; font-weight: bold;">
+                    {% if commande.statut == 'validee' %}
+                      <span style="color: green;"><i class="fa fa-check-circle"></i> Validée</span>
+                    {% elseif commande.statut == 'en_attente' %}
+                      <span style="color: orange;"><i class="fa fa-clock-o"></i> En attente</span>
+                    {% else %}
+                      <span style="color: gray;">{{ commande.statut|capitalize }}</span>
+                    {% endif %}
+                  </td>
+                  <td style="vertical-align: middle;">
+                    <a href="{{ path('app_commande_confirmation', {'id': commande.id}) }}" class="btn btn-sm btn-info" style="color: white;">
+                      <i class="fa fa-eye"></i> Voir
+                    </a>
+                    <a href="{{ path('app_commande_ticket', { id: commande.id }) }}" class="btn btn-sm btn-success" title="Télécharger le ticket PDF">
+                      <i class="fa fa-file-pdf-o"></i> PDF
+                    </a>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="5" class="text-center">Vous n'avez passé aucune commande.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+          {{ knp_pagination_render(pagination) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

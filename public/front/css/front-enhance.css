@@ -1,0 +1,287 @@
+/* ============================================
+   Pegasus – Améliorations CSS front-office
+   ============================================ */
+
+/* --- Variables (cohérence visuelle) --- */
+:root {
+  --pegasus-primary: #ffbe33;
+  --pegasus-primary-dark: #e69c00;
+  --pegasus-dark: #222831;
+  --pegasus-text: #0c0c0c;
+  --pegasus-muted: #6c757d;
+  --pegasus-radius: 12px;
+  --pegasus-radius-sm: 8px;
+  --pegasus-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --pegasus-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* --- Body & contenu principal --- */
+body {
+  background: linear-gradient(180deg, #fafafa 0%, #f1f2f3 100%);
+  color: var(--pegasus-text);
+}
+
+body > .container {
+  background: #ffffff;
+  border-radius: var(--pegasus-radius);
+  box-shadow: var(--pegasus-shadow);
+  padding: 2rem 1.5rem;
+  margin-top: 24px !important;
+  margin-bottom: 24px !important;
+  min-height: 50vh;
+}
+
+/* --- Header --- */
+.header_section {
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  background: var(--pegasus-dark) !important;
+}
+
+.header_section .navbar-brand span {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.custom_nav-container .navbar-nav .nav-item .nav-link {
+  border-radius: var(--pegasus-radius-sm);
+  font-weight: 500;
+}
+
+.user_option .order_online,
+.user_option .user_link,
+.user_option .cart_link {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.user_option a:hover {
+  opacity: 0.9;
+}
+
+/* --- Titres de section --- */
+.heading_container h2 {
+  color: var(--pegasus-dark);
+  letter-spacing: 0.02em;
+}
+
+.heading_container h2 span {
+  color: var(--pegasus-primary);
+}
+
+/* --- Section produits (food_section) --- */
+.food_section {
+  padding-bottom: 3rem;
+}
+
+.food_section .filters_menu li {
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.food_section .filters_menu li:hover {
+  transform: translateY(-1px);
+}
+
+.food_section .box {
+  background: #ffffff;
+  border-radius: var(--pegasus-radius);
+  box-shadow: var(--pegasus-shadow);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.food_section .box:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--pegasus-shadow-hover);
+}
+
+.food_section .box .img-box {
+  background: linear-gradient(145deg, #f8f9fa 0%, #f1f2f3 100%);
+  border-radius: var(--pegasus-radius) var(--pegasus-radius) 0 0;
+  padding: 1.5rem;
+}
+
+.food_section .box .img-box img {
+  transition: transform 0.35s ease;
+}
+
+.food_section .box .detail-box {
+  padding: 1.25rem 1.5rem;
+}
+
+.food_section .box .detail-box h5 {
+  color: var(--pegasus-dark);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.food_section .box .detail-box p {
+  color: var(--pegasus-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.food_section .box .detail-box h6 {
+  color: var(--pegasus-primary-dark);
+  font-weight: 700;
+}
+
+.food_section .box .options a {
+  background: var(--pegasus-primary);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.food_section .box .options a:hover {
+  background: var(--pegasus-primary-dark);
+  transform: scale(1.08);
+}
+
+/* --- Formulaires (recherche, filtres, etc.) --- */
+.food_section .form-control,
+.form-control {
+  border-radius: var(--pegasus-radius-sm);
+  border: 1px solid #dee2e6;
+  padding: 0.6rem 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.food_section .form-control:focus,
+.form-control:focus {
+  border-color: var(--pegasus-primary);
+  box-shadow: 0 0 0 3px rgba(255, 190, 51, 0.2);
+  outline: none;
+}
+
+.food_section select.form-control,
+select.form-control {
+  cursor: pointer;
+  appearance: auto;
+}
+
+/* --- Boutons --- */
+.btn-primary,
+.btn-warning,
+.food_section .btn-box a,
+.contact_section .form_container button {
+  background-color: var(--pegasus-primary) !important;
+  border: none !important;
+  border-radius: 45px;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn-warning:hover,
+.food_section .btn-box a:hover,
+.contact_section .form_container button:hover {
+  background-color: var(--pegasus-primary-dark) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(230, 156, 0, 0.35);
+}
+
+.btn-secondary {
+  border-radius: var(--pegasus-radius-sm);
+  transition: opacity 0.2s ease;
+}
+
+/* --- Badges (catégories) --- */
+.badge {
+  border-radius: 20px;
+  padding: 0.35rem 0.65rem;
+  font-weight: 500;
+}
+
+/* --- Pagination (KnpPaginator Bootstrap) --- */
+.pagination {
+  gap: 0.25rem;
+}
+
+.pagination .page-link {
+  border-radius: var(--pegasus-radius-sm) !important;
+  border: 1px solid #dee2e6;
+  color: var(--pegasus-dark);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.pagination .page-link:hover {
+  background-color: rgba(255, 190, 51, 0.15);
+  border-color: var(--pegasus-primary);
+  color: var(--pegasus-primary-dark);
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--pegasus-primary);
+  border-color: var(--pegasus-primary);
+}
+
+/* --- Footer --- */
+.footer_section {
+  margin-top: 2rem;
+  padding-top: 3rem;
+  padding-bottom: 2rem;
+}
+
+.footer_section .footer-col {
+  margin-bottom: 2rem;
+}
+
+.footer_section .footer_social a {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.footer_section .footer_social a:hover {
+  transform: translateY(-3px);
+}
+
+.footer_section .footer_contact .contact_link_box a {
+  transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+.footer_section .footer_contact .contact_link_box a:hover {
+  padding-left: 4px;
+}
+
+/* --- Pages secondaires (panier, commande, etc.) --- */
+.container h1,
+.container h2 {
+  margin-bottom: 1rem;
+}
+
+.container .table {
+  border-radius: var(--pegasus-radius-sm);
+  overflow: hidden;
+  box-shadow: var(--pegasus-shadow);
+}
+
+.container .table th {
+  background: var(--pegasus-dark);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  padding: 0.85rem 1rem;
+}
+
+.container .table td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+}
+
+/* --- Focus accessible --- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--pegasus-primary);
+  outline-offset: 2px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  body > .container {
+    padding: 1.25rem 1rem;
+    margin-top: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .food_section .box:hover {
+    transform: translateY(-3px);
+  }
+}
