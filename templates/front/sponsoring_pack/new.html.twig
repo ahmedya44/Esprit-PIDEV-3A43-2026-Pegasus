@@ -54,9 +54,9 @@
 
   <div class="top-nav">
     <div class="container d-flex justify-content-between align-items-center">
-      <a class="brand" href="{{ path('front_home') }}">🎵 Feane</a>
+      <a class="brand" href="{{ path('front_home') }}">Feane</a>
       <div>
-        <a href="{{ path('front_evenements_index') }}" class="mr-4">Événements</a>
+        <a href="{{ path('front_evenements_index') }}" class="mr-4">Evenements</a>
         {% if app.user %}
           <a href="{{ path('app_logout') }}">Logout</a>
         {% else %}
@@ -73,7 +73,7 @@
       <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
           <div class="page-title"><i class="fa fa-plus mr-2" style="color: #a855f7;"></i> Nouveau Pack</div>
-          <div class="page-subtitle">Définissez votre offre de sponsoring pour les artistes</div>
+          <div class="page-subtitle">Definissez votre offre de sponsoring pour les artistes</div>
         </div>
         <a href="{{ path('front_sponsoring_pack_index') }}" class="btn-back-link">
           <i class="fa fa-arrow-left"></i> Retour
@@ -96,7 +96,7 @@
               {# Description #}
               <div class="mb-4">
                 <label class="field-label"><i class="fa fa-align-left"></i> Description</label>
-                {{ form_widget(form.description, {'attr': {'class': 'sp-input', 'placeholder': 'Listez les avantages inclus : logo affiché, stand, citation sur réseaux...'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'sp-input', 'placeholder': 'Listez les avantages inclus : logo affiche, stand, citation sur reseaux...'}}) }}
                 <div class="text-danger">{{ form_errors(form.description) }}</div>
               </div>
 
@@ -110,7 +110,7 @@
               <div class="divider"></div>
 
               <button type="submit" class="btn-submit">
-                <i class="fa fa-save"></i> Créer le Pack
+                <i class="fa fa-save"></i> Creer le Pack
               </button>
 
             {{ form_end(form) }}
@@ -126,3 +126,5 @@
   <script src="{{ asset('front/js/bootstrap.js') }}"></script>
 </body>
 </html>
+
+

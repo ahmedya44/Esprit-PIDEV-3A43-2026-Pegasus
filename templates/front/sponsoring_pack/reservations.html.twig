@@ -86,7 +86,7 @@
               <i class="fa fa-handshake-o mr-2" style="color: #f59e0b;"></i> Sponsoring
           </h4>
           <div>
-              <a href="{{ path('front_evenements_index') }}" class="nav-btn"><i class="fa fa-arrow-left mr-2"></i>Retour aux événements</a>
+              <a href="{{ path('front_evenements_index') }}" class="nav-btn"><i class="fa fa-arrow-left mr-2"></i>Retour aux evenements</a>
               <a href="{{ path('front_sponsoring_pack_index') }}" class="nav-btn"><i class="fa fa-cubes mr-2"></i>Mes Packs</a>
               <a href="{{ path('front_sponsoring_reservations') }}" class="nav-btn active"><i class="fa fa-inbox mr-2"></i>Demandes</a>
           </div>
@@ -99,7 +99,7 @@
       <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
           <h2 style="color: #111827; font-weight: 800; font-size: 32px; margin-bottom: 10px;">Demandes de Sponsoring</h2>
-          <p style="color: #6b7280; font-size: 16px;">Gérez les sponsors qui souhaitent financer vos événements.</p>
+          <p style="color: #6b7280; font-size: 16px;">Gerez les sponsors qui souhaitent financer vos evenements.</p>
         </div>
       </div>
 
@@ -118,7 +118,7 @@
         <div class="text-center py-5" style="background: white; border-radius: 20px; border: 1px dashed #d1d5db;">
             <i class="fa fa-inbox fa-4x mb-3" style="color: #d1d5db;"></i>
             <h4 style="color: #4b5563;">Aucune demande pour le moment</h4>
-            <p style="color: #9ca3af;">Les réservations de sponsors apparaîtront ici.</p>
+            <p style="color: #9ca3af;">Les reservations de sponsors apparaitront ici.</p>
         </div>
       {% else %}
         {% for reservation in reservations %}
@@ -147,14 +147,14 @@
                             <button type="submit" class="btn-action btn-accept"><i class="fa fa-check mr-2"></i>Accepter</button>
                         </form>
                         
-                        <form method="post" action="{{ path('front_sponsoring_reservations_reject', {'id': reservation.id}) }}" style="margin: 0;" onsubmit="return confirm('Rejeter et supprimer définitivement cette demande ?');">
+                        <form method="post" action="{{ path('front_sponsoring_reservations_reject', {'id': reservation.id}) }}" style="margin: 0;" onsubmit="return confirm('Rejeter et supprimer definitivement cette demande ?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ reservation.id) }}">
                             <button type="submit" class="btn-action btn-reject"><i class="fa fa-times mr-2"></i>Rejeter</button>
                         </form>
                     {% else %}
-                        <span class="status-badge status-acceptee"><i class="fa fa-check-circle mr-1"></i> Acceptée</span>
+                        <span class="status-badge status-acceptee"><i class="fa fa-check-circle mr-1"></i> Acceptee</span>
                         <!-- Option to cancel an accepted reservation if needed -->
-                        <form method="post" action="{{ path('front_sponsoring_reservations_reject', {'id': reservation.id}) }}" class="ml-4" style="margin: 0;" onsubmit="return confirm('Annuler cette réservation acceptée ?');">
+                        <form method="post" action="{{ path('front_sponsoring_reservations_reject', {'id': reservation.id}) }}" class="ml-4" style="margin: 0;" onsubmit="return confirm('Annuler cette reservation acceptee ?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ reservation.id) }}">
                             <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px;"><i class="fa fa-trash"></i></button>
                         </form>
@@ -170,7 +170,7 @@
 
   <footer class="footer_section" style="background: #111827; padding: 20px 0; text-align: center; color: white;">
     <div class="container">
-      <p class="mb-0">&copy; <span id="displayYear"></span> Tous droits réservés.</p>
+      <p class="mb-0">&copy; <span id="displayYear"></span> Tous droits reserves.</p>
     </div>
   </footer>
 
@@ -181,3 +181,5 @@
   </script>
 </body>
 </html>
+
+

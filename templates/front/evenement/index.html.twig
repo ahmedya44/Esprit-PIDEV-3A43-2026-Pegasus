@@ -52,9 +52,9 @@
           </button>
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav  mx-auto">
+            <ul class="navbar-nav mx-auto">
               <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_home') }}">Home </a>
+                <a class="nav-link" href="{{ path('front_home') }}">Home</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
@@ -65,26 +65,27 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
               </li>
-              <li class="nav-item active">
-                <a class="nav-link" href="{{ path('front_evenements_index') }}">Evenements</a>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ path('app_register') }}">Sign Up</a>
+                <a class="nav-link" href="{{ path('forum_index') }}">Forum</a>
               </li>
-              {% if app.user %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ path('app_logout') }}">Logout ({{ app.user.userIdentifier }})</a>
-                </li>
-              {% else %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ path('app_login') }}">Login</a>
-                </li>
-              {% endif %}
+              <li class="nav-item active">
+                <a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a>
+              </li>
             </ul>
             <div class="user_option">
-              <a href="" class="user_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
-              </a>
+              {% if app.user %}
+                <a href="{{ path('front_profile') }}" class="user_link profile_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                  <span class="profile_name">{{ app.user.username }}</span>
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="user_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                </a>
+              {% endif %}
               <a class="cart_link" href="#">
                 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
                   <g>
@@ -114,6 +115,18 @@
                   <i class="fa fa-search" aria-hidden="true"></i>
                 </button>
               </form>
+              {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">
+                  Logout
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="auth_btn auth_btn--outline">
+                  Sign In
+                </a>
+                <a href="{{ path('app_register') }}" class="auth_btn auth_btn--filled">
+                  Sign Up
+                </a>
+              {% endif %}
               <a href="" class="order_online">
                 Order Online
               </a>
@@ -165,12 +178,13 @@
 
       <div class="filters-content mt-5">
         <div class="row grid">
+          {% set currentUserId = app.user ? app.user.id : null %}
           {% for evenement in evenements %}
           <div class="col-sm-6 col-lg-4 all mb-4">
             <div class="premium-card">
               <div class="img-box">
                 <div class="premium-badge d-flex align-items-center" style="gap: 10px;">
-                  <span>{{ evenement.type|default('Event')|capitalize }}</span>
+                  <span>Event</span>
                   {% if evenement.statut == 'en attente' %}
                     <span class="badge badge-warning" style="background-color: #f59e0b; color: white;">En attente</span>
                   {% endif %}
@@ -203,7 +217,8 @@
                     <a href="{{ path('front_evenements_show', {'id': evenement.id}) }}" class="premium-btn py-1 px-3 mr-1" title="Voir">
                       <i class="fa fa-eye"></i>
                     </a>
-                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ARTISTE') %}
+                    {% set isOwner = currentUserId is not null and evenement.artiste and evenement.artiste.id == currentUserId %}
+                    {% if isOwner %}
                       <a href="{{ path('front_evenements_edit', {'id': evenement.id}) }}" class="btn text-info" title="Modifier">
                         <i class="fa fa-edit"></i>
                       </a>
@@ -214,7 +229,7 @@
                         </button>
                       </form>
                     {% endif %}
-                    {% if is_granted('ROLE_ARTISTE') and evenement.artiste == app.user %}
+                    {% if is_granted('ROLE_ARTISTE') and isOwner %}
                       <a href="{{ path('front_evenements_participants', {'id': evenement.id}) }}" class="btn text-warning" title="Participants">
                         <i class="fa fa-users"></i>
                       </a>

@@ -34,9 +34,9 @@
 <body>
   <div class="top-nav">
     <div class="container d-flex justify-content-between align-items-center">
-      <a class="brand" href="{{ path('front_home') }}">🎵 Feane</a>
+      <a class="brand" href="{{ path('front_home') }}">Feane</a>
       <div>
-        <a href="{{ path('front_evenements_index') }}" class="mr-4">Événements</a>
+        <a href="{{ path('front_evenements_index') }}" class="mr-4">Evenements</a>
         {% if app.user %}
           <a href="{{ path('app_logout') }}">Logout</a>
         {% else %}
@@ -52,18 +52,17 @@
       <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 mt-2" style="gap: 16px;">
         <div>
           <div class="page-title"><i class="fa fa-star mr-2" style="color: #f59e0b;"></i> Packs de Sponsoring</div>
-          <div class="page-subtitle">Gérez vos offres pour les sponsors</div>
+          <div class="page-subtitle">Gerez vos offres pour les sponsors</div>
         </div>
         <div class="d-flex align-items-center" style="gap: 10px;">
           <a href="{{ path('front_sponsoring_pack_new') }}" class="btn-action btn-add" style="font-size: 14px; padding: 11px 24px;">
             <i class="fa fa-plus"></i> Nouveau Pack
           </a>
           <a href="{{ path('front_sponsoring_reservations') }}" class="btn-back-link" style="background: #fffbeb; color: #d97706 !important; border-color: #fde68a;">
-            <i class="fa fa-inbox"></i> Demandes Reçues
+            <i class="fa fa-inbox"></i> Demandes Recues
           </a>
           <a href="{{ path('front_evenements_index') }}" class="btn-back-link">
-            <i class="fa fa-arrow-left"></i> Événements
-          </a>
+            <i class="fa fa-arrow-left"></i> Evenements</a>
         </div>
       </div>
 
@@ -79,10 +78,10 @@
       {% if packs is empty %}
         <div class="empty-state">
           <i class="fa fa-star-o"></i>
-          <p class="h5 font-weight-bold" style="color: #374151;">Aucun pack de sponsoring créé</p>
-          <p class="mb-4">Commencez par créer votre premier pack</p>
+          <p class="h5 font-weight-bold" style="color: #374151;">Aucun pack de sponsoring cree</p>
+          <p class="mb-4">Commencez par creer votre premier pack</p>
           <a href="{{ path('front_sponsoring_pack_new') }}" class="btn-action btn-add" style="font-size: 15px; padding: 13px 30px; display: inline-flex;">
-            <i class="fa fa-plus"></i> Créer un Pack
+            <i class="fa fa-plus"></i> Creer un Pack
           </a>
         </div>
       {% else %}
@@ -119,3 +118,5 @@
   <script src="{{ asset('front/js/bootstrap.js') }}"></script>
 </body>
 </html>
+
+

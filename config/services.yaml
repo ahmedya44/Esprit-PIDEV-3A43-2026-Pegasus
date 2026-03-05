@@ -27,6 +27,10 @@ services:
             $model: '%env(string:AI_AUTOCOMPLETE_MODEL)%'
             $apiUrl: '%env(string:AI_AUTOCOMPLETE_API_URL)%'
 
+    App\Service\OpenAiService:
+        arguments:
+            $apiKey: '%env(string:OPENAI_API_KEY)%'
+
     App\Service\GiphyService:
         arguments:
             $provider: '%env(string:GIF_PROVIDER)%'
