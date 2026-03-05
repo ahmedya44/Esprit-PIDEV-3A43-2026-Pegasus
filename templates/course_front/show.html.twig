@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -116,14 +116,16 @@
       <div class="glass-card">
         <div class="glass-head">
           <h3 class="h5 mb-0">Course Overview</h3>
-          <a class="btn-soft" href="{{ path('app_courses') }}">← Back to Courses</a>
+          <a class="btn-soft" href="{{ path('app_courses') }}">â† Back to Courses</a>
         </div>
 
         <div class="glass-body">
           <div class="row g-4 align-items-start">
             <div class="col-lg-5">
-              {% if course.thumbnailUrl %}
-                <img class="thumb" src="{{ course.thumbnailUrl }}" alt="{{ course.title|e }}">
+              {% set thumb = course.thumbnailUrl|default('') %}
+              {% if thumb %}
+                {% set thumbSrc = (thumb starts with('http://') or thumb starts with('https://') or thumb starts with('/')) ? thumb : asset(thumb) %}
+                <img class="thumb" src="{{ thumbSrc }}" alt="{{ course.title|e }}" onerror="this.onerror=null;this.src='{{ asset('front/images/f1.png') }}';">
               {% else %}
                 <img class="thumb" src="{{ asset('front/images/f1.png') }}" alt="{{ course.title|e }}">
               {% endif %}
@@ -139,7 +141,7 @@
               <p class="muted mb-4">{{ course.description }}</p>
 
               <div class="d-flex gap-2 flex-wrap mb-4">
-                <a class="btn-feane" href="{{ path('course_learn', {id: course.id}) }}">▶ Start Course</a>
+                <a class="btn-feane" href="{{ path('course_learn', {id: course.id}) }}">â–¶ Start Course</a>
                 <a class="btn-soft" href="{{ path('app_courses') }}">Cancel</a>
               </div>
 
@@ -166,5 +168,7 @@
 
   <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
   <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>
+

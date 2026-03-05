@@ -5,11 +5,12 @@ namespace App\Form;
 use App\Entity\Course;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 final class CourseType extends AbstractType
 {
@@ -46,14 +47,21 @@ final class CourseType extends AbstractType
                     'class' => 'form-select',
                 ],
             ])
-            ->add('thumbnailUrl', UrlType::class, [
+            ->add('thumbnailUrl', FileType::class, [
                 'label' => false,
                 'required' => false,
+                'mapped' => false,
                 'attr' => [
-                    'placeholder' => 'https://...',
                     'class' => 'form-control',
+                    'accept' => 'image/png,image/jpeg,image/webp',
                 ],
-                'empty_data' => null,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => ['image/png', 'image/jpeg', 'image/webp'],
+                        'mimeTypesMessage' => 'Please upload a valid image (PNG, JPG, or WEBP).',
+                    ]),
+                ],
             ])
         ;
     }

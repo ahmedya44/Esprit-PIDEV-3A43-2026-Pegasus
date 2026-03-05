@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -84,7 +84,7 @@
       <div class="glass-card">
         <div class="glass-head">
           <h3 class="h5 mb-0">Course Information</h3>
-          <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">← Back</a>
+          <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">â† Back</a>
         </div>
 
         <div class="glass-body">
@@ -108,14 +108,19 @@
             </div>
 
             <div class="col-lg-7">
-              <div class="field-title">Thumbnail URL (optional)</div>
+              <div class="field-title">Thumbnail Image (optional)</div>
+              {% if course.thumbnailUrl %}
+                {% set thumb = (course.thumbnailUrl starts with('http://') or course.thumbnailUrl starts with('https://') or course.thumbnailUrl starts with('/')) ? course.thumbnailUrl : asset(course.thumbnailUrl) %}
+                <img src="{{ thumb }}" alt="{{ course.title|e }}" style="width:110px;height:70px;object-fit:cover;border-radius:10px;margin-bottom:10px;display:block;">
+              {% endif %}
               {{ form_row(form.thumbnailUrl) }}
+              <div class="hint">Upload a new image to replace the current thumbnail.</div>
             </div>
 
           </div>
 
           <div class="d-flex gap-2 mt-4">
-            <button class="btn-feane" type="submit">💾 Save</button>
+            <button class="btn-feane" type="submit">ðŸ’¾ Save</button>
             <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">Cancel</a>
           </div>
 
@@ -128,5 +133,7 @@
 
   <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
   <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>
+

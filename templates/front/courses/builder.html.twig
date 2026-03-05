@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -93,7 +93,7 @@
             </div>
           </div>
           <div class="d-flex gap-2">
-            <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">← Back</a>
+            <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">â† Back</a>
             <a class="btn-feane" href="{{ path('artist_course_sections_new', {id: course.id}) }}">+ Add Section</a>
           </div>
         </div>
@@ -102,7 +102,7 @@
           {% if sections is empty %}
             <div class="text-center muted">
               <p class="mb-2"><strong>No sections yet.</strong></p>
-              <p class="mb-0">Click “Add Section” to start building the course.</p>
+              <p class="mb-0">Click â€œAdd Sectionâ€ to start building the course.</p>
             </div>
           {% else %}
             <div class="d-flex flex-column gap-3">
@@ -110,7 +110,7 @@
                 <div class="section-card">
                   <div class="d-flex justify-content-between align-items-start gap-3">
                     <div>
-                      <div class="video-title">Section {{ section.orderIndex }} — {{ section.title }}</div>
+                      <div class="video-title">Section {{ section.orderIndex }} â€” {{ section.title }}</div>
                       <div class="muted">Videos: {{ section.courseVideos|length }}</div>
                     </div>
 
@@ -134,10 +134,10 @@
                       {% for video in videos %}
                         <div class="video-row">
                           <div>
-                            <div class="video-title">Video {{ video.orderIndex }} — {{ video.title }}</div>
+                            <div class="video-title">Video {{ video.orderIndex }} â€” {{ video.title }}</div>
                             <div class="muted">
                               {{ video.durationSec }} sec
-                              {% if video.isPreview %} • <strong>Preview</strong>{% endif %}
+                              {% if video.isPreview %} â€¢ <strong>Preview</strong>{% endif %}
                             </div>
                           </div>
 
@@ -167,5 +167,6 @@
 
   <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
   <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>

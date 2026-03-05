@@ -31,6 +31,75 @@
   <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
 
   <link rel="stylesheet" href="{{ asset('front/css/image-bot.css') }}">
+  <style>
+    .food_section .box {
+      border-radius: 22px;
+      overflow: hidden;
+      background: transparent !important;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    .food_section .box .img-box {
+      background: #e5e5e5 !important;
+      height: 260px;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      padding: 24px !important;
+    }
+
+    .food_section .box .img-box img {
+      width: 170px;
+      height: 170px;
+      max-width: 170px;
+      max-height: 170px;
+      object-fit: cover;
+      border-radius: 50%;
+      box-shadow: 0 14px 26px rgba(0, 0, 0, 0.28);
+    }
+
+    .food_section .box .detail-box {
+      background: #1f2937;
+      border-radius: 56px 0 0 0;
+      padding: 28px 24px 24px;
+      min-height: 255px;
+    }
+
+    .food_section .box .detail-box h5,
+    .food_section .box .detail-box h6,
+    .food_section .box .detail-box p,
+    .food_section .box .detail-box .text-muted {
+      color: #f1f1f1;
+    }
+
+    .food_section .box .detail-box p {
+      font-size: 16px;
+      line-height: 1.45;
+      min-height: 74px;
+    }
+
+    .food_section .box .detail-box .badge.bg-dark {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: #fff;
+    }
+
+    .food_section .box .options h6 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .course-cta {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #ffbe33;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+  </style>
 
 </head>
 
@@ -194,8 +263,13 @@
                       style="display:block;">
 
                       <div class="img-box">
-                        {% if course.thumbnailUrl %}
-                          <img src="{{ course.thumbnailUrl }}" alt="{{ course.title|e }}">
+                        {% set thumbnail = course.thumbnailUrl|default('') %}
+                        {% if thumbnail %}
+                          {% set thumbnailSrc = (thumbnail starts with('http://') or thumbnail starts with('https://') or thumbnail starts with('/')) ? thumbnail : asset(thumbnail) %}
+                          <img src="{{ thumbnailSrc }}"
+                               alt="{{ course.title|e }}"
+                               loading="lazy"
+                               onerror="this.onerror=null;this.src='{{ asset('front/images/f1.png') }}';">
                         {% else %}
                           <img src="{{ asset('front/images/f1.png') }}" alt="{{ course.title|e }}">
                         {% endif %}
@@ -240,8 +314,8 @@
                             <h6 class="mb-0 text-muted"></h6>
                           {% endif %}
 
-                          <span class="btn btn-warning btn-sm" style="font-weight:800;">
-                            View course →
+                          <span class="course-cta" title="View course">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
                           </span>
 
                         </div>

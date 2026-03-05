@@ -61,46 +61,75 @@
             </div>
             <div class="sidebar-wrapper scrollbar scrollbar-inner">
                 <div class="sidebar-content">
-                    <ul class="nav nav-secondary">
-                        <li class="nav-item">
-                            <a href="{{ path('back_dashboard') }}">
-                                <i class="fas fa-home"></i>
-                                <p>Dashboard</p>
-                            </a>
-                        </li>
-                        <li class="nav-section">
-                            <span class="sidebar-mini-icon">
-                                <i class="fa fa-ellipsis-h"></i>
-                            </span>
-                            <h4 class="text-section">Gestion</h4>
-                        </li>
-                        <li class="nav-item {% if app.request.attributes.get('_route') starts with 'app_evenement' %}active{% endif %}">
-                            <a href="{{ path('app_evenement_index') }}">
-                                <i class="fas fa-calendar-alt"></i>
-                                <p>Evenements</p>
-                            </a>
-                        </li>
-                        <li class="nav-item {% if app.request.attributes.get('_route') starts with 'app_participant' and app.request.attributes.get('_route') != 'app_participant_stats' %}active{% endif %}">
-                            <a href="{{ path('app_participant_index') }}">
-                                <i class="fas fa-users"></i>
-                                <p>Participants</p>
-                            </a>
-                        </li>
-                        <li class="nav-item {% if app.request.attributes.get('_route') starts with 'app_admin_sponsor' %}active{% endif %}">
-                            <a href="{{ path('app_admin_sponsor_index') }}">
-                                <i class="fas fa-handshake"></i>
-                                <p>Sponsors</p>
-                            </a>
-                        </li>
-                        <li class="nav-item {% if app.request.attributes.get('_route') == 'app_participant_stats' %}active{% endif %}">
-                            <a href="{{ path('app_participant_stats') }}">
-                                <i class="fas fa-chart-bar"></i>
-                                <p>Statistiques</p>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+                              <ul class="nav nav-secondary">
+            <li class="nav-item">
+              <a href="{{ path('back_dashboard') }}">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a href="{{ path('back_users') }}">
+                <i class="fas fa-users"></i>
+                <p>Users</p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#eventsMenu">
+                <i class="fas fa-calendar-alt"></i>
+                <p>Events</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="eventsMenu">
+                <ul class="nav nav-collapse">
+                  <li><a href="{{ path('app_evenement_index') }}"><span class="sub-item">Evenement</span></a></li>
+                  <li><a href="{{ path('app_participant_index') }}"><span class="sub-item">Participants</span></a></li>
+                  <li><a href="{{ path('app_admin_sponsor_index') }}"><span class="sub-item">Sponsors</span></a></li>
+                  <li><a href="{{ path('app_participant_stats') }}"><span class="sub-item">Statistiques</span></a></li>
+                </ul>
+              </div>
+            </li>
+
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#galleryMenu">
+                <i class="fas fa-images"></i>
+                <p>Gallery</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="galleryMenu">
+                <ul class="nav nav-collapse">
+                  <li><a href="{{ path('back_art_index') }}"><span class="sub-item">Manage Art</span></a></li>
+                </ul>
+              </div>
+            </li>
+
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#forumMenu">
+                <i class="fas fa-comments"></i>
+                <p>Forum</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="forumMenu">
+                <ul class="nav nav-collapse">
+                  <li><a href="{{ path('admin_forum_posts_index') }}"><span class="sub-item">Sujets</span></a></li>
+                  <li><a href="{{ path('admin_forum_comments_index') }}"><span class="sub-item">Commentaires</span></a></li>
+                  <li><a href="{{ path('admin_forum_stats_index') }}"><span class="sub-item">Statistiques</span></a></li>
+                  <li><a href="{{ path('admin_forum_post_new') }}"><span class="sub-item">Nouveau sujet</span></a></li>
+                </ul>
+              </div>
+            </li>
+
+            <li class="nav-item">
+              <a href="{{ path('back_content') }}">
+                <i class="fas fa-graduation-cap"></i>
+                <p>Courses & Quizzes</p>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div
         </div>
         <!-- End Sidebar -->
 
@@ -209,3 +238,4 @@
     {% block javascripts %}{% endblock %}
 </body>
 </html>
+

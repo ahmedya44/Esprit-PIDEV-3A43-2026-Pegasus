@@ -8,18 +8,19 @@
   }
 
   .custom_nav-container .navbar-nav {
-    padding-top: 15px;
-padding-left: 0;
-    align-items: center;
+    padding-top: 95px !important;
+    padding-left: 18px !important;
+    align-items: flex-start;
   }
 
   .user_option{
-    justify-content: center;
-    margin-top: 15px;
+    justify-content: flex-end;
+    margin-top: 0;
   }
+
   .custom_nav-container .navbar-nav .nav-item .nav-link {
-    padding: 5px 25px;
-    margin: 5px 0;
+    padding: 10px 12px;
+    margin: 0;
   }
 
   .slider_section .carousel-indicators {

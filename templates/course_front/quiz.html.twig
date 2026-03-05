@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -84,7 +84,7 @@
             <h3 class="h5 mb-0">{{ quiz.title }}</h3>
             <div class="muted">Final quiz for: {{ course.title }}</div>
           </div>
-          <a class="btn-soft" href="{{ path('course_learn', {id: course.id}) }}">← Back to Course</a>
+          <a class="btn-soft" href="{{ path('course_learn', {id: course.id}) }}">â† Back to Course</a>
         </div>
 
         <div class="quiz-body">
@@ -147,5 +147,7 @@
 
   <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
   <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>
+

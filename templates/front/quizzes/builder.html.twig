@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -172,7 +172,7 @@
           <h3>Quiz Info</h3>
 
           <div class="d-flex gap-2">
-            <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'quizzes'}) }}">← Back</a>
+            <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'quizzes'}) }}">â† Back</a>
             <a class="btn-feane" href="{{ path('artist_quiz_questions_new', {id: quiz.id}) }}">
               + Add Question
             </a>
@@ -181,7 +181,7 @@
 
         <div class="p-4">
           <div class="mb-2">
-            <span class="chip"><strong>Course:</strong> {{ quiz.course ? quiz.course.title : '—' }}</span>
+            <span class="chip"><strong>Course:</strong> {{ quiz.course ? quiz.course.title : 'â€”' }}</span>
             <span class="chip"><strong>Passing:</strong> {{ quiz.passingScore }}%</span>
             <span class="chip"><strong>Attempts:</strong> {{ quiz.attemptLimit }}</span>
             <span class="chip"><strong>Time:</strong> {{ quiz.timeLimitMin }} min</span>
@@ -201,17 +201,17 @@
         <div class="p-4">
           {% if questions is empty %}
             <div class="empty-box">
-              No questions yet. Click <strong>“Add Question”</strong> to start building your quiz.
+              No questions yet. Click <strong>â€œAdd Questionâ€</strong> to start building your quiz.
             </div>
           {% else %}
             {% for q in questions %}
               <div class="q-item">
                 <div>
                   <div class="q-title">
-                    #{{ q.orderIndex }} — {{ q.questionText }}
+                    #{{ q.orderIndex }} â€” {{ q.questionText }}
                   </div>
                   <div class="q-meta">
-                    Points: {{ q.points }} • Choices: {{ q.quizChoices|length }}
+                    Points: {{ q.points }} â€¢ Choices: {{ q.quizChoices|length }}
                   </div>
                 </div>
 
@@ -238,5 +238,6 @@
 
   <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
   <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>

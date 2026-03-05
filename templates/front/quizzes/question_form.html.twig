@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -142,7 +142,7 @@
 
           <div class="top-actions d-flex gap-2">
             <a class="btn-soft" href="{{ path('artist_quizzes_builder', {'id': quiz.id}) }}">
-              ← Back to Builder
+              â† Back to Builder
             </a>
           </div>
         </div>
@@ -198,7 +198,7 @@
           </div>
 
           <div class="d-flex gap-2 mt-4">
-            <button class="btn-feane" type="submit">💾 {{ mode == 'edit' ? 'Save Changes' : 'Save Question' }}</button>
+            <button class="btn-feane" type="submit">ðŸ’¾ {{ mode == 'edit' ? 'Save Changes' : 'Save Question' }}</button>
             <a class="btn-soft" href="{{ path('artist_quizzes_builder', {'id': quiz.id}) }}">Cancel</a>
           </div>
 
@@ -251,5 +251,6 @@
     });
   })();
   </script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-{# templates/front/dashboard.html.twig #}
+﻿{# templates/front/dashboard.html.twig #}
 <!DOCTYPE html>
 <html>
 <head>
@@ -295,8 +295,10 @@
                           <td>
                             <div class="d-flex align-items-center gap-2">
                               {% if course.thumbnailUrl %}
-                                <img src="{{ course.thumbnailUrl }}"
+                                {% set thumb = (course.thumbnailUrl starts with('http://') or course.thumbnailUrl starts with('https://') or course.thumbnailUrl starts with('/')) ? course.thumbnailUrl : asset(course.thumbnailUrl) %}
+                                <img src="{{ thumb }}"
                                      alt=""
+                                     onerror="this.onerror=null;this.src='{{ asset('front/images/f1.png') }}';"
                                      style="width:44px;height:44px;object-fit:cover;border-radius:12px;">
                               {% endif %}
 
@@ -385,8 +387,8 @@
                             <td>
                               <div class="fw-bold">{{ quiz.title }}</div>
                               <div class="text-muted small">
-                                {% if quiz.timeLimit is defined and quiz.timeLimit %}⏱ {{ quiz.timeLimit }} min{% endif %}
-                                {% if quiz.attemptLimit is defined and quiz.attemptLimit %} · 🎯 {{ quiz.attemptLimit }} attempts{% endif %}
+                                {% if quiz.timeLimit is defined and quiz.timeLimit %}â± {{ quiz.timeLimit }} min{% endif %}
+                                {% if quiz.attemptLimit is defined and quiz.attemptLimit %} Â· ðŸŽ¯ {{ quiz.attemptLimit }} attempts{% endif %}
                               </div>
                             </td>
 
@@ -434,7 +436,7 @@
                 {% elseif view == 'stats' %}
 
                   <div class="alert alert-info mb-0">
-                    Stats view coming next ✅ (we’ll add pass rate, attempts, etc.)
+                    Stats view coming next âœ… (weâ€™ll add pass rate, attempts, etc.)
                     <br>
                     <a class="btn btn-sm btn-secondary mt-3"
                        style="border-radius:12px;font-weight:800;"
@@ -474,7 +476,7 @@
                       <div class="dash-ico" style="background:#2ecc71;"><i class="fa fa-bar-chart"></i></div>
                       <div>
                         <div class="text-muted" style="font-weight:800;">Statistics</div>
-                        <h4>{{ totalQuizzes is defined ? totalQuizzes : '—' }} quizzes</h4>
+                        <h4>{{ totalQuizzes is defined ? totalQuizzes : 'â€”' }} quizzes</h4>
                         <p>View quiz stats, pass rates, and attempts.</p>
                         <a href="{{ path('artist_dashboard', { tab: 'quizzes', view: 'stats' }) }}"
                            class="btn btn-success btn-sm">
@@ -499,5 +501,7 @@
 
   <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
   <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>
+

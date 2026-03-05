@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -13,7 +13,7 @@
   <meta name="author" content="" />
   <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
 
-  <title>Feane - Détails de l'Événement</title>
+  <title>Feane - DÃ©tails de l'Ã‰vÃ©nement</title>
 
   <!-- bootstrap core css -->
   <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
@@ -229,7 +229,7 @@
                   <div class="premium-info-item">
                     <i class="fa fa-users"></i>
                     <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Capacité</small>
+                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">CapacitÃ©</small>
                       <span class="font-weight-bold">{{ evenement.capaciteMax }} Personnes</span>
                     </div>
                   </div>
@@ -316,7 +316,7 @@
                   <span class="info-badge">
                     <i class="fa fa-info-circle"></i>
                     {% if isOwner %}
-                      Vous organisez cet événement
+                      Vous organisez cet Ã©vÃ©nement
                     {% else %}
                       Les artistes ne peuvent pas participer
                     {% endif %}
@@ -373,7 +373,7 @@
                 <a href="{{ path('front_evenements_edit', {'id': evenement.id}) }}" class="btn-action btn-edit">
                   <i class="fa fa-edit mr-2"></i> Modifier
                 </a>
-                <form method="post" action="{{ path('front_evenements_delete', {'id': evenement.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');" style="margin: 0;">
+                <form method="post" action="{{ path('front_evenements_delete', {'id': evenement.id}) }}" onsubmit="return confirm('ÃŠtes-vous sÃ»r de vouloir supprimer cet Ã©vÃ©nement ?');" style="margin: 0;">
                   <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
                   <button class="btn-action btn-delete">
                     <i class="fa fa-trash mr-2"></i> Supprimer
@@ -472,6 +472,8 @@
         });
   </script>
 
+  <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 
 </html>
+

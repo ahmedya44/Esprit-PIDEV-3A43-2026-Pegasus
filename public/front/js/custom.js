@@ -2,7 +2,10 @@
 function getYear() {
     var currentDate = new Date();
     var currentYear = currentDate.getFullYear();
-    document.querySelector("#displayYear").innerHTML = currentYear;
+    var yearNode = document.querySelector("#displayYear");
+    if (yearNode) {
+        yearNode.innerHTML = currentYear;
+    }
 }
 
 getYear();
@@ -10,6 +13,10 @@ getYear();
 
 // isotope js
 $(window).on('load', function () {
+    if (typeof $.fn.isotope !== 'function') {
+        return;
+    }
+
     $('.filters_menu li').click(function () {
         $('.filters_menu li').removeClass('active');
         $(this).addClass('active');
@@ -31,7 +38,9 @@ $(window).on('load', function () {
 
 // nice select
 $(document).ready(function() {
-    $('select').niceSelect();
+    if (typeof $.fn.niceSelect === 'function') {
+        $('select').niceSelect();
+    }
   });
 
 /** google_map js **/
@@ -44,27 +53,103 @@ function myMap() {
 }
 
 // client section owl carousel
-$(".client_owl-carousel").owlCarousel({
-    loop: true,
-    margin: 0,
-    dots: false,
-    nav: true,
-    navText: [],
-    autoplay: true,
-    autoplayHoverPause: true,
-    navText: [
-        '<i class="fa fa-angle-left" aria-hidden="true"></i>',
-        '<i class="fa fa-angle-right" aria-hidden="true"></i>'
-    ],
-    responsive: {
-        0: {
-            items: 1
-        },
-        768: {
-            items: 2
-        },
-        1000: {
-            items: 2
+if (typeof $.fn.owlCarousel === 'function') {
+    $(".client_owl-carousel").owlCarousel({
+        loop: true,
+        margin: 0,
+        dots: false,
+        nav: true,
+        navText: [],
+        autoplay: true,
+        autoplayHoverPause: true,
+        navText: [
+            '<i class="fa fa-angle-left" aria-hidden="true"></i>',
+            '<i class="fa fa-angle-right" aria-hidden="true"></i>'
+        ],
+        responsive: {
+            0: {
+                items: 1
+            },
+            768: {
+                items: 2
+            },
+            1000: {
+                items: 2
+            }
         }
+    });
+}
+
+// slide menu close button inside drawer
+$(document).ready(function () {
+    // enforce one unified front menu on all pages
+    $('.custom_nav-container .navbar-nav').each(function () {
+        var $nav = $(this);
+        var path = window.location.pathname || '/';
+        var hasArtistDashboard = $nav.find('a[href="/artist"], a[href^="/artist?"], a[href^="/artist/"]').length > 0;
+
+        var menuItems = [
+            { label: 'Home', href: '/' },
+            { label: 'Menu', href: '/menu' },
+            { label: 'About', href: '/about' },
+            { label: 'Book Table', href: '/book' },
+            { label: 'Gallery', href: '/gallery' },
+            { label: 'Forum', href: '/forum' },
+            { label: 'Events', href: '/evenements' },
+            { label: 'Courses', href: '/courses' }
+        ];
+        if (hasArtistDashboard || path.indexOf('/artist') === 0) {
+            menuItems.push({ label: 'Artist Dashboard', href: '/artist' });
+        }
+
+        var html = '';
+        for (var i = 0; i < menuItems.length; i++) {
+            var item = menuItems[i];
+            var isActive = path === item.href || (item.href !== '/' && path.indexOf(item.href + '/') === 0);
+            html += '<li class=\"nav-item' + (isActive ? ' active' : '') + '\"><a class=\"nav-link\" href=\"' + item.href + '\">' + item.label + '</a></li>';
+        }
+        $nav.html(html);
+    });
+
+    $('.custom_nav-container .navbar-collapse').each(function () {
+        var $collapse = $(this);
+        var $nav = $collapse.find('.navbar-nav').first();
+
+        if ($nav.length === 0 || $nav.find('.slide-menu-close').length > 0) {
+            return;
+        }
+
+        var $closeBtn = $('<button type="button" class="slide-menu-close" aria-label="Close menu"><i class="fa fa-bars" aria-hidden="true"></i></button>');
+        $nav.prepend($closeBtn);
+
+        $closeBtn.on('click', function () {
+            $collapse.collapse('hide');
+        });
+    });
+
+    function closeOpenMenusExceptTarget(event) {
+        $('.custom_nav-container .navbar-collapse.show').each(function () {
+            var $openCollapse = $(this);
+            var $target = $(event.target);
+
+            var clickedInsideMenu = $target.closest('.custom_nav-container .navbar-nav').length > 0;
+            var clickedToggler = $target.closest('.custom_nav-container .navbar-toggler').length > 0;
+
+            if (!clickedInsideMenu && !clickedToggler) {
+                $openCollapse.collapse('hide');
+            }
+        });
     }
+
+    // close slide menu when clicking/tapping outside of it
+    $(document).on('mousedown touchstart', function (event) {
+        closeOpenMenusExceptTarget(event);
+    });
+
+    // close with Escape key
+    $(document).on('keydown', function (event) {
+        if (event.key === 'Escape') {
+            $('.custom_nav-container .navbar-collapse.show').collapse('hide');
+        }
+    });
 });

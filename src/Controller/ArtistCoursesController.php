@@ -12,14 +12,17 @@ use App\Form\CourseVideoType;
 use App\Repository\CourseSectionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class ArtistCoursesController extends AbstractController
 {
     #[Route('/artist/courses/new', name: 'artist_courses_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
         $course = new Course();
         $user = $this->getUser();
@@ -37,6 +40,7 @@ final class ArtistCoursesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleThumbnailUpload($form, $course, $slugger);
             $em->persist($course);
             $em->flush();
 
@@ -54,7 +58,7 @@ final class ArtistCoursesController extends AbstractController
     }
 
     #[Route('/artist/courses/{id}/edit', name: 'artist_courses_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(Course $course, Request $request, EntityManagerInterface $em): Response
+    public function edit(Course $course, Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
         $user = $this->getUser();
         if (!$user instanceof Artiste || $course->getArtist()?->getId() !== $user->getId()) {
@@ -67,6 +71,7 @@ final class ArtistCoursesController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleThumbnailUpload($form, $course, $slugger);
             $em->flush();
 
             $this->addFlash('success', 'Course updated successfully.');
@@ -219,5 +224,30 @@ final class ArtistCoursesController extends AbstractController
         return $this->redirectToRoute('artist_courses_builder', [
             'id' => $courseId,
         ]);
+    }
+
+    private function handleThumbnailUpload(FormInterface $form, Course $course, SluggerInterface $slugger): void
+    {
+        $thumbnailFile = $form->get('thumbnailUrl')->getData();
+        if (!$thumbnailFile instanceof UploadedFile) {
+            return;
+        }
+
+        $uploadsDir = $this->getParameter('courses_directory');
+        if (!is_string($uploadsDir)) {
+            return;
+        }
+
+        if (!is_dir($uploadsDir)) {
+            mkdir($uploadsDir, 0775, true);
+        }
+
+        $originalFilename = pathinfo($thumbnailFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $slugger->slug($originalFilename);
+        $extension = $thumbnailFile->guessExtension() ?: 'bin';
+        $newFilename = sprintf('%s-%s.%s', $safeFilename, uniqid(), $extension);
+
+        $thumbnailFile->move($uploadsDir, $newFilename);
+        $course->setThumbnailUrl('uploads/courses/' . $newFilename);
     }
 }

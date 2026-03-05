@@ -281,7 +281,9 @@
               <form id="avatarForm" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
                 <div class="avatar_box">
-                  <img id="avatarImageTrigger" class="avatar_img" src="{{ profile_user.avatarUrl ? asset(profile_user.avatarUrl) : asset('front/images/client1.jpg') }}" alt="Profile picture" title="Change picture">
+                  {% set raw_avatar = profile_user.avatarUrl|default('') %}
+                  {% set avatar_src = raw_avatar ? ((raw_avatar starts with('http://') or raw_avatar starts with('https://') or raw_avatar starts with('/')) ? raw_avatar : asset(raw_avatar)) : asset('front/images/client1.jpg') %}
+                  <img id="avatarImageTrigger" class="avatar_img" src="{{ avatar_src }}" alt="Profile picture" title="Change picture" onerror="this.onerror=null;this.src='{{ asset('front/images/client1.jpg') }}';">
                 </div>
               </form>
             </div>

@@ -52,9 +52,11 @@
             <td>
               <div class="d-flex align-items-center gap-2">
                 {% if course.thumbnailUrl %}
+                  {% set thumb = (course.thumbnailUrl starts with('http://') or course.thumbnailUrl starts with('https://') or course.thumbnailUrl starts with('/')) ? course.thumbnailUrl : asset(course.thumbnailUrl) %}
                   <img
-                    src="{{ course.thumbnailUrl }}"
+                    src="{{ thumb }}"
                     alt=""
+                    onerror="this.onerror=null;this.src='{{ asset('front/images/f1.png') }}';"
                     style="width:44px;height:44px;object-fit:cover;border-radius:10px;"
                   >
                 {% endif %}
