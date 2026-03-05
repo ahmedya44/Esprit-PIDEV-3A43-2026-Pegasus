@@ -1,48 +1,148 @@
-Projet_Web – Pegasus 🐎✨  
-Plateforme Web Art & Fantasy
+# Pegasus 🐎✨  
+### Art & Fantasy Web Platform
 
-Description :
+## Overview
+**Pegasus** is a creative web platform developed as part of an academic project at **Esprit School of Engineering – Tunisia** (Academic Year 2025–2026).
 
-Pegasus est une plateforme web créative développée dans le cadre d’un projet académique, inspirée par l’univers de l’art et de la fantasy. Le projet a pour objectif de créer un espace numérique immersif où la créativité, l’apprentissage et la collaboration artistique se rencontrent. Pegasus permet de valoriser les artistes, de connecter une communauté passionnée et de proposer des expériences artistiques variées dans un même environnement.
+The platform is inspired by the universe of **art and fantasy**, aiming to create an immersive digital space where creativity, learning, and artistic collaboration meet. Pegasus allows artists to showcase their work, connect with a passionate community, and participate in various artistic experiences within a single platform.
 
-Fonctionnalités principales :
+---
 
-🎨 Galerie artistique : espace de découverte et de mise en valeur des œuvres artistiques.
+## Features
 
-📚 Formations en ligne : ateliers et cours artistiques accessibles à distance.
+### 🎨 Artistic Gallery
+A space dedicated to discovering and showcasing artistic creations.
 
-🛍️ Marketplace : vente et promotion d’œuvres, créations et services artistiques.
+### 📚 Online Courses
+Workshops and artistic training sessions accessible remotely.
 
-🎭 Événements : organisation et participation à des événements culturels et artistiques.
+### 🛍️ Marketplace
+A platform for selling and promoting artworks, creative products, and artistic services.
 
-🤝 Sponsors & partenariats : soutien et promotion de projets artistiques.
+### 🎭 Events
+Creation and participation in artistic and cultural events.
 
-👤 Gestion des comptes : accès sécurisé et gestion des profils utilisateurs.
+### 🤝 Sponsors & Partnerships
+Support and promotion for artistic initiatives and collaborations.
 
-Technologies utilisées :
+### 👤 User Management
+Secure authentication system and user profile management.
 
-Front-end : HTML, CSS, JavaScript  
+---
 
-Back-end : Symfony (PHP)  
+## Tech Stack
 
-Application : Java & JavaFX  
+### Frontend
+- HTML
+- CSS
+- JavaScript
+- Twig (Symfony template engine)
 
-Base de données : MySQL  
+### Backend
+- Symfony (PHP)
 
-Outils de développement : Visual Studio Code, Git, GitHub  
+### Desktop Application
+- Java
+- JavaFX
 
-Public cible :
+### Database
+- MySQL
 
-Artistes, créateurs, passionnés d’art et de fantasy, organisateurs d’événements et partenaires culturels.
+### Development Tools
+- Git
+- GitHub
+- Visual Studio Code
 
-Objectifs pédagogiques :
+---
 
-Mettre en pratique les concepts de développement web et applicatif.
+## Architecture
 
-Concevoir une plateforme modulaire et maintenable.
+The Pegasus platform follows a **modular architecture** separating frontend, backend, and database layers.
 
-Travailler en équipe avec un système de gestion de version.
+- **Presentation Layer**  
+  Implemented with HTML, CSS, JavaScript and Twig templates.
 
-Allier technologie, créativité et narration dans un projet artistique numérique.
+- **Application Layer**  
+  Developed using the Symfony framework for handling business logic and API interactions.
 
-💡 Pegasus est conçu comme un projet évolutif, pouvant intégrer à l’avenir de nouvelles fonctionnalités telles que des expériences interactives avancées, des recommandations personnalisées ou des modules intelligents pour enrichir l’expérience utilisateur.
+- **Data Layer**  
+  Managed with MySQL to store users, artworks, courses, and events.
+
+Additionally, a **JavaFX desktop application** interacts with the system to provide extended functionalities.
+
+---
+
+## Contributors
+
+Project developed by students of **Esprit School of Engineering**.
+
+- Ahmed Ya  
+- Team Members (to be completed)
+
+---
+
+## Academic Context
+
+This project was developed as part of the **PI Web Development program** at **Esprit School of Engineering – Tunisia**.
+
+Academic Year: **2025–2026**
+
+The objective of this project is to apply software engineering principles, collaborative development, and modern web technologies to build a complete digital platform.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+Make sure you have installed:
+
+- PHP
+- Composer
+- Symfony CLI
+- MySQL
+- Git
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/ahmedya44/Pegasus.git
+```
+
+Navigate to the project folder:
+
+```bash
+cd Pegasus
+```
+
+Install dependencies:
+
+```bash
+composer install
+```
+
+Configure the `.env` file for database access.
+
+Run database migrations:
+
+```bash
+php bin/console doctrine:migrations:migrate
+```
+
+Start the Symfony server:
+
+```bash
+symfony server:start
+```
+
+---
+
+## Acknowledgments
+
+Special thanks to:
+
+- **Esprit School of Engineering**
+- Project supervisors and instructors
+- All contributors involved in the development of Pegasus
