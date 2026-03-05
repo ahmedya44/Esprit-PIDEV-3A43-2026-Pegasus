@@ -276,6 +276,26 @@
                   <div class="muted mt-2">This will unlock the next lesson.</div>
                 {% endif %}
 
+                <hr>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div class="muted">
+                    Course progress: <strong>{{ completedCount }}/{{ allVideoCount }}</strong> lessons completed
+                  </div>
+                  {% if courseQuiz %}
+                    {% if courseCompleted %}
+                      <a class="btn-feane" href="{{ path('course_quiz', {id: course.id}) }}">
+                        📝 Take Final Quiz
+                      </a>
+                    {% else %}
+                      <button class="btn-soft" type="button" disabled title="Complete all lessons first">
+                        🔒 Quiz Locked
+                      </button>
+                    {% endif %}
+                  {% else %}
+                    <span class="muted">No final quiz available for this course yet.</span>
+                  {% endif %}
+                </div>
+
               {% endif %}
             </div>
           </div>

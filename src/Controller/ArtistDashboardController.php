@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Artiste;
 use App\Repository\CourseRepository;
 use App\Repository\QuizRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,8 +16,13 @@ final class ArtistDashboardController extends AbstractController
         CourseRepository $courseRepository,
         QuizRepository $quizRepository
     ): Response {
-        $courses = $courseRepository->findBy([], ['id' => 'DESC']);
-        $quizzes = $quizRepository->findBy([], ['id' => 'DESC']);
+        $user = $this->getUser();
+        if (!$user instanceof Artiste) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $courses = $courseRepository->findBy(['artist' => $user], ['id' => 'DESC']);
+        $quizzes = $quizRepository->findByArtist($user);
 
         return $this->render('front/dashboard.html.twig', [
             'courses' => $courses,

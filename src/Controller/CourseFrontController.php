@@ -7,6 +7,7 @@ use App\Entity\CourseVideo;
 use App\Repository\CourseRepository;
 use App\Repository\CourseSectionRepository;
 use App\Repository\CourseVideoRepository;
+use App\Repository\QuizRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,7 +64,8 @@ final class CourseFrontController extends AbstractController
         Course $course,
         Request $request,
         CourseSectionRepository $sectionRepo,
-        CourseVideoRepository $videoRepo
+        CourseVideoRepository $videoRepo,
+        QuizRepository $quizRepo
     ): Response {
         if ($course->getStatus() !== 'PUBLISHED') {
             throw $this->createNotFoundException();
@@ -135,6 +137,17 @@ final class CourseFrontController extends AbstractController
         // Is selected completed?
         $selectedCompleted = $selectedVideo ? isset($completed[(string)$selectedVideo->getId()]) : false;
 
+        $allVideoCount = count($orderedVideos);
+        $completedCount = 0;
+        foreach ($orderedVideos as $video) {
+            if (isset($completed[(string) $video->getId()])) {
+                $completedCount++;
+            }
+        }
+
+        $courseCompleted = $allVideoCount > 0 && $completedCount === $allVideoCount;
+        $courseQuiz = $quizRepo->findOneBy(['course' => $course]);
+
         return $this->render('course_front/learn.html.twig', [
             'course' => $course,
             'sections' => $sections,
@@ -142,6 +155,103 @@ final class CourseFrontController extends AbstractController
             'completed' => $completed,
             'unlockedIds' => $unlockedIds,
             'selectedCompleted' => $selectedCompleted,
+            'courseCompleted' => $courseCompleted,
+            'courseQuiz' => $courseQuiz,
+            'completedCount' => $completedCount,
+            'allVideoCount' => $allVideoCount,
+        ]);
+    }
+
+    #[Route('/courses/{id}/quiz', name: 'course_quiz', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
+    public function quiz(
+        Course $course,
+        Request $request,
+        CourseSectionRepository $sectionRepo,
+        QuizRepository $quizRepo,
+        SessionInterface $session
+    ): Response {
+        if ($course->getStatus() !== 'PUBLISHED') {
+            throw $this->createNotFoundException();
+        }
+
+        $quiz = $quizRepo->findOneBy(['course' => $course]);
+        if ($quiz === null) {
+            $this->addFlash('error', 'This course has no quiz yet.');
+
+            return $this->redirectToRoute('course_learn', ['id' => $course->getId()]);
+        }
+
+        $sections = $sectionRepo->findBy(['course' => $course], ['orderIndex' => 'ASC']);
+        $orderedVideos = [];
+        foreach ($sections as $section) {
+            $videos = $section->getCourseVideos()->toArray();
+            usort($videos, fn (CourseVideo $a, CourseVideo $b) => $a->getOrderIndex() <=> $b->getOrderIndex());
+            foreach ($videos as $video) {
+                $orderedVideos[] = $video;
+            }
+        }
+
+        $progressKey = 'course_progress_' . $course->getId();
+        $completed = $session->get($progressKey, []);
+
+        $courseCompleted = count($orderedVideos) > 0;
+        foreach ($orderedVideos as $video) {
+            if (!isset($completed[(string) $video->getId()])) {
+                $courseCompleted = false;
+                break;
+            }
+        }
+
+        if (!$courseCompleted) {
+            $this->addFlash('error', 'Complete all course lessons first to unlock the final quiz.');
+
+            return $this->redirectToRoute('course_learn', ['id' => $course->getId()]);
+        }
+
+        $questions = $quiz->getQuizQuestions()->toArray();
+        usort($questions, static fn ($a, $b) => $a->getOrderIndex() <=> $b->getOrderIndex());
+
+        $result = null;
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('course_quiz_' . $quiz->getId(), (string) $request->request->get('_token'))) {
+                throw $this->createAccessDeniedException('Invalid request token.');
+            }
+
+            $answers = $request->request->all('answers');
+            $totalPoints = 0;
+            $earnedPoints = 0;
+
+            foreach ($questions as $question) {
+                $totalPoints += (int) $question->getPoints();
+                $selectedChoiceId = (int) ($answers[(string) $question->getId()] ?? 0);
+                if ($selectedChoiceId <= 0) {
+                    continue;
+                }
+
+                foreach ($question->getQuizChoices() as $choice) {
+                    if ($choice->getId() === $selectedChoiceId && $choice->isCorrect()) {
+                        $earnedPoints += (int) $question->getPoints();
+                        break;
+                    }
+                }
+            }
+
+            $score = $totalPoints > 0 ? (int) round(($earnedPoints * 100) / $totalPoints) : 0;
+            $passing = (int) ($quiz->getPassingScore() ?? 0);
+            $result = [
+                'score' => $score,
+                'passing' => $passing,
+                'passed' => $score >= $passing,
+                'earnedPoints' => $earnedPoints,
+                'totalPoints' => $totalPoints,
+            ];
+        }
+
+        return $this->render('course_front/quiz.html.twig', [
+            'course' => $course,
+            'quiz' => $quiz,
+            'questions' => $questions,
+            'result' => $result,
         ]);
     }
 

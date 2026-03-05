@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Artiste;
 
 #[ORM\Entity(repositoryClass: CourseRepository::class)]
 class Course
@@ -49,6 +50,11 @@ class Course
      */
     #[ORM\OneToMany(targetEntity: Quiz::class, mappedBy: 'course', orphanRemoval: true)]
     private Collection $quizzes;
+
+
+    #[ORM\ManyToOne(targetEntity: Artiste::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Artiste $artist = null;
 
     public function __construct()
     {
@@ -178,6 +184,17 @@ class Course
             }
         }
 
+        return $this;
+    }
+
+    public function getArtist(): ?Artiste
+    {
+        return $this->artist;
+    }
+
+    public function setArtist(?Artiste $artist): self
+    {
+        $this->artist = $artist;
         return $this;
     }
 }

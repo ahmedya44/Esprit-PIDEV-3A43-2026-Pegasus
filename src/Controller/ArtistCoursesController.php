@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Artiste;
 use App\Entity\Course;
 use App\Entity\CourseSection;
 use App\Entity\CourseVideo;
@@ -21,6 +22,11 @@ final class ArtistCoursesController extends AbstractController
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $course = new Course();
+        $user = $this->getUser();
+        if (!$user instanceof Artiste) {
+            throw $this->createAccessDeniedException();
+        }
+        $course->setArtist($user);
 
         // Ensure createdAt is set (your entity requires it)
         $course->setCreatedAt(new \DateTimeImmutable());
@@ -50,6 +56,11 @@ final class ArtistCoursesController extends AbstractController
     #[Route('/artist/courses/{id}/edit', name: 'artist_courses_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function edit(Course $course, Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof Artiste || $course->getArtist()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
         $form = $this->createForm(CourseType::class, $course, [
             'attr' => ['novalidate' => 'novalidate'],
         ]);
@@ -75,6 +86,11 @@ final class ArtistCoursesController extends AbstractController
     #[Route('/artist/courses/{id}/delete', name: 'artist_courses_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(Course $course, Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof Artiste || $course->getArtist()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
         if ($this->isCsrfTokenValid('delete_course_' . $course->getId(), (string) $request->request->get('_token'))) {
             $em->remove($course);
             $em->flush();
