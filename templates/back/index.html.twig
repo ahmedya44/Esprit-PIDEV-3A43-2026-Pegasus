@@ -73,7 +73,7 @@
         <div class="sidebar-wrapper scrollbar scrollbar-inner">
           <div class="sidebar-content">
             <ul class="nav nav-secondary">
-              <li class="nav-item active">
+              <li class="nav-item">
                 <a
                   data-bs-toggle="collapse"
                   href="#dashboard"
@@ -186,24 +186,32 @@
               </li>
 
               <li class="nav-section">
-                <span class="sidebar-mini-icon">
-                  <i class="fa fa-ellipsis-h"></i>
-                </span>
-                <h4 class="text-section">Components</h4>
-              </li>
-              <li class="nav-item">
-                <a data-bs-toggle="collapse" href="#base">
-                  <i class="fas fa-layer-group"></i>
-                  <p>Base</p>
-                  <span class="caret"></span>
-                </a>
-                <div class="collapse" id="base">
-                  <ul class="nav nav-collapse">
-                    <li>
-                      <a href="components/avatars.html">
-                        <span class="sub-item">Avatars</span>
-                      </a>
-                    </li>
+                  <span class="sidebar-mini-icon">
+                    <i class="fa fa-ellipsis-h"></i>
+                  </span>
+                  <h4 class="text-section">Components</h4>
+                </li>
+
+                <!-- Courses (separate item) -->
+               
+
+                <!-- Quizzes (separate item) -->
+                
+
+                <!-- Base (separate item) -->
+                <li class="nav-item">
+                  <a data-bs-toggle="collapse" href="#base">
+                    <i class="fas fa-layer-group"></i>
+                    <p>Base</p>
+                    <span class="caret"></span>
+                  </a>
+                  <div class="collapse" id="base">
+                    <ul class="nav nav-collapse">
+                      <li>
+                        <a href="components/avatars.html">
+                          <span class="sub-item">Avatars</span>
+                        </a>
+                      </li>
                     <li>
                       <a href="components/buttons.html">
                         <span class="sub-item">Buttons</span>
@@ -247,15 +255,15 @@
                   </ul>
                 </div>
               </li>
-              <li class="nav-item">
+              <li class="nav-item active submenu">
                 <a data-bs-toggle="collapse" href="#sidebarLayouts">
                   <i class="fas fa-th-list"></i>
                   <p>Sidebar Layouts</p>
                   <span class="caret"></span>
                 </a>
-                <div class="collapse" id="sidebarLayouts">
+                <div class="collapse show" id="sidebarLayouts">
                   <ul class="nav nav-collapse">
-                    <li>
+                    <li class="active">
                       <a href="sidebar-style-2.html">
                         <span class="sub-item">Sidebar Style 2</span>
                       </a>

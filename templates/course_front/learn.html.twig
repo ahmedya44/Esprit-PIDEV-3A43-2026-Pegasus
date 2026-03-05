@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+  <title>Learn - {{ course.title }}</title>
+
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    .form-shell { padding: 60px 0; }
+
+    .glass-card{
+      background: rgba(255,255,255,.92);
+      border-radius: 22px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.10);
+      border: 1px solid rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .glass-head{
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .glass-head h3{ margin:0; font-weight:900; letter-spacing:.3px; }
+    .glass-body{ padding: 22px; }
+
+    .btn-feane{
+      background:#ffbe33;
+      border: none;
+      color:#111;
+      font-weight:900;
+      border-radius: 14px;
+      padding: 10px 16px;
+      display:inline-block;
+      text-decoration:none;
+      cursor:pointer;
+    }
+    .btn-soft{
+      background:#2b2f33;
+      border:none;
+      color:#fff;
+      font-weight:800;
+      border-radius:14px;
+      padding:10px 16px;
+      display:inline-block;
+      text-decoration:none;
+    }
+
+    .sidebar {
+      max-height: 70vh;
+      overflow: auto;
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 18px;
+      background:#fff;
+      padding: 14px;
+    }
+
+    .video-link{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.08);
+      background:rgba(0,0,0,.02);
+      margin-bottom:8px;
+      text-decoration:none;
+      color:#111;
+      font-weight:800;
+    }
+    .video-link:hover{ filter:brightness(.98); }
+    .video-link.active{
+      border-color:#ffbe33;
+      background:rgba(255,190,51,.18);
+    }
+    .video-link.locked{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .muted{ color: rgba(0,0,0,.55); font-weight:600; }
+    .badge-preview{ background:#ffbe33; color:#111; font-weight:900; }
+    .badge-done{ background:#1f7a3a; color:#fff; font-weight:900; }
+
+    .player-wrap{
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,.08);
+      background:#000;
+      width:100%;
+    }
+    .ratio iframe { width:100% !important; height:100% !important; }
+  </style>
+</head>
+
+<body class="sub_page">
+
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Feane</span></a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+            <span class=""></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto">
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_home') }}">Home</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
+              <li class="nav-item active"><a class="nav-link" href="{{ path('app_courses') }}">Courses</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <section class="food_section layout_padding form-shell">
+    <div class="container">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="mb-0">{{ course.title }}</h2>
+          <div class="text-muted">Course player</div>
+        </div>
+        <a class="btn-soft" href="{{ path('course_show', {id: course.id}) }}">← Back</a>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-4">
+          <div class="sidebar">
+            <h5 class="mb-3">Sections</h5>
+
+            {% for section in sections %}
+              <div class="mb-3">
+                <div style="font-weight:900;">
+                  Section {{ section.orderIndex }} — {{ section.title }}
+                </div>
+                <div class="muted mb-2">Videos: {{ section.courseVideos|length }}</div>
+
+                {% set videos = section.courseVideos|sort((a,b) => a.orderIndex <=> b.orderIndex) %}
+                {% if videos is empty %}
+                  <div class="muted">No videos yet.</div>
+                {% else %}
+                  {% for video in videos %}
+                    {% set isUnlocked = unlockedIds[video.id ~ ''] is defined and unlockedIds[video.id ~ ''] %}
+                    {% set isDone = completed[video.id ~ ''] is defined %}
+                    {% set isActive = selectedVideo and video.id == selectedVideo.id %}
+
+                    {% if isUnlocked %}
+                      <a class="video-link {% if isActive %}active{% endif %}"
+                         href="{{ path('course_learn', {id: course.id}) ~ '?v=' ~ video.id }}">
+                        <span>
+                          {{ video.orderIndex }}. {{ video.title }}
+                          {% if video.isPreview %}
+                            <span class="badge badge-preview ms-2">Preview</span>
+                          {% endif %}
+                        </span>
+                        {% if isDone %}
+                          <span class="badge badge-done">Done</span>
+                        {% endif %}
+                      </a>
+                    {% else %}
+                      <div class="video-link locked">
+                        <span>
+                          {{ video.orderIndex }}. {{ video.title }}
+                        </span>
+                        <span class="badge bg-dark">Locked</span>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="glass-card">
+            <div class="glass-head">
+              <h3 class="h5 mb-0">Lesson</h3>
+              {% if selectedVideo %}
+                <span class="muted">{{ selectedVideo.durationSec }} sec</span>
+              {% endif %}
+            </div>
+
+            <div class="glass-body">
+              {% if not selectedVideo %}
+                <p class="muted mb-0">No video available yet.</p>
+              {% else %}
+                <h4 class="mb-2">{{ selectedVideo.title }}</h4>
+                <p class="muted mb-3">
+                  {% if selectedVideo.isPreview %}Preview video{% else %}Lesson video{% endif %}
+                </p>
+
+                {# ===== Embedded player ===== #}
+                {% set url = selectedVideo.videoUrl %}
+                {% set ytId = null %}
+                {% set vimeoId = null %}
+
+                {% if 'youtu.be/' in url %}
+                  {% set ytId = url|split('youtu.be/')|last|split('?')|first %}
+                {% elseif 'youtube.com/watch' in url and ('v=' in url) %}
+                  {% set ytId = url|split('v=')|last|split('&')|first %}
+                {% elseif 'youtube.com/embed/' in url %}
+                  {% set ytId = url|split('youtube.com/embed/')|last|split('?')|first %}
+                {% endif %}
+
+                {% if ytId is null and 'vimeo.com/' in url %}
+                  {% set vimeoId = url|split('vimeo.com/')|last|split('?')|first %}
+                {% endif %}
+
+                {% set lowerUrl = url|lower %}
+                {% set isFileVideo = lowerUrl ends with '.mp4' or lowerUrl ends with '.webm' or lowerUrl ends with '.ogg' %}
+
+                <div class="player-wrap mb-3">
+                  {% if ytId %}
+                    <div class="ratio ratio-16x9">
+                      <iframe
+                        src="https://www.youtube-nocookie.com/embed/{{ ytId }}"
+                        title="{{ selectedVideo.title|e }}"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                      </iframe>
+                    </div>
+                  {% elseif vimeoId %}
+                    <div class="ratio ratio-16x9">
+                      <iframe
+                        src="https://player.vimeo.com/video/{{ vimeoId }}"
+                        title="{{ selectedVideo.title|e }}"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowfullscreen>
+                      </iframe>
+                    </div>
+                  {% elseif isFileVideo %}
+                    <video controls style="width:100%; height:auto; display:block;">
+                      <source src="{{ url }}" type="video/{{ lowerUrl ends with '.mp4' ? 'mp4' : (lowerUrl ends with '.webm' ? 'webm' : 'ogg') }}">
+                      Your browser does not support the video tag.
+                    </video>
+                  {% else %}
+                    <div style="padding:16px; background:rgba(255,255,255,.92);">
+                      <p class="muted mb-3">This link can’t be embedded automatically.</p>
+                      <a class="btn-feane" href="{{ url }}" target="_blank">Open Video ↗</a>
+                    </div>
+                  {% endif %}
+                </div>
+
+                {# ===== Completion button ===== #}
+                {% if selectedCompleted %}
+                  <div class="muted">
+                    ✅ Completed. You can go to the next lesson from the left menu.
+                  </div>
+                {% else %}
+                  <button class="btn-feane" id="markDoneBtn" type="button">
+                    ✅ Mark lesson as completed
+                  </button>
+                  <div class="muted mt-2">This will unlock the next lesson.</div>
+                {% endif %}
+
+                <hr>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div class="muted">
+                    Course progress: <strong>{{ completedCount }}/{{ allVideoCount }}</strong> lessons completed
+                  </div>
+                  {% if courseQuiz %}
+                    {% if courseCompleted %}
+                      <a class="btn-feane" href="{{ path('course_quiz', {id: course.id}) }}">
+                        📝 Take Final Quiz
+                      </a>
+                    {% else %}
+                      <button class="btn-soft" type="button" disabled title="Complete all lessons first">
+                        🔒 Quiz Locked
+                      </button>
+                    {% endif %}
+                  {% else %}
+                    <span class="muted">No final quiz available for this course yet.</span>
+                  {% endif %}
+                </div>
+
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+
+  {% if selectedVideo and not selectedCompleted %}
+  <script>
+    const btn = document.getElementById('markDoneBtn');
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        await fetch("{{ path('course_video_complete', {courseId: course.id, videoId: selectedVideo.id}) }}", {
+          method: "POST",
+          headers: {"X-Requested-With": "XMLHttpRequest"}
+        });
+
+        location.reload();
+      });
+    }
+  </script>
+  {% endif %}
+</body>
+</html>

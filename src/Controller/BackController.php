@@ -6,11 +6,15 @@ namespace App\Controller;
 
 use App\Entity\Admin;
 use App\Entity\Artiste;
+use App\Entity\Course;
+use App\Entity\Quiz;
 use App\Entity\Sponsor;
 use App\Enum\AccountStatus;
 use App\Repository\AdminRepository;
 use App\Repository\ArtisteRepository;
+use App\Repository\CourseRepository;
 use App\Repository\NormalUserRepository;
+use App\Repository\QuizRepository;
 use App\Repository\SponsorRepository;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -98,6 +102,80 @@ final class BackController extends AbstractController
             'sort_by' => $sortBy,
             'sort_dir' => $sortDir,
         ]);
+    }
+
+    #[Route('/content', name: 'content', methods: ['GET'])]
+    public function content(
+        CourseRepository $courseRepository,
+        QuizRepository $quizRepository
+    ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_back_login');
+        }
+
+        $courses = $courseRepository->findBy([], ['id' => 'DESC']);
+        $quizzes = $quizRepository->findBy([], ['id' => 'DESC']);
+
+        return $this->render('back/profile.html.twig', [
+            'content_page' => true,
+            'courses' => $courses,
+            'quizzes' => $quizzes,
+        ]);
+    }
+
+    #[Route('/courses/{id}/delete', name: 'courses_delete', methods: ['POST'])]
+    public function coursesDelete(
+        int $id,
+        Request $request,
+        CourseRepository $courseRepository,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse {
+        if (!$this->isCsrfTokenValid('courses_delete_' . $id, (string) $request->request->get('_csrf_token'))) {
+            $this->addFlash('danger', 'Invalid request token.');
+
+            return $this->redirectToRoute('back_content');
+        }
+
+        $course = $courseRepository->find($id);
+        if (!$course instanceof Course) {
+            $this->addFlash('danger', 'Course not found.');
+
+            return $this->redirectToRoute('back_content');
+        }
+
+        $entityManager->remove($course);
+        $entityManager->flush();
+        $this->addFlash('success', 'Course deleted successfully.');
+
+        return $this->redirectToRoute('back_content');
+    }
+
+    #[Route('/quizzes/{id}/delete', name: 'quizzes_delete', methods: ['POST'])]
+    public function quizzesDelete(
+        int $id,
+        Request $request,
+        QuizRepository $quizRepository,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse {
+        if (!$this->isCsrfTokenValid('quizzes_delete_' . $id, (string) $request->request->get('_csrf_token'))) {
+            $this->addFlash('danger', 'Invalid request token.');
+
+            return $this->redirectToRoute('back_content');
+        }
+
+        $quiz = $quizRepository->find($id);
+        if (!$quiz instanceof Quiz) {
+            $this->addFlash('danger', 'Quiz not found.');
+
+            return $this->redirectToRoute('back_content');
+        }
+
+        $entityManager->remove($quiz);
+        $entityManager->flush();
+        $this->addFlash('success', 'Quiz deleted successfully.');
+
+        return $this->redirectToRoute('back_content');
     }
 
     #[Route('/users/{id}/status', name: 'users_change_status', methods: ['POST'])]

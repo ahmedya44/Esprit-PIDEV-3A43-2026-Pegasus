@@ -95,10 +95,16 @@
                   </ul>
                 </div>
               </li>
-                            <li class="nav-item">
+              <li class="nav-item">
                 <a href="{{ path('back_users') }}">
                   <i class="fas fa-users"></i>
                   <p>Users</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ path('back_content') }}">
+                  <i class="fas fa-table"></i>
+                  <p>Courses & Quizzes</p>
                 </a>
               </li>
               <li class="nav-section">
@@ -715,7 +721,9 @@
         <div class="container">
           <div class="page-inner">
             <div class="page-header">
-              <h4 class="page-title">{{ users_page|default(false) ? 'Users' : 'Profile' }}</h4>
+              <h4 class="page-title">
+                {{ users_page|default(false) ? 'Users' : (content_page|default(false) ? 'Courses & Quizzes' : 'Profile') }}
+              </h4>
               <ul class="breadcrumbs">
                 <li class="nav-home">
                   <a href="#">
@@ -732,15 +740,19 @@
                   <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                  <a href="#">{{ users_page|default(false) ? 'Users' : 'Profile' }}</a>
+                  <a href="#">
+                    {{ users_page|default(false) ? 'Users' : (content_page|default(false) ? 'Courses & Quizzes' : 'Profile') }}
+                  </a>
                 </li>
               </ul>
             </div>
                         <div class="card">
               <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
-                  <div class="card-title">{{ users_page|default(false) ? 'Users By Role' : 'Admin Profile' }}</div>
-                  {% if users_page|default(false) %}
+                  <div class="card-title">
+                    {{ users_page|default(false) ? 'Users By Role' : (content_page|default(false) ? 'Courses & Quizzes' : 'Admin Profile') }}
+                  </div>
+                  {% if users_page|default(false) or content_page|default(false) %}
                   {% elseif edit_mode %}
                     <a href="{{ path('back_profile') }}" class="btn btn-secondary btn-sm">Cancel</a>
                   {% else %}
@@ -758,8 +770,8 @@
 
                 {% if users_page|default(false) %}
                   <div class="mb-4">
-                    <label class="form-label" for="usersSearch">Search all users tables</label>
-                    <input id="usersSearch" type="text" class="form-control js-users-search" placeholder="Type username, email, phone, status...">
+                    <label class="form-label" for="usersSearch">Search users tables</label>
+                    <input id="usersSearch" type="text" class="form-control js-users-search" placeholder="Type user info...">
                   </div>
 
                   <form method="get" action="{{ path('back_users') }}" class="row g-2 align-items-end mb-3">
@@ -805,6 +817,7 @@
                       </thead>
                       <tbody>
                         {% for u in admins %}
+                          {% set is_admin_row_super = u.superAdmin is defined and u.superAdmin %}
                           <tr>
                             <td>{{ u.id }}</td>
                             <td>{{ u.username }}</td>
@@ -815,7 +828,7 @@
                             <td>{{ u.createdAt ? u.createdAt|date('Y-m-d H:i:s') : '-' }}</td>
                             <td>{{ u.status.value }}</td>
                             <td>{{ u.birthDate ? u.birthDate|date('Y-m-d') : '-' }}</td>
-                            <td>{{ u.superAdmin ? 'Yes' : 'No' }}</td>
+                            <td>{{ is_admin_row_super ? 'Yes' : 'No' }}</td>
                             <td>
                               {% if is_super_admin|default(false) %}
                                 <form method="post" action="{{ path('back_users_change_status', {'id': u.id}) }}" onsubmit="return confirm('Are you sure you want to change this user status?');" class="mb-2">
@@ -829,7 +842,7 @@
                                     <button class="btn btn-outline-primary" type="submit">Apply</button>
                                   </div>
                                 </form>
-                                {% if not u.superAdmin %}
+                                {% if not is_admin_row_super %}
                                   <form method="post" action="{{ path('back_users_make_super_admin', {'id': u.id}) }}" onsubmit="return confirm('Are you sure you want to upgrade this admin to super admin?');">
                                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_make_super_admin_' ~ u.id) }}">
                                     <button class="btn btn-sm btn-outline-warning" type="submit">Make Super Admin</button>
@@ -1044,6 +1057,85 @@
                           </tr>
                         {% else %}
                           <tr><td colspan="10" class="text-center">No normal users found.</td></tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% elseif content_page|default(false) %}
+                  <div class="mb-4">
+                    <label class="form-label" for="usersSearch">Search courses & quizzes tables</label>
+                    <input id="usersSearch" type="text" class="form-control js-users-search" placeholder="Type course/quiz info...">
+                  </div>
+
+                  <h5 class="mb-3 mt-2">Courses</h5>
+                  <div class="table-responsive mb-4">
+                    <table class="table table-striped table-bordered js-users-table">
+                      <thead>
+                        <tr>
+                          <th class="js-sortable" data-type="number">ID</th>
+                          <th class="js-sortable">Title</th>
+                          <th class="js-sortable">Artist</th>
+                          <th class="js-sortable">Status</th>
+                          <th class="js-sortable">Created At</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for c in courses %}
+                          <tr>
+                            <td>{{ c.id }}</td>
+                            <td>{{ c.title }}</td>
+                            <td>{{ c.artist ? c.artist.username : '-' }}</td>
+                            <td>{{ c.status ?: '-' }}</td>
+                            <td>{{ c.createdAt ? c.createdAt|date('Y-m-d H:i:s') : '-' }}</td>
+                            <td>
+                              <form method="post" action="{{ path('back_courses_delete', {'id': c.id}) }}" onsubmit="return confirm('Are you sure you want to delete this course?');">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_delete_' ~ c.id) }}">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                              </form>
+                            </td>
+                          </tr>
+                        {% else %}
+                          <tr><td colspan="6" class="text-center">No courses found.</td></tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <h5 class="mb-3">Quizzes</h5>
+                  <div class="table-responsive mb-4">
+                    <table class="table table-striped table-bordered js-users-table">
+                      <thead>
+                        <tr>
+                          <th class="js-sortable" data-type="number">ID</th>
+                          <th class="js-sortable">Title</th>
+                          <th class="js-sortable">Course</th>
+                          <th class="js-sortable">Artist</th>
+                          <th class="js-sortable">Passing Score</th>
+                          <th class="js-sortable">Attempt Limit</th>
+                          <th class="js-sortable">Time Limit (min)</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for q in quizzes %}
+                          <tr>
+                            <td>{{ q.id }}</td>
+                            <td>{{ q.title }}</td>
+                            <td>{{ q.course ? q.course.title : '-' }}</td>
+                            <td>{{ q.course and q.course.artist ? q.course.artist.username : '-' }}</td>
+                            <td>{{ q.passingScore is not null ? q.passingScore ~ '%' : '-' }}</td>
+                            <td>{{ q.attemptLimit is not null ? q.attemptLimit : '-' }}</td>
+                            <td>{{ q.timeLimitMin is not null ? q.timeLimitMin : '-' }}</td>
+                            <td>
+                              <form method="post" action="{{ path('back_quizzes_delete', {'id': q.id}) }}" onsubmit="return confirm('Are you sure you want to delete this quiz?');">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('quizzes_delete_' ~ q.id) }}">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                              </form>
+                            </td>
+                          </tr>
+                        {% else %}
+                          <tr><td colspan="8" class="text-center">No quizzes found.</td></tr>
                         {% endfor %}
                       </tbody>
                     </table>
