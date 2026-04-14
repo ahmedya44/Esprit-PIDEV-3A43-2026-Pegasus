@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="500.0" prefWidth="800.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.pegasus.controllers.StartPageController"
+            styleClass="start-root">
+
+    <children>
+        <Label layoutX="300.0" layoutY="90.0" text="Pegasus" styleClass="brand-title" />
+        <Label layoutX="215.0" layoutY="145.0" text="Choose how you want to enter the platform"
+               styleClass="subtitle" />
+
+        <Button layoutX="170.0" layoutY="240.0"
+                prefHeight="60.0" prefWidth="180.0"
+                text="Front Office"
+                onAction="#goToFrontOffice"
+                styleClass="primary-button" />
+
+        <Button layoutX="440.0" layoutY="240.0"
+                prefHeight="60.0" prefWidth="180.0"
+                text="Back Office"
+                onAction="#goToBackOffice"
+                styleClass="dark-button" />
+    </children>
+</AnchorPane>

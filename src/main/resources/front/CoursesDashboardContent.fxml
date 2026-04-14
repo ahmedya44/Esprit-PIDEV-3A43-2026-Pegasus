@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="620.0" prefWidth="1100.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="tn.esprit.pegasus.controllers.front.CoursesDashboardController"
+            styleClass="content-surface">
+
+    <children>
+        <Label layoutX="30.0" layoutY="20.0" text="Courses Dashboard" styleClass="page-title" />
+
+        <AnchorPane layoutX="25.0" layoutY="75.0" prefHeight="520.0" prefWidth="310.0" styleClass="panel">
+            <children>
+                <Label layoutX="20.0" layoutY="20.0" text="Manage Course" styleClass="section-title" />
+
+                <Label layoutX="20.0" layoutY="70.0" text="Title" />
+                <TextField fx:id="tfTitle" layoutX="20.0" layoutY="94.0"
+                           prefHeight="35.0" prefWidth="270.0"
+                           promptText="Enter course title" />
+
+                <Label layoutX="20.0" layoutY="145.0" text="Description" />
+                <TextArea fx:id="taDescription" layoutX="20.0" layoutY="169.0"
+                          prefHeight="90.0" prefWidth="270.0"
+                          wrapText="true" promptText="Enter description" />
+
+                <Label layoutX="20.0" layoutY="275.0" text="Thumbnail URL" />
+                <TextField fx:id="tfThumbnail" layoutX="20.0" layoutY="299.0"
+                           prefHeight="35.0" prefWidth="270.0"
+                           promptText="Optional thumbnail URL" />
+
+                <Label layoutX="20.0" layoutY="350.0" text="Status" />
+                <ComboBox fx:id="cbStatus" layoutX="20.0" layoutY="374.0"
+                          prefHeight="35.0" prefWidth="270.0"
+                          promptText="Choose status" />
+
+                <Label layoutX="20.0" layoutY="425.0" text="Artist ID" />
+                <TextField fx:id="tfArtistId" layoutX="20.0" layoutY="449.0"
+                           prefHeight="35.0" prefWidth="270.0"
+                           promptText="ex: 2" />
+
+                <Button layoutX="20.0" layoutY="490.0" prefHeight="36.0" prefWidth="120.0"
+                        text="Save" onAction="#addCourse" styleClass="primary-button" />
+                <Button layoutX="170.0" layoutY="490.0" prefHeight="36.0" prefWidth="120.0"
+                        text="Clear" onAction="#clearFields" styleClass="secondary-button" />
+            </children>
+        </AnchorPane>
+
+        <Label layoutX="355.0" layoutY="35.0" text="Search" />
+        <TextField fx:id="tfSearch" layoutX="410.0" layoutY="30.0"
+                   prefHeight="35.0" prefWidth="250.0"
+                   promptText="Search by title, description, status..." />
+
+        <TableView fx:id="tvCourses" layoutX="355.0" layoutY="75.0"
+                   prefHeight="520.0" prefWidth="720.0">
+            <columns>
+                <TableColumn fx:id="colTitle" prefWidth="130.0" text="Title" />
+                <TableColumn fx:id="colDescription" prefWidth="220.0" text="Description" />
+                <TableColumn fx:id="colThumbnail" prefWidth="120.0" text="Thumbnail" />
+                <TableColumn fx:id="colStatus" prefWidth="90.0" text="Status" />
+                <TableColumn fx:id="colArtistId" prefWidth="70.0" text="Artist" />
+                <TableColumn fx:id="colUpdate" prefWidth="45.0" text="Edit" />
+                <TableColumn fx:id="colDelete" prefWidth="45.0" text="Del" />
+            </columns>
+        </TableView>
+    </children>
+</AnchorPane>
