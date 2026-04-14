@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="pegasus.gui.BackSponsorController" prefWidth="1200" prefHeight="850" 
+            styleClass="root">
+
+    <stylesheets>
+        <java.net.URL value="@css/style-back.css"/>
+    </stylesheets>
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="top-bar" style="-fx-padding: 20 30;">
+            <VBox>
+                <Label text="Gestion Globale des Sponsors" style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;" />
+                <Label text="Partenariats et Revenus de Sponsoring" style="-fx-text-fill: #bdc3c7; -fx-font-size: 14px;" />
+            </VBox>
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button text="← Retour Dashboard" onAction="#retourDashboard" styleClass="btn-danger" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="25" style="-fx-padding: 30;">
+            
+
+
+            <!-- Card Principale (Tableau) -->
+            <VBox spacing="15" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 8);">
+                
+                <HBox spacing="15" alignment="CENTER_LEFT">
+
+                    <Button text="📄 Exporter PDF Global" onAction="#exporterPDFGlobal" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20; -fx-background-radius: 8; -fx-cursor: hand;" />
+                    <Pane HBox.hgrow="ALWAYS" />
+                    <ComboBox fx:id="eventFilterCombo" promptText="Tous les événements" styleClass="combo-box" prefWidth="200" />
+                    <TextField fx:id="searchField" promptText="Rechercher un sponsor..." styleClass="text-field" prefWidth="250" />
+                </HBox>
+                
+                <TableView fx:id="sponsorsTable" VBox.vgrow="ALWAYS" styleClass="table-view">
+                    <columns>
+                        <TableColumn fx:id="colSponsor" text="Sponsor" prefWidth="180" />
+                        <TableColumn fx:id="colEmail" text="Email" prefWidth="250" />
+                        <TableColumn fx:id="colTel" text="Téléphone" prefWidth="130" />
+                        <TableColumn fx:id="colPack" text="Pack" prefWidth="130" />
+                        <TableColumn fx:id="colPrix" text="Prix" prefWidth="100" />
+                        <TableColumn fx:id="colEvenement" text="Événement" prefWidth="200" />
+                    </columns>
+                </TableView>
+            </VBox>
+            
+        </VBox>
+    </center>
+
+</BorderPane>
