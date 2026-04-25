@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="700.0" prefWidth="1100.0" styleClass="main-bg" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.DashboardUserController">
+
+    <!-- NAVBAR -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="navbar">
+            <Label styleClass="navbar-title" text="Pegasus" />
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <Button fx:id="btnAccueil" onAction="#showCatalogue" styleClass="navbar-btn" text="ACCUEIL" />
+
+            <Region prefWidth="20" />
+            <Button fx:id="btnPanier" onAction="#showPanier" styleClass="logout-btn" text="🛒" />
+            <Button fx:id="btnHistorique" onAction="#showHistorique" styleClass="logout-btn" text="🕐" />
+            <Label style="-fx-text-fill: white; -fx-font-size: 13px;" text="👤 user" />
+            <Button onAction="#handleLogout" styleClass="logout-btn" text="⇥" />
+        </HBox>
+    </top>
+
+    <!-- CONTENU -->
+    <center>
+        <StackPane fx:id="contentPane">
+
+            <!-- PAGE CATALOGUE -->
+            <VBox fx:id="pageCatalogueView" spacing="20" style="-fx-padding: 30px;">
+
+                <Label styleClass="page-title" text="Nos Produits" />
+
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <TextField fx:id="searchField" prefWidth="350" promptText="Rechercher un produit..." styleClass="search-field" />
+                    <ComboBox fx:id="filterCategorie" prefWidth="200" promptText="Toutes les catégories" styleClass="combo-box" />
+                    <Button onAction="#filterProduits" styleClass="btn-primary" text="🔍" />
+                </HBox>
+
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <FlowPane fx:id="catalogueGrid" hgap="20" style="-fx-padding: 10px;" vgap="20" />
+                </ScrollPane>
+            </VBox>
+
+            <!-- PAGE DETAIL PRODUIT -->
+            <VBox fx:id="pageDetailView" spacing="0" visible="false">
+                <HBox spacing="40" style="-fx-padding: 40px; -fx-background-color: white;                       -fx-background-radius: 10px; -fx-margin: 30px;                       -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);" VBox.vgrow="ALWAYS">
+
+                    <!-- Image -->
+                    <Pane prefHeight="300" prefWidth="450" style="-fx-background-color: #f0f0f0; -fx-background-radius: 10px;">
+                        <Label layoutX="170" layoutY="100" style="-fx-font-size: 80px;" text="🖼" />
+                    </Pane>
+
+                    <!-- Infos -->
+                    <VBox alignment="TOP_LEFT" spacing="15" HBox.hgrow="ALWAYS">
+                        <Label fx:id="detailNom" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #1a1a2e;" text="Nom produit" />
+                        <Label fx:id="detailDesc" style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Description" />
+                        <Label fx:id="detailPrix" style="-fx-font-size: 24px;" styleClass="product-card-price" text="0 €" />
+                        <Label fx:id="detailStock" style="-fx-font-size: 14px; -fx-text-fill: #333;" text="Stock : 0" />
+                        <Label fx:id="detailStatut" style="-fx-font-size: 14px; -fx-text-fill: #27ae60; -fx-font-weight: bold;" text="Statut : Disponible" />
+
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <TextField fx:id="quantiteField" prefWidth="80" styleClass="form-field" text="1" />
+                            <Button onAction="#handleAjouterAuPanier" style="-fx-font-size: 15px;" styleClass="btn-primary" text="🛒 Ajouter au panier" />
+                        </HBox>
+
+                        <HBox spacing="20">
+                            <Button onAction="#showCatalogue" style="-fx-text-fill: #1a73e8;" styleClass="navbar-btn-active" text="← Retour à la liste" />
+                            <Button onAction="#showPanier" style="-fx-text-fill: #1a73e8;" styleClass="navbar-btn-active" text="🛒 Voir le panier" />
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- PAGE PANIER -->
+            <VBox fx:id="pagePanierView" spacing="20" style="-fx-padding: 30px;" visible="false">
+
+                <Label styleClass="page-title" text="Mon Panier" />
+
+                <HBox spacing="20" VBox.vgrow="ALWAYS">
+                    <!-- Tableau panier -->
+                    <TableView fx:id="panierTable" HBox.hgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colPanierProduit" prefWidth="250" text="Produit" />
+                            <TableColumn fx:id="colPanierPrixUnit" prefWidth="120" text="Prix unitaire" />
+                            <TableColumn fx:id="colPanierQte" prefWidth="100" text="Quantité" />
+                            <TableColumn fx:id="colPanierSousTotal" prefWidth="120" text="Sous-total" />
+                            <TableColumn fx:id="colPanierAction" prefWidth="80" text="Action" />
+                        </columns>
+                    </TableView>
+
+                    <!-- Panel total -->
+                    <VBox prefWidth="250" spacing="15" style="-fx-background-color: white; -fx-padding: 20px;                           -fx-background-radius: 10px;                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);">
+                        <Region VBox.vgrow="ALWAYS" />
+                        <Button maxWidth="Infinity" onAction="#showCatalogue" styleClass="btn-secondary" text="Continuer mes achats" />
+                        <Button maxWidth="Infinity" onAction="#handlePasserCommande" styleClass="btn-primary" text="🛒 Passer la commande" />
+                        <Button maxWidth="Infinity" onAction="#handleViderPanier" styleClass="btn-danger" text="Vider le panier" />
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- PAGE HISTORIQUE -->
+            <VBox fx:id="pageHistoriqueView" spacing="20" style="-fx-padding: 30px;" visible="false">
+
+                <Label styleClass="page-title" text="Historique de mes achats" />
+
+                <TableView fx:id="historiqueTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colCmdId" prefWidth="150" text="N° Commande" />
+                        <TableColumn fx:id="colCmdDate" prefWidth="200" text="Date" />
+                        <TableColumn fx:id="colCmdTotal" prefWidth="100" text="Total" />
+                        <TableColumn fx:id="colCmdStatut" prefWidth="150" text="Statut" />
+                    </columns>
+                </TableView>
+            </VBox>
+
+        </StackPane>
+    </center>
+
+</BorderPane>
