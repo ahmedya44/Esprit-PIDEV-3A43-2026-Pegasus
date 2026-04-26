@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 public class ServiceUser implements IService<User> {
     private final Connection connection;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private String lastError;
 
     public ServiceUser() {
         try {
@@ -29,8 +30,10 @@ public class ServiceUser implements IService<User> {
 
     @Override
     public void ajouter(User user) {
+        lastError = null;
         String validationError = validateUser(user);
         if (validationError != null) {
+            lastError = validationError;
             System.err.println(validationError);
             return;
         }
@@ -55,6 +58,7 @@ public class ServiceUser implements IService<User> {
             }
             System.out.println("user added !");
         } catch (SQLException e) {
+            lastError = e.getMessage();
             System.err.println(e.getMessage());
         }
     }
@@ -274,5 +278,9 @@ public class ServiceUser implements IService<User> {
 
     private boolean isBcryptHash(String value) {
         return value.startsWith("$2a$") || value.startsWith("$2b$") || value.startsWith("$2y$");
+    }
+
+    public String getLastError() {
+        return lastError;
     }
 }

@@ -84,6 +84,9 @@ public class SignUpController {
     @FXML
     private DatePicker normalBirthDatePicker;
 
+    @FXML
+    private Label signupMessageLabel;
+
     private ServiceUser serviceUser;
     private ServiceAdmin serviceAdmin;
     private ServiceArtiste serviceArtiste;
@@ -101,6 +104,7 @@ public class SignUpController {
 
         confirmPasswordVisibleField.setManaged(false);
         confirmPasswordVisibleField.setVisible(false);
+        clearSignupMessage();
     }
 
     public void onToggleConfirmPassword() {
@@ -121,23 +125,36 @@ public class SignUpController {
     }
 
     public void onCreateAccount() {
+        clearSignupMessage();
         if (!initServices()) {
             return;
         }
 
         String role = SceneNavigator.getSelectedRole();
+        if (role == null || role.isBlank()) {
+            role = "NORMAL_USER";
+        }
+
+        String email = textOrNull(emailField.getText());
+        String username = textOrNull(usernameField.getText());
         String password = passwordField.getText();
         String confirmPassword = getConfirmPassword();
 
-        if (password == null || !password.equals(confirmPassword)) {
-            showAlert(Alert.AlertType.ERROR, "Sign Up", "Password and confirm password do not match.");
+        String validationError = validateSignupForm(email, username, password, confirmPassword);
+        if (validationError != null) {
+            showSignupError(validationError);
+            return;
+        }
+
+        if (!password.equals(confirmPassword)) {
+            showSignupError("Password and confirm password do not match.");
             return;
         }
 
         User user = new User();
-        user.setEmail(emailField.getText());
+        user.setEmail(email);
         user.setPassword(password);
-        user.setUsername(usernameField.getText());
+        user.setUsername(username);
         user.setStatus("ACTIVE");
         user.setPhone(textOrNull(phoneField.getText()));
         user.setAvatarUrl(textOrNull(avatarUrlField.getText()));
@@ -155,7 +172,7 @@ public class SignUpController {
 
         serviceUser.ajouter(user);
         if (user.getId() == null) {
-            showAlert(Alert.AlertType.ERROR, "Sign Up", "Could not create user. Check required fields.");
+            showSignupError(resolveServiceError(serviceUser.getLastError(), "Could not create user. Check required fields."));
             return;
         }
 
@@ -165,6 +182,11 @@ public class SignUpController {
             admin.setSuperAdmin(adminSuperAdminCheckBox.isSelected());
             admin.setBirthDate(adminBirthDatePicker.getValue());
             serviceAdmin.ajouter(admin);
+            if (serviceAdmin.getLastError() != null) {
+                rollbackUser(user);
+                showSignupError(serviceAdmin.getLastError());
+                return;
+            }
         } else if ("ARTISTE".equals(role)) {
             Artiste artiste = new Artiste();
             artiste.setId(user.getId());
@@ -176,11 +198,21 @@ public class SignUpController {
             artiste.setVerified(artisteVerifiedCheckBox.isSelected());
             artiste.setBirthDate(artisteBirthDatePicker.getValue());
             serviceArtiste.ajouter(artiste);
+            if (serviceArtiste.getLastError() != null) {
+                rollbackUser(user);
+                showSignupError(serviceArtiste.getLastError());
+                return;
+            }
         } else {
             NormalUser normalUser = new NormalUser();
             normalUser.setId(user.getId());
             normalUser.setBirthDate(normalBirthDatePicker.getValue());
             serviceNormalUser.ajouter(normalUser);
+            if (serviceNormalUser.getLastError() != null) {
+                rollbackUser(user);
+                showSignupError(serviceNormalUser.getLastError());
+                return;
+            }
         }
 
         SceneNavigator.setCurrentUser(user);
@@ -217,7 +249,24 @@ public class SignUpController {
         return value.trim();
     }
 
+    private String validateSignupForm(String email, String username, String password, String confirmPassword) {
+        if (email == null) {
+            return "Email is required.";
+        }
+        if (username == null) {
+            return "Username is required.";
+        }
+        if (password == null || password.isBlank()) {
+            return "Password is required.";
+        }
+        if (confirmPassword == null || confirmPassword.isBlank()) {
+            return "Confirm password is required.";
+        }
+        return null;
+    }
+
     private void clearForm() {
+        clearSignupMessage();
         emailField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
@@ -288,8 +337,33 @@ public class SignUpController {
             }
             return true;
         } catch (RuntimeException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Could not connect to database.");
+            showSignupError(resolveServiceError(e.getMessage(), "Could not connect to database."));
             return false;
+        }
+    }
+
+    private void showSignupError(String message) {
+        signupMessageLabel.setText(message);
+        signupMessageLabel.setVisible(true);
+        signupMessageLabel.setManaged(true);
+    }
+
+    private void clearSignupMessage() {
+        signupMessageLabel.setText("");
+        signupMessageLabel.setVisible(false);
+        signupMessageLabel.setManaged(false);
+    }
+
+    private String resolveServiceError(String serviceMessage, String fallbackMessage) {
+        if (serviceMessage == null || serviceMessage.isBlank()) {
+            return fallbackMessage;
+        }
+        return serviceMessage;
+    }
+
+    private void rollbackUser(User user) {
+        if (user != null && user.getId() != null) {
+            serviceUser.supprimer(user);
         }
     }
 

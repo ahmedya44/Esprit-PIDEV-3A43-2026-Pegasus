@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 
 public class ServiceNormalUser implements IService<NormalUser> {
     private final Connection connection;
+    private String lastError;
 
     public ServiceNormalUser() {
         try {
@@ -26,8 +27,10 @@ public class ServiceNormalUser implements IService<NormalUser> {
 
     @Override
     public void ajouter(NormalUser normalUser) {
+        lastError = null;
         if (normalUser.getId() == null) {
-            System.err.println("normal_user id is required (must exist in user table)");
+            lastError = "normal_user id is required (must exist in user table)";
+            System.err.println(lastError);
             return;
         }
         String req = "INSERT INTO `normal_user`(`birth_date`,`id`) VALUES (?,?)";
@@ -37,6 +40,7 @@ public class ServiceNormalUser implements IService<NormalUser> {
             statement.executeUpdate();
             System.out.println("normal_user added !");
         } catch (SQLException e) {
+            lastError = e.getMessage();
             System.err.println(e.getMessage());
         }
     }
@@ -141,5 +145,9 @@ public class ServiceNormalUser implements IService<NormalUser> {
     private LocalDateTime getDateTime(ResultSet rs, String column) throws SQLException {
         Timestamp timestamp = rs.getTimestamp(column);
         return timestamp == null ? null : timestamp.toLocalDateTime();
+    }
+
+    public String getLastError() {
+        return lastError;
     }
 }

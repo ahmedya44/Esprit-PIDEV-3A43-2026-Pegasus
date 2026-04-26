@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 
 public class ServiceArtiste implements IService<Artiste> {
     private final Connection connection;
+    private String lastError;
 
     public ServiceArtiste() {
         try {
@@ -26,8 +27,10 @@ public class ServiceArtiste implements IService<Artiste> {
 
     @Override
     public void ajouter(Artiste artiste) {
+        lastError = null;
         if (artiste.getId() == null) {
-            System.err.println("artiste id is required (must exist in user table)");
+            lastError = "artiste id is required (must exist in user table)";
+            System.err.println(lastError);
             return;
         }
         String req = "INSERT INTO `artiste`(`bio`,`styles`,`facebook`,`instagram`,`portfolio_url`,`verified`,`id`,`birth_date`) VALUES (?,?,?,?,?,?,?,?)";
@@ -43,6 +46,7 @@ public class ServiceArtiste implements IService<Artiste> {
             statement.executeUpdate();
             System.out.println("artiste added !");
         } catch (SQLException e) {
+            lastError = e.getMessage();
             System.err.println(e.getMessage());
         }
     }
@@ -159,5 +163,9 @@ public class ServiceArtiste implements IService<Artiste> {
     private LocalDateTime getDateTime(ResultSet rs, String column) throws SQLException {
         Timestamp timestamp = rs.getTimestamp(column);
         return timestamp == null ? null : timestamp.toLocalDateTime();
+    }
+
+    public String getLastError() {
+        return lastError;
     }
 }

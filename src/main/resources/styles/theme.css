@@ -124,6 +124,14 @@
     -fx-text-fill: #d1d5db;
 }
 
+.error-label {
+    -fx-text-fill: #fca5a5;
+    -fx-font-size: 13px;
+    -fx-max-width: 460px;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
 .divider {
     -fx-background-color: #374151;
 }

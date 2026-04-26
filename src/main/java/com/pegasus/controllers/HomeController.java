@@ -39,9 +39,6 @@ public class HomeController {
     private TableView<User> usersTable;
 
     @FXML
-    private TableColumn<User, Integer> colId;
-
-    @FXML
     private TableColumn<User, String> colUsername;
 
     @FXML
@@ -57,7 +54,6 @@ public class HomeController {
 
     @FXML
     public void initialize() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
         colEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("dtype"));
