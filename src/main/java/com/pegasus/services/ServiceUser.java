@@ -4,6 +4,7 @@ import com.pegasus.entities.User;
 import com.pegasus.tools.dbConnection;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,10 +13,15 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class ServiceUser implements IService<User> {
+    private static final String PROVIDER_LOCAL = "LOCAL";
+    private static final String PROVIDER_GOOGLE = "GOOGLE";
+    public static final String STATUS_ACTIVE = "ACTIVE";
+    public static final String STATUS_PENDING_VERIFICATION = "PENDING_VERIFICATION";
     private final Connection connection;
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     private String lastError;
@@ -37,18 +43,24 @@ public class ServiceUser implements IService<User> {
             System.err.println(validationError);
             return;
         }
+        String provider = normalizeProvider(user.getProvider());
         String passwordToStore = hashPasswordIfNeeded(user.getPassword());
-        String req = "INSERT INTO `user`(`email`,`roles`,`password`,`username`,`phone`,`avatar_url`,`created_at`,`status`,`dtype`) VALUES (?,?,?,?,?,?,CURRENT_TIMESTAMP(),?,?)";
+        String req = "INSERT INTO `user`(`email`,`provider`,`google_sub`,`roles`,`password`,`username`,`phone`,`avatar_url`,`created_at`,`status`,`dtype`,`email_verification_token`,`email_verification_token_expires_at`) VALUES (?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP(),?,?,?,?)";
         try (PreparedStatement statement = this.connection.prepareStatement(req, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, user.getEmail());
-            statement.setString(2, user.getRoles());
-            statement.setString(3, passwordToStore);
-            statement.setString(4, user.getUsername());
-            statement.setString(5, user.getPhone());
-            statement.setString(6, user.getAvatarUrl());
-            statement.setString(7, user.getStatus());
-            statement.setString(8, user.getDtype());
+            statement.setString(2, provider);
+            statement.setString(3, trimToNull(user.getGoogleSub()));
+            statement.setString(4, user.getRoles());
+            statement.setString(5, passwordToStore);
+            statement.setString(6, user.getUsername());
+            statement.setString(7, user.getPhone());
+            statement.setString(8, user.getAvatarUrl());
+            statement.setString(9, user.getStatus());
+            statement.setString(10, user.getDtype());
+            statement.setString(11, trimToNull(user.getEmailVerificationToken()));
+            statement.setTimestamp(12, toTimestamp(user.getEmailVerificationTokenExpiresAt()));
             statement.executeUpdate();
+            user.setProvider(provider);
             user.setPassword(passwordToStore);
 
             try (ResultSet keys = statement.getGeneratedKeys()) {
@@ -85,27 +97,36 @@ public class ServiceUser implements IService<User> {
             System.err.println("user id is required for update");
             return;
         }
+        lastError = null;
         String validationError = validateUser(user);
         if (validationError != null) {
+            lastError = validationError;
             System.err.println(validationError);
             return;
         }
+        String provider = normalizeProvider(user.getProvider());
         String passwordToStore = hashPasswordIfNeeded(user.getPassword());
-        String req = "UPDATE `user` SET `email`=?,`roles`=?,`password`=?,`username`=?,`phone`=?,`avatar_url`=?,`status`=?,`dtype`=? WHERE `id`=?";
+        String req = "UPDATE `user` SET `email`=?,`provider`=?,`google_sub`=?,`roles`=?,`password`=?,`username`=?,`phone`=?,`avatar_url`=?,`status`=?,`dtype`=?,`email_verification_token`=?,`email_verification_token_expires_at`=? WHERE `id`=?";
         try (PreparedStatement statement = this.connection.prepareStatement(req)) {
             statement.setString(1, user.getEmail());
-            statement.setString(2, user.getRoles());
-            statement.setString(3, passwordToStore);
-            statement.setString(4, user.getUsername());
-            statement.setString(5, user.getPhone());
-            statement.setString(6, user.getAvatarUrl());
-            statement.setString(7, user.getStatus());
-            statement.setString(8, user.getDtype());
-            statement.setInt(9, user.getId());
+            statement.setString(2, provider);
+            statement.setString(3, trimToNull(user.getGoogleSub()));
+            statement.setString(4, user.getRoles());
+            statement.setString(5, passwordToStore);
+            statement.setString(6, user.getUsername());
+            statement.setString(7, user.getPhone());
+            statement.setString(8, user.getAvatarUrl());
+            statement.setString(9, user.getStatus());
+            statement.setString(10, user.getDtype());
+            statement.setString(11, trimToNull(user.getEmailVerificationToken()));
+            statement.setTimestamp(12, toTimestamp(user.getEmailVerificationTokenExpiresAt()));
+            statement.setInt(13, user.getId());
             statement.executeUpdate();
+            user.setProvider(provider);
             user.setPassword(passwordToStore);
             System.out.println("user updated !");
         } catch (SQLException e) {
+            lastError = e.getMessage();
             System.err.println(e.getMessage());
         }
     }
@@ -133,7 +154,82 @@ public class ServiceUser implements IService<User> {
         if (user == null || isBlank(rawPassword)) {
             return null;
         }
+        if (!STATUS_ACTIVE.equalsIgnoreCase(user.getStatus())) {
+            lastError = "Account is not active. Please verify your email first.";
+            return null;
+        }
         return verifyPassword(rawPassword, user.getPassword()) ? user : null;
+    }
+
+    public String createEmailVerificationToken(User user) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("User must exist before creating a verification token.");
+        }
+        String token = generateVerificationToken();
+        LocalDateTime expiresAt = LocalDateTime.now().plusHours(24);
+        String req = "UPDATE `user` SET `email_verification_token`=?, `email_verification_token_expires_at`=? WHERE `id`=?";
+        try (PreparedStatement statement = this.connection.prepareStatement(req)) {
+            statement.setString(1, token);
+            statement.setTimestamp(2, toTimestamp(expiresAt));
+            statement.setInt(3, user.getId());
+            statement.executeUpdate();
+            user.setEmailVerificationToken(token);
+            user.setEmailVerificationTokenExpiresAt(expiresAt);
+            return token;
+        } catch (SQLException e) {
+            lastError = e.getMessage();
+            throw new IllegalStateException("Could not create email verification token.", e);
+        }
+    }
+
+    public User verifyEmailToken(String token) {
+        if (isBlank(token)) {
+            lastError = "Verification code is required.";
+            return null;
+        }
+
+        String req = "SELECT * FROM `user` WHERE `email_verification_token` = ?";
+        try (PreparedStatement statement = this.connection.prepareStatement(req)) {
+            statement.setString(1, token.trim());
+            try (ResultSet rs = statement.executeQuery()) {
+                if (!rs.next()) {
+                    lastError = "Invalid verification code.";
+                    return null;
+                }
+
+                User user = mapUser(rs);
+                if (user.getEmailVerificationTokenExpiresAt() == null
+                        || user.getEmailVerificationTokenExpiresAt().isBefore(LocalDateTime.now())) {
+                    lastError = "Verification code has expired.";
+                    return null;
+                }
+
+                activateVerifiedUser(user);
+                return user;
+            }
+        } catch (SQLException e) {
+            lastError = e.getMessage();
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
+    public User findByGoogleSub(String googleSub) {
+        if (isBlank(googleSub)) {
+            return null;
+        }
+        String req = "SELECT * FROM `user` WHERE `google_sub` = ?";
+        try (PreparedStatement statement = this.connection.prepareStatement(req)) {
+            statement.setString(1, googleSub.trim());
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return mapUser(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
     }
 
     public User findById(int id) {
@@ -199,6 +295,8 @@ public class ServiceUser implements IService<User> {
         User user = new User();
         user.setId(rs.getInt("id"));
         user.setEmail(rs.getString("email"));
+        user.setProvider(rs.getString("provider"));
+        user.setGoogleSub(rs.getString("google_sub"));
         user.setRoles(rs.getString("roles"));
         user.setPassword(rs.getString("password"));
         user.setUsername(rs.getString("username"));
@@ -219,6 +317,10 @@ public class ServiceUser implements IService<User> {
         return timestamp == null ? null : timestamp.toLocalDateTime();
     }
 
+    private Timestamp toTimestamp(LocalDateTime dateTime) {
+        return dateTime == null ? null : Timestamp.valueOf(dateTime);
+    }
+
     private String validateUser(User user) {
         if (user == null) {
             return "user is required";
@@ -232,7 +334,9 @@ public class ServiceUser implements IService<User> {
         if (isBlank(user.getUsername())) {
             return "username is required";
         }
-        if (isBlank(user.getPassword())) {
+        String provider = normalizeProvider(user.getProvider());
+        user.setProvider(provider);
+        if (PROVIDER_LOCAL.equals(provider) && isBlank(user.getPassword())) {
             return "password is required";
         }
         if (isBlank(user.getStatus())) {
@@ -241,11 +345,25 @@ public class ServiceUser implements IService<User> {
         if (isBlank(user.getDtype())) {
             return "dtype is required";
         }
+        if (PROVIDER_GOOGLE.equals(provider) && isBlank(user.getGoogleSub())) {
+            return "google_sub is required for Google accounts";
+        }
         return null;
     }
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private String trimToNull(String value) {
+        return isBlank(value) ? null : value.trim();
+    }
+
+    private String normalizeProvider(String provider) {
+        if (isBlank(provider)) {
+            return PROVIDER_LOCAL;
+        }
+        return provider.trim().toUpperCase();
     }
 
     private String hashPasswordIfNeeded(String rawPassword) {
@@ -278,6 +396,24 @@ public class ServiceUser implements IService<User> {
 
     private boolean isBcryptHash(String value) {
         return value.startsWith("$2a$") || value.startsWith("$2b$") || value.startsWith("$2y$");
+    }
+
+    private String generateVerificationToken() {
+        byte[] buffer = new byte[24];
+        new SecureRandom().nextBytes(buffer);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(buffer);
+    }
+
+    private void activateVerifiedUser(User user) throws SQLException {
+        String req = "UPDATE `user` SET `status`=?, `email_verification_token`=NULL, `email_verification_token_expires_at`=NULL WHERE `id`=?";
+        try (PreparedStatement statement = this.connection.prepareStatement(req)) {
+            statement.setString(1, STATUS_ACTIVE);
+            statement.setInt(2, user.getId());
+            statement.executeUpdate();
+            user.setStatus(STATUS_ACTIVE);
+            user.setEmailVerificationToken(null);
+            user.setEmailVerificationTokenExpiresAt(null);
+        }
     }
 
     public String getLastError() {

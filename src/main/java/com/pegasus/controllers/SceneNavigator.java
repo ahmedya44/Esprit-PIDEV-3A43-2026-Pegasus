@@ -1,6 +1,7 @@
 package com.pegasus.controllers;
 
 import com.pegasus.entities.User;
+import com.pegasus.services.GoogleUserProfile;
 import javafx.animation.ScaleTransition;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,6 +17,7 @@ public final class SceneNavigator {
     private static Stage stage;
     private static String selectedRole;
     private static User currentUser;
+    private static GoogleUserProfile pendingGoogleUserProfile;
 
     private SceneNavigator() {
     }
@@ -85,5 +87,17 @@ public final class SceneNavigator {
 
     public static void clearSession() {
         currentUser = null;
+    }
+
+    public static GoogleUserProfile getPendingGoogleUserProfile() {
+        return pendingGoogleUserProfile;
+    }
+
+    public static void setPendingGoogleUserProfile(GoogleUserProfile profile) {
+        pendingGoogleUserProfile = profile;
+    }
+
+    public static void clearPendingGoogleUserProfile() {
+        pendingGoogleUserProfile = null;
     }
 }

@@ -40,7 +40,10 @@
                     </children>
                 </HBox>
                 <Button mnemonicParsing="false" onAction="#onSignIn" prefWidth="220.0" styleClass="gold-button" text="Sign In" />
+                <Button mnemonicParsing="false" onAction="#onSignInWithGoogle" prefWidth="220.0" styleClass="secondary-button" text="Continue with Google" />
                 <Hyperlink onAction="#onGoToSignUp" text="Sign Up" />
+                <Hyperlink onAction="#onGoToEmailVerification" text="Verify Email" />
+                <Hyperlink onAction="#onResendVerificationEmail" text="Resend Verification Email" />
                 <Button mnemonicParsing="false" onAction="#onBackHome" prefWidth="220.0" styleClass="secondary-button" text="Back Home" />
             </children>
         </VBox>

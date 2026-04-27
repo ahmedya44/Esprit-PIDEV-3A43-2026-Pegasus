@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 public class User {
     private Integer id;
     private String email;
+    private String provider;
+    private String googleSub;
     private String roles;
     private String password;
     private String username;
@@ -84,6 +86,22 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getGoogleSub() {
+        return googleSub;
+    }
+
+    public void setGoogleSub(String googleSub) {
+        this.googleSub = googleSub;
     }
 
     public String getRoles() {
@@ -186,6 +204,8 @@ public class User {
     public String toString() {
         return "User{id=" + id
                 + ", email='" + email + "'"
+                + ", provider='" + provider + "'"
+                + ", googleSub='" + googleSub + "'"
                 + ", roles='" + roles + "'"
                 + ", username='" + username + "'"
                 + ", phone='" + phone + "'"

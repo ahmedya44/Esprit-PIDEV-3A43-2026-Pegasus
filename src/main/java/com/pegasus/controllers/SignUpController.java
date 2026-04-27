@@ -4,6 +4,8 @@ import com.pegasus.entities.Admin;
 import com.pegasus.entities.Artiste;
 import com.pegasus.entities.NormalUser;
 import com.pegasus.entities.User;
+import com.pegasus.services.GoogleUserProfile;
+import com.pegasus.services.EmailService;
 import com.pegasus.services.ServiceAdmin;
 import com.pegasus.services.ServiceArtiste;
 import com.pegasus.services.ServiceNormalUser;
@@ -91,6 +93,7 @@ public class SignUpController {
     private ServiceAdmin serviceAdmin;
     private ServiceArtiste serviceArtiste;
     private ServiceNormalUser serviceNormalUser;
+    private EmailService emailService;
 
     @FXML
     public void initialize() {
@@ -105,6 +108,7 @@ public class SignUpController {
         confirmPasswordVisibleField.setManaged(false);
         confirmPasswordVisibleField.setVisible(false);
         clearSignupMessage();
+        applyPendingGoogleProfile();
     }
 
     public void onToggleConfirmPassword() {
@@ -139,25 +143,36 @@ public class SignUpController {
         String username = textOrNull(usernameField.getText());
         String password = passwordField.getText();
         String confirmPassword = getConfirmPassword();
+        GoogleUserProfile googleProfile = SceneNavigator.getPendingGoogleUserProfile();
+        boolean googleSignup = googleProfile != null;
 
-        String validationError = validateSignupForm(email, username, password, confirmPassword);
+        String validationError = validateSignupForm(email, username, password, confirmPassword, googleSignup);
         if (validationError != null) {
             showSignupError(validationError);
             return;
         }
 
-        if (!password.equals(confirmPassword)) {
+        if (!googleSignup && !password.equals(confirmPassword)) {
             showSignupError("Password and confirm password do not match.");
             return;
         }
 
         User user = new User();
         user.setEmail(email);
-        user.setPassword(password);
+        user.setPassword(googleSignup ? null : password);
         user.setUsername(username);
-        user.setStatus("ACTIVE");
+        user.setStatus(googleSignup ? ServiceUser.STATUS_ACTIVE : ServiceUser.STATUS_PENDING_VERIFICATION);
         user.setPhone(textOrNull(phoneField.getText()));
         user.setAvatarUrl(textOrNull(avatarUrlField.getText()));
+        if (googleSignup) {
+            user.setProvider("GOOGLE");
+            user.setGoogleSub(googleProfile.sub());
+            user.setEmailVerificationToken(null);
+            user.setEmailVerificationTokenExpiresAt(null);
+        } else {
+            user.setProvider("LOCAL");
+            user.setGoogleSub(null);
+        }
 
         if ("ADMIN".equals(role)) {
             user.setRoles("[\"ROLE_ADMIN\"]");
@@ -215,13 +230,34 @@ public class SignUpController {
             }
         }
 
-        SceneNavigator.setCurrentUser(user);
-        showAlert(Alert.AlertType.INFORMATION, "Sign Up", "Account created for role: " + role);
+        if (!googleSignup) {
+            try {
+                if (emailService == null) {
+                    emailService = new EmailService();
+                }
+                String verificationToken = serviceUser.createEmailVerificationToken(user);
+                emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationToken);
+            } catch (IllegalStateException e) {
+                rollbackUser(user);
+                showSignupError(e.getMessage());
+                return;
+            }
+            SceneNavigator.setCurrentUser(null);
+            SceneNavigator.clearPendingGoogleUserProfile();
+        } else {
+            SceneNavigator.setCurrentUser(user);
+            SceneNavigator.clearPendingGoogleUserProfile();
+        }
+
+        showAlert(Alert.AlertType.INFORMATION, "Sign Up",
+                googleSignup
+                        ? "Account created for role: " + role
+                        : "Account created. Check your email for the verification code before signing in.");
         clearForm();
         try {
-            SceneNavigator.goTo("/views/home-view.fxml");
+            SceneNavigator.goTo(googleSignup ? "/views/home-view.fxml" : "/views/email-verification-view.fxml");
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open home page.");
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", googleSignup ? "Could not open home page." : "Could not open email verification page.");
         }
     }
 
@@ -249,20 +285,69 @@ public class SignUpController {
         return value.trim();
     }
 
-    private String validateSignupForm(String email, String username, String password, String confirmPassword) {
+    private String validateSignupForm(String email, String username, String password, String confirmPassword, boolean googleSignup) {
         if (email == null) {
             return "Email is required.";
         }
         if (username == null) {
             return "Username is required.";
         }
-        if (password == null || password.isBlank()) {
+        if (!googleSignup && (password == null || password.isBlank())) {
             return "Password is required.";
         }
-        if (confirmPassword == null || confirmPassword.isBlank()) {
+        if (!googleSignup && (confirmPassword == null || confirmPassword.isBlank())) {
             return "Confirm password is required.";
         }
         return null;
+    }
+
+    private void applyPendingGoogleProfile() {
+        GoogleUserProfile googleProfile = SceneNavigator.getPendingGoogleUserProfile();
+        if (googleProfile == null) {
+            configurePasswordFields(true);
+            return;
+        }
+
+        SceneNavigator.setSelectedRole("NORMAL_USER");
+        roleLabel.setText("Role: NORMAL_USER (Google)");
+        emailField.setText(nullToEmpty(googleProfile.email()));
+        usernameField.setText(resolveGoogleUsername(googleProfile));
+        avatarUrlField.setText(nullToEmpty(googleProfile.pictureUrl()));
+
+        emailField.setDisable(true);
+        configurePasswordFields(false);
+    }
+
+    private void configurePasswordFields(boolean visible) {
+        passwordField.clear();
+        confirmPasswordField.clear();
+        confirmPasswordVisibleField.clear();
+        passwordField.setManaged(visible);
+        passwordField.setVisible(visible);
+        passwordField.setDisable(!visible);
+        confirmPasswordField.setManaged(visible);
+        confirmPasswordField.setVisible(visible);
+        confirmPasswordField.setDisable(!visible);
+        confirmPasswordVisibleField.setManaged(false);
+        confirmPasswordVisibleField.setVisible(false);
+        confirmPasswordVisibleField.setDisable(true);
+    }
+
+    private String resolveGoogleUsername(GoogleUserProfile googleProfile) {
+        String preferred = textOrNull(googleProfile.name());
+        if (preferred != null) {
+            return preferred;
+        }
+        String email = textOrNull(googleProfile.email());
+        if (email == null) {
+            return "";
+        }
+        int atIndex = email.indexOf('@');
+        return atIndex > 0 ? email.substring(0, atIndex) : email;
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 
     private void clearForm() {
