@@ -110,6 +110,7 @@
                         <TableColumn fx:id="colCmdDate" prefWidth="200" text="Date" />
                         <TableColumn fx:id="colCmdTotal" prefWidth="100" text="Total" />
                         <TableColumn fx:id="colCmdStatut" prefWidth="150" text="Statut" />
+                        <TableColumn fx:id="colCmdAction" text="Action" prefWidth="140"/>
                     </columns>
                 </TableView>
             </VBox>

@@ -15,6 +15,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import com.pegasus.services.TicketPdfService;
 
 import java.io.File;
 import java.net.URL;
@@ -42,7 +43,6 @@ public class DashboardUserController implements Initializable {
     @FXML private Label detailStock;
     @FXML private Label detailStatut;
     @FXML private TextField quantiteField;
-    @FXML private Pane detailImagePane;
 
     @FXML private TableView<LignePanier> panierTable;
     @FXML private TableColumn<LignePanier, String> colPanierProduit;
@@ -56,14 +56,15 @@ public class DashboardUserController implements Initializable {
     @FXML private TableColumn<Commande, String> colCmdDate;
     @FXML private TableColumn<Commande, Float> colCmdTotal;
     @FXML private TableColumn<Commande, String> colCmdStatut;
+    @FXML private TableColumn<Commande, Void> colCmdAction;
 
-    private ProduitDAO produitDAO = new ProduitDAO();
-    private CategorieDAO categorieDAO = new CategorieDAO();
-    private CommandeDAO commandeDAO = new CommandeDAO();
+    private final ProduitDAO produitDAO = new ProduitDAO();
+    private final CategorieDAO categorieDAO = new CategorieDAO();
+    private final CommandeDAO commandeDAO = new CommandeDAO();
 
     private List<Produit> allProduits;
     private Produit produitSelectionne;
-    private List<LignePanier> lignesPanier = new ArrayList<>();
+    private final List<LignePanier> lignesPanier = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -73,6 +74,10 @@ public class DashboardUserController implements Initializable {
         searchField.textProperty().addListener((obs, old, val) -> filterProduits());
         filterCategorie.setOnAction(e -> filterProduits());
     }
+
+    // ─────────────────────────────────────────────
+    // SETUP TABLES
+    // ─────────────────────────────────────────────
 
     private void setupPanierTable() {
         colPanierQte.setCellValueFactory(new PropertyValueFactory<>("quantite"));
@@ -94,7 +99,7 @@ public class DashboardUserController implements Initializable {
                 super.updateItem(item, empty);
                 if (empty) { setText(null); return; }
                 LignePanier lp = getTableView().getItems().get(getIndex());
-                setText(lp.getPrixUnitaire() * lp.getQuantite() + " €");
+                setText(String.format("%.2f €", lp.getPrixUnitaire() * lp.getQuantite()));
                 setStyle("-fx-text-fill: #f0a500; -fx-font-weight: bold;");
             }
         });
@@ -136,7 +141,7 @@ public class DashboardUserController implements Initializable {
                 super.updateItem(item, empty);
                 if (empty) { setText(null); return; }
                 Commande c = getTableView().getItems().get(getIndex());
-                setText(c.getTotal() + " €");
+                setText(String.format("%.2f €", c.getTotal()));
                 setStyle("-fx-text-fill: #f0a500; -fx-font-weight: bold;");
             }
         });
@@ -152,7 +157,45 @@ public class DashboardUserController implements Initializable {
                             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
             }
         });
-    }
+
+        // ── Bouton Ticket PDF ──────────────────────────────
+        colCmdAction.setCellFactory(col -> new TableCell<>() {
+            final Button btn = new Button("🎫 Ticket PDF");
+            {
+                btn.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; " +
+                        "-fx-font-weight: bold; -fx-cursor: hand;");
+                btn.setOnAction(e -> {
+                    Commande c = getTableView().getItems().get(getIndex());
+                    String path = TicketPdfService.genererTicket(c, lignesPanier, "Client Pegasus");
+                    if (path != null) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Ticket généré ✅");
+                        alert.setContentText("Ticket sauvegardé ici :\n" + path);
+                        alert.showAndWait();
+                        try {
+                            java.awt.Desktop.getDesktop().open(new java.io.File(path));
+                        } catch (Exception ex) {
+                            System.err.println("Impossible d'ouvrir le PDF : " + ex.getMessage());
+                        }
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Erreur");
+                        alert.setContentText("Impossible de générer le ticket.");
+                        alert.showAndWait();
+                    }
+                });
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
+            }
+        });
+    }   // ← fin setupHistoriqueTable()
+
+    // ─────────────────────────────────────────────
+    // CHARGEMENT DONNÉES
+    // ─────────────────────────────────────────────
 
     private void loadData() {
         allProduits = produitDAO.getAll();
@@ -161,6 +204,14 @@ public class DashboardUserController implements Initializable {
         afficherCatalogue(allProduits);
         loadHistorique();
     }
+
+    private void loadHistorique() {
+        historiqueTable.setItems(FXCollections.observableArrayList(commandeDAO.getAll()));
+    }
+
+    // ─────────────────────────────────────────────
+    // CATALOGUE
+    // ─────────────────────────────────────────────
 
     private void afficherCatalogue(List<Produit> produits) {
         catalogueGrid.getChildren().clear();
@@ -174,7 +225,6 @@ public class DashboardUserController implements Initializable {
         card.getStyleClass().add("product-card");
         card.setPrefWidth(280);
 
-        // Image
         Pane imagePlaceholder = new Pane();
         imagePlaceholder.setPrefHeight(180);
         imagePlaceholder.setPrefWidth(280);
@@ -211,7 +261,7 @@ public class DashboardUserController implements Initializable {
             info.getChildren().add(cat);
         }
 
-        Label prix = new Label(produit.getPrix() + " €");
+        Label prix = new Label(String.format("%.2f €", produit.getPrix()));
         prix.getStyleClass().add("product-card-price");
 
         HBox btns = new HBox(10);
@@ -236,38 +286,26 @@ public class DashboardUserController implements Initializable {
         pane.getChildren().add(imgLabel);
     }
 
+    // ─────────────────────────────────────────────
+    // DETAIL PRODUIT
+    // ─────────────────────────────────────────────
+
     private void showDetailProduit(Produit p) {
         produitSelectionne = p;
         detailNom.setText(p.getNom());
         detailDesc.setText(p.getDescription() != null ? p.getDescription() : "");
-        detailPrix.setText(p.getPrix() + " €");
+        detailPrix.setText(String.format("%.2f €", p.getPrix()));
         detailStock.setText("Stock : " + p.getStock());
 
         String statut = p.getStatut();
         detailStatut.setText("Statut : " + statut);
         switch (statut) {
-            case "disponible" -> detailStatut.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 14px;");
-            case "rupture" -> detailStatut.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 14px;");
-            default -> detailStatut.setStyle("-fx-text-fill: #f0a500; -fx-font-weight: bold; -fx-font-size: 14px;");
-        }
-
-        // Image dans le détail
-        if (detailImagePane != null) {
-            detailImagePane.getChildren().clear();
-            if (p.getImage() != null && !p.getImage().isEmpty()) {
-                try {
-                    Image img = new Image(new File(p.getImage()).toURI().toString());
-                    ImageView imageView = new ImageView(img);
-                    imageView.setFitWidth(450);
-                    imageView.setFitHeight(300);
-                    imageView.setPreserveRatio(false);
-                    detailImagePane.getChildren().add(imageView);
-                } catch (Exception e) {
-                    addPlaceholderIcon(detailImagePane);
-                }
-            } else {
-                addPlaceholderIcon(detailImagePane);
-            }
+            case "disponible" -> detailStatut.setStyle(
+                    "-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 14px;");
+            case "rupture" -> detailStatut.setStyle(
+                    "-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-font-size: 14px;");
+            default -> detailStatut.setStyle(
+                    "-fx-text-fill: #f0a500; -fx-font-weight: bold; -fx-font-size: 14px;");
         }
 
         pageCatalogueView.setVisible(false);
@@ -275,6 +313,10 @@ public class DashboardUserController implements Initializable {
         pagePanierView.setVisible(false);
         pageHistoriqueView.setVisible(false);
     }
+
+    // ─────────────────────────────────────────────
+    // PANIER
+    // ─────────────────────────────────────────────
 
     @FXML
     public void handleAjouterAuPanier() {
@@ -292,6 +334,61 @@ public class DashboardUserController implements Initializable {
     }
 
     @FXML
+    public void handleViderPanier() {
+        lignesPanier.clear();
+        panierTable.setItems(FXCollections.observableArrayList(lignesPanier));
+    }
+
+    // ─────────────────────────────────────────────
+    // COMMANDE + STRIPE
+    // ─────────────────────────────────────────────
+
+    @FXML
+    public void handlePasserCommande() {
+        if (lignesPanier.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Panier vide");
+            alert.setContentText("Ajoutez des produits avant de commander.");
+            alert.showAndWait();
+            return;
+        }
+
+        float total = (float) lignesPanier.stream()
+                .mapToDouble(l -> l.getPrixUnitaire() * l.getQuantite()).sum();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/PaymentDialog.fxml"));
+            Parent root = loader.load();
+
+            PaymentController paymentCtrl = loader.getController();
+            paymentCtrl.init(total, () -> {
+                Commande commande = new Commande(LocalDateTime.now(), "payee", total);
+                commandeDAO.ajouter(commande);
+                lignesPanier.clear();
+                panierTable.setItems(FXCollections.observableArrayList(lignesPanier));
+                loadHistorique();
+                showHistorique();
+            });
+
+            Stage dialog = new Stage();
+            dialog.setTitle("Paiement Pegasus");
+            dialog.setScene(new Scene(root));
+            dialog.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialog.setResizable(false);
+            dialog.show();
+
+        } catch (Exception e) {
+            System.err.println("Erreur ouverture PaymentDialog : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    // FILTRES
+    // ─────────────────────────────────────────────
+
+    @FXML
     public void filterProduits() {
         String search = searchField.getText().toLowerCase();
         Categorie selectedCat = filterCategorie.getSelectionModel().getSelectedItem();
@@ -304,28 +401,9 @@ public class DashboardUserController implements Initializable {
         afficherCatalogue(filtered);
     }
 
-    @FXML
-    public void handlePasserCommande() {
-        if (lignesPanier.isEmpty()) return;
-        float total = (float) lignesPanier.stream()
-                .mapToDouble(l -> l.getPrixUnitaire() * l.getQuantite()).sum();
-        Commande commande = new Commande(LocalDateTime.now(), "en_cours", total);
-        commandeDAO.ajouter(commande);
-        lignesPanier.clear();
-        panierTable.setItems(FXCollections.observableArrayList(lignesPanier));
-        loadHistorique();
-        showHistorique();
-    }
-
-    @FXML
-    public void handleViderPanier() {
-        lignesPanier.clear();
-        panierTable.setItems(FXCollections.observableArrayList(lignesPanier));
-    }
-
-    private void loadHistorique() {
-        historiqueTable.setItems(FXCollections.observableArrayList(commandeDAO.getAll()));
-    }
+    // ─────────────────────────────────────────────
+    // NAVIGATION
+    // ─────────────────────────────────────────────
 
     @FXML
     public void showCatalogue() {
