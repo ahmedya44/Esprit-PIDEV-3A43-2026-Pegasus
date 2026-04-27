@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.MenuController" spacing="10" style="-fx-padding: 20px; -fx-background-color: #f8f9fa;">
+    
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 15px; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;">
+        <Label text="Galerie doevres dart" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-alignment: center;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="ACCUEIL" onAction="#goHome" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
+    </HBox>
+    
+    <!-- Title -->
+    <Label text="Galerie doevres dart" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-alignment: center;"/>
+    
+    <!-- Search Bar -->
+    <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10px;">
+        <TextField fx:id="searchField" promptText="Rechercher une œuvre..." prefWidth="300" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 8px 15px;"/>
+        <Button text="🔍 Rechercher" onAction="#handleSearch" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
+        <Button text="❌ Effacer" onAction="#handleClearSearch" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
+    </HBox>
+    
+    <!-- Sort Options -->
+    <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10px;">
+        <Label text="Trier par:" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
+        <ToggleButton fx:id="toggleRecent" text="Plus récent" onAction="#handleSortRecent" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
+        <ToggleButton fx:id="toggleOlder" text="Plus ancien" onAction="#handleSortOlder" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
+        <ToggleButton fx:id="toggleLiked" text="Plus liké" onAction="#handleSortLiked" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
+        <Button text="↺ Réinitialiser" onAction="#handleResetSort" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
+    </HBox>
+    
+    <!-- Add Artwork Button -->
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="➕ Ajouter une œuvre" onAction="#handleAddArtwork" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 10px 20px; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+    </HBox>
+    
+    <!-- Gallery Grid -->
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+        <TilePane fx:id="galleryGrid" prefColumns="3" hgap="20" vgap="20" style="-fx-padding: 20px;">
+            <!-- Gallery items will be added dynamically -->
+        </TilePane>
+    </ScrollPane>
+    
+</VBox>
