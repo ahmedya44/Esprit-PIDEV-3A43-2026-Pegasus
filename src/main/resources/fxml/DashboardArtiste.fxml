@@ -44,6 +44,9 @@
             <Button fx:id="btnAjouterCategorie" text="＋  CATÉGORIE"
                     styleClass="navbar-btn" onAction="#showFormCategorie"/>
 
+            <Button text="FORUM"
+                    styleClass="navbar-btn" onAction="#openForum"/>
+
             <Region prefWidth="30"/>
             <Label text="✏  artiste"
                    style="-fx-text-fill: #f0a500; -fx-font-size: 13px;"/>

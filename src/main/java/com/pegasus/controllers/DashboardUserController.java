@@ -1,5 +1,6 @@
 package com.pegasus.controllers;
 
+import com.pegasus.forumdesktop.PegasusForumApplication;
 import com.pegasus.dao.*;
 import com.pegasus.models.*;
 import com.pegasus.services.LikeService;
@@ -543,6 +544,18 @@ public class DashboardUserController implements Initializable {
     public void showHistorique() {
         hideAllPages();
         pageHistoriqueView.setVisible(true);
+    }
+
+    @FXML
+    public void openForum() {
+        try {
+            new PegasusForumApplication().start(new Stage());
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Forum");
+            alert.setContentText("Could not open forum: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML

@@ -1,5 +1,6 @@
 package com.pegasus.controllers;
 
+import com.pegasus.forumdesktop.PegasusForumApplication;
 import com.pegasus.dao.CategorieDAO;
 import com.pegasus.dao.ProduitDAO;
 import com.pegasus.models.Categorie;
@@ -611,6 +612,18 @@ public class DashboardArtisteController implements Initializable {
                 descCategorieField.getText().trim()
         ));
         showMesProduits();
+    }
+
+    @FXML
+    public void openForum() {
+        try {
+            new PegasusForumApplication().start(new Stage());
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Forum");
+            alert.setContentText("Could not open forum: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     @FXML

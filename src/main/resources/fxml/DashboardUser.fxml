@@ -18,6 +18,8 @@
             <Button fx:id="btnAccueil" onAction="#showCatalogue"
                     styleClass="navbar-btn" text="ACCUEIL"/>
             <Region prefWidth="20"/>
+            <Button onAction="#openForum"
+                    styleClass="navbar-btn" text="FORUM"/>
             <Button fx:id="btnPanier" onAction="#showPanier"
                     styleClass="logout-btn" text="🛒"/>
             <Button fx:id="btnHistorique" onAction="#showHistorique"
