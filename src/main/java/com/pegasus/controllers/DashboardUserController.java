@@ -16,6 +16,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import com.pegasus.services.TicketPdfService;
+import com.pegasus.services.LikeService;
 
 import java.io.File;
 import java.net.URL;
@@ -264,6 +265,34 @@ public class DashboardUserController implements Initializable {
         Label prix = new Label(String.format("%.2f €", produit.getPrix()));
         prix.getStyleClass().add("product-card-price");
 
+        // ── Bouton Like ──────────────────────────────────────────────────
+        boolean liked = LikeService.isLiked(produit.getId());
+        Button btnLike = new Button(liked ? "❤️ Aimé" : "🤍 J'aime");
+        btnLike.setStyle(
+                "-fx-background-color: transparent; " +
+                        "-fx-font-size: 13px; " +
+                        "-fx-cursor: hand; " +
+                        "-fx-border-color: " + (liked ? "#e74c3c" : "#ccc") + "; " +
+                        "-fx-border-radius: 20; " +
+                        "-fx-background-radius: 20; " +
+                        "-fx-padding: 4 10 4 10;"
+        );
+
+        btnLike.setOnAction(e -> {
+            boolean nowLiked = LikeService.toggleLike(produit.getId());
+            btnLike.setText(nowLiked ? "❤️ Aimé" : "🤍 J'aime");
+            btnLike.setStyle(
+                    "-fx-background-color: transparent; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-cursor: hand; " +
+                            "-fx-border-color: " + (nowLiked ? "#e74c3c" : "#ccc") + "; " +
+                            "-fx-border-radius: 20; " +
+                            "-fx-background-radius: 20; " +
+                            "-fx-padding: 4 10 4 10;"
+            );
+        });
+        // ─────────────────────────────────────────────────────────────────
+
         HBox btns = new HBox(10);
         Button btnVoir = new Button("👁");
         Button btnPanier = new Button("🛒");
@@ -271,7 +300,7 @@ public class DashboardUserController implements Initializable {
         btnPanier.getStyleClass().add("btn-primary");
         btnVoir.setOnAction(e -> showDetailProduit(produit));
         btnPanier.setOnAction(e -> ajouterAuPanier(produit, 1));
-        btns.getChildren().addAll(btnVoir, btnPanier);
+        btns.getChildren().addAll(btnVoir, btnPanier, btnLike);
 
         info.getChildren().addAll(nom, desc, prix, btns);
         card.getChildren().addAll(imagePlaceholder, info);

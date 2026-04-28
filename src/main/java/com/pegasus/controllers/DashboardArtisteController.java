@@ -4,6 +4,8 @@ import com.pegasus.dao.CategorieDAO;
 import com.pegasus.dao.ProduitDAO;
 import com.pegasus.models.Categorie;
 import com.pegasus.models.Produit;
+import com.pegasus.services.NotificationStockService;
+import com.pegasus.services.StatsService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +13,10 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -22,6 +28,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -31,13 +38,18 @@ public class DashboardArtisteController implements Initializable {
     @FXML private Button btnMesProduits;
     @FXML private Button btnStatuts;
     @FXML private Button btnAjouterCategorie;
+    @FXML private Button btnStats;
 
     // Pages
     @FXML private StackPane contentPane;
     @FXML private VBox pageProduitsView;
     @FXML private VBox pageStatutsView;
+    @FXML private VBox pageStatsView;
     @FXML private ScrollPane formView;
     @FXML private ScrollPane formCategorieView;
+
+    // Badge notification stock
+    @FXML private Label stockBadge;
 
     // Produits grid
     @FXML private FlowPane produitsGrid;
@@ -51,6 +63,9 @@ public class DashboardArtisteController implements Initializable {
     @FXML private TableColumn<Produit, Integer> colStatutStock;
     @FXML private TableColumn<Produit, String> colStatutStatut;
     @FXML private TableColumn<Produit, Void> colStatutActions;
+
+    // Colonne stock incrémentable
+    @FXML private TableColumn<Produit, Void> colStatutStockEdit;
 
     // Formulaire produit
     @FXML private Label formTitle;
@@ -71,8 +86,13 @@ public class DashboardArtisteController implements Initializable {
     @FXML private TextArea descCategorieField;
     @FXML private Label erreurNomCategorie;
 
-    private CategorieDAO categorieDAO = new CategorieDAO();
-    private ProduitDAO produitDAO = new ProduitDAO();
+    // Stats
+    @FXML private BarChart<String, Number> statsChart;
+    @FXML private CategoryAxis xAxis;
+    @FXML private NumberAxis yAxis;
+
+    private final CategorieDAO categorieDAO = new CategorieDAO();
+    private final ProduitDAO produitDAO = new ProduitDAO();
     private Produit produitEnCours = null;
     private String imagePath = "";
     private List<Produit> allProduits;
@@ -83,7 +103,29 @@ public class DashboardArtisteController implements Initializable {
         loadData();
         searchField.textProperty().addListener((obs, old, newVal) -> filterProduits());
         filterCategorie.setOnAction(e -> filterProduits());
+
+        // Injecter le badge dans le service de notification
+        NotificationStockService.setBadge(stockBadge);
+
+        // Vérifier les stocks au démarrage
+        checkAllStocksOnStartup();
     }
+
+    // ─────────────────────────────────────────────
+    // NOTIFICATIONS STOCK
+    // ─────────────────────────────────────────────
+
+    private void checkAllStocksOnStartup() {
+        produitDAO.getAll().forEach(NotificationStockService::verifierStock);
+    }
+
+    private void checkStockNotification(Produit p) {
+        NotificationStockService.verifierStock(p);
+    }
+
+    // ─────────────────────────────────────────────
+    // SETUP TABLE STATUTS
+    // ─────────────────────────────────────────────
 
     private void setupStatutsTable() {
         colStatutNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
@@ -106,17 +148,72 @@ public class DashboardArtisteController implements Initializable {
                 super.updateItem(statut, empty);
                 if (empty || statut == null) { setText(null); setStyle(""); return; }
                 switch (statut) {
-                    case "disponible" -> { setText("✔ Accepté"); setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;"); }
-                    case "refuse" -> { setText("✖ Refusé"); setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;"); }
-                    case "en_attente" -> { setText("⏳ En attente"); setStyle("-fx-text-fill: #f0a500; -fx-font-weight: bold;"); }
-                    case "rupture" -> { setText("✖ Rupture"); setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;"); }
-                    default -> { setText(statut); setStyle(""); }
+                    case "disponible"  -> { setText("✔ Accepté");   setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;"); }
+                    case "refuse"      -> { setText("✖ Refusé");    setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;"); }
+                    case "en_attente"  -> { setText("⏳ En attente");setStyle("-fx-text-fill: #f0a500; -fx-font-weight: bold;"); }
+                    case "rupture"     -> { setText("✖ Rupture");   setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;"); }
+                    default            -> { setText(statut);         setStyle(""); }
                 }
             }
         });
 
+        // ── Colonne Stock +/- + manuel ─────────────────────────────────
+        colStatutStockEdit.setCellFactory(col -> new TableCell<>() {
+            final Button btnMoins = new Button("−");
+            final Button btnPlus  = new Button("+");
+            final TextField tfQte = new TextField();
+            final Button btnSet   = new Button("✔");
+            final HBox box        = new HBox(5, btnMoins, tfQte, btnSet, btnPlus);
+            {
+                tfQte.setPrefWidth(50);
+                tfQte.setPromptText("Qté");
+                btnMoins.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;");
+                btnPlus.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+                btnSet.setStyle("-fx-background-color: #1a73e8; -fx-text-fill: white; -fx-font-weight: bold;");
+
+                btnPlus.setOnAction(e -> {
+                    Produit p = getTableView().getItems().get(getIndex());
+                    p.setStock(p.getStock() + 1);
+                    produitDAO.modifier(p);
+                    getTableView().refresh();
+                    checkStockNotification(p);
+                });
+
+                btnMoins.setOnAction(e -> {
+                    Produit p = getTableView().getItems().get(getIndex());
+                    if (p.getStock() > 0) {
+                        p.setStock(p.getStock() - 1);
+                        produitDAO.modifier(p);
+                        getTableView().refresh();
+                        checkStockNotification(p);
+                    }
+                });
+
+                btnSet.setOnAction(e -> {
+                    Produit p = getTableView().getItems().get(getIndex());
+                    try {
+                        int val = Integer.parseInt(tfQte.getText().trim());
+                        p.setStock(p.getStock() + val);
+                        produitDAO.modifier(p);
+                        getTableView().refresh();
+                        tfQte.clear();
+                        checkStockNotification(p);
+                    } catch (NumberFormatException ex) {
+                        tfQte.setStyle("-fx-border-color: red;");
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : box);
+            }
+        });
+
+        // ── Actions modifier/supprimer ─────────────────────────────────
         colStatutActions.setCellFactory(col -> new TableCell<>() {
-            final Button btnModifier = new Button("✎ Modifier");
+            final Button btnModifier  = new Button("✎ Modifier");
             final Button btnSupprimer = new Button("Supprimer");
             final HBox box = new HBox(8, btnModifier, btnSupprimer);
             {
@@ -139,6 +236,31 @@ public class DashboardArtisteController implements Initializable {
 
         statutsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
+
+    // ─────────────────────────────────────────────
+    // STATS
+    // ─────────────────────────────────────────────
+
+    private void loadStats() {
+        List<Produit> produits = produitDAO.getAll();
+        Map<Produit, Integer> likesMap = StatsService.getLikesParProduit(produits);
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Likes par produit");
+
+        for (Map.Entry<Produit, Integer> entry : likesMap.entrySet()) {
+            series.getData().add(
+                    new XYChart.Data<>(entry.getKey().getNom(), entry.getValue())
+            );
+        }
+
+        statsChart.getData().clear();
+        statsChart.getData().add(series);
+    }
+
+    // ─────────────────────────────────────────────
+    // DONNÉES
+    // ─────────────────────────────────────────────
 
     private void loadData() {
         allProduits = produitDAO.getAll();
@@ -219,62 +341,68 @@ public class DashboardArtisteController implements Initializable {
         List<Produit> filtered = allProduits.stream()
                 .filter(p -> p.getNom().toLowerCase().contains(search))
                 .filter(p -> selectedCat == null ||
-                        (p.getCategorie() != null && p.getCategorie().getId() == selectedCat.getId()))
+                        (p.getCategorie() != null &&
+                                p.getCategorie().getId() == selectedCat.getId()))
                 .collect(Collectors.toList());
         afficherProduits(filtered);
     }
 
-    // ===== NAVIGATION =====
+    // ─────────────────────────────────────────────
+    // NAVIGATION
+    // ─────────────────────────────────────────────
+
+    private void hideAll() {
+        pageProduitsView.setVisible(false);
+        pageStatutsView.setVisible(false);
+        pageStatsView.setVisible(false);
+        formView.setVisible(false);
+        formCategorieView.setVisible(false);
+        btnMesProduits.getStyleClass().setAll("navbar-btn");
+        btnStatuts.getStyleClass().setAll("navbar-btn");
+        btnAjouterCategorie.getStyleClass().setAll("navbar-btn");
+        if (btnStats != null) btnStats.getStyleClass().setAll("navbar-btn");
+    }
 
     @FXML
     public void showMesProduits() {
+        hideAll();
         pageProduitsView.setVisible(true);
-        pageStatutsView.setVisible(false);
-        formView.setVisible(false);
-        formCategorieView.setVisible(false);
         btnMesProduits.getStyleClass().setAll("navbar-btn-active");
-        btnStatuts.getStyleClass().setAll("navbar-btn");
-        btnAjouterCategorie.getStyleClass().setAll("navbar-btn");
         loadData();
     }
 
     @FXML
     public void showStatuts() {
-        pageProduitsView.setVisible(false);
+        hideAll();
         pageStatutsView.setVisible(true);
-        formView.setVisible(false);
-        formCategorieView.setVisible(false);
         btnStatuts.getStyleClass().setAll("navbar-btn-active");
-        btnMesProduits.getStyleClass().setAll("navbar-btn");
-        btnAjouterCategorie.getStyleClass().setAll("navbar-btn");
         loadData();
     }
 
     @FXML
+    public void showStats() {
+        hideAll();
+        pageStatsView.setVisible(true);
+        if (btnStats != null) btnStats.getStyleClass().setAll("navbar-btn-active");
+        loadStats();
+    }
+
+    @FXML
     public void showFormAjouter() {
+        hideAll();
         produitEnCours = null;
         formTitle.setText("Ajouter un produit");
-        nomField.clear();
-        descField.clear();
-        prixField.clear();
-        stockField.clear();
-        imageField.clear();
-        imagePath = "";
-        erreurNom.setText("");
-        erreurPrix.setText("");
-        erreurStock.setText("");
-        erreurCategorie.setText("");
+        nomField.clear(); descField.clear();
+        prixField.clear(); stockField.clear();
+        imageField.clear(); imagePath = "";
+        erreurNom.setText(""); erreurPrix.setText("");
+        erreurStock.setText(""); erreurCategorie.setText("");
         categorieCombo.getSelectionModel().clearSelection();
-        pageProduitsView.setVisible(false);
-        pageStatutsView.setVisible(false);
         formView.setVisible(true);
-        formCategorieView.setVisible(false);
-        btnMesProduits.getStyleClass().setAll("navbar-btn");
-        btnStatuts.getStyleClass().setAll("navbar-btn");
-        btnAjouterCategorie.getStyleClass().setAll("navbar-btn");
     }
 
     private void showFormModifier(Produit p) {
+        hideAll();
         produitEnCours = p;
         formTitle.setText("Modifier le produit");
         nomField.setText(p.getNom());
@@ -283,44 +411,36 @@ public class DashboardArtisteController implements Initializable {
         stockField.setText(String.valueOf(p.getStock()));
         imagePath = p.getImage() != null ? p.getImage() : "";
         imageField.setText(imagePath.isEmpty() ? "" : new File(imagePath).getName());
-        erreurNom.setText("");
-        erreurPrix.setText("");
-        erreurStock.setText("");
-        erreurCategorie.setText("");
+        erreurNom.setText(""); erreurPrix.setText("");
+        erreurStock.setText(""); erreurCategorie.setText("");
         if (p.getCategorie() != null) {
             categorieCombo.getItems().stream()
                     .filter(c -> c.getId() == p.getCategorie().getId())
                     .findFirst().ifPresent(categorieCombo::setValue);
         }
-        pageProduitsView.setVisible(false);
-        pageStatutsView.setVisible(false);
         formView.setVisible(true);
-        formCategorieView.setVisible(false);
     }
 
     @FXML
     public void showFormCategorie() {
-        pageProduitsView.setVisible(false);
-        pageStatutsView.setVisible(false);
-        formView.setVisible(false);
+        hideAll();
         formCategorieView.setVisible(true);
         btnAjouterCategorie.getStyleClass().setAll("navbar-btn-active");
-        btnMesProduits.getStyleClass().setAll("navbar-btn");
-        btnStatuts.getStyleClass().setAll("navbar-btn");
         nomCategorieField.clear();
         descCategorieField.clear();
         erreurNomCategorie.setText("");
     }
 
-    // ===== ACTIONS =====
+    // ─────────────────────────────────────────────
+    // ACTIONS
+    // ─────────────────────────────────────────────
 
     @FXML
     public void handleChoisirImage() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir une image");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
-        );
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
         Stage stage = (Stage) nomField.getScene().getWindow();
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
@@ -333,7 +453,6 @@ public class DashboardArtisteController implements Initializable {
     public void handleSaveProduit() {
         boolean valid = true;
 
-        // Contrôle nom
         if (nomField.getText().trim().isEmpty()) {
             erreurNom.setText("⚠ Le nom est obligatoire");
             nomField.setStyle("-fx-border-color: red; -fx-border-radius: 5px;");
@@ -346,56 +465,45 @@ public class DashboardArtisteController implements Initializable {
             erreurNom.setText("⚠ Un produit avec ce nom existe déjà");
             nomField.setStyle("-fx-border-color: red; -fx-border-radius: 5px;");
             valid = false;
-        } else if (produitEnCours != null && produitDAO.existsByNomExceptId(nomField.getText().trim(), produitEnCours.getId())) {
+        } else if (produitEnCours != null &&
+                produitDAO.existsByNomExceptId(nomField.getText().trim(), produitEnCours.getId())) {
             erreurNom.setText("⚠ Un produit avec ce nom existe déjà");
             nomField.setStyle("-fx-border-color: red; -fx-border-radius: 5px;");
             valid = false;
         } else {
-            erreurNom.setText("");
-            nomField.setStyle("");
+            erreurNom.setText(""); nomField.setStyle("");
         }
 
-        // Contrôle prix
         try {
             float prix = Float.parseFloat(prixField.getText().trim());
             if (prix <= 0) {
                 erreurPrix.setText("⚠ Le prix doit être supérieur à 0");
                 prixField.setStyle("-fx-border-color: red; -fx-border-radius: 5px;");
                 valid = false;
-            } else {
-                erreurPrix.setText("");
-                prixField.setStyle("");
-            }
+            } else { erreurPrix.setText(""); prixField.setStyle(""); }
         } catch (NumberFormatException e) {
             erreurPrix.setText("⚠ Le prix doit être un nombre valide");
             prixField.setStyle("-fx-border-color: red; -fx-border-radius: 5px;");
             valid = false;
         }
 
-        // Contrôle stock
         try {
             int stock = Integer.parseInt(stockField.getText().trim());
             if (stock < 0) {
                 erreurStock.setText("⚠ Le stock ne peut pas être négatif");
                 stockField.setStyle("-fx-border-color: red; -fx-border-radius: 5px;");
                 valid = false;
-            } else {
-                erreurStock.setText("");
-                stockField.setStyle("");
-            }
+            } else { erreurStock.setText(""); stockField.setStyle(""); }
         } catch (NumberFormatException e) {
             erreurStock.setText("⚠ Le stock doit être un nombre entier");
             stockField.setStyle("-fx-border-color: red; -fx-border-radius: 5px;");
             valid = false;
         }
 
-        // Contrôle catégorie
         if (categorieCombo.getSelectionModel().getSelectedItem() == null) {
             erreurCategorie.setText("⚠ Veuillez choisir une catégorie");
             valid = false;
-        } else {
-            erreurCategorie.setText("");
-        }
+        } else { erreurCategorie.setText(""); }
 
         if (!valid) return;
 
@@ -406,8 +514,7 @@ public class DashboardArtisteController implements Initializable {
                         descField.getText().trim(),
                         Float.parseFloat(prixField.getText().trim()),
                         Integer.parseInt(stockField.getText().trim()),
-                        imagePath,
-                        "en_attente",
+                        imagePath, "en_attente",
                         categorieCombo.getSelectionModel().getSelectedItem()
                 );
                 produitDAO.ajouter(p);
@@ -417,7 +524,8 @@ public class DashboardArtisteController implements Initializable {
                 produitEnCours.setPrix(Float.parseFloat(prixField.getText().trim()));
                 produitEnCours.setStock(Integer.parseInt(stockField.getText().trim()));
                 produitEnCours.setImage(imagePath);
-                produitEnCours.setCategorie(categorieCombo.getSelectionModel().getSelectedItem());
+                produitEnCours.setCategorie(
+                        categorieCombo.getSelectionModel().getSelectedItem());
                 produitDAO.modifier(produitEnCours);
             }
             showMesProduits();
