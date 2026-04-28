@@ -45,7 +45,8 @@
                     styleClass="navbar-btn" onAction="#showFormCategorie"/>
 
             <Region prefWidth="30"/>
-            <Label text="✏  artiste" style="-fx-text-fill: #f0a500; -fx-font-size: 13px;"/>
+            <Label text="✏  artiste"
+                   style="-fx-text-fill: #f0a500; -fx-font-size: 13px;"/>
             <Button text="⇥" styleClass="logout-btn" onAction="#handleLogout"/>
         </HBox>
     </top>
@@ -85,8 +86,7 @@
                 <Button text="+ Ajouter un nouveau produit"
                         style="-fx-text-fill: #1a73e8;
                                -fx-background-color: transparent;
-                               -fx-font-size: 13px;
-                               -fx-cursor: hand;"
+                               -fx-font-size: 13px; -fx-cursor: hand;"
                         onAction="#showFormAjouter"/>
                 <TableView fx:id="statutsTable" VBox.vgrow="ALWAYS">
                     <columns>
@@ -112,22 +112,50 @@
             <VBox fx:id="pageStatsView" visible="false" spacing="20"
                   style="-fx-padding: 30px;">
 
-                <Label text="📈 Statistiques — Likes par produit"
-                       style="-fx-font-size: 22px;
-                              -fx-font-weight: bold;
+                <Label text="📈 Statistiques"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold;
                               -fx-text-fill: #1a1a2e;"/>
 
+                <!-- KPIs -->
+                <HBox spacing="30">
+                    <VBox alignment="CENTER" spacing="5"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 20px;
+                                 -fx-background-radius: 10px;
+                                 -fx-pref-width: 220px;
+                                 -fx-effect: dropshadow(gaussian,
+                                             rgba(0,0,0,0.1),10,0,0,3);">
+                        <Label text="💰 Total des ventes"
+                               style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
+                        <Label fx:id="totalVentesLabel" text="0.00 €"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;
+                                      -fx-text-fill: #27ae60;"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="5"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 20px;
+                                 -fx-background-radius: 10px;
+                                 -fx-pref-width: 220px;
+                                 -fx-effect: dropshadow(gaussian,
+                                             rgba(0,0,0,0.1),10,0,0,3);">
+                        <Label text="📦 Total commandes"
+                               style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
+                        <Label fx:id="totalCommandesLabel" text="0"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;
+                                      -fx-text-fill: #1a73e8;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Graphique -->
                 <BarChart fx:id="statsChart" animated="true"
-                          prefHeight="450" VBox.vgrow="ALWAYS">
+                          prefHeight="400" VBox.vgrow="ALWAYS">
                     <xAxis>
                         <CategoryAxis fx:id="xAxis" label="Produits"/>
                     </xAxis>
                     <yAxis>
-                        <NumberAxis fx:id="yAxis"
-                                    label="Likes"
-                                    lowerBound="0"
-                                    tickUnit="1"
-                                    autoRanging="false"/>
+                        <NumberAxis fx:id="yAxis" label="Quantité"
+                                    lowerBound="0" tickUnit="1"
+                                    autoRanging="true"/>
                     </yAxis>
                 </BarChart>
 

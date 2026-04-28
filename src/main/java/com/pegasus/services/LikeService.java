@@ -1,7 +1,11 @@
 package com.pegasus.services;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.*;
+import com.pegasus.dao.ProduitDAO;
+import com.pegasus.models.Produit;
+
+import java.io.File;
 import java.util.*;
 
 public class LikeService {
@@ -10,20 +14,20 @@ public class LikeService {
             System.getProperty("user.home") + "/pegasus_likes.json";
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    // Charger les likes depuis le fichier
-    @SuppressWarnings("unchecked")
-    private static Map<Integer, Integer> loadLikes() {
+    // ── Charger le fichier JSON ────────────────────────────────────────
+    private static Map<String, Boolean> loadLikes() {
         try {
             File f = new File(FILE_PATH);
-            if (!f.exists()) return new HashMap<>();
-            return mapper.readValue(f, HashMap.class);
+            if (!f.exists()) return new LinkedHashMap<>();
+            return mapper.readValue(f,
+                    new TypeReference<LinkedHashMap<String, Boolean>>() {});
         } catch (Exception e) {
-            return new HashMap<>();
+            return new LinkedHashMap<>();
         }
     }
 
-    // Sauvegarder
-    private static void saveLikes(Map<Integer, Integer> likes) {
+    // ── Sauvegarder le fichier JSON ────────────────────────────────────
+    private static void saveLikes(Map<String, Boolean> likes) {
         try {
             mapper.writeValue(new File(FILE_PATH), likes);
         } catch (Exception e) {
@@ -31,28 +35,42 @@ public class LikeService {
         }
     }
 
-    // Toggler un like
+    // ── Toggle like (retourne true = liké, false = unliké) ─────────────
     public static boolean toggleLike(int produitId) {
-        Map<Integer, Integer> likes = loadLikes();
-        if (likes.containsKey(produitId)) {
-            likes.remove(produitId);
+        Map<String, Boolean> likes = loadLikes();
+        String key = String.valueOf(produitId);
+        if (likes.containsKey(key)) {
+            likes.remove(key);
             saveLikes(likes);
-            return false; // unliked
+            return false;
         } else {
-            likes.put(produitId, 1);
+            likes.put(key, true);
             saveLikes(likes);
-            return true; // liked
+            return true;
         }
     }
 
-    // Savoir si un produit est liké
+    // ── Vérifier si un produit est liké ───────────────────────────────
     public static boolean isLiked(int produitId) {
-        return loadLikes().containsKey(produitId);
+        return loadLikes().containsKey(String.valueOf(produitId));
     }
 
-    // Compter les likes d'un produit
+    // ── Retourner tous les produits likés ─────────────────────────────
+    public static List<Produit> getProduitsLikes() {
+        Map<String, Boolean> likes = loadLikes();
+        ProduitDAO dao = new ProduitDAO();
+        List<Produit> result = new ArrayList<>();
+        for (String idStr : likes.keySet()) {
+            try {
+                Produit p = dao.getById(Integer.parseInt(idStr));
+                if (p != null) result.add(p);
+            } catch (NumberFormatException ignored) {}
+        }
+        return result;
+    }
+
+    // ── Nombre total de likes (pour stats) ────────────────────────────
     public static int getLikeCount(int produitId) {
-        Map<Integer, Integer> likes = loadLikes();
-        return likes.getOrDefault(produitId, 0);
+        return isLiked(produitId) ? 1 : 0;
     }
 }

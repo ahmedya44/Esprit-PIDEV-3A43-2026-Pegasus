@@ -5,15 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f1496c7-a1fd-46e5-947b-ac43418b7e94" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/services/LikeService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/services/NotificationStockService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/services/StatsService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pegasus/controllers/DashboardArtisteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/controllers/DashboardArtisteController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pegasus/controllers/DashboardUserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/controllers/DashboardUserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pegasus/services/LikeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/services/LikeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pegasus/services/NotificationStockService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/services/NotificationStockService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pegasus/services/StatsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/services/StatsService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pegasus/services/StripeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pegasus/services/StripeService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/DashboardArtiste.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/DashboardArtiste.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/fxml/DashboardUser.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/fxml/DashboardUser.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
