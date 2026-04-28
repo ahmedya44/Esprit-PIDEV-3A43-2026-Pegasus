@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.pegasus.controllers.ArtDetailController" 
+      spacing="20" alignment="CENTER" style="-fx-padding: 30px; -fx-background-color: #f8f9fa;">
+    
+    <children>
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <children>
+                <Button text="← Retour" onAction="#handleBack" 
+                        style="-fx-font-size: 14px; -fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8px 16px;"/>
+                <Label text="Détails de l'œuvre" 
+                       style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            </children>
+        </HBox>
+        
+        <!-- Main Content -->
+        <HBox spacing="30" alignment="TOP_CENTER" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
+            <children>
+                <!-- Image Section -->
+                <VBox spacing="15" alignment="CENTER">
+                    <children>
+                        <ImageView fx:id="artImageView" fitWidth="400" fitHeight="300" 
+                                   preserveRatio="true" smooth="true"
+                                   style="-fx-background-color: #e9ecef; -fx-background-radius: 10; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10;"/>
+                        
+                        <!-- Likes Section -->
+                        <HBox spacing="10" alignment="CENTER" style="-fx-background-color: #fff5f5; -fx-background-radius: 20; -fx-padding: 10px 20px;">
+                            <children>
+                                <Button fx:id="likeButton" text="♥ Like" 
+                                        onAction="#handleLike"
+                                        style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: linear-gradient(#e74c3c, #c0392b); -fx-background-radius: 15; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
+                                <Label fx:id="likesLabel" text="0 likes" 
+                                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                            </children>
+                        </HBox>
+                        
+                        <!-- Spotify Section -->
+                        <Button fx:id="spotifyButton" text="♫ Spotify Playlist" 
+                                onAction="#handleSpotify"
+                                style="-fx-font-size: 14px; -fx-background-color: #1db954; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 12px 24px; -fx-cursor: hand;"/>
+                    </children>
+                </VBox>
+                
+                <!-- Details Section -->
+                <VBox spacing="15" prefWidth="400">
+                    <children>
+                        <!-- Title -->
+                        <Label fx:id="titleLabel" text="Titre de l'œuvre" 
+                               style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-wrap-text: true;"/>
+                        
+                        <!-- Artist -->
+                        <HBox spacing="10">
+                            <children>
+                                <Label text="Artiste:" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                                <Label fx:id="artistLabel" text="Nom de l'artiste" 
+                                       style="-fx-font-size: 16px; -fx-text-fill: #6c757d;"/>
+                            </children>
+                        </HBox>
+                        
+                        <!-- Description -->
+                        <VBox spacing="10">
+                            <children>
+                                <Label text="Description:" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                                <ScrollPane prefHeight="150" fitToWidth="true" 
+                                            style="-fx-background: transparent; -fx-border-color: #dee2e6; -fx-border-radius: 8;">
+                                    <content>
+                                        <Label fx:id="descriptionLabel" text="Description de l'œuvre..." 
+                                               style="-fx-font-size: 14px; -fx-text-fill: #6c757d; -fx-wrap-text: true;" 
+                                               wrapText="true"/>
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                        </VBox>
+                        
+                        <!-- Status and Date -->
+                        <HBox spacing="20">
+                            <children>
+                                <HBox spacing="5">
+                                    <children>
+                                        <Label text="Statut:" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                                        <Label fx:id="statusLabel" text="Publié" 
+                                               style="-fx-font-size: 14px; -fx-text-fill: #28a745; -fx-font-weight: bold;"/>
+                                    </children>
+                                </HBox>
+                                
+                                <HBox spacing="5">
+                                    <children>
+                                        <Label text="Date:" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
+                                        <Label fx:id="dateLabel" text="01/01/2024" 
+                                               style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </HBox>
+                        
+                        <!-- Action Buttons -->
+                        <HBox spacing="10">
+                            <children>
+                                <Button fx:id="editButton" text="✓ Modifier" 
+                                        onAction="#handleEdit"
+                                        style="-fx-font-size: 14px; -fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
+                                <Button fx:id="deleteButton" text="✗ Supprimer" 
+                                        onAction="#handleDelete"
+                                        style="-fx-font-size: 14px; -fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+        
+        <!-- Recommendations Section -->
+        <VBox spacing="15">
+            <children>
+                <Label text="Œuvres similaires" 
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                
+                <ScrollPane prefHeight="200" fitToWidth="true" 
+                            style="-fx-background: transparent; -fx-border-color: #dee2e6; -fx-border-radius: 10;">
+                    <content>
+                        <TilePane fx:id="recommendationsTilePane" hgap="15" vgap="15" 
+                                   prefColumns="4" alignment="TOP_CENTER"/>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </children>
+</VBox>

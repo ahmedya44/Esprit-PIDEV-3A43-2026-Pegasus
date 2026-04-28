@@ -56,7 +56,7 @@ public class BackofficeSimpleController {
                 return;
             }
             
-            List<Art> artworks = serviceArt.getAllArts();
+            List<Art> artworks = serviceArt.getAllArts(); // Afficher TOUTES les œuvres dans le backoffice
             System.out.println("Found " + artworks.size() + " artworks");
             
             // Vider le container

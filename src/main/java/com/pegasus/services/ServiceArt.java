@@ -13,7 +13,6 @@ public class ServiceArt {
     
     public ServiceArt() {
         createArtistColumnIfNotExists();
-        // updateAllNullArtists(); // Désactivé pour permettre la gestion manuelle
     }
     
     private void createArtistColumnIfNotExists() {
@@ -32,19 +31,6 @@ public class ServiceArt {
             }
         } catch (SQLException e) {
             System.err.println("Erreur lors de la vérification/création de la colonne artist: " + e.getMessage());
-        }
-    }
-    
-    private void updateAllNullArtists() {
-        try (Connection conn = dbConnection.getConnection()) {
-             Statement stmt = conn.createStatement()) {
-                // Mettre à jour toutes les œuvres qui ont artist = NULL
-                String updateSql = "UPDATE art SET artist = 'Artiste inconnu' WHERE artist IS NULL OR artist = '' OR artist = 'null'";
-                int rowsUpdated = stmt.executeUpdate(updateSql);
-                System.out.println("DEBUG - Mise à jour générale de " + rowsUpdated + " œuvre(s) sans artiste");
-            }
-        } catch (SQLException e) {
-            System.err.println("Erreur lors de la mise à jour générale: " + e.getMessage());
         }
     }
     
@@ -130,7 +116,76 @@ public class ServiceArt {
             e.printStackTrace();
         }
         
+        // Si la base de données est vide, créer des données de test
+        if (arts.isEmpty()) {
+            System.out.println("Aucune œuvre trouvée, création de données de test...");
+            arts = createSampleData();
+        }
+        
         return arts;
+    }
+    
+    private List<Art> createSampleData() {
+        List<Art> sampleArts = new ArrayList<>();
+        
+        // Créer quelques œuvres d'exemple
+        Art art1 = new Art();
+        art1.setId(1);
+        art1.setTitle("Starry Night");
+        art1.setDescription("Une peinture emblématique de Van Gogh montrant un ciel nocturne tourbillonnant.");
+        art1.setImageUrl("https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400");
+        art1.setStatus("published");
+        art1.setArtist("Vincent van Gogh");
+        art1.setCreatedAt(LocalDateTime.now().minusDays(30));
+        art1.setLikes(156);
+        sampleArts.add(art1);
+        
+        Art art2 = new Art();
+        art2.setId(2);
+        art2.setTitle("The Persistence of Memory");
+        art2.setDescription("Les fameuses montres molles de Salvador Dali représentant le temps qui se déforme.");
+        art2.setImageUrl("https://images.unsplash.com/photo-1579532585038-5b5bfecfd4c6?w=400");
+        art2.setStatus("published");
+        art2.setArtist("Salvador Dalí");
+        art2.setCreatedAt(LocalDateTime.now().minusDays(25));
+        art2.setLikes(203);
+        sampleArts.add(art2);
+        
+        Art art3 = new Art();
+        art3.setId(3);
+        art3.setTitle("The Great Wave");
+        art3.setDescription("La vague célèbre de Hokusai avec le Mont Fuji en arrière-plan.");
+        art3.setImageUrl("https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400");
+        art3.setStatus("pending");
+        art3.setArtist("Katsushika Hokusai");
+        art3.setCreatedAt(LocalDateTime.now().minusDays(20));
+        art3.setLikes(178);
+        sampleArts.add(art3);
+        
+        Art art4 = new Art();
+        art4.setId(4);
+        art4.setTitle("Girl with a Pearl Earring");
+        art4.setDescription("Portrait mystérieux d'une jeune fille avec un éclairage dramatique.");
+        art4.setImageUrl("https://images.unsplash.com/photo-1549490349-8643362247b5?w=400");
+        art4.setStatus("published");
+        art4.setArtist("Johannes Vermeer");
+        art4.setCreatedAt(LocalDateTime.now().minusDays(15));
+        art4.setLikes(145);
+        sampleArts.add(art4);
+        
+        Art art5 = new Art();
+        art5.setId(5);
+        art5.setTitle("The Scream");
+        art5.setDescription("Figure emblématique de l'angoisse existentielle moderne.");
+        art5.setImageUrl("https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=400");
+        art5.setStatus("pending");
+        art5.setArtist("Edvard Munch");
+        art5.setCreatedAt(LocalDateTime.now().minusDays(10));
+        art5.setLikes(189);
+        sampleArts.add(art5);
+        
+        System.out.println("Créé " + sampleArts.size() + " œuvres de test");
+        return sampleArts;
     }
     
     public List<Art> getArtsByStatus(String status) {

@@ -22,12 +22,13 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
-import javafx.scene.control.TextInputControl;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ScrollPane;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.io.IOException;
 import com.pegasus.services.ServiceArt;
 import com.pegasus.services.RecommendationService;
 import com.pegasus.services.SpotifyService;
@@ -37,6 +38,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ScrollPane;
 
@@ -89,14 +91,14 @@ public class MenuController {
         galleryGrid.getChildren().clear();
         
         try {
-            // Charger TOUTES les oeuvres depuis la base de données
+            // Charger TOUTES les œuvres depuis la base de données
             allArtworks = serviceArt.getArtsByStatus("published"); // Seulement les œuvres publiées
             
             // Filtrer et afficher les œuvres published
             displayFilteredArtworks(allArtworks);
             
         } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des oeuvres: " + e.getMessage());
+            System.err.println("Erreur lors du chargement des œuvres: " + e.getMessage());
             
             // En cas d'erreur, afficher les données de test
             for (MenuItem item : menuItems) {
@@ -326,7 +328,7 @@ public class MenuController {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Spotify");
             alert.setHeaderText("Musique pour: " + art.getTitle());
-            alert.setContentText("Recherche de musique adaptee a cette oeuvre sur Spotify...");
+            alert.setContentText("Recherche de musique adaptée à cette œuvre sur Spotify...");
             alert.showAndWait();
             
             // Ouvrir Spotify dans le navigateur
@@ -345,7 +347,7 @@ public class MenuController {
             // Créer une fenêtre de dialogue personnalisée
             Dialog<Void> dialog = new Dialog<>();
             dialog.setTitle("Suggestions pour: " + art.getTitle());
-            dialog.setHeaderText("Les gens qui aiment cette oeuvre aiment aussi...");
+            dialog.setHeaderText("Les gens qui aiment cette œuvre aiment aussi...");
             
             // Créer le contenu personnalisé
             VBox content = new VBox(15);
@@ -432,7 +434,7 @@ public class MenuController {
         
         // Artiste
         Label artistLabel = new Label("Artiste: " + art.getArtist());
-        artistLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6c757d; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
+        artistLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6c757d; -fx-font-family: 'Segoe UI', Arial, sans-serif; -fx-wrap-text: true;");
         
         // Description (tronquée si trop longue)
         String description = art.getDescription();
@@ -452,10 +454,10 @@ public class MenuController {
         
         // Pour l'instant, on vérifie si c'est du même artiste
         if (art.getArtist() != null) {
-            similarityText = "Meme artiste: " + art.getArtist();
+            similarityText = "Même artiste: " + art.getArtist();
             similarityColor = "#28a745"; // Vert
         } else {
-            similarityText = "Oeuvre recommandee";
+            similarityText = "Oeuvre recommandée";
             similarityColor = "#6c757d"; // Gris
         }
         
@@ -472,11 +474,11 @@ public class MenuController {
         
         // Effet de survol
         card.setOnMouseEntered(e -> {
-            card.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 12px; -fx-border-color: #007bff; -fx-border-width: 2; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);");
+            card.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 12px; -fx-border-color: #007bff; -fx-border-width: 2; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 5); -fx-cursor: hand;");
         });
         
         card.setOnMouseExited(e -> {
-            card.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12px; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);");
+            card.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12px; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2); -fx-cursor: hand;");
         });
         
         return card;
@@ -698,14 +700,49 @@ public class MenuController {
         }
     }
     
+    // Méthodes de filtrage
+    @FXML
+    private void handleFilterAll() {
+        loadMenuItems("All");
+    }
+    
+    @FXML
+    private void handleFilterBurger() {
+        loadMenuItems("Burger");
+    }
+    
+    @FXML
+    private void handleFilterPizza() {
+        loadMenuItems("Pizza");
+    }
+    
+    @FXML
+    private void handleFilterPasta() {
+        loadMenuItems("Pasta");
+    }
+    
+    @FXML
+    private void handleFilterFries() {
+        loadMenuItems("Fries");
+    }
+    
+    @FXML
+    private void handleOpenGallery() {
+        try {
+            SceneNavigator.goTo("/views/gallery-main-view.fxml");
+        } catch (IOException e) {
+            System.err.println("Error opening gallery: " + e.getMessage());
+        }
+    }
+    
     @FXML
     private void handleAddArtwork() {
         try {
-            System.out.println("Ouverture du formulaire d'ajout d'oeuvre...");
+            System.out.println("Ouverture du formulaire d'ajout d'œuvre...");
             
             // Créer un dialogue simple qui fonctionne
             DialogPane dialogPane = new DialogPane();
-            dialogPane.setHeaderText("Ajouter une nouvelle oeuvre");
+            dialogPane.setHeaderText("Ajouter une nouvelle œuvre");
             
             // Créer les champs
             GridPane grid = new GridPane();
@@ -714,7 +751,7 @@ public class MenuController {
             grid.setPadding(new Insets(20, 150, 10, 10));
             
             TextField titleField = new TextField();
-            titleField.setPromptText("Titre de l'oeuvre");
+            titleField.setPromptText("Titre de l'œuvre");
             
             TextField artistField = new TextField();
             artistField.setPromptText("Nom de l'artiste");
@@ -740,7 +777,7 @@ public class MenuController {
             // Créer le dialogue
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setDialogPane(dialogPane);
-            dialog.setTitle("Ajouter une oeuvre");
+            dialog.setTitle("Ajouter une œuvre");
             
             // Ajouter les boutons
             dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -796,7 +833,7 @@ public class MenuController {
                 if (success) {
                     Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                     successAlert.setTitle("Publication réussie");
-                    successAlert.setHeaderText("Oeuvre soumise avec succès !");
+                    successAlert.setHeaderText("Œuvre soumise avec succès !");
                     successAlert.setContentText("Votre publication sera publiée dès que l'administrateur l'acceptera.");
                     successAlert.showAndWait();
                     
@@ -804,7 +841,7 @@ public class MenuController {
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
                     errorAlert.setTitle("Erreur");
                     errorAlert.setHeaderText("Échec de la publication");
-                    errorAlert.setContentText("Impossible de sauvegarder l'oeuvre. Veuillez réessayer.");
+                    errorAlert.setContentText("Impossible de sauvegarder l'œuvre. Veuillez réessayer.");
                     errorAlert.showAndWait();
                 }
             }

@@ -157,8 +157,8 @@ public class GalleryController {
             Parent root = loader.load();
             
             // Pass art data to detail controller
-            // ArtDetailController controller = loader.getController();
-            // controller.setArt(art);
+            ArtDetailController controller = loader.getController();
+            controller.setArt(art);
             
             Stage stage = new Stage();
             Scene scene = new Scene(root);

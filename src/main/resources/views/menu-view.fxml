@@ -32,13 +32,16 @@
         <!-- Title -->
         <Label text="Our Gallery" styleClass="page-title"/>
         
-        <!-- Filter Buttons -->
+        <!-- Filter and Action Buttons -->
         <HBox spacing="10" alignment="CENTER">
             <Button text="All" styleClass="filter-button active" onAction="#handleFilterAll"/>
             <Button text="Burger" styleClass="filter-button" onAction="#handleFilterBurger"/>
             <Button text="Pizza" styleClass="filter-button" onAction="#handleFilterPizza"/>
             <Button text="Pasta" styleClass="filter-button" onAction="#handleFilterPasta"/>
             <Button text="Fries" styleClass="filter-button" onAction="#handleFilterFries"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="+ Ajouter Œuvre" onAction="#handleAddArtwork" 
+                    style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8px 16px; -fx-cursor: hand;"/>
         </HBox>
         
         <!-- Gallery Grid -->

@@ -41,27 +41,27 @@ public class RecommendationService {
             
             // Analyser chaque œuvre pour calculer un score de similarité
             System.out.println("Analyse des recommandations pour: " + currentArtwork.getTitle());
-            System.out.println("Total d'œuvres disponibles: " + allArtworks.size());
+            System.out.println("Total d'oeuvres disponibles: " + allArtworks.size());
             
             for (Art art : allArtworks) {
                 if (art.getId() != artworkId) {
                     double score = calculateSimilarityScore(currentArtwork, art);
                     System.out.println("Score " + art.getTitle() + " - Score: " + String.format("%.2f", score));
                     
-                    if (score >= 0.7) { // Seuil TRÈS strict - minimum 70% de similarité
+                    if (score >= 0.7) { // Seuil TRES strict - minimum 70% de similarité
                         scoredRecommendations.add(new ArtworkScore(art, score));
-                        System.out.println("Ajouté aux recommandations!");
+                        System.out.println("Ajoute aux recommandations!");
                     } else {
                         System.out.println("Score trop bas: " + String.format("%.2f", score));
                     }
                 }
             }
             
-            System.out.println("Recommandations trouvées: " + scoredRecommendations.size());
+            System.out.println("Recommandations trouvees: " + scoredRecommendations.size());
             
             // Si aucune recommandation n'est trouvée, prendre les œuvres les plus populaires
             if (scoredRecommendations.isEmpty()) {
-                System.out.println("Aucune recommandation trouvée, utilisation des œuvres populaires...");
+                System.out.println("Aucune recommandation trouvee, utilisation des oeuvres populaires...");
                 
                 List<Art> popularArtworks = allArtworks.stream()
                     .filter(art -> art.getId() != artworkId)
@@ -69,7 +69,7 @@ public class RecommendationService {
                     .limit(limit)
                     .collect(Collectors.toList());
                 
-                System.out.println("Œuvres populaires sélectionnées: " + popularArtworks.size());
+                System.out.println("Oeuvres populaires selectionnees: " + popularArtworks.size());
                 return popularArtworks;
             }
             
@@ -97,20 +97,20 @@ public class RecommendationService {
         
         System.out.println("Comparaison: " + art1.getTitle() + " vs " + art2.getTitle());
         
-        // SEUL CRITÈRE IMPORTANT: Même artiste
+        // SEUL CRITERE IMPORTANT: Même artiste
         if (art1.getArtist() != null && art2.getArtist() != null) {
             String artist1 = art1.getArtist().toLowerCase().trim();
             String artist2 = art2.getArtist().toLowerCase().trim();
             
             if (artist1.equals(artist2)) {
                 score = 1.0; // 100% si même artiste
-                System.out.println("Même artiste: " + art1.getArtist());
+                System.out.println("Meme artiste: " + art1.getArtist());
             } else {
                 score = 0.0; // 0% si artiste différent
-                System.out.println("Artistes différents: " + art1.getArtist() + " != " + art2.getArtist());
+                System.out.println("Artistes differents: " + art1.getArtist() + " != " + art2.getArtist());
             }
         } else {
-            score = 0.0; // 0% si pas d'information sur l'artiste
+            score = 0.0; // 0% si pas d'artiste
             System.out.println("Pas d'information sur l'artiste");
         }
         
@@ -152,11 +152,12 @@ public class RecommendationService {
     }
     
     /**
-     * Recommandation basée sur les tendances
+     * Recommendation basée sur les tendances
      * Simple: retourne les œuvres avec le plus de likes récents
      */
     public List<Art> getTrendingArtworks(int limit) {
         // Pour l'instant, même logique que popularité
+        // Plus tard: pourrait analyser les likes par date
         return getPopularArtworks(limit);
     }
 }
