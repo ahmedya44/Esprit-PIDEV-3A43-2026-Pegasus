@@ -161,11 +161,27 @@ public class ForumService {
     }
 
     public TranslationValue translatedPost(Post post, String locale) {
-        return translationDao.translatedPost(post.getId(), post.getTitle(), post.getContent(), locale);
+        TranslationValue saved = translationDao.translatedPost(post.getId(), post.getTitle(), post.getContent(), locale);
+        if (isOriginalLocale(locale)) {
+            return saved;
+        }
+        String title = saved.title();
+        String content = saved.content();
+        if (sameText(title, post.getTitle())) {
+            title = translationApiClient.translate(post.getTitle(), locale, "auto");
+        }
+        if (sameText(content, post.getContent())) {
+            content = translationApiClient.translate(post.getContent(), locale, "auto");
+        }
+        return new TranslationValue(title, content);
     }
 
     public String translatedComment(Comment comment, String locale) {
-        return translationDao.translatedComment(comment.getId(), comment.getContent(), locale);
+        String saved = translationDao.translatedComment(comment.getId(), comment.getContent(), locale);
+        if (isOriginalLocale(locale) || !sameText(saved, comment.getContent())) {
+            return saved;
+        }
+        return translationApiClient.translate(comment.getContent(), locale, "auto");
     }
 
     public void savePostTranslation(Post post, String locale, String title, String content) {
@@ -183,7 +199,7 @@ public class ForumService {
     }
 
     public TranslationValue autoTranslatePost(Post post, String locale) {
-        if (locale == null || locale.equals("orig")) {
+        if (isOriginalLocale(locale)) {
             throw new IllegalArgumentException("Choose a target language first.");
         }
         return new TranslationValue(
@@ -193,10 +209,20 @@ public class ForumService {
     }
 
     public String autoTranslateComment(Comment comment, String locale) {
-        if (locale == null || locale.equals("orig")) {
+        if (isOriginalLocale(locale)) {
             throw new IllegalArgumentException("Choose a target language first.");
         }
         return translationApiClient.translate(comment.getContent(), locale, "auto");
+    }
+
+    private boolean isOriginalLocale(String locale) {
+        return locale == null || locale.isBlank() || locale.equalsIgnoreCase("orig");
+    }
+
+    private boolean sameText(String left, String right) {
+        String cleanLeft = left == null ? "" : left.trim();
+        String cleanRight = right == null ? "" : right.trim();
+        return cleanLeft.equals(cleanRight);
     }
 
     public List<String> suggest(String field, String text, String context, String locale, int limit) {

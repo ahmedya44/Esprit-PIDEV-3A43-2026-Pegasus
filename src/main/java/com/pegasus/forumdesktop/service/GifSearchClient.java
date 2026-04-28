@@ -4,19 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pegasus.forumdesktop.model.GifItem;
 
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class GifSearchClient {
-    private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8)).build();
+    private final ApiHttpClient httpClient = new ApiHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
     private final String provider = ApiSettings.value("GIF_PROVIDER", "klipy").toLowerCase(Locale.ROOT);
     private final String klipyApiKey = ApiSettings.value("KLIPY_API_KEY", "");
@@ -97,9 +92,7 @@ public class GifSearchClient {
     }
 
     private JsonNode send(String url) throws Exception {
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).timeout(Duration.ofSeconds(10)).GET().build();
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        return mapper.readTree(response.body());
+        return mapper.readTree(httpClient.get(url));
     }
 
     private String klipyContentFilter() {

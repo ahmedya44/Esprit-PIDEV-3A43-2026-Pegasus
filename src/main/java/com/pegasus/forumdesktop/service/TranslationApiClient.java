@@ -3,19 +3,14 @@ package com.pegasus.forumdesktop.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 
 public class TranslationApiClient {
     private static final List<String> KNOWN_LOCALES = List.of("fr", "en", "es", "de", "it", "ar");
-    private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8)).build();
+    private final ApiHttpClient httpClient = new ApiHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
 
     public String translate(String text, String targetLocale, String sourceLocale) {
@@ -42,19 +37,22 @@ public class TranslationApiClient {
                 return translated;
             }
         }
-        return cleanText;
+        throw new IllegalStateException("Translation API did not return a usable translation.");
     }
 
     private String requestTranslation(String text, String sourceLocale, String targetLocale) {
+        String translated = requestMyMemoryTranslation(text, sourceLocale, targetLocale);
+        if (translated != null && !translated.isBlank()) {
+            return translated;
+        }
+        return requestGoogleTranslation(text, sourceLocale, targetLocale);
+    }
+
+    private String requestMyMemoryTranslation(String text, String sourceLocale, String targetLocale) {
         try {
             String query = "q=" + encode(text) + "&langpair=" + encode(sourceLocale + "|" + targetLocale);
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.mymemory.translated.net/get?" + query))
-                .timeout(Duration.ofSeconds(10))
-                .GET()
-                .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            JsonNode root = mapper.readTree(response.body());
+            String response = httpClient.get("https://api.mymemory.translated.net/get?" + query);
+            JsonNode root = mapper.readTree(response);
             String details = root.path("responseDetails").asText("");
             if (details.toLowerCase(Locale.ROOT).contains("invalid source language")) {
                 return null;
@@ -64,6 +62,30 @@ public class TranslationApiClient {
                 return null;
             }
             return translated.trim();
+        } catch (RuntimeException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private String requestGoogleTranslation(String text, String sourceLocale, String targetLocale) {
+        try {
+            String query = "client=gtx"
+                + "&sl=" + encode(sourceLocale)
+                + "&tl=" + encode(targetLocale)
+                + "&dt=t"
+                + "&q=" + encode(text);
+            String response = httpClient.get("https://translate.googleapis.com/translate_a/single?" + query);
+            JsonNode root = mapper.readTree(response);
+            StringBuilder translated = new StringBuilder();
+            for (JsonNode sentence : root.path(0)) {
+                String part = sentence.path(0).asText("");
+                if (!part.isBlank()) {
+                    translated.append(part);
+                }
+            }
+            return translated.toString().trim();
         } catch (Exception ex) {
             return null;
         }

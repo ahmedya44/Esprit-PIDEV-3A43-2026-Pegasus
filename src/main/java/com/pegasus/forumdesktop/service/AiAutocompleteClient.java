@@ -5,13 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,7 +14,7 @@ import java.util.Locale;
 import java.util.Set;
 
 public class AiAutocompleteClient {
-    private final HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(8)).build();
+    private final ApiHttpClient httpClient = new ApiHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
     private final String apiKey = ApiSettings.value("GEMINI_API_KEY", "");
     private final String model = ApiSettings.value("GEMINI_MODEL", "gemma-3-4b-it");
@@ -41,14 +36,11 @@ public class AiAutocompleteClient {
             generation.put("temperature", 0.4);
             generation.put("maxOutputTokens", 140);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(buildUrl() + "?key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8)))
-                .timeout(Duration.ofSeconds(10))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload)))
-                .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            return normalize(parseRaw(extractText(mapper.readTree(response.body()))), cleanText, boundedLimit);
+            String response = httpClient.postJson(
+                buildUrl() + "?key=" + URLEncoder.encode(apiKey, StandardCharsets.UTF_8),
+                mapper.writeValueAsString(payload)
+            );
+            return normalize(parseRaw(extractText(mapper.readTree(response))), cleanText, boundedLimit);
         } catch (Exception ex) {
             return List.of();
         }
