@@ -1,6 +1,6 @@
-target/
-.idea/
-.vscode/
-*.iml
-src/main/resources/google-oauth.properties
-src/main/resources/mail.properties
+﻿target/
+*.class
+.vscode/.ropeproject/
+.DS_Store
+.env
+.env.local

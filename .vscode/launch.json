@@ -1,0 +1,30 @@
+﻿{
+    "version":  "0.2.0",
+    "configurations":  [
+                           {
+                               "name":  "Run Pegasus Forum JavaFX",
+                               "type":  "java",
+                               "request":  "launch",
+                               "mainClass":  "com.pegasus.forumdesktop.Launcher",
+                               "projectName":  "pegasus-forum-javafx-mvc",
+                               "cwd":  "${workspaceFolder}",
+                               "env":  {
+                                           "JAVA_HOME":  "C:\\Program Files\\Java\\jdk-17",
+                                           "PEGASUS_DB_URL":  "jdbc:mysql://127.0.0.1:3306/pi?useSSL=false\u0026serverTimezone=UTC\u0026allowPublicKeyRetrieval=true",
+                                           "PEGASUS_DB_USER":  "root",
+                                           "PEGASUS_DB_PASSWORD":  "",
+                                           "GEMINI_API_KEY":  "",
+                                           "GEMINI_MODEL":  "gemma-3-4b-it",
+                                           "GEMINI_API_URL":  "https://generativelanguage.googleapis.com/v1beta/models",
+                                           "GIF_PROVIDER":  "klipy",
+                                           "KLIPY_API_KEY":  "",
+                                           "KLIPY_API_URL":  "https://api.klipy.com/v2",
+                                           "KLIPY_CLIENT_KEY":  "pegasus_forum",
+                                           "GIPHY_API_KEY":  "",
+                                           "GIPHY_RATING":  "pg-13",
+                                           "PEGASUS_FORUM_UPLOADS_DIR":  "C:\\Users\\mentis\\Downloads\\Pegasus-forum\\Pegasus-forum\\public\\uploads\\forum"
+                                       },
+                               "preLaunchTask":  "maven: compile"
+                           }
+                       ]
+}

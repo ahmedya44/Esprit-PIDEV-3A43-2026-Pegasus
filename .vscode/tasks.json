@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "maven: compile",
+      "type": "shell",
+      "command": "mvn",
+      "args": [
+        "-DskipTests",
+        "compile"
+      ],
+      "options": {
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Java\\jdk-17"
+        }
+      },
+      "group": "build",
+      "problemMatcher": "$javac"
+    },
+    {
+      "label": "javafx: run",
+      "type": "shell",
+      "command": "mvn",
+      "args": [
+        "javafx:run"
+      ],
+      "options": {
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Java\\jdk-17"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$javac"
+    },
+    {
+      "label": "maven: clean",
+      "type": "shell",
+      "command": "mvn",
+      "args": [
+        "clean"
+      ],
+      "options": {
+        "env": {
+          "JAVA_HOME": "C:\\Program Files\\Java\\jdk-17"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}
