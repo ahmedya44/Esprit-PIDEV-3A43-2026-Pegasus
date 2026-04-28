@@ -8,14 +8,11 @@ import java.util.Base64;
 
 public class SpotifyService {
     
-    private static final String CLIENT_ID = "d7dcd5cf06de4852a431a80be6685202";
-    private static final String CLIENT_SECRET = "e40517e3bc9e4060bc3e77be862ee271";
+    private static final String CLIENT_ID = "your_client_id";
+    private static final String CLIENT_SECRET = "your_client_secret";
     private static final String TOKEN_URL = "https://accounts.spotify.com/api/token";
-    private static final String API_BASE = "https://api.spotify.com/v1";
     
-    private String accessToken;
     private HttpClient httpClient;
-    private boolean isAuthenticated = false;
     
     public SpotifyService() {
         this.httpClient = HttpClient.newHttpClient();
@@ -60,9 +57,6 @@ public class SpotifyService {
                 // Parser manuellement la réponse JSON simple
                 String responseBody = response.body();
                 if (responseBody.contains("\"access_token\"")) {
-                    String token = responseBody.split("\"access_token\":\"")[1].split("\"")[0];
-                    this.accessToken = token;
-                    this.isAuthenticated = true;
                     System.out.println("OK Spotify API authentifiee avec succes !");
                     return true;
                 }

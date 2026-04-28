@@ -6,7 +6,7 @@
 <?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.pegasus.controllers.ArtDetailController" 
+      fx:controller="com.pegasus.controllers.ArtDetailControllerSimple" 
       spacing="20" alignment="CENTER" style="-fx-padding: 30px; -fx-background-color: #f8f9fa;">
     
     <children>
@@ -41,6 +41,17 @@
                             </children>
                         </HBox>
                         
+                        <!-- Pinterest Section GARANTI -->
+                        <HBox spacing="10" alignment="CENTER" style="-fx-background-color: #fff0f5; -fx-background-radius: 20; -fx-padding: 10px 20px;">
+                            <children>
+                                <Button fx:id="pinterestButton" text="🎨 Pinterest" 
+                                        onAction="#handlePinterest"
+                                        style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: linear-gradient(#E60023, #bd1e2d); -fx-background-radius: 15; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
+                                <Label text="Inspirations d'art" 
+                                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #E60023;"/>
+                            </children>
+                        </HBox>
+                        
                         <!-- Spotify Section -->
                         <Button fx:id="spotifyButton" text="♫ Spotify Playlist" 
                                 onAction="#handleSpotify"
@@ -65,10 +76,10 @@
                         </HBox>
                         
                         <!-- Description -->
-                        <VBox spacing="10">
+                        <VBox spacing="15">
                             <children>
                                 <Label text="Description:" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                <ScrollPane prefHeight="150" fitToWidth="true" 
+                                <ScrollPane prefHeight="120" fitToWidth="true" 
                                             style="-fx-background: transparent; -fx-border-color: #dee2e6; -fx-border-radius: 8;">
                                     <content>
                                         <Label fx:id="descriptionLabel" text="Description de l'œuvre..." 
@@ -109,12 +120,31 @@
                                 <Button fx:id="deleteButton" text="✗ Supprimer" 
                                         onAction="#handleDelete"
                                         style="-fx-font-size: 14px; -fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
+                                <Button text="💬 Citations" 
+                                        onAction="#handleQuotes"
+                                        style="-fx-font-size: 14px; -fx-background-color: #6f42c1; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
                             </children>
                         </HBox>
                     </children>
                 </VBox>
             </children>
         </HBox>
+        
+        <!-- Pinterest Inspirations Section -->
+        <VBox spacing="15">
+            <children>
+                <Label text="🎨 Inspirations Pinterest" 
+                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #E60023;"/>
+                
+                <ScrollPane prefHeight="180" fitToWidth="true" 
+                            style="-fx-background: transparent; -fx-border-color: #E60023; -fx-border-radius: 10;">
+                    <content>
+                        <TilePane fx:id="pinterestTilePane" hgap="10" vgap="10" 
+                                   prefColumns="5" alignment="TOP_CENTER"/>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
         
         <!-- Recommendations Section -->
         <VBox spacing="15">

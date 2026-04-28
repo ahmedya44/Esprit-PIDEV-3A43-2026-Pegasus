@@ -19,28 +19,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ScrollPane;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.io.IOException;
-import com.pegasus.services.ServiceArt;
-import com.pegasus.services.RecommendationService;
-import com.pegasus.services.SpotifyService;
 import com.pegasus.entities.Art;
 import com.pegasus.entities.MenuItem;
+import com.pegasus.services.ServiceArt;
+import com.pegasus.services.RecommendationService;
+import com.pegasus.services.QuotesService;
+import com.pegasus.services.ArtistsService;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ScrollPane;
 
 public class MenuController {
     
@@ -60,12 +50,9 @@ public class MenuController {
     
     // Service pour la base de données
     private ServiceArt serviceArt = new ServiceArt();
-    
-    // Service de recommendation
     private RecommendationService recommendationService = new RecommendationService();
-    
-    // Service Spotify pour les playlists
-    private SpotifyService spotifyService = new SpotifyService();
+    private QuotesService quotesService = new QuotesService();
+    private ArtistsService artistsService = new ArtistsService();
     
     private List<Art> allArtworks = new ArrayList<>();
     private String currentSortOrder = "default"; // default, recent, older, liked
@@ -109,20 +96,7 @@ public class MenuController {
         }
     }
     
-    private List<MenuItem> filterMenuItems(String filter) {
-        if (filter.equals("All")) {
-            return menuItems;
-        }
         
-        List<MenuItem> filtered = new ArrayList<>();
-        for (MenuItem item : menuItems) {
-            if (item.getCategory().equalsIgnoreCase(filter)) {
-                filtered.add(item);
-            }
-        }
-        return filtered;
-    }
-    
     private VBox createArtworkCard(Art art) {
         VBox card = new VBox(10);
         card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); -fx-padding: 15;");
@@ -603,22 +577,7 @@ public class MenuController {
         }
     }
     
-    private void loadDefaultImage(ImageView imageView) {
-        try {
-            // Essayer de charger une image par défaut depuis les ressources
-            Image defaultImage = new Image("/images/default-artwork.jpg", true);
-            if (!defaultImage.isError()) {
-                imageView.setImage(defaultImage);
-            } else {
-                // Créer une image placeholder avec du CSS
-                imageView.setStyle("-fx-background-color: #e9ecef; -fx-border-color: #dee2e6; -fx-border-width: 2px; -fx-border-radius: 8px;");
-            }
-        } catch (Exception e) {
-            // Fallback avec style CSS
-            imageView.setStyle("-fx-background-color: #e9ecef; -fx-border-color: #dee2e6; -fx-border-width: 2px; -fx-border-radius: 8px;");
-        }
-    }
-    
+        
     private void openModifyDialog(Art art) {
         try {
             DialogPane dialogPane = new DialogPane();
@@ -698,6 +657,42 @@ public class MenuController {
         } catch (Exception e) {
             System.err.println("Erreur lors du retour à l'accueil: " + e.getMessage());
         }
+    }
+    
+    @FXML
+    private void handleQuotes() {
+        String quote = quotesService.getFormattedQuote();
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("💬 Citation d'artiste");
+        alert.setHeaderText(null);
+        alert.setContentText(quote);
+        alert.showAndWait();
+    }
+    
+    @FXML
+    private void handleArtists() {
+        // Créer une boîte de dialogue pour entrer le nom de l'artiste
+        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
+        dialog.setTitle("🎨 Biographie d'artiste");
+        dialog.setHeaderText("Entrez le nom d'un artiste");
+        dialog.setContentText("Nom de l'artiste :");
+        
+        // Suggestions d'artistes
+        dialog.getDialogPane().setExpanded(true);
+        
+        dialog.showAndWait().ifPresent(artistName -> {
+            if (!artistName.trim().isEmpty()) {
+                String biography = artistsService.getFormattedBiography(artistName.trim());
+                
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("🎨 " + artistName);
+                alert.setHeaderText(null);
+                alert.setContentText(biography);
+                alert.getDialogPane().setMinWidth(500);
+                alert.showAndWait();
+            }
+        });
     }
     
     // Méthodes de filtrage

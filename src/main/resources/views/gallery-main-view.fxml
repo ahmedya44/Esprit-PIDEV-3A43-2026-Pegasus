@@ -5,41 +5,47 @@
 <?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.MenuController" spacing="10" style="-fx-padding: 20px; -fx-background-color: #f8f9fa;">
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.MenuController" spacing="10" style="-fx-padding: 30px; -fx-background-color: #f8fafc;">
     
     <!-- Header -->
-    <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 15px; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;">
-        <Label text="Galerie doevres dart" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-alignment: center;"/>
+    <HBox alignment="CENTER_LEFT" style="-fx-background-color: linear-gradient(to right, #667eea 0%, #764ba2 100%); -fx-padding: 20px; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 1 0; -fx-border-radius: 0 0 15px 0;">
+        <Label text="🎨 Galerie d'Art" style="-fx-font-size: 26px; -fx-font-weight: bold; -fx-text-fill: white; -fx-alignment: center;"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="ACCUEIL" onAction="#goHome" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
+        <Button text="🏠 ACCUEIL" onAction="#goHome" style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10px 20px; -fx-font-weight: 600;"/>
     </HBox>
     
     <!-- Title -->
-    <Label text="Galerie doevres dart" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-alignment: center;"/>
+    <Label text="Collection d'Œuvres d'Art" style="-fx-font-size: 32px; -fx-font-weight: 300; -fx-text-fill: #4a5568; -fx-alignment: center; -fx-padding: 10px 0 20px 0;"/>
     
     <!-- Search Bar -->
-    <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10px;">
-        <TextField fx:id="searchField" promptText="Rechercher une œuvre..." prefWidth="300" style="-fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 8px 15px;"/>
-        <Button text="🔍 Rechercher" onAction="#handleSearch" style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
-        <Button text="❌ Effacer" onAction="#handleClearSearch" style="-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
-    </HBox>
+    <VBox spacing="15" style="-fx-padding: 20px; -fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-width: 1;">
+        <HBox spacing="12" alignment="CENTER">
+            <TextField fx:id="searchField" promptText="🔍 Rechercher une œuvre..." prefWidth="350" style="-fx-background-color: #f7fafc; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-padding: 12px 16px; -fx-font-size: 14px;"/>
+            <Button text="🔍 Rechercher" onAction="#handleSearch" style="-fx-background-color: #667eea; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12px 20px; -fx-font-weight: 600; -fx-cursor: hand;"/>
+            <Button text="❌ Effacer" onAction="#handleClearSearch" style="-fx-background-color: #e2e8f0; -fx-text-fill: #4a5568; -fx-background-radius: 8; -fx-padding: 12px 20px; -fx-font-weight: 600; -fx-cursor: hand;"/>
+            <Button text="💬 Citations" onAction="#handleQuotes" style="-fx-background-color: #9f7aea; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12px 20px; -fx-font-weight: 600; -fx-cursor: hand;"/>
+            <Button text="🎨 Artistes" onAction="#handleArtists" style="-fx-background-color: #ed8936; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 12px 20px; -fx-font-weight: 600; -fx-cursor: hand;"/>
+        </HBox>
+    </VBox>
     
     <!-- Sort Options -->
-    <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10px;">
-        <Label text="Trier par:" style="-fx-font-weight: bold; -fx-text-fill: #333;"/>
-        <ToggleButton fx:id="toggleRecent" text="Plus récent" onAction="#handleSortRecent" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
-        <ToggleButton fx:id="toggleOlder" text="Plus ancien" onAction="#handleSortOlder" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
-        <ToggleButton fx:id="toggleLiked" text="Plus liké" onAction="#handleSortLiked" style="-fx-background-color: #e9ecef; -fx-text-fill: #495057; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
-        <Button text="↺ Réinitialiser" onAction="#handleResetSort" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;"/>
-    </HBox>
+    <VBox spacing="12" style="-fx-padding: 15px; -fx-background-color: white; -fx-background-radius: 12; -fx-border-color: #e2e8f0; -fx-border-width: 1;">
+        <Label text="🎯 Options de tri" style="-fx-font-size: 16px; -fx-font-weight: 600; -fx-text-fill: #4a5568;"/>
+        <HBox spacing="10" alignment="CENTER">
+            <ToggleButton fx:id="toggleRecent" text="📅 Plus récent" onAction="#handleSortRecent" style="-fx-background-color: #edf2f7; -fx-text-fill: #4a5568; -fx-background-radius: 8; -fx-padding: 10px 16px; -fx-font-weight: 500; -fx-cursor: hand;"/>
+            <ToggleButton fx:id="toggleOlder" text="📜 Plus ancien" onAction="#handleSortOlder" style="-fx-background-color: #edf2f7; -fx-text-fill: #4a5568; -fx-background-radius: 8; -fx-padding: 10px 16px; -fx-font-weight: 500; -fx-cursor: hand;"/>
+            <ToggleButton fx:id="toggleLiked" text="❤️ Plus liké" onAction="#handleSortLiked" style="-fx-background-color: #edf2f7; -fx-text-fill: #4a5568; -fx-background-radius: 8; -fx-padding: 10px 16px; -fx-font-weight: 500; -fx-cursor: hand;"/>
+            <Button text="🔄 Réinitialiser" onAction="#handleResetSort" style="-fx-background-color: #48bb78; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10px 20px; -fx-font-weight: 600; -fx-cursor: hand;"/>
+        </HBox>
+    </VBox>
     
     <!-- Add Artwork Button -->
     <HBox spacing="10" alignment="CENTER">
-        <Button text="➕ Ajouter une œuvre" onAction="#handleAddArtwork" style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 10px 20px; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+        <Button text="➕ Ajouter une œuvre" onAction="#handleAddArtwork" style="-fx-background-color: linear-gradient(to right, #48bb78 0%, #38a169 100%); -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 14px 28px; -fx-font-size: 15px; -fx-font-weight: 600; -fx-cursor: hand;"/>
     </HBox>
     
     <!-- Gallery Grid -->
-    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+    <ScrollPane fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" prefHeight="600" style="-fx-background-color: transparent;">
         <TilePane fx:id="galleryGrid" prefColumns="3" hgap="20" vgap="20" style="-fx-padding: 20px;">
             <!-- Gallery items will be added dynamically -->
         </TilePane>
