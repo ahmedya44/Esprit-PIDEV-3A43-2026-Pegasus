@@ -8,6 +8,7 @@ import com.pegasus.services.ServiceNormalUser;
 import com.pegasus.services.ServiceUser;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
@@ -20,13 +21,26 @@ public class SignInController {
     @FXML
     private PasswordField passwordField;
 
+    @FXML
+    private TextField passwordVisibleField;
+
+    @FXML
+    private Button togglePasswordButton;
+
     private ServiceUser serviceUser;
     private ServiceNormalUser serviceNormalUser;
     private EmailService emailService;
 
+    @FXML
+    public void initialize() {
+        passwordVisibleField.setManaged(false);
+        passwordVisibleField.setVisible(false);
+    }
+
     public void onSignIn() {
         SceneNavigator.clearPendingGoogleUserProfile();
-        if (isBlank(emailField.getText()) || isBlank(passwordField.getText())) {
+        String passwordInput = getPasswordInput();
+        if (isBlank(emailField.getText()) || isBlank(passwordInput)) {
             showAlert(Alert.AlertType.ERROR, "Sign In", "Email and password are required.");
             return;
         }
@@ -35,7 +49,7 @@ public class SignInController {
             return;
         }
 
-        User user = serviceUser.authenticate(emailField.getText(), passwordField.getText());
+        User user = serviceUser.authenticate(emailField.getText(), passwordInput);
         if (user == null) {
             String error = serviceUser.getLastError();
             showAlert(Alert.AlertType.ERROR, "Sign In", error == null ? "Invalid email or password." : error);
@@ -47,7 +61,7 @@ public class SignInController {
         try {
             SceneNavigator.goTo("/views/home-view.fxml");
         } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open home page.");
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", e.getMessage());
         }
     }
 
@@ -94,8 +108,8 @@ public class SignInController {
     public void onGoToSignUp() {
         try {
             SceneNavigator.goTo("/views/role-selection-view.fxml");
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", e.getMessage());
         }
     }
 
@@ -103,11 +117,30 @@ public class SignInController {
         // Already on sign-in page.
     }
 
+    public void onTogglePassword() {
+        boolean showing = passwordVisibleField.isVisible();
+        if (showing) {
+            passwordField.setText(passwordVisibleField.getText());
+            passwordVisibleField.setVisible(false);
+            passwordVisibleField.setManaged(false);
+            passwordField.setVisible(true);
+            passwordField.setManaged(true);
+            togglePasswordButton.setText("Show");
+        } else {
+            passwordVisibleField.setText(passwordField.getText());
+            passwordField.setVisible(false);
+            passwordField.setManaged(false);
+            passwordVisibleField.setVisible(true);
+            passwordVisibleField.setManaged(true);
+            togglePasswordButton.setText("Hide");
+        }
+    }
+
     public void onBackHome() {
         try {
             SceneNavigator.goTo("/views/home-view.fxml");
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", e.getMessage());
         }
     }
 
@@ -170,8 +203,20 @@ public class SignInController {
             }
             return true;
         } catch (RuntimeException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Could not connect to database.");
+            String message = e.getMessage();
+            if (message == null || message.isBlank()) {
+                message = "Could not connect to database.";
+            }
+            showAlert(Alert.AlertType.ERROR, "Database Error", message);
             return false;
+        }
+    }
+
+    public void onGoToForgotPassword() {
+        try {
+            SceneNavigator.goTo("/views/reset-password-view.fxml");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open password reset page.");
         }
     }
 
@@ -188,6 +233,10 @@ public class SignInController {
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open home page.");
         }
+    }
+
+    private String getPasswordInput() {
+        return passwordVisibleField.isVisible() ? passwordVisibleField.getText() : passwordField.getText();
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

@@ -30,7 +30,7 @@ public class ServiceUser implements IService<User> {
         try {
             this.connection = dbConnection.getConnection();
         } catch (SQLException e) {
-            throw new RuntimeException("Unable to connect to database", e);
+            throw new RuntimeException(dbConnection.buildConnectionErrorMessage(e), e);
         }
     }
 
@@ -154,6 +154,10 @@ public class ServiceUser implements IService<User> {
         if (user == null || isBlank(rawPassword)) {
             return null;
         }
+        if ("SUSPENDED".equalsIgnoreCase(user.getStatus()) || "BANNED".equalsIgnoreCase(user.getStatus())) {
+            lastError = "Your account is suspended. Please contact Pegasus staff for help.";
+            return null;
+        }
         if (!STATUS_ACTIVE.equalsIgnoreCase(user.getStatus())) {
             lastError = "Account is not active. Please verify your email first.";
             return null;
@@ -211,6 +215,76 @@ public class ServiceUser implements IService<User> {
             lastError = e.getMessage();
             System.err.println(e.getMessage());
             return null;
+        }
+    }
+
+    public String createPasswordResetToken(User user) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("User must exist before creating a reset token.");
+        }
+        String token = generateVerificationToken();
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(30);
+        String req = "UPDATE `user` SET `reset_token`=?, `reset_token_expires_at`=? WHERE `id`=?";
+        try (PreparedStatement statement = this.connection.prepareStatement(req)) {
+            statement.setString(1, token);
+            statement.setTimestamp(2, toTimestamp(expiresAt));
+            statement.setInt(3, user.getId());
+            statement.executeUpdate();
+            user.setResetToken(token);
+            user.setResetTokenExpiresAt(expiresAt);
+            return token;
+        } catch (SQLException e) {
+            lastError = e.getMessage();
+            throw new IllegalStateException("Could not create password reset token.", e);
+        }
+    }
+
+    public User findByResetToken(String token) {
+        if (isBlank(token)) {
+            lastError = "Reset code is required.";
+            return null;
+        }
+        String req = "SELECT * FROM `user` WHERE `reset_token` = ?";
+        try (PreparedStatement statement = this.connection.prepareStatement(req)) {
+            statement.setString(1, token.trim());
+            try (ResultSet rs = statement.executeQuery()) {
+                if (!rs.next()) {
+                    lastError = "Invalid reset code.";
+                    return null;
+                }
+                User user = mapUser(rs);
+                if (user.getResetTokenExpiresAt() == null || user.getResetTokenExpiresAt().isBefore(LocalDateTime.now())) {
+                    lastError = "Reset code has expired.";
+                    return null;
+                }
+                return user;
+            }
+        } catch (SQLException e) {
+            lastError = e.getMessage();
+            return null;
+        }
+    }
+
+    public boolean resetPassword(String token, String newPassword) {
+        lastError = null;
+        if (isBlank(newPassword)) {
+            lastError = "New password is required.";
+            return false;
+        }
+        User user = findByResetToken(token);
+        if (user == null) {
+            return false;
+        }
+        String hashed = hashPasswordIfNeeded(newPassword);
+        String req = "UPDATE `user` SET `password`=?, `reset_token`=NULL, `reset_token_expires_at`=NULL WHERE `id`=?";
+        try (PreparedStatement statement = this.connection.prepareStatement(req)) {
+            statement.setString(1, hashed);
+            statement.setInt(2, user.getId());
+            statement.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            lastError = e.getMessage();
+            return false;
         }
     }
 

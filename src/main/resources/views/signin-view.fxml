@@ -37,11 +37,14 @@
                     <children>
                         <Label prefWidth="90.0" styleClass="form-label" text="Password" />
                         <PasswordField fx:id="passwordField" prefWidth="260.0" styleClass="input-field" />
+                        <TextField fx:id="passwordVisibleField" managed="false" prefWidth="260.0" styleClass="input-field" visible="false" />
+                        <Button fx:id="togglePasswordButton" mnemonicParsing="false" onAction="#onTogglePassword" prefWidth="70.0" styleClass="eye-button" text="Show" />
                     </children>
                 </HBox>
                 <Button mnemonicParsing="false" onAction="#onSignIn" prefWidth="220.0" styleClass="gold-button" text="Sign In" />
                 <Button mnemonicParsing="false" onAction="#onSignInWithGoogle" prefWidth="220.0" styleClass="secondary-button" text="Continue with Google" />
                 <Hyperlink onAction="#onGoToSignUp" text="Sign Up" />
+                <Hyperlink onAction="#onGoToForgotPassword" text="Forgot Password?" />
                 <Hyperlink onAction="#onGoToEmailVerification" text="Verify Email" />
                 <Hyperlink onAction="#onResendVerificationEmail" text="Resend Verification Email" />
                 <Button mnemonicParsing="false" onAction="#onBackHome" prefWidth="220.0" styleClass="secondary-button" text="Back Home" />

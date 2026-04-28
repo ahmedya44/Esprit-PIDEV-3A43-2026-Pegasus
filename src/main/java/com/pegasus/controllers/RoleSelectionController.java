@@ -5,8 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 
-import java.io.IOException;
-
 public class RoleSelectionController {
     @FXML
     private ComboBox<String> roleCombo;
@@ -22,7 +20,7 @@ public class RoleSelectionController {
             SceneNavigator.setSelectedRole(roleCombo.getValue());
             SceneNavigator.goTo("/views/signup-view.fxml");
         } catch (Exception e) {
-            showAlert("Navigation Error", "Could not open sign up page.");
+            showAlert("Navigation Error", e.getMessage());
         }
     }
 
@@ -30,7 +28,7 @@ public class RoleSelectionController {
         try {
             SceneNavigator.goTo("/views/signin-view.fxml");
         } catch (Exception e) {
-            showAlert("Navigation Error", "Could not open sign in page.");
+            showAlert("Navigation Error", e.getMessage());
         }
     }
 
@@ -38,7 +36,7 @@ public class RoleSelectionController {
         try {
             SceneNavigator.goTo("/views/home-view.fxml");
         } catch (Exception e) {
-            showAlert("Navigation Error", "Could not open home page.");
+            showAlert("Navigation Error", e.getMessage());
         }
     }
 

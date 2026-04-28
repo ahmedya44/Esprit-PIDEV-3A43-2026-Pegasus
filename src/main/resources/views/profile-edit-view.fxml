@@ -62,13 +62,17 @@
                 <HBox alignment="CENTER" spacing="10.0">
                     <children>
                         <Label prefWidth="130.0" styleClass="form-label" text="New Password" />
-                        <PasswordField fx:id="newPasswordField" prefWidth="320.0" styleClass="input-field" />
+                        <PasswordField fx:id="newPasswordField" prefWidth="260.0" styleClass="input-field" />
+                        <TextField fx:id="newPasswordVisibleField" managed="false" prefWidth="260.0" styleClass="input-field" visible="false" />
+                        <Button fx:id="toggleNewPasswordButton" mnemonicParsing="false" onAction="#onToggleNewPassword" prefWidth="70.0" styleClass="eye-button" text="Show" />
                     </children>
                 </HBox>
                 <HBox alignment="CENTER" spacing="10.0">
                     <children>
                         <Label prefWidth="130.0" styleClass="form-label" text="Confirm Password" />
-                        <PasswordField fx:id="confirmPasswordField" prefWidth="320.0" styleClass="input-field" />
+                        <PasswordField fx:id="confirmPasswordField" prefWidth="260.0" styleClass="input-field" />
+                        <TextField fx:id="confirmPasswordVisibleField" managed="false" prefWidth="260.0" styleClass="input-field" visible="false" />
+                        <Button fx:id="toggleConfirmPasswordButton" mnemonicParsing="false" onAction="#onToggleConfirmPassword" prefWidth="70.0" styleClass="eye-button" text="Show" />
                     </children>
                 </HBox>
 

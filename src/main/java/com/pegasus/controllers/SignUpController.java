@@ -12,6 +12,7 @@ import com.pegasus.services.ServiceNormalUser;
 import com.pegasus.services.ServiceUser;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -21,8 +22,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class SignUpController {
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+    private static final Pattern PHONE_PATTERN =
+            Pattern.compile("^\\+?[0-9]{8,15}$");
+
     @FXML
     private Label roleLabel;
 
@@ -33,10 +40,19 @@ public class SignUpController {
     private PasswordField passwordField;
 
     @FXML
+    private TextField passwordVisibleField;
+
+    @FXML
+    private Button togglePasswordButton;
+
+    @FXML
     private PasswordField confirmPasswordField;
 
     @FXML
     private TextField confirmPasswordVisibleField;
+
+    @FXML
+    private Button toggleConfirmPasswordButton;
 
     @FXML
     private TextField usernameField;
@@ -105,10 +121,31 @@ public class SignUpController {
         roleLabel.setText("Role: " + role);
         configureRoleSections(role);
 
+        passwordVisibleField.setManaged(false);
+        passwordVisibleField.setVisible(false);
         confirmPasswordVisibleField.setManaged(false);
         confirmPasswordVisibleField.setVisible(false);
         clearSignupMessage();
         applyPendingGoogleProfile();
+    }
+
+    public void onTogglePassword() {
+        boolean showing = passwordVisibleField.isVisible();
+        if (showing) {
+            passwordField.setText(passwordVisibleField.getText());
+            passwordVisibleField.setVisible(false);
+            passwordVisibleField.setManaged(false);
+            passwordField.setVisible(true);
+            passwordField.setManaged(true);
+            togglePasswordButton.setText("Show");
+        } else {
+            passwordVisibleField.setText(passwordField.getText());
+            passwordField.setVisible(false);
+            passwordField.setManaged(false);
+            passwordVisibleField.setVisible(true);
+            passwordVisibleField.setManaged(true);
+            togglePasswordButton.setText("Hide");
+        }
     }
 
     public void onToggleConfirmPassword() {
@@ -119,17 +156,25 @@ public class SignUpController {
             confirmPasswordVisibleField.setManaged(false);
             confirmPasswordField.setVisible(true);
             confirmPasswordField.setManaged(true);
+            toggleConfirmPasswordButton.setText("Show");
         } else {
             confirmPasswordVisibleField.setText(confirmPasswordField.getText());
             confirmPasswordField.setVisible(false);
             confirmPasswordField.setManaged(false);
             confirmPasswordVisibleField.setVisible(true);
             confirmPasswordVisibleField.setManaged(true);
+            toggleConfirmPasswordButton.setText("Hide");
         }
     }
 
     public void onCreateAccount() {
         clearSignupMessage();
+        String email = safeTrim(emailField.getText());
+        String username = safeTrim(usernameField.getText());
+        String password = getPassword();
+        String confirmPassword = getConfirmPassword();
+        String phone = textOrNull(phoneField.getText());
+        String avatarUrl = textOrNull(avatarUrlField.getText());
         if (!initServices()) {
             return;
         }
@@ -139,10 +184,6 @@ public class SignUpController {
             role = "NORMAL_USER";
         }
 
-        String email = textOrNull(emailField.getText());
-        String username = textOrNull(usernameField.getText());
-        String password = passwordField.getText();
-        String confirmPassword = getConfirmPassword();
         GoogleUserProfile googleProfile = SceneNavigator.getPendingGoogleUserProfile();
         boolean googleSignup = googleProfile != null;
 
@@ -152,8 +193,20 @@ public class SignUpController {
             return;
         }
 
+        if (!isValidEmail(email)) {
+            showSignupError("Please enter a valid email format. Example: name@example.com");
+            return;
+        }
+        if (!googleSignup && !isValidPassword(password)) {
+            showSignupError("Password must be at least 8 characters and include letters and numbers.");
+            return;
+        }
         if (!googleSignup && !password.equals(confirmPassword)) {
             showSignupError("Password and confirm password do not match.");
+            return;
+        }
+        if (phone != null && !isValidPhone(phone)) {
+            showSignupError("Phone must be 8 to 15 digits (optional leading +).");
             return;
         }
 
@@ -162,8 +215,8 @@ public class SignUpController {
         user.setPassword(googleSignup ? null : password);
         user.setUsername(username);
         user.setStatus(googleSignup ? ServiceUser.STATUS_ACTIVE : ServiceUser.STATUS_PENDING_VERIFICATION);
-        user.setPhone(textOrNull(phoneField.getText()));
-        user.setAvatarUrl(textOrNull(avatarUrlField.getText()));
+        user.setPhone(phone);
+        user.setAvatarUrl(avatarUrl);
         if (googleSignup) {
             user.setProvider("GOOGLE");
             user.setGoogleSub(googleProfile.sub());
@@ -278,11 +331,43 @@ public class SignUpController {
                 : confirmPasswordField.getText();
     }
 
+    private String getPassword() {
+        return passwordVisibleField.isVisible()
+                ? passwordVisibleField.getText()
+                : passwordField.getText();
+    }
+
     private String textOrNull(String value) {
-        if (value == null || value.trim().isEmpty()) {
+        String clean = safeTrim(value);
+        if (clean == null || clean.isEmpty()) {
             return null;
         }
-        return value.trim();
+        return clean;
+    }
+
+    private String safeTrim(String value) {
+        return value == null ? null : value.trim();
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private boolean isValidEmail(String email) {
+        return EMAIL_PATTERN.matcher(email).matches();
+    }
+
+    private boolean isValidPhone(String phone) {
+        return PHONE_PATTERN.matcher(phone).matches();
+    }
+
+    private boolean isValidPassword(String password) {
+        if (password == null || password.length() < 8) {
+            return false;
+        }
+        boolean hasLetter = password.matches(".*[A-Za-z].*");
+        boolean hasDigit = password.matches(".*[0-9].*");
+        return hasLetter && hasDigit;
     }
 
     private String validateSignupForm(String email, String username, String password, String confirmPassword, boolean googleSignup) {
@@ -354,12 +439,19 @@ public class SignUpController {
         clearSignupMessage();
         emailField.clear();
         passwordField.clear();
+        passwordVisibleField.clear();
+        passwordVisibleField.setVisible(false);
+        passwordVisibleField.setManaged(false);
+        passwordField.setVisible(true);
+        passwordField.setManaged(true);
+        togglePasswordButton.setText("Show");
         confirmPasswordField.clear();
         confirmPasswordVisibleField.clear();
         confirmPasswordVisibleField.setVisible(false);
         confirmPasswordVisibleField.setManaged(false);
         confirmPasswordField.setVisible(true);
         confirmPasswordField.setManaged(true);
+        toggleConfirmPasswordButton.setText("Show");
         usernameField.clear();
         phoneField.clear();
         avatarUrlField.clear();

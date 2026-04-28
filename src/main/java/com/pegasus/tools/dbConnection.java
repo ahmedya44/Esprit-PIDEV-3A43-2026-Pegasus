@@ -9,7 +9,7 @@ import java.sql.Statement;
 
 public final class dbConnection {
     private static final String DB_NAME = "pegasus";
-    private static final String DB_HOST = System.getenv().getOrDefault("PEGASUS_DB_HOST", "localhost");
+    private static final String DB_HOST = System.getenv().getOrDefault("PEGASUS_DB_HOST", "127.0.0.1");
     private static final String DB_PORT = System.getenv().getOrDefault("PEGASUS_DB_PORT", "3306");
     private static final String DB_USER = System.getenv().getOrDefault("PEGASUS_DB_USER", "root");
     private static final String DB_PASSWORD = System.getenv().getOrDefault("PEGASUS_DB_PASSWORD", "");
@@ -26,6 +26,18 @@ public final class dbConnection {
         Connection connection = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASSWORD);
         ensureSchema(connection);
         return connection;
+    }
+
+    public static String connectionSummary() {
+        return "host=" + DB_HOST + ", port=" + DB_PORT + ", db=" + DB_NAME + ", user=" + DB_USER;
+    }
+
+    public static String buildConnectionErrorMessage(SQLException e) {
+        String detail = e == null ? "Unknown SQL error." : e.getMessage();
+        if (detail == null || detail.isBlank()) {
+            detail = "Unknown SQL error.";
+        }
+        return "Unable to connect to database (" + connectionSummary() + "). " + detail;
     }
 
     private static void ensureSchema(Connection connection) throws SQLException {

@@ -41,6 +41,25 @@ public class EmailService {
         sendTextEmail(toEmail, subject, body);
     }
 
+    public void sendPasswordResetEmail(String toEmail, String username, String resetToken) {
+        String displayName = username == null || username.isBlank() ? "there" : username.trim();
+        String subject = "Reset your Pegasus password";
+        String body = """
+                Hello %s,
+
+                We received a request to reset your Pegasus password.
+
+                Your reset code is:
+                %s
+
+                Enter this code in the Pegasus app to choose a new password.
+
+                If you did not request a password reset, you can ignore this email.
+                """.formatted(displayName, resetToken);
+
+        sendTextEmail(toEmail, subject, body);
+    }
+
     private void sendTextEmail(String toEmail, String subject, String body) {
         Properties properties = new Properties();
         properties.put("mail.smtp.host", config.host());

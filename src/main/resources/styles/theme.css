@@ -142,6 +142,24 @@
     -fx-font-weight: bold;
 }
 
+.profile-image {
+    -fx-background-color: #1f2937;
+    -fx-background-radius: 48;
+    -fx-border-color: #f9c23c;
+    -fx-border-width: 2;
+    -fx-border-radius: 48;
+}
+
+.expand-avatar-button {
+    -fx-background-color: rgba(255, 255, 255, 0.92);
+    -fx-text-fill: #111827;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 6 4 6;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
 .eye-button {
     -fx-background-color: #24313b;
     -fx-text-fill: #ffffff;

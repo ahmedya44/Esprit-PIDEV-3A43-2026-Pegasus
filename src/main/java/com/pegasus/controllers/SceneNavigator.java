@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.net.URL;
 
 public final class SceneNavigator {
     private static Stage stage;
@@ -31,7 +32,22 @@ public final class SceneNavigator {
         if (stage == null) {
             throw new IllegalStateException("SceneNavigator is not initialized.");
         }
-        Parent root = FXMLLoader.load(SceneNavigator.class.getResource(fxmlPath));
+        URL fxmlUrl = SceneNavigator.class.getResource(fxmlPath);
+        if (fxmlUrl == null) {
+            throw new IOException("FXML not found: " + fxmlPath);
+        }
+
+        Parent root;
+        try {
+            root = FXMLLoader.load(fxmlUrl);
+        } catch (Exception e) {
+            Throwable rootCause = rootCauseOf(e);
+            String message = "Failed to load " + fxmlPath
+                    + "\nCause: " + rootCause.getClass().getSimpleName()
+                    + " - " + (rootCause.getMessage() == null ? "(no details)" : rootCause.getMessage());
+            throw new IOException(message, e);
+        }
+
         applyButtonAnimations(root);
         ScrollPane scrollPane = new ScrollPane(root);
         scrollPane.getStyleClass().add("app-scroll");
@@ -67,6 +83,14 @@ public final class SceneNavigator {
         transition.setToX(targetScale);
         transition.setToY(targetScale);
         transition.play();
+    }
+
+    private static Throwable rootCauseOf(Throwable throwable) {
+        Throwable current = throwable;
+        while (current.getCause() != null && current.getCause() != current) {
+            current = current.getCause();
+        }
+        return current;
     }
 
     public static String getSelectedRole() {

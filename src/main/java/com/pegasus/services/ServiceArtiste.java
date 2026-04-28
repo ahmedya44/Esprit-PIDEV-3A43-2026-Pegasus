@@ -21,7 +21,7 @@ public class ServiceArtiste implements IService<Artiste> {
         try {
             this.connection = dbConnection.getConnection();
         } catch (SQLException e) {
-            throw new RuntimeException("Unable to connect to database", e);
+            throw new RuntimeException(dbConnection.buildConnectionErrorMessage(e), e);
         }
     }
 
