@@ -11,6 +11,7 @@ public class Art {
     private String artist;
     private LocalDateTime createdAt;
     private int likes;
+    private int dislikes;
 
     // Constructors
     public Art() {
@@ -23,6 +24,7 @@ public class Art {
         this.status = status;
         this.createdAt = LocalDateTime.now();
         this.likes = 0;
+        this.dislikes = 0;
     }
 
     public Art(int id, String title, String description, String imageUrl, String status, LocalDateTime createdAt) {
@@ -33,6 +35,7 @@ public class Art {
         this.status = status;
         this.createdAt = createdAt;
         this.likes = 0;
+        this.dislikes = 0;
     }
 
     // Getters and Setters
@@ -92,6 +95,14 @@ public class Art {
         this.likes = likes;
     }
     
+    public int getDislikes() {
+        return dislikes;
+    }
+
+    public void setDislikes(int dislikes) {
+        this.dislikes = dislikes;
+    }
+    
     public String getArtist() {
         return artist;
     }
@@ -110,6 +121,7 @@ public class Art {
                 ", status='" + status + '\'' +
                 ", createdAt=" + createdAt +
                 ", likes=" + likes +
+                ", dislikes=" + dislikes +
                 '}';
     }
 }

@@ -7,13 +7,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.application.Platform;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class BackofficeController {
@@ -55,6 +55,12 @@ public class BackofficeController {
     private Label statusLabel;
     
     private ServiceArt serviceArt;
+    
+    @FXML
+    private void handleRefresh() {
+        System.out.println("🔄 Rafraîchissement manuel demandé");
+        refreshTable();
+    }
     private ObservableList<Art> artworksList;
     
     @FXML
@@ -218,19 +224,25 @@ public class BackofficeController {
     @FXML
     public void refreshTable() {
         try {
-            System.out.println("Chargement des oeuvres depuis la base de données...");
+            System.out.println("🔄 Chargement des oeuvres depuis la base de données...");
             
             // Test de connexion
             try (Connection conn = dbConnection.getConnection()) {
-                System.out.println("Connexion à la base réussie");
+                System.out.println("✅ Connexion à la base réussie");
             } catch (SQLException e) {
-                System.err.println("Erreur de connexion: " + e.getMessage());
+                System.err.println("❌ Erreur de connexion: " + e.getMessage());
                 statusLabel.setText("Erreur de connexion: " + e.getMessage());
                 return;
             }
             
             List<Art> artworks = serviceArt.getAllArts();
-            System.out.println("Récupéré " + artworks.size() + " oeuvres du service");
+            System.out.println("📊 Récupéré " + artworks.size() + " oeuvres du service");
+            
+            // Debug détaillé
+            System.out.println("🔍 Détail des œuvres:");
+            for (Art art : artworks) {
+                System.out.println("  📌 ID: " + art.getId() + " | Titre: " + art.getTitle() + " | Status: " + art.getStatus() + " | Créé: " + art.getCreatedAt());
+            }
             
             artworksList.clear();
             artworksList.addAll(artworks);
@@ -240,8 +252,42 @@ public class BackofficeController {
                 System.out.println("Oeuvre: " + art.getTitle() + " - Status: " + art.getStatus());
             }
             
+            // Forcer la mise à jour du tableau
+            System.out.println("🔄 Réinitialisation complète du tableau...");
+            
+            // Vider complètement le tableau
+            artworksTable.getItems().clear();
+            artworksList.clear();
+            
+            // Ajouter les nouvelles données
+            artworksList.addAll(artworks);
+            
+            // Forcer la reconstruction complète du TableView
+            Platform.runLater(() -> {
+                System.out.println("🔧 Reconstruction du TableView...");
+                
+                // Réinitialiser complètement le TableView
+                artworksTable.setItems(null);
+                artworksTable.getColumns().clear();
+                
+                // Recréer les colonnes
+                setupTableColumns();
+                
+                // Réassigner les données
+                artworksTable.setItems(artworksList);
+                
+                // Forcer le rafraîchissement
+                artworksTable.refresh();
+                artworksTable.layout();
+                artworksTable.autosize();
+                
+                System.out.println("✅ TableView reconstruit avec " + artworksList.size() + " éléments");
+            });
+            
             statusLabel.setText("Total: " + artworks.size() + " oeuvre(s)");
             System.out.println("Affiché " + artworks.size() + " oeuvres dans le tableau");
+            System.out.println("📊 artworksList.size(): " + artworksList.size());
+            System.out.println("📊 artworksTable.getItems().size(): " + artworksTable.getItems().size());
             
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement: " + e.getMessage());
@@ -252,13 +298,27 @@ public class BackofficeController {
     
     private void filterArtworks() {
         String filter = statusFilter.getValue();
+        System.out.println("🔍 Filtre sélectionné: " + filter);
+        System.out.println("📊 Total d'œuvres dans artworksList: " + artworksList.size());
+        
         if (filter == null || "Tous".equals(filter)) {
+            System.out.println("✅ Affichage de toutes les œuvres");
             artworksTable.setItems(artworksList);
+            statusLabel.setText(artworksList.size() + " oeuvre(s) au total");
         } else {
             String statusKey = filter.equals("En attente") ? "pending" : 
                               filter.equals("Publié") ? "published" : "rejected";
             
+            System.out.println("🔍 Filtre sur statut: " + statusKey);
+            
             ObservableList<Art> filtered = artworksList.filtered(art -> statusKey.equals(art.getStatus()));
+            System.out.println("📊 Œuvres filtrées: " + filtered.size());
+            
+            // Debug : afficher les œuvres filtrées
+            for (Art art : filtered) {
+                System.out.println("  ✅ " + art.getTitle() + " (ID: " + art.getId() + ", Status: " + art.getStatus() + ")");
+            }
+            
             artworksTable.setItems(filtered);
             statusLabel.setText(filtered.size() + " oeuvre(s) filtrées");
         }

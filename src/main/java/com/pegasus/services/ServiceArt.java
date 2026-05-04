@@ -35,22 +35,20 @@ public class ServiceArt {
     }
     
     public boolean createArt(Art art) {
-        // Vérifier la connexion avant de sauvegarder
-        try (Connection testConn = dbConnection.getConnection()) {
-            if (testConn == null || testConn.isClosed()) {
-                System.err.println("Connexion à la base de données non disponible");
-                return false;
-            }
-            testConn.close();
-        } catch (SQLException e) {
-            System.err.println("Test de connexion échoué: " + e.getMessage());
-            return false;
-        }
+        String sql = "INSERT INTO art (title, description, image_url, status, created_at, artist) VALUES (?, ?, ?, ?, ?, ?)";
         
-        String sql = "INSERT INTO art (title, description, image_url, status, created_at, artist) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        System.out.println("🗄️ Requête SQL INSERT:");
+        System.out.println("  📌 Titre: " + art.getTitle());
+        System.out.println("  📝 Description: " + art.getDescription());
+        System.out.println("  🖼️  Image URL: " + art.getImageUrl());
+        System.out.println("  📊 Statut: " + art.getStatus());
+        System.out.println("  📅 Créé le: " + art.getCreatedAt());
+        System.out.println("  👨 Artiste: " + art.getArtist());
         
-        try (Connection conn = dbConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = dbConnection.getConnection()) {
+            System.out.println("✅ Connexion à la base de données réussie");
+            
+            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             
             pstmt.setString(1, art.getTitle());
             pstmt.setString(2, art.getDescription());
@@ -60,23 +58,28 @@ public class ServiceArt {
             pstmt.setString(6, art.getArtist());
             
             int affectedRows = pstmt.executeUpdate();
+            System.out.println("📊 affectedRows: " + affectedRows);
             
             if (affectedRows > 0) {
                 ResultSet generatedKeys = pstmt.getGeneratedKeys();
                 if (generatedKeys.next()) {
-                    art.setId(generatedKeys.getInt(1));
+                    int generatedId = generatedKeys.getInt(1);
+                    art.setId(generatedId);
+                    System.out.println("✅ Œuvre insérée avec ID: " + generatedId);
+                    System.out.println("🎨 Artwork added successfully!");
+                    return true;
+                } else {
+                    System.out.println("❌ Pas d'ID généré");
                 }
-                System.out.println("Artwork added successfully!");
-                return true;
             } else {
-                System.err.println("Failed to insert artwork");
-                return false;
+                System.out.println("❌ Aucune ligne insérée");
             }
         } catch (SQLException e) {
-            System.err.println("Error creating art: " + e.getMessage());
+            System.err.println("❌ Erreur SQL lors de l'ajout: " + e.getMessage());
             e.printStackTrace();
-            return false;
         }
+        
+        return false;
     }
     
     public Optional<Art> getArtById(int id) {
@@ -104,21 +107,39 @@ public class ServiceArt {
         List<Art> arts = new ArrayList<>();
         String sql = "SELECT * FROM art ORDER BY created_at DESC";
         
-        try (Connection conn = dbConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        System.out.println("🔍 Requête SQL: " + sql);
+        
+        try (Connection conn = dbConnection.getConnection()) {
+            System.out.println("✅ Connexion réussie pour getAllArts");
             
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            
+            int count = 0;
             while (rs.next()) {
-                arts.add(mapResultSetToArt(rs));
+                Art art = mapResultSetToArt(rs);
+                arts.add(art);
+                count++;
+                
+                System.out.println("📌 Œuvre #" + count + ":");
+                System.out.println("  ID: " + art.getId());
+                System.out.println("  Titre: " + art.getTitle());
+                System.out.println("  Statut: " + art.getStatus());
+                System.out.println("  Créé: " + art.getCreatedAt());
+                System.out.println("  Artiste: " + art.getArtist());
+                System.out.println("  ---");
             }
+            
+            System.out.println("📊 Total d'œuvres trouvées: " + count);
+            
         } catch (SQLException e) {
-            System.err.println("Error getting all arts: " + e.getMessage());
+            System.err.println("❌ Erreur SQL dans getAllArts: " + e.getMessage());
             e.printStackTrace();
         }
         
         // Si la base de données est vide, créer des données de test
         if (arts.isEmpty()) {
-            System.out.println("Aucune œuvre trouvée, création de données de test...");
+            System.out.println("⚠️ Aucune œuvre trouvée, création de données de test...");
             arts = createSampleData();
         }
         

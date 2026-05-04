@@ -19,12 +19,11 @@ public class HomeController {
     }
     
     @FXML
-    public void goToFrontOffice() {
+    private void handleFrontOffice() {
         try {
-            System.out.println("Navigation vers le FRONT OFFICE (Gallery)");
             SceneNavigator.goTo("/views/gallery-main-view.fxml");
         } catch (IOException e) {
-            System.err.println("Erreur lors de la navigation vers le front office: " + e.getMessage());
+            System.err.println("Error loading front office: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -40,3 +39,4 @@ public class HomeController {
         }
     }
 }
+

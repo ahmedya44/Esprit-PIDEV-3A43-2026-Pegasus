@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 
-import java.io.IOException;
 
 public class RoleSelectionController {
     @FXML

@@ -1,854 +1,916 @@
 package com.pegasus.controllers;
 
+import com.pegasus.entities.Art;
+import com.pegasus.services.RecommendationService;
+import com.pegasus.services.ServiceArt;
+import com.pegasus.services.ServiceArtComment;
+import com.pegasus.services.ServiceArtDislike;
+import com.pegasus.services.QuotesService;
+import com.pegasus.services.ArtistsService;
 import javafx.fxml.FXML;
+import java.io.IOException;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.GridPane;
-import javafx.geometry.Pos;
+import javafx.scene.layout.*;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.layout.Priority;
 import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.util.Duration;
-import javafx.scene.layout.StackPane;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextArea;
+import javafx.application.Platform;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import java.io.IOException;
-import com.pegasus.entities.Art;
-import com.pegasus.entities.MenuItem;
-import com.pegasus.services.ServiceArt;
-import com.pegasus.services.RecommendationService;
-import com.pegasus.services.QuotesService;
-import com.pegasus.services.ArtistsService;
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 public class MenuController {
     
     @FXML
     private TilePane galleryGrid;
+    
     @FXML
     private TextField searchField;
-    @FXML
-    private ToggleButton toggleRecent;
-    @FXML
-    private ToggleButton toggleOlder;
-    @FXML
-    private ToggleButton toggleLiked;
     
-    // Sample menu items data
-    private List<MenuItem> menuItems = new ArrayList<>();
+    private ServiceArt artService = new ServiceArt();
+    private ServiceArtComment commentService = new ServiceArtComment();
+    private ServiceArtDislike dislikeService = new ServiceArtDislike();
     
-    // Service pour la base de données
-    private ServiceArt serviceArt = new ServiceArt();
+    // Compteurs pour likes/dislikes
+    private Map<Integer, Integer> likeCounts = new HashMap<>();
+    private Map<Integer, Integer> dislikeCounts = new HashMap<>();
     private RecommendationService recommendationService = new RecommendationService();
     private QuotesService quotesService = new QuotesService();
     private ArtistsService artistsService = new ArtistsService();
     
-    private List<Art> allArtworks = new ArrayList<>();
-    private String currentSortOrder = "default"; // default, recent, older, liked
-    
-    @FXML
     public void initialize() {
-        initializeMenuItems();
-        loadMenuItems("All");
+        loadArtworks(null);
     }
     
-    private void initializeMenuItems() {
-        menuItems.add(new MenuItem("Delicious Pizza", "Fresh mozzarella, tomato sauce, and basil", 12.99, "pizza.jpg"));
-        menuItems.add(new MenuItem("Delicious Burger", "Beef patty with lettuce, tomato, and cheese", 10.99, "burger.jpg"));
-        menuItems.add(new MenuItem("Delicious Pasta", "Creamy alfredo sauce with parmesan", 11.99, "pasta.jpg"));
-        menuItems.add(new MenuItem("Crispy Fries", "Golden french fries with sea salt", 4.99, "fries.jpg"));
-        menuItems.add(new MenuItem("Chicken Burger", "Grilled chicken with fresh vegetables", 9.99, "chicken_burger.jpg"));
-        menuItems.add(new MenuItem("Veggie Pizza", "Bell peppers, mushrooms, and olives", 13.99, "veggie_pizza.jpg"));
-        menuItems.add(new MenuItem("Spaghetti Carbonara", "Classic Italian pasta with bacon and eggs", 12.99, "carbonara.jpg"));
-        menuItems.add(new MenuItem("Cheese Fries", "Loaded with melted cheese and bacon", 6.99, "cheese_fries.jpg"));
-    }
-    
-    private void loadMenuItems(String category) {
+    private void loadArtworks(String filter) {
+        List<Art> allArtworks = artService.getAllArts();
         galleryGrid.getChildren().clear();
         
-        try {
-            // Charger TOUTES les œuvres depuis la base de données
-            allArtworks = serviceArt.getArtsByStatus("published"); // Seulement les œuvres publiées
-            
-            // Filtrer et afficher les œuvres published
-            displayFilteredArtworks(allArtworks);
-            
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des œuvres: " + e.getMessage());
-            
-            // En cas d'erreur, afficher les données de test
-            for (MenuItem item : menuItems) {
-                if (category.equals("All") || item.getCategory().equals(category)) {
-                    galleryGrid.getChildren().add(createMenuItemCard(item));
+        for (Art art : allArtworks) {
+            if ("published".equals(art.getStatus())) {
+                if (filter == null || filter.isEmpty() || 
+                    art.getTitle().toLowerCase().contains(filter.toLowerCase()) || 
+                    art.getDescription().toLowerCase().contains(filter.toLowerCase())) {
+                    galleryGrid.getChildren().add(createArtworkCard(art));
                 }
             }
         }
     }
     
-        
     private VBox createArtworkCard(Art art) {
         VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); -fx-padding: 15;");
-        card.setPrefSize(250, 300);
-        
-        // Image avec fallback coloré
-        StackPane imageContainer = new StackPane();
-        imageContainer.setPrefSize(220, 150);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; -fx-border-color: #e9ecef; -fx-border-width: 1;");
+        card.setPrefWidth(300);
         
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(220);
-        imageView.setFitHeight(150);
-        imageView.setPreserveRatio(true);
-        
-        String imageUrl = art.getImageUrl();
-        boolean imageLoaded = false;
-        
-        // Essayer de charger l'image originale
-        if (imageUrl != null && !imageUrl.isEmpty() && !imageUrl.contains("testttt")) {
-            try {
-                Image image = new Image(imageUrl, true);
-                if (!image.isError()) {
-                    imageView.setImage(image);
-                    imageLoaded = true;
-                }
-            } catch (Exception e) {
-                // Ignorer les erreurs
-            }
-        }
-        
-        if (!imageLoaded) {
-            // Image par défaut avec une couleur différente pour chaque œuvre
-            String[] colors = {"#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD", "#98D8C8", "#F7DC6F"};
-            String color = colors[Math.abs(art.getTitle().hashCode()) % colors.length];
-            
-            // Créer un fond coloré
-            imageView.setStyle("-fx-background-color: " + color + "; -fx-border-color: white; -fx-border-width: 3px; -fx-border-radius: 8px;");
-            
-            // Ajouter le titre sur l'image
-            Label imageLabel = new Label(art.getTitle().substring(0, Math.min(10, art.getTitle().length())));
-            imageLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 5px; -fx-padding: 5px;");
-            
-            imageContainer.getChildren().addAll(imageView, imageLabel);
-        } else {
-            imageContainer.getChildren().add(imageView);
-        }
-        
-        // Titre
-        Label titleLabel = new Label(art.getTitle());
-        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
-        titleLabel.setWrapText(true);
-        
-        // Artiste
-        String artistName = art.getArtist();
-        System.out.println("DEBUG FRONT - Affichage artwork ID " + art.getId() + " avec artiste: '" + artistName + "'");
-        
-        if (artistName == null || artistName.trim().isEmpty()) {
-            artistName = "Artiste inconnu";
-        }
-        Label artistLabel = new Label(artistName);
-        artistLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #7f8c8d; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
-        
-        // Description
-        Label descLabel;
-        String description = art.getDescription();
-        if (description != null && !description.isEmpty()) {
-            if (description.length() > 50) {
-                description = description.substring(0, 50) + "...";
-            }
-            descLabel = new Label(description);
-            descLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #6c757d; -fx-font-family: 'Segoe UI', Arial, sans-serif; -fx-font-style: italic;");
-            descLabel.setWrapText(true);
-            descLabel.setMaxWidth(200);
-        } else {
-            descLabel = new Label("Pas de description");
-            descLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #adb5bd; -fx-font-family: 'Segoe UI', Arial, sans-serif; -fx-font-style: italic;");
-        }
-        
-        // Composant pour les likes
-        HBox likeContainer = new HBox(8);
-        likeContainer.setAlignment(Pos.CENTER);
-        likeContainer.setStyle("-fx-background-color: #fff5f5; -fx-background-radius: 15; -fx-padding: 8px 12px; -fx-border-color: #ffe0e0; -fx-border-width: 1; -fx-border-radius: 15;");
-        
-        Button likeButton = new Button("LIKE");
-        likeButton.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: linear-gradient(#e74c3c, #c0392b); -fx-background-radius: 12; -fx-padding: 6px 12px; -fx-cursor: hand; -fx-border-radius: 12; -fx-border-color: #c0392b; -fx-border-width: 1; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
-        
-        Label likeCount = new Label(String.valueOf(art.getLikes()));
-        likeCount.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #e74c3c; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
-        
-        Label likesText = new Label("likes");
-        likesText.setStyle("-fx-font-size: 11px; -fx-text-fill: #95a5a6; -fx-font-family: 'Segoe UI', Arial, sans-serif; -fx-font-style: italic;");
-        
-        // Action pour le like
-        likeButton.setOnAction(e -> {
-            try {
-                if (serviceArt.incrementLikes(art.getId())) {
-                    art.setLikes(art.getLikes() + 1);
-                    likeCount.setText(String.valueOf(art.getLikes()));
-                    likeButton.setScaleX(1.1);
-                    likeButton.setScaleY(1.1);
-                    new Timeline(new KeyFrame(Duration.millis(150), ev -> {
-                        likeButton.setScaleX(1.0);
-                        likeButton.setScaleY(1.0);
-                    })).play();
-                    System.out.println("Oeuvre " + art.getId() + " likée! Total likes: " + art.getLikes());
-                }
-            } catch (Exception ex) {
-                System.err.println("Erreur lors du like: " + ex.getMessage());
-            }
-        });
-        
-        // Effet de survol pour le bouton like
-        likeButton.setOnMouseEntered(e -> {
-            likeButton.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: linear-gradient(#c0392b, #a93226); -fx-background-radius: 12; -fx-padding: 6px 12px; -fx-cursor: hand; -fx-border-radius: 12; -fx-border-color: #a93226; -fx-border-width: 1; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
-        });
-        
-        likeButton.setOnMouseExited(e -> {
-            likeButton.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: linear-gradient(#e74c3c, #c0392b); -fx-background-radius: 12; -fx-padding: 6px 12px; -fx-cursor: hand; -fx-border-radius: 12; -fx-border-color: #c0392b; -fx-border-width: 1; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
-        });
-        
-        likeContainer.getChildren().addAll(likeButton, likeCount, likesText);
-        
-        // Boutons d'action
-        HBox buttonContainer = new HBox(8);
-        buttonContainer.setAlignment(Pos.CENTER);
-        
-        // Bouton Spotify
-        Button spotifyButton = new Button("Spotify");
-        spotifyButton.setStyle("-fx-font-size: 11px; -fx-background-color: #1db954; -fx-text-fill: white; -fx-background-radius: 15; -fx-padding: 6px 12px; -fx-cursor: hand;");
-        spotifyButton.setOnAction(e -> openSpotifyForArtwork(art));
-        
-        // Bouton Suggestions
-        Button suggestionsButton = new Button("Suggest");
-        suggestionsButton.setStyle("-fx-font-size: 11px; -fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 15; -fx-padding: 6px 12px; -fx-cursor: hand;");
-        suggestionsButton.setOnAction(e -> showSuggestionsDialog(art));
-        
-        buttonContainer.getChildren().addAll(spotifyButton, suggestionsButton);
-        
-        // Ajouter les boutons Modifier et Supprimer
-        HBox actionButtonsContainer = new HBox(5);
-        actionButtonsContainer.setAlignment(Pos.CENTER);
-        
-        Button modifyButton = new Button("Modifier");
-        modifyButton.setStyle("-fx-font-size: 10px; -fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 4px 8px; -fx-cursor: hand;");
-        modifyButton.setOnAction(e -> openModifyDialog(art));
-        
-        Button deleteButton = new Button("Supprimer");
-        deleteButton.setStyle("-fx-font-size: 10px; -fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 4px 8px; -fx-cursor: hand;");
-        deleteButton.setOnAction(e -> openDeleteDialog(art));
-        
-        actionButtonsContainer.getChildren().addAll(modifyButton, deleteButton);
-        
-        card.getChildren().addAll(imageContainer, titleLabel, artistLabel, descLabel, likeContainer, buttonContainer, actionButtonsContainer);
-        
-        return card;
-    }
-    
-    private VBox createMenuItemCard(MenuItem item) {
-        VBox card = new VBox(10);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2); -fx-padding: 15;");
-        card.setPrefSize(200, 250);
-        
-        // Image placeholder
-        ImageView imageView = new ImageView();
-        imageView.setFitWidth(170);
-        imageView.setFitHeight(120);
-        imageView.setPreserveRatio(true);
-        imageView.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 10;");
-        
-        // Titre
-        Label titleLabel = new Label(item.getName());
-        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
-        titleLabel.setWrapText(true);
-        
-        // Description
-        Label descLabel = new Label(item.getDescription());
-        descLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #7f8c8d;");
-        descLabel.setWrapText(true);
-        
-        // Prix
-        Label priceLabel = new Label("$" + item.getPrice());
-        priceLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #27ae60;");
-        
-        card.getChildren().addAll(imageView, titleLabel, descLabel, priceLabel);
-        
-        return card;
-    }
-    
-    private void displayFilteredArtworks(List<Art> artworks) {
-        galleryGrid.getChildren().clear();
-        
-        List<Art> filteredArtworks = artworks.stream()
-            .filter(art -> "published".equals(art.getStatus()))
-            .collect(Collectors.toList());
-        
-        for (Art art : filteredArtworks) {
-            galleryGrid.getChildren().add(createArtworkCard(art));
-        }
-    }
-    
-    private void openSpotifyForArtwork(Art art) {
         try {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Spotify");
-            alert.setHeaderText("Musique pour: " + art.getTitle());
-            alert.setContentText("Recherche de musique adaptée à cette œuvre sur Spotify...");
-            alert.showAndWait();
+            String imageUrl = art.getImageUrl();
+            System.out.println("🖼️ Tentative de chargement de l'image: " + imageUrl);
             
-            // Ouvrir Spotify dans le navigateur
-            java.awt.Desktop.getDesktop().browse(
-                new java.net.URI("https://open.spotify.com/search/" + 
-                java.net.URLEncoder.encode(art.getTitle() + " " + art.getArtist(), "UTF-8"))
-            );
-            
-        } catch (Exception ex) {
-            System.err.println("Error opening Spotify: " + ex.getMessage());
-        }
-    }
-    
-    private void showSuggestionsDialog(Art art) {
-        try {
-            // Créer une fenêtre de dialogue personnalisée
-            Dialog<Void> dialog = new Dialog<>();
-            dialog.setTitle("Suggestions pour: " + art.getTitle());
-            dialog.setHeaderText("Les gens qui aiment cette œuvre aiment aussi...");
-            
-            // Créer le contenu personnalisé
-            VBox content = new VBox(15);
-            content.setStyle("-fx-padding: 20px; -fx-background-color: #f8f9fa;");
-            
-            // Titre de l'œuvre actuelle
-            Label currentArtLabel = new Label("Oeuvre actuelle: " + art.getTitle());
-            currentArtLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
-            
-            // Séparateur
-            Separator separator = new Separator();
-            separator.setStyle("-fx-opacity: 0.3;");
-            
-            // Section des recommandations
-            Label recommendationsTitle = new Label("Recommandations similaires:");
-            recommendationsTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
-            
-            // Container pour les recommandations
-            ScrollPane scrollPane = new ScrollPane();
-            scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-            scrollPane.setFitToWidth(true);
-            scrollPane.setPrefHeight(300);
-            
-            VBox recommendationsContainer = new VBox(10);
-            recommendationsContainer.setStyle("-fx-padding: 10px;");
-            
-            try {
-                // Obtenir les recommandations depuis l'API locale
-                List<Art> recommendations = recommendationService.getSimilarArtworks(art.getId(), 10);
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                // Forcer le chargement de VOTRE image sans fallback automatique
+                Image image = new Image(imageUrl, false); // false = chargement synchrone
                 
-                if (recommendations.isEmpty()) {
-                    Label noRecommendations = new Label("Aucune recommandation disponible pour le moment.");
-                    noRecommendations.setStyle("-fx-font-size: 12px; -fx-text-fill: #6c757d; -fx-font-style: italic;");
-                    recommendationsContainer.getChildren().add(noRecommendations);
+                // TOUJOURS essayer d'afficher votre image, même en cas d'erreur
+                imageView.setImage(image);
+                
+                if (image.isError()) {
+                    System.err.println("❌ Erreur de chargement de l'image: " + imageUrl);
+                    System.err.println("❌ Exception: " + image.getException());
+                    // Ne PAS remplacer par une image aléatoire - garder votre image même si elle a une erreur
+                    System.out.println("⚠️ Conservation de votre image malgré l'erreur");
                 } else {
-                    for (Art recommendedArt : recommendations) {
-                        VBox recommendationCard = createRecommendationCard(recommendedArt);
-                        recommendationsContainer.getChildren().add(recommendationCard);
-                    }
+                    System.out.println("✅ Image chargée avec succès: " + imageUrl);
                 }
                 
-            } catch (Exception e) {
-                Label errorLabel = new Label("Erreur lors du chargement des suggestions...");
-                errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #dc3545; -fx-font-style: italic;");
-                recommendationsContainer.getChildren().add(errorLabel);
+                // Listener pour suivre l'état mais ne PAS remplacer
+                image.errorProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal) {
+                        System.err.println("❌ Erreur asynchrone de l'image: " + imageUrl);
+                        System.err.println("❌ Exception: " + image.getException());
+                        System.out.println("⚠️ Votre image reste affichée malgré l'erreur");
+                    }
+                });
+                
+                // Listener pour le succès
+                image.progressProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal.doubleValue() == 1.0 && !image.isError()) {
+                        System.out.println("✅ Image 100% chargée: " + imageUrl);
+                    }
+                });
+                
+            } else {
+                System.out.println("📷 Aucune URL fournie - pas d'image affichée");
+                // Ne PAS mettre d'image par défaut
             }
             
-            scrollPane.setContent(recommendationsContainer);
-            
-            // Assembler le contenu
-            content.getChildren().addAll(currentArtLabel, separator, recommendationsTitle, scrollPane);
-            
-            // Configurer le dialogue
-            dialog.getDialogPane().setContent(content);
-            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
-            
-            // Personnaliser le bouton OK
-            Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
-            okButton.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-background-color: #007bff; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 16px;");
-            
-            // Afficher la fenêtre
-            dialog.showAndWait();
+            imageView.setFitWidth(280);
+            imageView.setFitHeight(200);
+            imageView.setPreserveRatio(true);
             
         } catch (Exception e) {
-            System.err.println("Erreur lors de l'affichage des suggestions: " + e.getMessage());
-            
-            // Afficher une alerte simple en cas d'erreur
+            System.err.println("❌ Exception lors du chargement de l'image: " + e.getMessage());
+            e.printStackTrace();
+            // Ne PAS mettre d'image par défaut - laisser vide
+            System.out.println("📷 Pas d'image affichée suite à l'exception");
+        }
+        
+        Label titleLabel = new Label(art.getTitle());
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        
+        Label descLabel = new Label(art.getDescription());
+        descLabel.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 14px; -fx-wrap-text: true;");
+        descLabel.setPrefWidth(280);
+        
+        HBox socialButtons = createSocialButtons(art);
+        HBox actionButtons = createActionButtons(art);
+        
+        card.getChildren().addAll(imageView, titleLabel, descLabel, socialButtons, actionButtons);
+        return card;
+    }
+    
+    private HBox createActionButtons(Art art) {
+        HBox buttons = new HBox(10);
+        buttons.setAlignment(Pos.CENTER_RIGHT);
+        
+        Button suggestionButton = new Button("💡 Suggestions");
+        suggestionButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 8px 14px; -fx-font-size: 12px;");
+        suggestionButton.setOnAction(e -> showSuggestionsDialog(art));
+        
+        Button spotifyButton = new Button("🎵");
+        spotifyButton.setStyle("-fx-background-color: #1db954; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 8px 14px; -fx-font-size: 14px;");
+        spotifyButton.setOnAction(e -> handleSpotify(art));
+        
+        Button editButton = new Button("📝");
+        editButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 8px 14px; -fx-font-size: 14px;");
+        editButton.setOnAction(e -> showEditDialog(art));
+        
+        Button deleteButton = new Button("🗑");
+        deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 8px 14px; -fx-font-size: 14px;");
+        deleteButton.setOnAction(e -> handleDeleteArt(art));
+        
+        buttons.getChildren().addAll(suggestionButton, spotifyButton, editButton, deleteButton);
+        return buttons;
+    }
+    
+    private void handleSpotify(Art art) {
+        try {
+            Alert spotifyAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            spotifyAlert.setTitle("Spotify Playlist");
+            spotifyAlert.setHeaderText("Spotify pour : " + art.getTitle());
+            spotifyAlert.setContentText("Voulez-vous ouvrir Spotify pour cette œuvre ?\n\nTitre : " + art.getTitle() + "\nArtiste : " + art.getArtist());
+            spotifyAlert.getButtonTypes().setAll(new ButtonType("Ouvrir Spotify", ButtonBar.ButtonData.OK_DONE), ButtonType.CANCEL);
+            Optional<ButtonType> result = spotifyAlert.showAndWait();
+            if (result.isPresent() && result.get().getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                String query = URLEncoder.encode(art.getTitle() + " " + art.getArtist(), StandardCharsets.UTF_8);
+                Desktop.getDesktop().browse(new URI("https://open.spotify.com/search/" + query));
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur Spotify: " + e.getMessage());
             Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-            errorAlert.setTitle("Erreur");
-            errorAlert.setHeaderText("Impossible d'afficher les suggestions");
-            errorAlert.setContentText("Une erreur est survenue. Veuillez réessayer.");
+            errorAlert.setTitle("Erreur Spotify");
+            errorAlert.setHeaderText("Impossible d'ouvrir Spotify");
+            errorAlert.setContentText("Vérifiez votre connexion et réessayez.");
             errorAlert.showAndWait();
         }
     }
     
-    private VBox createRecommendationCard(Art art) {
-        VBox card = new VBox(8);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12px; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2);");
-        card.setPrefWidth(400);
+    private void showSuggestionsDialog(Art art) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Suggestions pour : " + art.getTitle());
+        dialog.setHeaderText("Œuvres similaires ou recommandées");
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
         
-        // Titre de l'œuvre recommandée
-        Label titleLabel = new Label("Oeuvre: " + art.getTitle());
-        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-family: 'Segoe UI', Arial, sans-serif; -fx-wrap-text: true;");
-        
-        // Artiste
-        Label artistLabel = new Label("Artiste: " + art.getArtist());
-        artistLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6c757d; -fx-font-family: 'Segoe UI', Arial, sans-serif; -fx-wrap-text: true;");
-        
-        // Description (tronquée si trop longue)
-        String description = art.getDescription();
-        if (description != null && description.length() > 100) {
-            description = description.substring(0, 100) + "...";
-        }
-        Label descriptionLabel = new Label(description);
-        descriptionLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #495057; -fx-font-family: 'Segoe UI', Arial, sans-serif; -fx-wrap-text: true;");
-        
-        // Similarité et likes
-        HBox statsContainer = new HBox(10);
-        statsContainer.setAlignment(Pos.CENTER_LEFT);
-        
-        // Similarité - basée sur le vrai score
-        String similarityText;
-        String similarityColor;
-        
-        // Pour l'instant, on vérifie si c'est du même artiste
-        if (art.getArtist() != null) {
-            similarityText = "Même artiste: " + art.getArtist();
-            similarityColor = "#28a745"; // Vert
-        } else {
-            similarityText = "Oeuvre recommandée";
-            similarityColor = "#6c757d"; // Gris
+        try {
+            List<Art> recommendations = recommendationService.getSimilarArtworks(art.getId(), 4);
+            if (recommendations == null || recommendations.isEmpty()) {
+                content.getChildren().add(new Label("Aucune suggestion disponible pour le moment."));
+            } else {
+                for (Art rec : recommendations) {
+                    Label recLabel = new Label("• " + rec.getTitle() + " — " + rec.getArtist());
+                    recLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333;");
+                    content.getChildren().add(recLabel);
+                }
+            }
+        } catch (Exception e) {
+            content.getChildren().add(new Label("Erreur lors du chargement des suggestions."));
+            System.err.println("Erreur suggestions: " + e.getMessage());
         }
         
-        Label similarityLabel = new Label(similarityText);
-        similarityLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: " + similarityColor + "; -fx-font-weight: bold; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.showAndWait();
+    }
+    
+    private void showEditDialog(Art art) {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Modifier l'œuvre");
+        dialog.setHeaderText("Modifier les informations de l'œuvre");
         
-        // Likes
-        Label likesLabel = new Label("Coeur " + art.getLikes() + " likes");
-        likesLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #e74c3c; -fx-font-family: 'Segoe UI', Arial, sans-serif;");
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
         
-        statsContainer.getChildren().addAll(similarityLabel, likesLabel);
+        TextField titleField = new TextField(art.getTitle());
+        TextArea descField = new TextArea(art.getDescription());
+        descField.setPrefRowCount(3);
+        TextField urlField = new TextField(art.getImageUrl());
+        TextField artistField = new TextField(art.getArtist());
         
-        card.getChildren().addAll(titleLabel, artistLabel, descriptionLabel, statsContainer);
+        grid.add(new Label("Titre:"), 0, 0);
+        grid.add(titleField, 1, 0);
+        grid.add(new Label("Description:"), 0, 1);
+        grid.add(descField, 1, 1);
+        grid.add(new Label("Image URL:"), 0, 2);
+        grid.add(urlField, 1, 2);
+        grid.add(new Label("Artiste:"), 0, 3);
+        grid.add(artistField, 1, 3);
         
-        // Effet de survol
-        card.setOnMouseEntered(e -> {
-            card.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 12px; -fx-border-color: #007bff; -fx-border-width: 2; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 5); -fx-cursor: hand;");
+        dialog.getDialogPane().setContent(grid);
+        ButtonType saveButtonType = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isPresent() && result.get() == saveButtonType) {
+            art.setTitle(titleField.getText().trim());
+            art.setDescription(descField.getText().trim());
+            art.setImageUrl(urlField.getText().trim());
+            art.setArtist(artistField.getText().trim());
+            if (artService.updateArt(art)) {
+                loadArtworks(searchField.getText().trim());
+            } else {
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Erreur");
+                errorAlert.setHeaderText("Modification impossible");
+                errorAlert.setContentText("Impossible de mettre à jour l'œuvre.");
+                errorAlert.showAndWait();
+            }
+        }
+    }
+    
+    private void handleDeleteArt(Art art) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Supprimer l'œuvre");
+        confirm.setHeaderText("Voulez-vous vraiment supprimer cette œuvre ?");
+        confirm.setContentText(art.getTitle());
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            if (artService.deleteArt(art.getId())) {
+                loadArtworks(searchField.getText().trim());
+            } else {
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Erreur");
+                errorAlert.setHeaderText("Suppression impossible");
+                errorAlert.setContentText("Impossible de supprimer l'œuvre.");
+                errorAlert.showAndWait();
+            }
+        }
+    }
+    
+    private HBox createSocialButtons(Art art) {
+        HBox buttons = new HBox(15);
+        buttons.setAlignment(Pos.CENTER_LEFT);
+        
+        // Charger les vrais compteurs depuis la base de données
+        int currentLikes = dislikeService.getDislikeCount(art.getId()); // Utilise la même table pour likes
+        int currentDislikes = dislikeService.getDislikeCount(art.getId());
+        
+        likeCounts.put(art.getId(), currentLikes);
+        dislikeCounts.put(art.getId(), currentDislikes);
+        
+        // Bouton Like avec compteur
+        VBox likeContainer = new VBox(2);
+        likeContainer.setAlignment(Pos.CENTER);
+        
+        Button likeButton = new Button("👍");
+        likeButton.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 16px;");
+        
+        Label likeCount = new Label(String.valueOf(currentLikes));
+        likeCount.setStyle("-fx-text-fill: #28a745; -fx-font-size: 12px; -fx-font-weight: bold;");
+        
+        likeContainer.getChildren().addAll(likeButton, likeCount);
+        
+        // Bouton Dislike avec compteur
+        VBox dislikeContainer = new VBox(2);
+        dislikeContainer.setAlignment(Pos.CENTER);
+        
+        Button dislikeButton = new Button("👎");
+        dislikeButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 16px;");
+        
+        Label dislikeCount = new Label(String.valueOf(currentDislikes));
+        dislikeCount.setStyle("-fx-text-fill: #dc3545; -fx-font-size: 12px; -fx-font-weight: bold;");
+        
+        dislikeContainer.getChildren().addAll(dislikeButton, dislikeCount);
+        
+        // Bouton Commentaire
+        Button commentButton = new Button("💬");
+        commentButton.setStyle("-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 16px;");
+        
+        // Actions avec animations
+        likeButton.setOnAction(e -> handleLikeWithAnimation(art, likeButton, likeCount, "like_" + System.currentTimeMillis()));
+        dislikeButton.setOnAction(e -> handleDislikeWithAnimation(art, dislikeButton, dislikeCount, "dislike_" + System.currentTimeMillis()));
+        commentButton.setOnAction(e -> openCommentDialog(art));
+        
+        buttons.getChildren().addAll(likeContainer, dislikeContainer, commentButton);
+        return buttons;
+    }
+    
+    private void handleLikeWithAnimation(Art art, Button likeButton, Label likeCount, String sessionId) {
+        if (dislikeService.addDislike(art.getId(), sessionId)) {
+            // Recharger le compteur depuis la base de données
+            int newCount = dislikeService.getDislikeCount(art.getId());
+            likeCounts.put(art.getId(), newCount);
+            
+            // Animation de poussée vers le haut
+            Timeline pushUpAnimation = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(likeButton.translateYProperty(), 0)),
+                new KeyFrame(Duration.millis(200), new KeyValue(likeButton.translateYProperty(), -10)),
+                new KeyFrame(Duration.millis(400), new KeyValue(likeButton.translateYProperty(), 0))
+            );
+            
+            // Animation de changement de couleur
+            Timeline colorAnimation = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(likeButton.styleProperty(), "-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 16px;")),
+                new KeyFrame(Duration.millis(200), new KeyValue(likeButton.styleProperty(), "-fx-background-color: #1e7e34; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 18px;")),
+                new KeyFrame(Duration.millis(400), new KeyValue(likeButton.styleProperty(), "-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 16px;"))
+            );
+            
+            // Mettre à jour le compteur
+            likeCount.setText(String.valueOf(newCount));
+            
+            pushUpAnimation.play();
+            colorAnimation.play();
+            
+            System.out.println("Like ajouté pour: " + art.getTitle() + " (Total: " + newCount + ")");
+        }
+    }
+    
+    private void handleDislikeWithAnimation(Art art, Button dislikeButton, Label dislikeCount, String sessionId) {
+        if (dislikeService.addDislike(art.getId(), sessionId)) {
+            // Recharger le compteur depuis la base de données
+            int newCount = dislikeService.getDislikeCount(art.getId());
+            dislikeCounts.put(art.getId(), newCount);
+            
+            // Animation de poussée vers le bas
+            Timeline pushDownAnimation = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(dislikeButton.translateYProperty(), 0)),
+                new KeyFrame(Duration.millis(200), new KeyValue(dislikeButton.translateYProperty(), 10)),
+                new KeyFrame(Duration.millis(400), new KeyValue(dislikeButton.translateYProperty(), 0))
+            );
+            
+            // Animation de changement de couleur
+            Timeline colorAnimation = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(dislikeButton.styleProperty(), "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 16px;")),
+                new KeyFrame(Duration.millis(200), new KeyValue(dislikeButton.styleProperty(), "-fx-background-color: #c82333; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 18px;")),
+                new KeyFrame(Duration.millis(400), new KeyValue(dislikeButton.styleProperty(), "-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8px 12px; -fx-font-size: 16px;"))
+            );
+            
+            // Mettre à jour le compteur
+            dislikeCount.setText(String.valueOf(newCount));
+            
+            pushDownAnimation.play();
+            colorAnimation.play();
+            
+            System.out.println("Dislike ajouté pour: " + art.getTitle() + " (Total: " + newCount + ")");
+        }
+    }
+    
+    private void openCommentDialog(Art art) {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Commentaires");
+        dialog.setHeaderText("Commentaires sur: " + art.getTitle());
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(500);
+        
+        VBox commentsContainer = new VBox(5);
+        List<ServiceArtComment.Comment> comments = commentService.getCommentsByArtId(art.getId());
+        displayComments(comments, commentsContainer, art);
+        
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Votre nom");
+        
+        TextArea commentArea = new TextArea();
+        commentArea.setPromptText("Votre commentaire...");
+        commentArea.setPrefWidth(460);
+        commentArea.setPrefHeight(80);
+        commentArea.setWrapText(true);
+        
+        Button submitButton = new Button("Envoyer");
+        submitButton.setStyle("-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8px 15px;");
+        
+        submitButton.setOnAction(e -> {
+            String username = usernameField.getText().trim();
+            String commentText = commentArea.getText().trim();
+            
+            if (!username.isEmpty() && !commentText.isEmpty()) {
+                if (commentService.addComment(art.getId(), username, commentText)) {
+                    usernameField.clear();
+                    commentArea.clear();
+                    List<ServiceArtComment.Comment> updatedComments = commentService.getCommentsByArtId(art.getId());
+                    displayComments(updatedComments, commentsContainer, art);
+                }
+            }
         });
         
-        card.setOnMouseExited(e -> {
-            card.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 12px; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 2); -fx-cursor: hand;");
+        content.getChildren().addAll(new Label("Commentaires existants:"), commentsContainer, 
+                                   new Separator(), new Label("Ajouter un commentaire:"), 
+                                   usernameField, commentArea, submitButton);
+        
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
+    }
+    
+    private void displayComments(List<ServiceArtComment.Comment> comments, VBox container, Art art) {
+        container.getChildren().clear();
+        
+        if (comments.isEmpty()) {
+            Label noCommentsLabel = new Label("Soyez le premier à commenter !");
+            noCommentsLabel.setStyle("-fx-text-fill: #6c757d; -fx-font-style: italic;");
+            container.getChildren().add(noCommentsLabel);
+            return;
+        }
+        
+        // Séparer les commentaires principaux des réponses
+        List<ServiceArtComment.Comment> mainComments = new ArrayList<>();
+        List<ServiceArtComment.Comment> replies = new ArrayList<>();
+        
+        for (ServiceArtComment.Comment comment : comments) {
+            if (comment.getContent().startsWith("↩ @")) {
+                replies.add(comment);
+            } else {
+                mainComments.add(comment);
+            }
+        }
+        
+        // Afficher d'abord les commentaires principaux avec leurs réponses
+        for (ServiceArtComment.Comment mainComment : mainComments) {
+            VBox commentBox = new VBox(5);
+            commentBox.setStyle("-fx-background-color: white; -fx-background-radius: 8; -fx-padding: 10; -fx-border-color: #e9ecef; -fx-border-width: 1;");
+            
+            HBox headerBox = new HBox();
+            headerBox.setAlignment(Pos.CENTER_LEFT);
+            
+            Label usernameLabel = new Label(mainComment.getUsername());
+            usernameLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #495057;");
+            
+            Label dateLabel = new Label(mainComment.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+            dateLabel.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 11px;");
+            
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            
+            headerBox.getChildren().addAll(usernameLabel, spacer, dateLabel);
+            
+            Label contentLabel = new Label(mainComment.getContent());
+            contentLabel.setStyle("-fx-text-fill: #212529; -fx-wrap-text: true;");
+            contentLabel.setPrefWidth(450);
+            
+            // Bouton de réponse minimaliste
+            Button replyButton = new Button("↩");
+            replyButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #17a2b8; -fx-border-color: #17a2b8; -fx-border-width: 1; -fx-background-radius: 10; -fx-padding: 4px 8px; -fx-font-size: 12px; -fx-cursor: hand;");
+            replyButton.setOnAction(e -> openReplyDialog(mainComment, art));
+            
+            HBox contentWithReply = new HBox(10);
+            contentWithReply.setAlignment(Pos.CENTER_LEFT);
+            contentWithReply.getChildren().addAll(contentLabel, replyButton);
+            
+            commentBox.getChildren().addAll(headerBox, contentWithReply);
+            
+            // Ajouter les réponses sous ce commentaire
+            for (ServiceArtComment.Comment reply : replies) {
+                if (reply.getContent().contains("@" + mainComment.getUsername())) {
+                    // Créer une boîte de réponse plus petite et indentée
+                    VBox replyBox = new VBox(3);
+                    replyBox.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 6; -fx-padding: 8px 8px 8px 20px; -fx-border-color: #dee2e6; -fx-border-width: 1;");
+                    
+                    HBox replyHeader = new HBox();
+                    replyHeader.setAlignment(Pos.CENTER_LEFT);
+                    
+                    Label replyUsernameLabel = new Label(reply.getUsername());
+                    replyUsernameLabel.setStyle("-fx-font-weight: normal; -fx-text-fill: #6c757d; -fx-font-size: 12px;");
+                    
+                    Label replyDateLabel = new Label(reply.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM HH:mm")));
+                    replyDateLabel.setStyle("-fx-text-fill: #adb5bd; -fx-font-size: 10px;");
+                    
+                    Region replySpacer = new Region();
+                    HBox.setHgrow(replySpacer, Priority.ALWAYS);
+                    
+                    replyHeader.getChildren().addAll(replyUsernameLabel, replySpacer, replyDateLabel);
+                    
+                    // Extraire le contenu de la réponse (enlever "↩ @username: ")
+                    String replyContent = reply.getContent().replaceFirst("↩ @" + mainComment.getUsername() + ": ", "");
+                    Label replyContentLabel = new Label(replyContent);
+                    replyContentLabel.setStyle("-fx-text-fill: #495057; -fx-wrap-text: true; -fx-font-size: 12px;");
+                    replyContentLabel.setPrefWidth(420);
+                    
+                    replyBox.getChildren().addAll(replyHeader, replyContentLabel);
+                    commentBox.getChildren().add(replyBox);
+                }
+            }
+            
+            container.getChildren().add(commentBox);
+        }
+    }
+    
+    private void openReplyDialog(ServiceArtComment.Comment parentComment, Art art) {
+        Dialog<String> replyDialog = new Dialog<>();
+        replyDialog.setTitle("Répondre au commentaire");
+        replyDialog.setHeaderText("Répondre à: " + parentComment.getUsername());
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(400);
+        
+        // Affichage du commentaire parent
+        Label parentLabel = new Label("@" + parentComment.getUsername() + ": " + parentComment.getContent());
+        parentLabel.setStyle("-fx-text-fill: #6c757d; -fx-font-style: italic; -fx-wrap-text: true;");
+        parentLabel.setPrefWidth(360);
+        
+        // Champ pour la réponse
+        TextField replyNameField = new TextField();
+        replyNameField.setPromptText("Votre nom");
+        
+        TextArea replyArea = new TextArea();
+        replyArea.setPromptText("Votre réponse...");
+        replyArea.setPrefWidth(360);
+        replyArea.setPrefHeight(60);
+        replyArea.setWrapText(true);
+        
+        content.getChildren().addAll(parentLabel, new Separator(), replyNameField, replyArea);
+        
+        replyDialog.getDialogPane().setContent(content);
+        
+        ButtonType replyButton = new ButtonType("Répondre", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        replyDialog.getDialogPane().getButtonTypes().addAll(replyButton, cancelButton);
+        
+        replyDialog.setResultConverter(dialogButton -> {
+            if (dialogButton == replyButton) {
+                String name = replyNameField.getText().trim();
+                String reply = replyArea.getText().trim();
+                
+                if (!name.isEmpty() && !reply.isEmpty()) {
+                    String replyText = "↩ @" + parentComment.getUsername() + ": " + reply;
+                    return replyText;
+                }
+            }
+            return null;
         });
         
-        return card;
+        Optional<String> result = replyDialog.showAndWait();
+        result.ifPresent(replyText -> {
+            if (commentService.addComment(art.getId(), replyNameField.getText().trim(), replyText)) {
+                System.out.println("✅ Réponse ajoutée: " + replyText);
+                
+                // Fermer le dialog principal et le rouvrir pour rafraîchir
+                replyDialog.close();
+                
+                // Rouvrir le dialog de commentaires avec les nouveaux commentaires
+                Platform.runLater(() -> {
+                    openCommentDialog(art);
+                });
+            }
+        });
     }
     
     @FXML
     private void handleSearch() {
-        String searchTerm = searchField.getText().toLowerCase().trim();
-        
-        if (searchTerm.isEmpty()) {
-            displayFilteredArtworks(allArtworks);
-            return;
-        }
-        
-        List<Art> filteredArtworks = allArtworks.stream()
-            .filter(art -> "published".equals(art.getStatus()))
-            .filter(art -> 
-                art.getTitle().toLowerCase().contains(searchTerm) ||
-                art.getArtist().toLowerCase().contains(searchTerm) ||
-                art.getDescription().toLowerCase().contains(searchTerm)
-            )
-            .collect(Collectors.toList());
-        
-        galleryGrid.getChildren().clear();
-        for (Art art : filteredArtworks) {
-            galleryGrid.getChildren().add(createArtworkCard(art));
-        }
+        loadArtworks(searchField.getText().trim());
     }
     
     @FXML
     private void handleClearSearch() {
         searchField.clear();
-        displayFilteredArtworks(allArtworks);
+        loadArtworks(null);
     }
     
     @FXML
-    private void handleResetSort() {
-        toggleRecent.setSelected(false);
-        toggleOlder.setSelected(false);
-        toggleLiked.setSelected(false);
-        currentSortOrder = "default";
-        displayFilteredArtworks(allArtworks);
+    private void handleQuotes() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("💬 Citations d'Art");
+        dialog.setHeaderText("Citations célèbres d'artistes et penseurs");
+        
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(500);
+        
+        // Afficher les citations
+        VBox quotesContainer = new VBox(10);
+        quotesContainer.setStyle("-fx-padding: 10px;");
+        
+        try {
+            int totalQuotes = quotesService.getTotalQuotes();
+            for (int i = 0; i < Math.min(5, totalQuotes); i++) {
+                String quote = quotesService.getQuoteByIndex(i);
+                Label quoteLabel = new Label(quote);
+                quoteLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-wrap-text: true; -fx-padding: 10px; -fx-background-color: #f8f9fa; -fx-background-radius: 8;");
+                quoteLabel.setWrapText(true);
+                quotesContainer.getChildren().add(quoteLabel);
+            }
+        } catch (Exception e) {
+            Label errorLabel = new Label("Erreur lors du chargement des citations");
+            errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #e74c3c;");
+            quotesContainer.getChildren().add(errorLabel);
+        }
+        
+        ScrollPane scrollPane = new ScrollPane(quotesContainer);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(300);
+        
+        // Bouton pour rafraîchir les citations
+        Button refreshButton = new Button("🔄 Nouvelle citation");
+        refreshButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8px 16px;");
+        refreshButton.setOnAction(e -> {
+            Dialog<Void> newDialog = new Dialog<>();
+            newDialog.setTitle("💬 Citation du jour");
+            newDialog.setHeaderText("Citation aléatoire");
+            VBox newContent = new VBox(15);
+            newContent.setPadding(new Insets(20));
+            Label randomQuote = new Label(quotesService.getFormattedQuote());
+            randomQuote.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #e74c3c; -fx-wrap-text: true; -fx-padding: 15px;");
+            randomQuote.setWrapText(true);
+            newContent.getChildren().add(randomQuote);
+            newDialog.getDialogPane().setContent(newContent);
+            newDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+            newDialog.showAndWait();
+        });
+        
+        content.getChildren().addAll(new Label("Citations populaires:"), scrollPane, refreshButton);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.showAndWait();
+    }
+    
+    @FXML
+    private void handleArtists() {
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("👨‍🎨 Artistes Célèbres");
+        dialog.setHeaderText("Biographies des grands maîtres");
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(600);
+        
+        // Liste des artistes
+        String[] artists = {
+            "Vincent van Gogh",
+            "Pablo Picasso", 
+            "Claude Monet",
+            "Leonardo da Vinci",
+            "Henri Matisse",
+            "Salvador Dalí",
+            "Frida Kahlo",
+            "Paul Cézanne"
+        };
+        
+        VBox artistsList = new VBox(8);
+        artistsList.setStyle("-fx-padding: 10px;");
+        
+        for (String artist : artists) {
+            Button artistBtn = new Button("👨‍🎨 " + artist);
+            artistBtn.setStyle("-fx-background-color: #667eea; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10px 16px; -fx-font-size: 12px; -fx-cursor: hand; -fx-max-width: Infinity;");
+            artistBtn.setMaxWidth(Double.MAX_VALUE);
+            artistBtn.setOnAction(e -> showArtistBiography(artist));
+            artistsList.getChildren().add(artistBtn);
+        }
+        
+        ScrollPane scrollPane = new ScrollPane(artistsList);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(400);
+        
+        content.getChildren().addAll(new Label("Sélectionnez un artiste pour sa biographie:"), scrollPane);
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.showAndWait();
+    }
+    
+    private void showArtistBiography(String artistName) {
+        Dialog<Void> bioDialog = new Dialog<>();
+        bioDialog.setTitle("Biographie : " + artistName);
+        bioDialog.setHeaderText("👨‍🎨 " + artistName);
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(500);
+        
+        try {
+            String biography = artistsService.getArtistBiography(artistName);
+            TextArea bioArea = new TextArea(biography);
+            bioArea.setWrapText(true);
+            bioArea.setEditable(false);
+            bioArea.setPrefHeight(300);
+            bioArea.setStyle("-fx-font-size: 12px; -fx-control-inner-background: #f8f9fa; -fx-text-fill: #2c3e50;");
+            content.getChildren().add(bioArea);
+        } catch (Exception e) {
+            Label errorLabel = new Label("Erreur lors du chargement de la biographie");
+            errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #e74c3c;");
+            content.getChildren().add(errorLabel);
+        }
+        
+        bioDialog.getDialogPane().setContent(content);
+        bioDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        bioDialog.showAndWait();
     }
     
     @FXML
     private void handleSortRecent() {
-        try {
-            toggleOlder.setSelected(false);
-            toggleLiked.setSelected(false);
-            if (toggleRecent.isSelected()) {
-                currentSortOrder = "recent";
-                System.out.println("Sorting by most recent");
-            } else {
-                currentSortOrder = "default";
-                System.out.println("Reset to default order");
-            }
-            applyCurrentSortAndDisplay();
-        } catch (Exception e) {
-            System.err.println("Error sorting by recent: " + e.getMessage());
-        }
+        System.out.println("📅 Tri par plus récent");
+        loadArtworksSortedByDate(true); // true = plus récent
     }
     
     @FXML
     private void handleSortOlder() {
-        try {
-            toggleRecent.setSelected(false);
-            toggleLiked.setSelected(false);
-            if (toggleOlder.isSelected()) {
-                currentSortOrder = "older";
-                System.out.println("Sorting by oldest");
-            } else {
-                currentSortOrder = "default";
-                System.out.println("Reset to default order");
-            }
-            applyCurrentSortAndDisplay();
-        } catch (Exception e) {
-            System.err.println("Error sorting by older: " + e.getMessage());
-        }
+        System.out.println("📜 Tri par plus ancien");
+        loadArtworksSortedByDate(false); // false = plus ancien
     }
     
     @FXML
     private void handleSortLiked() {
-        try {
-            toggleRecent.setSelected(false);
-            toggleOlder.setSelected(false);
-            if (toggleLiked.isSelected()) {
-                currentSortOrder = "liked";
-                System.out.println("Sorting by most liked");
-            } else {
-                currentSortOrder = "default";
-                System.out.println("Reset to default order");
-            }
-            applyCurrentSortAndDisplay();
-        } catch (Exception e) {
-            System.err.println("Error sorting by liked: " + e.getMessage());
-        }
+        System.out.println("❤️ Tri par plus liké");
+        loadArtworksSortedByLikes();
     }
     
-    private void applyCurrentSortAndDisplay() {
-        List<Art> filteredArtworks = allArtworks.stream()
-            .filter(art -> "published".equals(art.getStatus()))
-            .collect(Collectors.toList());
+    private void loadArtworksSortedByDate(boolean mostRecent) {
+        List<Art> artworks = artService.getAllArts();
         
-        switch (currentSortOrder) {
-            case "recent":
-                filteredArtworks.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
-                break;
-            case "older":
-                filteredArtworks.sort((a, b) -> a.getCreatedAt().compareTo(b.getCreatedAt()));
-                break;
-            case "liked":
-                filteredArtworks.sort((a, b) -> Integer.compare(b.getLikes(), a.getLikes()));
-                break;
-            default:
-                // Ordre par défaut
-                break;
+        // Trier par date
+        if (mostRecent) {
+            artworks.sort((a1, a2) -> a2.getCreatedAt().compareTo(a1.getCreatedAt()));
+        } else {
+            artworks.sort((a1, a2) -> a1.getCreatedAt().compareTo(a2.getCreatedAt()));
         }
         
+        // Filtrer et afficher
         galleryGrid.getChildren().clear();
-        for (Art art : filteredArtworks) {
-            galleryGrid.getChildren().add(createArtworkCard(art));
+        for (Art art : artworks) {
+            if ("published".equals(art.getStatus())) {
+                galleryGrid.getChildren().add(createArtworkCard(art));
+            }
         }
-    }
-    
         
-    private void openModifyDialog(Art art) {
-        try {
-            DialogPane dialogPane = new DialogPane();
-            dialogPane.setHeaderText("Modifier l'œuvre");
-            
-            GridPane grid = new GridPane();
-            grid.setHgap(10);
-            grid.setVgap(10);
-            grid.setPadding(new Insets(20, 150, 10, 10));
-            
-            TextField titleField = new TextField(art.getTitle());
-            TextField artistField = new TextField(art.getArtist());
-            TextField urlField = new TextField(art.getImageUrl());
-            TextArea descArea = new TextArea(art.getDescription());
-            descArea.setPrefRowCount(3);
-            
-            grid.add(new Label("Titre:"), 0, 0);
-            grid.add(titleField, 1, 0);
-            grid.add(new Label("Artiste:"), 0, 1);
-            grid.add(artistField, 1, 1);
-            grid.add(new Label("URL Image:"), 0, 2);
-            grid.add(urlField, 1, 2);
-            grid.add(new Label("Description:"), 0, 3);
-            grid.add(descArea, 1, 3);
-            
-            dialogPane.setContent(grid);
-            
-            Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setDialogPane(dialogPane);
-            dialog.setTitle("Modifier une œuvre");
-            
-            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-            
-            Optional<ButtonType> result = dialog.showAndWait();
-            
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                art.setTitle(titleField.getText().trim());
-                art.setArtist(artistField.getText().trim());
-                art.setDescription(descArea.getText().trim());
-                art.setImageUrl(urlField.getText().trim());
+        System.out.println("✅ Tri effectué : " + (mostRecent ? "plus récent" : "plus ancien"));
+    }
+    
+    private void loadArtworksSortedByLikes() {
+        List<Art> artworks = artService.getAllArts();
+        
+        // Trier par nombre de likes (en utilisant les compteurs actuels)
+        artworks.sort((a1, a2) -> {
+            int likes1 = likeCounts.getOrDefault(a1.getId(), 0);
+            int likes2 = likeCounts.getOrDefault(a2.getId(), 0);
+            return Integer.compare(likes2, likes1); // ordre décroissant
+        });
+        
+        // Filtrer et afficher
+        galleryGrid.getChildren().clear();
+        for (Art art : artworks) {
+            if ("published".equals(art.getStatus())) {
+                galleryGrid.getChildren().add(createArtworkCard(art));
+            }
+        }
+        
+        System.out.println("✅ Tri effectué : plus liké");
+    }
+    
+    @FXML
+    private void handleResetSort() {
+        searchField.clear();
+        loadArtworks(null);
+    }
+    
+    @FXML
+    private void handleAddArtwork() {
+        System.out.println("➕ Ajout d'œuvre cliqué");
+        showAddArtworkDialog();
+    }
+    
+    private void showAddArtworkDialog() {
+        Dialog<Art> addDialog = new Dialog<>();
+        addDialog.setTitle("Ajouter une œuvre");
+        addDialog.setHeaderText("Ajouter une nouvelle œuvre à la collection");
+        
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(500);
+        
+        // Champ pour le titre
+        TextField titleField = new TextField();
+        titleField.setPromptText("Titre de l'œuvre");
+        titleField.setStyle("-fx-background-color: #f7fafc; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-padding: 10px;");
+        
+        // Champ pour la description
+        TextArea descriptionArea = new TextArea();
+        descriptionArea.setPromptText("Description de l'œuvre...");
+        descriptionArea.setPrefWidth(460);
+        descriptionArea.setPrefHeight(100);
+        descriptionArea.setWrapText(true);
+        descriptionArea.setStyle("-fx-background-color: #f7fafc; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-padding: 10px;");
+        
+        // Champ pour l'URL de l'image
+        TextField imageField = new TextField();
+        imageField.setPromptText("URL de l'image (optionnel)");
+        imageField.setStyle("-fx-background-color: #f7fafc; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-padding: 10px;");
+        
+        // Champ pour l'artiste
+        TextField artistField = new TextField();
+        artistField.setPromptText("Nom de l'artiste");
+        artistField.setStyle("-fx-background-color: #f7fafc; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-padding: 10px;");
+        
+        content.getChildren().addAll(
+            new Label("Titre:"), titleField,
+            new Label("Description:"), descriptionArea,
+            new Label("URL de l'image:"), imageField,
+            new Label("Artiste:"), artistField
+        );
+        
+        addDialog.getDialogPane().setContent(content);
+        
+        ButtonType addButtonType = new ButtonType("Ajouter", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        addDialog.getDialogPane().getButtonTypes().addAll(addButtonType, cancelButtonType);
+        
+        addDialog.setResultConverter(dialogButton -> {
+            if (dialogButton == addButtonType) {
+                String title = titleField.getText().trim();
+                String description = descriptionArea.getText().trim();
+                String imageUrl = imageField.getText().trim();
+                String artist = artistField.getText().trim();
                 
-                if (serviceArt.updateArt(art)) {
-                    System.out.println("Œuvre modifiée avec succès!");
-                    loadMenuItems("All");
+                if (!title.isEmpty() && !description.isEmpty()) {
+                    // Créer une nouvelle œuvre avec statut "pending"
+                    Art newArt = new Art();
+                    newArt.setTitle(title);
+                    newArt.setDescription(description);
+                    newArt.setImageUrl(imageUrl.isEmpty() ? null : imageUrl);
+                    newArt.setArtist(artist.isEmpty() ? "Artiste inconnu" : artist); // Nom de l'artiste
+                    newArt.setStatus("pending"); // En attente de validation admin
+                    newArt.setCreatedAt(java.time.LocalDateTime.now());
+                    
+                    // Afficher la confirmation
+                    showConfirmationDialog(newArt);
+                    return null; // Ne pas retourner l'œuvre directement
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la modification: " + e.getMessage());
+            return null;
+        });
+        
+        addDialog.showAndWait();
+    }
+    
+    private void showConfirmationDialog(Art art) {
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirmation de publication");
+        confirmationAlert.setHeaderText("Êtes-vous sûr de vouloir publier cette œuvre ?");
+        confirmationAlert.setContentText("Titre: " + art.getTitle() + "\nArtiste: " + art.getArtist());
+        
+        ButtonType yesButton = new ButtonType("Oui", ButtonBar.ButtonData.OK_DONE);
+        ButtonType noButton = new ButtonType("Non", ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirmationAlert.getButtonTypes().setAll(yesButton, noButton);
+        
+        Optional<ButtonType> result = confirmationAlert.showAndWait();
+        if (result.isPresent() && result.get() == yesButton) {
+            // L'utilisateur a confirmé
+            if (artService.createArt(art)) {
+                System.out.println("✅ Œuvre soumise pour validation: " + art.getTitle());
+                showSubmissionMessage();
+            } else {
+                System.out.println("❌ Erreur lors de la soumission de l'œuvre");
+            }
         }
     }
     
-    private void openDeleteDialog(Art art) {
-        try {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Supprimer l'œuvre");
-            alert.setHeaderText("Voulez-vous vraiment supprimer cette œuvre ?");
-            alert.setContentText("Titre: " + art.getTitle() + "\nArtiste: " + art.getArtist());
-            
-            if (alert.showAndWait().get() == ButtonType.OK) {
-                if (serviceArt.deleteArt(art.getId())) {
-                    System.out.println("Œuvre supprimée avec succès!");
-                    loadMenuItems("All");
-                } else {
-                    System.err.println("Erreur lors de la suppression");
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la suppression: " + e.getMessage());
-        }
+    private void showSubmissionMessage() {
+        Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+        infoAlert.setTitle("Publication soumise");
+        infoAlert.setHeaderText("Votre publication sera publiée lorsque l'admin l'acceptera");
+        infoAlert.setContentText(null);
+        infoAlert.showAndWait();
     }
     
     @FXML
     private void goHome() {
         try {
-            System.out.println("Retour à l'accueil");
             SceneNavigator.goTo("/views/home-view.fxml");
-        } catch (Exception e) {
-            System.err.println("Erreur lors du retour à l'accueil: " + e.getMessage());
-        }
-    }
-    
-    @FXML
-    private void handleQuotes() {
-        String quote = quotesService.getFormattedQuote();
-        
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("💬 Citation d'artiste");
-        alert.setHeaderText(null);
-        alert.setContentText(quote);
-        alert.showAndWait();
-    }
-    
-    @FXML
-    private void handleArtists() {
-        // Créer une boîte de dialogue pour entrer le nom de l'artiste
-        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
-        dialog.setTitle("🎨 Biographie d'artiste");
-        dialog.setHeaderText("Entrez le nom d'un artiste");
-        dialog.setContentText("Nom de l'artiste :");
-        
-        // Suggestions d'artistes
-        dialog.getDialogPane().setExpanded(true);
-        
-        dialog.showAndWait().ifPresent(artistName -> {
-            if (!artistName.trim().isEmpty()) {
-                String biography = artistsService.getFormattedBiography(artistName.trim());
-                
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("🎨 " + artistName);
-                alert.setHeaderText(null);
-                alert.setContentText(biography);
-                alert.getDialogPane().setMinWidth(500);
-                alert.showAndWait();
-            }
-        });
-    }
-    
-    // Méthodes de filtrage
-    @FXML
-    private void handleFilterAll() {
-        loadMenuItems("All");
-    }
-    
-    @FXML
-    private void handleFilterBurger() {
-        loadMenuItems("Burger");
-    }
-    
-    @FXML
-    private void handleFilterPizza() {
-        loadMenuItems("Pizza");
-    }
-    
-    @FXML
-    private void handleFilterPasta() {
-        loadMenuItems("Pasta");
-    }
-    
-    @FXML
-    private void handleFilterFries() {
-        loadMenuItems("Fries");
-    }
-    
-    @FXML
-    private void handleOpenGallery() {
-        try {
-            SceneNavigator.goTo("/views/gallery-main-view.fxml");
         } catch (IOException e) {
-            System.err.println("Error opening gallery: " + e.getMessage());
-        }
-    }
-    
-    @FXML
-    private void handleAddArtwork() {
-        try {
-            System.out.println("Ouverture du formulaire d'ajout d'œuvre...");
-            
-            // Créer un dialogue simple qui fonctionne
-            DialogPane dialogPane = new DialogPane();
-            dialogPane.setHeaderText("Ajouter une nouvelle œuvre");
-            
-            // Créer les champs
-            GridPane grid = new GridPane();
-            grid.setHgap(10);
-            grid.setVgap(10);
-            grid.setPadding(new Insets(20, 150, 10, 10));
-            
-            TextField titleField = new TextField();
-            titleField.setPromptText("Titre de l'œuvre");
-            
-            TextField artistField = new TextField();
-            artistField.setPromptText("Nom de l'artiste");
-            
-            TextField urlField = new TextField();
-            urlField.setPromptText("URL de l'image");
-            
-            TextArea descArea = new TextArea();
-            descArea.setPromptText("Description");
-            descArea.setPrefRowCount(3);
-            
-            grid.add(new Label("Titre:"), 0, 0);
-            grid.add(titleField, 1, 0);
-            grid.add(new Label("Artiste:"), 0, 1);
-            grid.add(artistField, 1, 1);
-            grid.add(new Label("URL Image:"), 0, 2);
-            grid.add(urlField, 1, 2);
-            grid.add(new Label("Description:"), 0, 3);
-            grid.add(descArea, 1, 3);
-            
-            dialogPane.setContent(grid);
-            
-            // Créer le dialogue
-            Dialog<ButtonType> dialog = new Dialog<>();
-            dialog.setDialogPane(dialogPane);
-            dialog.setTitle("Ajouter une œuvre");
-            
-            // Ajouter les boutons
-            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-            
-            // Afficher et attendre la réponse
-            Optional<ButtonType> result = dialog.showAndWait();
-            
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                // Créer l'objet Art 
-                Art newArt = new Art();
-                newArt.setTitle(titleField.getText().trim());
-                
-                // Gérer le champ artiste
-                String artistName = artistField.getText().trim();
-                if (artistName.isEmpty()) {
-                    artistName = "Artiste inconnu";
-                }
-                newArt.setArtist(artistName);
-                
-                newArt.setDescription(descArea.getText().trim());
-                newArt.setImageUrl(urlField.getText().trim());
-                newArt.setStatus("pending"); // en attente de validation
-                newArt.setCreatedAt(LocalDateTime.now());
-                
-                System.out.println("Ajout de l'œuvre - Artiste: " + artistName);
-                
-                // Sauvegarder avec retry
-                boolean success = false;
-                int retryCount = 0;
-                while (!success && retryCount < 3) {
-                    try {
-                        serviceArt.createArt(newArt);
-                        success = true;
-                        System.out.println("Artwork added successfully!");
-                        
-                        // Recharger la galerie
-                        loadMenuItems("All");
-                        
-                    } catch (Exception e) {
-                        retryCount++;
-                        System.err.println("Retry " + retryCount + ": " + e.getMessage());
-                        if (retryCount < 3) {
-                            try {
-                                Thread.sleep(1000); // Attendre 1 seconde
-                            } catch (InterruptedException ie) {
-                                Thread.currentThread().interrupt();
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (success) {
-                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                    successAlert.setTitle("Publication réussie");
-                    successAlert.setHeaderText("Œuvre soumise avec succès !");
-                    successAlert.setContentText("Votre publication sera publiée dès que l'administrateur l'acceptera.");
-                    successAlert.showAndWait();
-                    
-                } else {
-                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                    errorAlert.setTitle("Erreur");
-                    errorAlert.setHeaderText("Échec de la publication");
-                    errorAlert.setContentText("Impossible de sauvegarder l'œuvre. Veuillez réessayer.");
-                    errorAlert.showAndWait();
-                }
-            }
-            
-        } catch (Exception e) {
-            System.err.println("Error adding artwork: " + e.getMessage());
-            
-            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-            errorAlert.setTitle("Erreur");
-            errorAlert.setHeaderText("Erreur technique");
-            errorAlert.setContentText("Une erreur est survenue. Veuillez réessayer plus tard.");
-            errorAlert.showAndWait();
+            e.printStackTrace();
         }
     }
 }
+

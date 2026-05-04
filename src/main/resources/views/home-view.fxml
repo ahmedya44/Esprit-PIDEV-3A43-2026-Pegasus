@@ -15,7 +15,7 @@
       <HBox alignment="CENTER" spacing="50">
          <children>
             <Button fx:id="frontButton" text="FRONTOFFICE" prefWidth="250" prefHeight="120" 
-                    onAction="#goToFrontOffice"
+                    onAction="#handleFrontOffice"
                     style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-cursor: hand;">
                <font>
                   <Font size="20" />

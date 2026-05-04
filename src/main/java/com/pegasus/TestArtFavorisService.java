@@ -16,7 +16,7 @@ public class TestArtFavorisService {
         String userIdentifier = "user123@example.com";
         int artId1 = 1;
         int artId2 = 2;
-        int artId3 = 3;
+        // int artId3 = 3;
         
         // Test 1: Add to favoris
         System.out.println("\n1. Ajout aux favoris...");

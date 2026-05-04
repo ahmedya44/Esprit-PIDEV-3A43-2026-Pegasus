@@ -4,8 +4,8 @@ import com.pegasus.entities.Art;
 import com.pegasus.services.ServiceArt;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -141,13 +141,13 @@ public class GalleryController {
     
     private void handleArtClick(Art art) {
         System.out.println("Clicked on art: " + art.getTitle());
-        // TODO: Open art detail view or modal
+        // Open art detail view or modal
         showArtDetails(art);
     }
     
     private void handleSampleArtClick(String title) {
         System.out.println("Clicked on sample art: " + title);
-        // TODO: Open sample art detail view or modal
+        // Open sample art detail view or modal
         showSampleArtDetails(title);
     }
     

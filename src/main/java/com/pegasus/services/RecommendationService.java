@@ -3,8 +3,6 @@ package com.pegasus.services;
 import com.pegasus.entities.Art;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.HashSet;
-import java.util.Arrays;
 
 public class RecommendationService {
     

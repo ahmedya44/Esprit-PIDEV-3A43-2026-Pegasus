@@ -5,6 +5,8 @@ import com.pegasus.services.ServiceArt;
 import com.pegasus.services.ServiceArtLike;
 import com.pegasus.services.SpotifyService;
 import com.pegasus.services.RecommendationService;
+import com.pegasus.services.QuotesService;
+// import com.pegasus.services.TranslationService; // Désactivé - fonctionnalité de traduction supprimée
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
@@ -54,21 +56,27 @@ public class ArtDetailController {
     @FXML
     private Button deleteButton;
     
+        
     @FXML
     private TilePane recommendationsTilePane;
     
+        
     private Art currentArt;
     private ServiceArt serviceArt = new ServiceArt();
     private ServiceArtLike serviceArtLike = new ServiceArtLike();
     private SpotifyService spotifyService = new SpotifyService();
     private RecommendationService recommendationService = new RecommendationService();
-    private String sessionId = "session_" + System.currentTimeMillis(); // Session simple
+    private QuotesService quotesService = new QuotesService();
+    // TranslationService désactivé - fonctionnalité de traduction supprimée
+    // private TranslationService translationService = new TranslationService();
+    private String sessionId = "session_" + System.currentTimeMillis() + "_new"; // Session simple
     
     public void setArt(Art art) {
         this.currentArt = art;
         displayArtDetails();
         loadRecommendations();
-    }
+        
+            }
     
     private void displayArtDetails() {
         if (currentArt == null) return;
@@ -90,6 +98,7 @@ public class ArtDetailController {
         }
         descriptionLabel.setText(description);
         
+                
         // Status
         String status = currentArt.getStatus();
         if ("published".equals(status)) {
@@ -210,7 +219,7 @@ public class ArtDetailController {
         // Click handler
         card.setOnMouseClicked(e -> {
             try {
-                // TODO: Implémenter l'ouverture dans une nouvelle fenêtre
+                // Implémenter l'ouverture dans une nouvelle fenêtre
                 System.out.println("Clicked on recommendation: " + art.getTitle());
             } catch (Exception ex) {
                 System.err.println("Error opening recommendation: " + ex.getMessage());
@@ -285,7 +294,7 @@ public class ArtDetailController {
     @FXML
     private void handleEdit() {
         try {
-            // TODO: Implémenter la modification
+            // Implémenter la modification
             showAlert("Fonctionnalité", "La modification sera bientôt disponible!", Alert.AlertType.INFORMATION);
         } catch (Exception e) {
             System.err.println("Error handling edit: " + e.getMessage());
@@ -324,11 +333,20 @@ public class ArtDetailController {
         }
     }
     
+    @FXML
+    private void handleQuotes() {
+        String quote = quotesService.getFormattedQuote();
+        showAlert("💬 Citation d'artiste", quote, Alert.AlertType.INFORMATION);
+    }
+    
+        
+        
+        
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-        alert.showAndWait();
+                alert.showAndWait();
     }
 }

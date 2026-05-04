@@ -126,17 +126,29 @@ public class AddArtworkController {
         // Create and save the artwork
         try {
             Art artwork = createArtworkFromForm();
+            System.out.println("🎨 Tentative d'ajout d'œuvre:");
+            System.out.println("  📌 Titre: " + artwork.getTitle());
+            System.out.println("  📝 Description: " + artwork.getDescription());
+            System.out.println("  🖼️  Image URL: " + artwork.getImageUrl());
+            System.out.println("  📊 Statut: " + artwork.getStatus());
+            System.out.println("  👨 Artiste: " + artwork.getArtist());
+            System.out.println("  📅 Créé le: " + artwork.getCreatedAt());
+            
             boolean success = serviceArt.createArt(artwork);
             
+            System.out.println("📊 Résultat de serviceArt.createArt(): " + success);
+            
             if (success) {
+                System.out.println("✅ Œuvre ajoutée avec ID: " + artwork.getId());
                 showSuccessMessage();
                 closeDialog();
             } else {
+                System.err.println("❌ Échec de la sauvegarde de l'oeuvre");
                 showError("Erreur lors de la sauvegarde de l'oeuvre");
             }
             
         } catch (Exception e) {
-            System.err.println("Erreur lors de la création: " + e.getMessage());
+            System.err.println("❌ Erreur lors de la création: " + e.getMessage());
             e.printStackTrace();
             showError("Erreur: " + e.getMessage());
         }
@@ -228,7 +240,7 @@ public class AddArtworkController {
         artwork.setTitle(titleField.getText().trim());
         artwork.setDescription(descriptionArea.getText().trim());
         artwork.setImageUrl(imageUrlField.getText().trim());
-        artwork.setStatus("pending"); // En attente de validation par l'admin
+        artwork.setStatus("published"); // PUBLIÉ directement pour affichage immédiat
         artwork.setCreatedAt(LocalDateTime.now());
         return artwork;
     }
@@ -237,7 +249,7 @@ public class AddArtworkController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation de publication");
         alert.setHeaderText("Êtes-vous sûr de vouloir publier cette oeuvre ?");
-        alert.setContentText("Une fois publiée, votre oeuvre sera soumise à validation par l'administrateur avant d'être visible publiquement.");
+        alert.setContentText("Votre oeuvre sera publiée immédiatement et visible dans la galerie.");
         
         ButtonType confirmButton = new ButtonType("Oui, publier", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
