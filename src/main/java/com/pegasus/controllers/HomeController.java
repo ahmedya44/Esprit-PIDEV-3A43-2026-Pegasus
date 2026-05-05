@@ -99,6 +99,9 @@ public class HomeController {
     private Button navProfileButton;
 
     @FXML
+    private Button navBackofficeButton;
+
+    @FXML
     private VBox adminUsersBox;
 
     @FXML
@@ -249,6 +252,22 @@ public class HomeController {
         }
     }
 
+    public void onGoToGallery() {
+        try {
+            SceneNavigator.goTo("/views/menu-view.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onGoToBackoffice() {
+        try {
+            SceneNavigator.goTo("/views/backoffice-simple.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void onLogout() {
         SceneNavigator.clearSession();
         refreshUserState();
@@ -287,6 +306,10 @@ public class HomeController {
             navProfileButton.setVisible(loggedIn);
             navProfileButton.setManaged(loggedIn);
         }
+        if (navBackofficeButton != null) {
+            navBackofficeButton.setVisible(false);
+            navBackofficeButton.setManaged(false);
+        }
 
         if (loggedIn) {
             if (userStatusLabel != null) {
@@ -303,6 +326,10 @@ public class HomeController {
             }
 
             boolean isAdmin = "admin".equalsIgnoreCase(currentUser.getDtype());
+            if (navBackofficeButton != null) {
+                navBackofficeButton.setVisible(isAdmin);
+                navBackofficeButton.setManaged(isAdmin);
+            }
             if (adminUsersBox != null) {
                 adminUsersBox.setVisible(isAdmin);
                 adminUsersBox.setManaged(isAdmin);

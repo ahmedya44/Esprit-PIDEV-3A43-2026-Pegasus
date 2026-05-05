@@ -7,7 +7,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.application.Platform;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 
@@ -17,87 +16,60 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class BackofficeController {
-    
+
     @FXML
     private TableView<Art> artworksTable;
-    
     @FXML
     private TableColumn<Art, Integer> colId;
-    
     @FXML
     private TableColumn<Art, String> colTitle;
-    
     @FXML
     private TableColumn<Art, String> colDescription;
-    
     @FXML
     private TableColumn<Art, String> colImageUrl;
-    
     @FXML
     private TableColumn<Art, String> colStatus;
-    
     @FXML
     private TableColumn<Art, String> colCreatedAt;
-    
     @FXML
     private TableColumn<Art, Void> colActions;
-    
     @FXML
     private ComboBox<String> statusFilter;
-    
-    @FXML
-    private Button refreshButton;
-    
-    @FXML
-    private Button returnButton;
-    
     @FXML
     private Label statusLabel;
-    
+
     private ServiceArt serviceArt;
-    
-    @FXML
-    private void handleRefresh() {
-        System.out.println("🔄 Rafraîchissement manuel demandé");
-        refreshTable();
-    }
     private ObservableList<Art> artworksList;
-    
+
     @FXML
     public void initialize() {
-        System.out.println("BackofficeController initialisé");
-        
-        // Initialiser le service
         serviceArt = new ServiceArt();
         artworksList = FXCollections.observableArrayList();
-        
-        // Configurer les filtres
-        statusFilter.getItems().addAll("Tous", "En attente", "Publié", "Rejeté");
+
+        statusFilter.getItems().addAll("Tous", "En attente", "Publie", "Rejete");
         statusFilter.setValue("Tous");
         statusFilter.setOnAction(e -> filterArtworks());
-        
-        // Configurer les colonnes
+
         setupTableColumns();
-        
-        // Charger les données
+        artworksTable.setItems(artworksList);
         refreshTable();
     }
-    
+
     private void setupTableColumns() {
-        // Colonne ID
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        
-        // Colonne Titre
         colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-        
-        // Colonne Description (tronquée)
         colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
+        colImageUrl.setCellValueFactory(new PropertyValueFactory<>("imageUrl"));
+        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+        colCreatedAt.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+
         colDescription.setCellFactory(tc -> new TableCell<Art, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
+                    setTooltip(null);
                 } else {
                     String truncated = item.length() > 50 ? item.substring(0, 47) + "..." : item;
                     setText(truncated);
@@ -105,15 +77,14 @@ public class BackofficeController {
                 }
             }
         });
-        
-        // Colonne Image URL
-        colImageUrl.setCellValueFactory(new PropertyValueFactory<>("imageUrl"));
+
         colImageUrl.setCellFactory(tc -> new TableCell<Art, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
                     setText(null);
+                    setTooltip(null);
                 } else {
                     String truncated = item.length() > 30 ? item.substring(0, 27) + "..." : item;
                     setText(truncated);
@@ -121,9 +92,7 @@ public class BackofficeController {
                 }
             }
         });
-        
-        // Colonne Statut avec style
-        colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+
         colStatus.setCellFactory(tc -> new TableCell<Art, String>() {
             @Override
             protected void updateItem(String status, boolean empty) {
@@ -131,258 +100,186 @@ public class BackofficeController {
                 if (empty || status == null) {
                     setText(null);
                     setStyle("");
-                } else {
-                    setText(status);
-                    switch (status) {
-                        case "pending":
-                            setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 10;");
-                            setText("En attente");
-                            break;
-                        case "published":
-                            setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 10;");
-                            setText("Publié");
-                            break;
-                        case "rejected":
-                            setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 10;");
-                            setText("Rejeté");
-                            break;
-                        default:
-                            setStyle("");
-                            break;
-                    }
+                    return;
+                }
+
+                String normalized = status.trim().toLowerCase();
+                switch (normalized) {
+                    case "pending":
+                        setText("En attente");
+                        setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 10;");
+                        break;
+                    case "published":
+                    case "active":
+                    case "approved":
+                        setText("Publie");
+                        setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 10;");
+                        break;
+                    case "rejected":
+                        setText("Rejete");
+                        setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 10;");
+                        break;
+                    default:
+                        setText(status);
+                        setStyle("");
+                        break;
                 }
             }
         });
-        
-        // Colonne Date
-        colCreatedAt.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-        colCreatedAt.setCellFactory(tc -> new TableCell<Art, String>() {
-            @Override
-            protected void updateItem(String dateString, boolean empty) {
-                super.updateItem(dateString, empty);
-                if (empty || dateString == null) {
-                    setText(null);
-                } else {
-                    setText(dateString);
-                }
-            }
-        });
-        
-        // Colonne Actions avec boutons
+
         colActions.setCellFactory(param -> new TableCell<Art, Void>() {
             private final Button publishButton = new Button("Publier");
             private final Button rejectButton = new Button("Rejeter");
             private final Button deleteButton = new Button("Supprimer");
             private final HBox buttons = new HBox(5, publishButton, rejectButton, deleteButton);
-            
+
             {
                 publishButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 5;");
                 rejectButton.setStyle("-fx-background-color: #e67e22; -fx-text-fill: white; -fx-background-radius: 5;");
                 deleteButton.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 5;");
-                
+
                 publishButton.setOnAction(e -> {
                     Art art = getTableView().getItems().get(getIndex());
                     publishArt(art);
                 });
-                
+
                 rejectButton.setOnAction(e -> {
                     Art art = getTableView().getItems().get(getIndex());
                     rejectArt(art);
                 });
-                
+
                 deleteButton.setOnAction(e -> {
                     Art art = getTableView().getItems().get(getIndex());
                     deleteArt(art);
                 });
             }
-            
+
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
-                } else {
-                    Art art = getTableView().getItems().get(getIndex());
-                    // Afficher les boutons selon le statut
-                    if ("pending".equals(art.getStatus())) {
-                        publishButton.setVisible(true);
-                        rejectButton.setVisible(true);
-                        deleteButton.setVisible(true);
-                    } else {
-                        publishButton.setVisible(false);
-                        rejectButton.setVisible(false);
-                        deleteButton.setVisible(true);
-                    }
-                    setGraphic(buttons);
+                    return;
                 }
+
+                // Keep all actions visible so admins can change status from any state.
+                publishButton.setVisible(true);
+                publishButton.setManaged(true);
+                rejectButton.setVisible(true);
+                rejectButton.setManaged(true);
+                setGraphic(buttons);
             }
         });
-        
-        artworksTable.setItems(artworksList);
     }
-    
+
     @FXML
     public void refreshTable() {
-        try {
-            System.out.println("🔄 Chargement des oeuvres depuis la base de données...");
-            
-            // Test de connexion
-            try (Connection conn = dbConnection.getConnection()) {
-                System.out.println("✅ Connexion à la base réussie");
-            } catch (SQLException e) {
-                System.err.println("❌ Erreur de connexion: " + e.getMessage());
-                statusLabel.setText("Erreur de connexion: " + e.getMessage());
-                return;
-            }
-            
+        try (Connection conn = dbConnection.getConnection()) {
             List<Art> artworks = serviceArt.getAllArts();
-            System.out.println("📊 Récupéré " + artworks.size() + " oeuvres du service");
-            
-            // Debug détaillé
-            System.out.println("🔍 Détail des œuvres:");
-            for (Art art : artworks) {
-                System.out.println("  📌 ID: " + art.getId() + " | Titre: " + art.getTitle() + " | Status: " + art.getStatus() + " | Créé: " + art.getCreatedAt());
-            }
-            
-            artworksList.clear();
-            artworksList.addAll(artworks);
-            
-            // Afficher les détails des oeuvres
-            for (Art art : artworks) {
-                System.out.println("Oeuvre: " + art.getTitle() + " - Status: " + art.getStatus());
-            }
-            
-            // Forcer la mise à jour du tableau
-            System.out.println("🔄 Réinitialisation complète du tableau...");
-            
-            // Vider complètement le tableau
-            artworksTable.getItems().clear();
-            artworksList.clear();
-            
-            // Ajouter les nouvelles données
-            artworksList.addAll(artworks);
-            
-            // Forcer la reconstruction complète du TableView
-            Platform.runLater(() -> {
-                System.out.println("🔧 Reconstruction du TableView...");
-                
-                // Réinitialiser complètement le TableView
-                artworksTable.setItems(null);
-                artworksTable.getColumns().clear();
-                
-                // Recréer les colonnes
-                setupTableColumns();
-                
-                // Réassigner les données
-                artworksTable.setItems(artworksList);
-                
-                // Forcer le rafraîchissement
-                artworksTable.refresh();
-                artworksTable.layout();
-                artworksTable.autosize();
-                
-                System.out.println("✅ TableView reconstruit avec " + artworksList.size() + " éléments");
-            });
-            
+            artworksList.setAll(artworks);
+            artworksTable.refresh();
             statusLabel.setText("Total: " + artworks.size() + " oeuvre(s)");
-            System.out.println("Affiché " + artworks.size() + " oeuvres dans le tableau");
-            System.out.println("📊 artworksList.size(): " + artworksList.size());
-            System.out.println("📊 artworksTable.getItems().size(): " + artworksTable.getItems().size());
-            
+            filterArtworks();
+        } catch (SQLException e) {
+            statusLabel.setText("Erreur de connexion: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Erreur lors du chargement: " + e.getMessage());
-            e.printStackTrace();
             statusLabel.setText("Erreur de chargement: " + e.getMessage());
         }
     }
-    
+
     private void filterArtworks() {
         String filter = statusFilter.getValue();
-        System.out.println("🔍 Filtre sélectionné: " + filter);
-        System.out.println("📊 Total d'œuvres dans artworksList: " + artworksList.size());
-        
         if (filter == null || "Tous".equals(filter)) {
-            System.out.println("✅ Affichage de toutes les œuvres");
             artworksTable.setItems(artworksList);
-            statusLabel.setText(artworksList.size() + " oeuvre(s) au total");
-        } else {
-            String statusKey = filter.equals("En attente") ? "pending" : 
-                              filter.equals("Publié") ? "published" : "rejected";
-            
-            System.out.println("🔍 Filtre sur statut: " + statusKey);
-            
-            ObservableList<Art> filtered = artworksList.filtered(art -> statusKey.equals(art.getStatus()));
-            System.out.println("📊 Œuvres filtrées: " + filtered.size());
-            
-            // Debug : afficher les œuvres filtrées
-            for (Art art : filtered) {
-                System.out.println("  ✅ " + art.getTitle() + " (ID: " + art.getId() + ", Status: " + art.getStatus() + ")");
-            }
-            
-            artworksTable.setItems(filtered);
-            statusLabel.setText(filtered.size() + " oeuvre(s) filtrées");
+            return;
         }
+
+        String statusKey = switch (filter) {
+            case "En attente" -> "pending";
+            case "Publie" -> "published";
+            case "Rejete" -> "rejected";
+            default -> "";
+        };
+
+        ObservableList<Art> filtered = artworksList.filtered(art -> {
+            String status = art.getStatus() == null ? "" : art.getStatus().trim().toLowerCase();
+            if ("published".equals(statusKey)) {
+                return status.equals("published") || status.equals("active") || status.equals("approved");
+            }
+            return statusKey.equals(status);
+        });
+
+        artworksTable.setItems(filtered);
     }
-    
+
     private void publishArt(Art art) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Publier l'oeuvre");
-        confirm.setHeaderText("Êtes-vous sûr de vouloir publier cette oeuvre ?");
-        confirm.setContentText("Elle sera visible dans la gallery du front office.");
-        
+        confirm.setHeaderText("Voulez-vous publier cette oeuvre ?");
+        confirm.setContentText("Elle sera visible dans la galerie.");
+
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             art.setStatus("published");
             if (serviceArt.updateArt(art)) {
                 refreshTable();
-                showAlert("Succès", "L'oeuvre a été publiée avec succès !");
+                showAlert("Succes", "L'oeuvre a ete publiee.");
             } else {
-                showAlert("Erreur", "Impossible de publier l'oeuvre.");
+                showAlert("Erreur", "Impossible de publier l'oeuvre (ID " + art.getId() + ").");
             }
         }
     }
-    
+
     private void rejectArt(Art art) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Rejeter l'oeuvre");
-        confirm.setHeaderText("Êtes-vous sûr de vouloir rejeter cette oeuvre ?");
-        confirm.setContentText("Elle ne sera pas visible dans la gallery.");
-        
+        confirm.setHeaderText("Voulez-vous rejeter cette oeuvre ?");
+        confirm.setContentText("Elle ne sera pas visible dans la galerie.");
+
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             art.setStatus("rejected");
             if (serviceArt.updateArt(art)) {
                 refreshTable();
-                showAlert("Succès", "L'oeuvre a été rejetée.");
+                showAlert("Succes", "L'oeuvre a ete rejetee.");
             } else {
-                showAlert("Erreur", "Impossible de rejeter l'oeuvre.");
+                showAlert("Erreur", "Impossible de rejeter l'oeuvre (ID " + art.getId() + ").");
             }
         }
     }
-    
+
     private void deleteArt(Art art) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Supprimer l'oeuvre");
-        confirm.setHeaderText("Êtes-vous sûr de vouloir supprimer cette oeuvre ?");
-        confirm.setContentText("Cette action est irréversible.");
-        
+        confirm.setHeaderText("Voulez-vous supprimer cette oeuvre ?");
+        confirm.setContentText("Cette action est irreversible.");
+
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             if (serviceArt.deleteArt(art.getId())) {
                 refreshTable();
-                showAlert("Succès", "L'oeuvre a été supprimée.");
+                showAlert("Succes", "L'oeuvre a ete supprimee.");
             } else {
                 showAlert("Erreur", "Impossible de supprimer l'oeuvre.");
             }
         }
     }
-    
+
     @FXML
     public void goToHome() {
         try {
             SceneNavigator.goTo("/views/home-view.fxml");
         } catch (IOException e) {
-            System.err.println("Erreur lors de la navigation: " + e.getMessage());
+            showAlert("Erreur", "Navigation impossible: " + e.getMessage());
         }
     }
-    
+
+    @FXML
+    public void goToGallery() {
+        try {
+            SceneNavigator.goTo("/views/menu-view.fxml");
+        } catch (IOException e) {
+            showAlert("Erreur", "Navigation impossible: " + e.getMessage());
+        }
+    }
+
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

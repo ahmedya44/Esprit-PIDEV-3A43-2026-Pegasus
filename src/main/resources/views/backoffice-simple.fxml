@@ -1,44 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" spacing="20" style="-fx-background-color: #f8f9fa; -fx-padding: 20px;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.BackofficeSimpleController">
+<VBox alignment="TOP_CENTER" spacing="16" styleClass="app-root gallery-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.BackofficeSimpleController">
    <children>
-      <!-- Header -->
-      <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: #2c3e50; -fx-padding: 15px; -fx-background-radius: 10;">
+      <HBox alignment="CENTER_LEFT" spacing="14" styleClass="top-nav">
          <children>
-            <Text text="BACKOFFICE" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: white;" />
+            <Label text="Pegasus" styleClass="brand-label" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="returnButton" text="Retour" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#goToHome" />
+            <Button fx:id="returnButton" text="Home" styleClass="home-button" onAction="#goToHome" />
+            <Button text="Gallery" styleClass="gold-button" onAction="#goToGallery" />
          </children>
+         <padding><Insets top="14" right="24" bottom="14" left="24" /></padding>
       </HBox>
-      
-      <!-- Title -->
-      <Text text="Gestion des Oeuvres" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
-      
-      <!-- Status -->
-      <Label fx:id="statusLabel" text="Chargement..." style="-fx-font-size: 14px; -fx-fill: #7f8c8d;" />
-      
-      <!-- Sort Buttons -->
-      <HBox alignment="CENTER" spacing="15">
+
+      <Label text="BACKOFFICE" style="-fx-background-color: #2f4156; -fx-text-fill: white; -fx-font-size: 34px; -fx-font-weight: 800; -fx-padding: 12 18 12 18; -fx-background-radius: 8;" maxWidth="1.7976931348623157E308" alignment="CENTER_LEFT" />
+      <Label text="Gestion des Oeuvres" styleClass="workspace-title" />
+      <Label fx:id="statusLabel" text="Chargement..." styleClass="subtitle" />
+
+      <HBox alignment="CENTER" spacing="10" styleClass="section-card">
          <children>
-            <Button fx:id="sortRecentButton" text="Plus Récent" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#sortRecent" />
-            <Button fx:id="sortOlderButton" text="Plus Ancien" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#sortOlder" />
-            <Button fx:id="refreshButton" text="Actualiser" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#refreshTable" />
+            <Button fx:id="sortRecentButton" text="Plus recent" styleClass="success-button" onAction="#sortRecent" />
+            <Button fx:id="sortOlderButton" text="Plus ancien" styleClass="chip-button" onAction="#sortOlder" />
+            <Button fx:id="refreshButton" text="Actualiser" styleClass="secondary-button" onAction="#refreshTable" />
          </children>
       </HBox>
-      
-      <!-- Simple List instead of Table -->
-      <ScrollPane prefHeight="400" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+
+      <ScrollPane prefHeight="430" VBox.vgrow="ALWAYS" styleClass="gallery-scroll">
          <content>
-            <VBox fx:id="artworksContainer" spacing="10" style="-fx-padding: 20px;">
-               <!-- Artworks will be added here dynamically -->
+            <VBox fx:id="artworksContainer" spacing="10" styleClass="section-card">
+               <padding><Insets top="16" right="16" bottom="16" left="16" /></padding>
             </VBox>
          </content>
       </ScrollPane>
-      
    </children>
 </VBox>

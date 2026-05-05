@@ -1,163 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="com.pegasus.controllers.ArtDetailControllerSimple" 
-      spacing="20" alignment="CENTER" style="-fx-padding: 30px; -fx-background-color: #f8f9fa;">
-    
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.ArtDetailController" styleClass="app-root gallery-root" spacing="16" alignment="TOP_CENTER">
     <children>
-        <!-- Header -->
-        <HBox alignment="CENTER_LEFT" spacing="20">
+        <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="14">
             <children>
-                <Button text="← Retour" onAction="#handleBack" 
-                        style="-fx-font-size: 14px; -fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8px 16px;"/>
-                <Label text="Détails de l'œuvre" 
-                       style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <Label text="Pegasus" styleClass="brand-label" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Home" onAction="#handleGoHome" styleClass="home-button" />
+                <Button text="Gallery" onAction="#handleBack" styleClass="gold-button" />
             </children>
+            <padding><Insets top="14" right="24" bottom="14" left="24" /></padding>
         </HBox>
-        
-        <!-- Main Content -->
-        <HBox spacing="30" alignment="TOP_CENTER" style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 30px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
+
+        <HBox spacing="24" alignment="TOP_CENTER" styleClass="section-card">
             <children>
-                <!-- Image Section -->
-                <VBox spacing="15" alignment="CENTER">
+                <VBox spacing="12" alignment="CENTER">
                     <children>
-                        <ImageView fx:id="artImageView" fitWidth="400" fitHeight="300" 
-                                   preserveRatio="true" smooth="true"
-                                   style="-fx-background-color: #e9ecef; -fx-background-radius: 10; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10;"/>
-                        
-                        <!-- Likes Section -->
-                        <HBox spacing="10" alignment="CENTER" style="-fx-background-color: #fff5f5; -fx-background-radius: 20; -fx-padding: 10px 20px;">
+                        <ImageView fx:id="artImageView" fitWidth="400" fitHeight="300" preserveRatio="true" smooth="true" styleClass="preview-image" />
+                        <HBox spacing="10" alignment="CENTER">
                             <children>
-                                <Button fx:id="likeButton" text="♥ Like" 
-                                        onAction="#handleLike"
-                                        style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: linear-gradient(#e74c3c, #c0392b); -fx-background-radius: 15; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
-                                <Label fx:id="likesLabel" text="0 likes" 
-                                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
+                                <Button fx:id="likeButton" text="Like" onAction="#handleLike" styleClass="danger-button" />
+                                <Label fx:id="likesLabel" text="0 likes" styleClass="subtitle" />
                             </children>
                         </HBox>
-                        
-                        <!-- Pinterest Section GARANTI -->
-                        <HBox spacing="10" alignment="CENTER" style="-fx-background-color: #fff0f5; -fx-background-radius: 20; -fx-padding: 10px 20px;">
-                            <children>
-                                <Button fx:id="pinterestButton" text="🎨 Pinterest" 
-                                        onAction="#handlePinterest"
-                                        style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: linear-gradient(#E60023, #bd1e2d); -fx-background-radius: 15; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
-                                <Label text="Inspirations d'art" 
-                                       style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #E60023;"/>
-                            </children>
-                        </HBox>
-                        
-                        <!-- Spotify Section -->
-                        <Button fx:id="spotifyButton" text="♫ Spotify Playlist" 
-                                onAction="#handleSpotify"
-                                style="-fx-font-size: 14px; -fx-background-color: #1db954; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 12px 24px; -fx-cursor: hand;"/>
+                        <Button fx:id="spotifyButton" text="Spotify Playlist" onAction="#handleSpotify" styleClass="success-button" />
                     </children>
                 </VBox>
-                
-                <!-- Details Section -->
-                <VBox spacing="15" prefWidth="400">
+
+                <VBox spacing="12" prefWidth="420">
                     <children>
-                        <!-- Title -->
-                        <Label fx:id="titleLabel" text="Titre de l'œuvre" 
-                               style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-wrap-text: true;"/>
-                        
-                        <!-- Artist -->
-                        <HBox spacing="10">
+                        <Label fx:id="titleLabel" text="Artwork Title" styleClass="workspace-title" />
+                        <HBox spacing="8"><children><Label text="Artist:" styleClass="subtitle" /><Label fx:id="artistLabel" text="Artist" styleClass="subtitle" /></children></HBox>
+                        <VBox spacing="8">
                             <children>
-                                <Label text="Artiste:" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                <Label fx:id="artistLabel" text="Nom de l'artiste" 
-                                       style="-fx-font-size: 16px; -fx-text-fill: #6c757d;"/>
-                            </children>
-                        </HBox>
-                        
-                        <!-- Description -->
-                        <VBox spacing="15">
-                            <children>
-                                <Label text="Description:" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                <ScrollPane prefHeight="120" fitToWidth="true" 
-                                            style="-fx-background: transparent; -fx-border-color: #dee2e6; -fx-border-radius: 8;">
-                                    <content>
-                                        <Label fx:id="descriptionLabel" text="Description de l'œuvre..." 
-                                               style="-fx-font-size: 14px; -fx-text-fill: #6c757d; -fx-wrap-text: true;" 
-                                               wrapText="true"/>
-                                    </content>
+                                <Label text="Description" styleClass="subtitle" />
+                                <ScrollPane prefHeight="120" fitToWidth="true" styleClass="gallery-scroll">
+                                    <content><Label fx:id="descriptionLabel" text="Description..." wrapText="true" styleClass="subtitle" /></content>
                                 </ScrollPane>
                             </children>
                         </VBox>
-                        
-                        <!-- Status and Date -->
-                        <HBox spacing="20">
+                        <HBox spacing="16">
                             <children>
-                                <HBox spacing="5">
-                                    <children>
-                                        <Label text="Statut:" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                        <Label fx:id="statusLabel" text="Publié" 
-                                               style="-fx-font-size: 14px; -fx-text-fill: #28a745; -fx-font-weight: bold;"/>
-                                    </children>
-                                </HBox>
-                                
-                                <HBox spacing="5">
-                                    <children>
-                                        <Label text="Date:" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #495057;"/>
-                                        <Label fx:id="dateLabel" text="01/01/2024" 
-                                               style="-fx-font-size: 14px; -fx-text-fill: #6c757d;"/>
-                                    </children>
-                                </HBox>
+                                <HBox spacing="6"><children><Label text="Status:" styleClass="subtitle" /><Label fx:id="statusLabel" text="Published" styleClass="subtitle" /></children></HBox>
+                                <HBox spacing="6"><children><Label text="Date:" styleClass="subtitle" /><Label fx:id="dateLabel" text="01/01/2024" styleClass="subtitle" /></children></HBox>
                             </children>
                         </HBox>
-                        
-                        <!-- Action Buttons -->
                         <HBox spacing="10">
                             <children>
-                                <Button fx:id="editButton" text="✓ Modifier" 
-                                        onAction="#handleEdit"
-                                        style="-fx-font-size: 14px; -fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
-                                <Button fx:id="deleteButton" text="✗ Supprimer" 
-                                        onAction="#handleDelete"
-                                        style="-fx-font-size: 14px; -fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
-                                <Button text="💬 Citations" 
-                                        onAction="#handleQuotes"
-                                        style="-fx-font-size: 14px; -fx-background-color: #6f42c1; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 10px 20px; -fx-cursor: hand;"/>
+                                <Button fx:id="editButton" text="Edit" onAction="#handleEdit" styleClass="secondary-button" />
+                                <Button fx:id="deleteButton" text="Delete" onAction="#handleDelete" styleClass="danger-button" />
+                                <Button text="Quotes" onAction="#handleQuotes" styleClass="info-button" />
                             </children>
                         </HBox>
                     </children>
                 </VBox>
             </children>
+            <padding><Insets top="18" right="18" bottom="18" left="18" /></padding>
         </HBox>
-        
-        <!-- Pinterest Inspirations Section -->
-        <VBox spacing="15">
+
+        <VBox spacing="10" styleClass="section-card" VBox.vgrow="ALWAYS">
             <children>
-                <Label text="🎨 Inspirations Pinterest" 
-                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #E60023;"/>
-                
-                <ScrollPane prefHeight="180" fitToWidth="true" 
-                            style="-fx-background: transparent; -fx-border-color: #E60023; -fx-border-radius: 10;">
-                    <content>
-                        <TilePane fx:id="pinterestTilePane" hgap="10" vgap="10" 
-                                   prefColumns="5" alignment="TOP_CENTER"/>
-                    </content>
-                </ScrollPane>
-            </children>
-        </VBox>
-        
-        <!-- Recommendations Section -->
-        <VBox spacing="15">
-            <children>
-                <Label text="Œuvres similaires" 
-                       style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
-                
-                <ScrollPane prefHeight="200" fitToWidth="true" 
-                            style="-fx-background: transparent; -fx-border-color: #dee2e6; -fx-border-radius: 10;">
-                    <content>
-                        <TilePane fx:id="recommendationsTilePane" hgap="15" vgap="15" 
-                                   prefColumns="4" alignment="TOP_CENTER"/>
-                    </content>
+                <Label text="Similar artworks" styleClass="workspace-title" />
+                <ScrollPane prefHeight="210" fitToWidth="true" styleClass="gallery-scroll">
+                    <content><TilePane fx:id="recommendationsTilePane" hgap="15" vgap="15" prefColumns="4" alignment="TOP_CENTER" /></content>
                 </ScrollPane>
             </children>
         </VBox>

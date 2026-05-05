@@ -1,35 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" spacing="20" style="-fx-background-color: #f8f9fa; -fx-padding: 20px;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.BackofficeController">
+<VBox alignment="TOP_CENTER" spacing="16" styleClass="app-root gallery-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.BackofficeController">
    <children>
-      <!-- Header -->
-      <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: #2c3e50; -fx-padding: 15px; -fx-background-radius: 10;">
+      <HBox alignment="CENTER_LEFT" spacing="14" styleClass="top-nav">
          <children>
-            <Text text="BACKOFFICE" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: white;" />
+            <Label text="Pegasus" styleClass="brand-label" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="returnButton" text="Retour" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#goToHome" />
+            <Button fx:id="returnButton" text="Home" styleClass="home-button" onAction="#goToHome" />
+            <Button text="Gallery" styleClass="gold-button" onAction="#goToGallery" />
          </children>
+         <padding><Insets top="14" right="24" bottom="14" left="24" /></padding>
       </HBox>
-      
-      <!-- Title -->
-      <Text text="Gestion des Oeuvres" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
-      
-      <!-- Filter Section -->
-      <HBox alignment="CENTER_LEFT" spacing="15">
+
+      <Label text="Gestion des oeuvres" styleClass="workspace-title" />
+
+      <HBox alignment="CENTER_LEFT" spacing="10" styleClass="section-card">
          <children>
-            <Text text="Filtrer par statut:" style="-fx-font-size: 14px; -fx-fill: #7f8c8d;" />
-            <ComboBox fx:id="statusFilter" prefWidth="150" />
-            <Button fx:id="refreshButton" text="Actualiser" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#refreshTable" />
+            <Label text="Filtrer par statut" styleClass="subtitle" />
+            <ComboBox fx:id="statusFilter" prefWidth="170" />
+            <Button fx:id="refreshButton" text="Actualiser" styleClass="secondary-button" onAction="#refreshTable" />
          </children>
       </HBox>
-      
-      <!-- Table -->
-      <TableView fx:id="artworksTable" prefHeight="400" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+
+      <TableView fx:id="artworksTable" prefHeight="430" VBox.vgrow="ALWAYS" styleClass="users-table backoffice-table">
          <columns>
             <TableColumn fx:id="colId" text="ID" prefWidth="60" />
             <TableColumn fx:id="colTitle" text="Titre" prefWidth="200" />
@@ -40,9 +43,7 @@
             <TableColumn fx:id="colActions" text="Actions" prefWidth="150" />
          </columns>
       </TableView>
-      
-      <!-- Status Label -->
-      <Label fx:id="statusLabel" text="Chargement..." style="-fx-font-size: 14px; -fx-fill: #7f8c8d;" />
-      
+
+      <Label fx:id="statusLabel" text="Chargement..." styleClass="subtitle" />
    </children>
 </VBox>

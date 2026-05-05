@@ -349,10 +349,6 @@ public class SignUpController {
         return value == null ? null : value.trim();
     }
 
-    private boolean isBlank(String value) {
-        return value == null || value.trim().isEmpty();
-    }
-
     private boolean isValidEmail(String email) {
         return EMAIL_PATTERN.matcher(email).matches();
     }

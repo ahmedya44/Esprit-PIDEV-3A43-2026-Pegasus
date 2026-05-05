@@ -11,6 +11,7 @@ import com.pegasus.services.ServiceUser;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -27,6 +28,9 @@ public class MainController {
 
     @FXML
     private ComboBox<String> roleCombo;
+
+    @FXML
+    private Button saveButton;
 
     private final ServiceUser serviceUser = new ServiceUser();
     private final ServiceAdmin serviceAdmin = new ServiceAdmin();

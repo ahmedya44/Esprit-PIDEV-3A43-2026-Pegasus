@@ -255,3 +255,74 @@
 .profile-dialog .button-bar {
     -fx-padding: 12 12 14 12;
 }
+
+.gallery-root {
+    -fx-padding: 12 18 18 18;
+}
+
+.workspace-title {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.light-nav-title {
+    -fx-text-fill: #f8fafc;
+}
+
+.toolbar-row {
+    -fx-padding: 6 0 0 0;
+}
+
+.chip-button {
+    -fx-background-color: #eef2f7;
+    -fx-text-fill: #253041;
+    -fx-background-radius: 16;
+    -fx-padding: 8 14 8 14;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.success-button {
+    -fx-background-color: #1e8e5a;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 18;
+    -fx-padding: 9 16 9 16;
+    -fx-font-weight: bold;
+}
+
+.danger-button {
+    -fx-background-color: #c0392b;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 18;
+    -fx-padding: 9 16 9 16;
+    -fx-font-weight: bold;
+}
+
+.info-button {
+    -fx-background-color: #6f42c1;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 18;
+    -fx-padding: 9 16 9 16;
+    -fx-font-weight: bold;
+}
+
+.neutral-button {
+    -fx-background-color: #dbe2ea;
+    -fx-text-fill: #263447;
+    -fx-background-radius: 18;
+    -fx-padding: 9 16 9 16;
+    -fx-font-weight: bold;
+}
+
+.gallery-scroll {
+    -fx-background-color: transparent;
+}
+
+.gallery-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.backoffice-table {
+    -fx-pref-height: 430px;
+}

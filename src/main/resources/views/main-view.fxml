@@ -9,36 +9,19 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" prefHeight="400.0" prefWidth="600.0" spacing="12.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.MainController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-    </padding>
+<VBox alignment="TOP_CENTER" spacing="24" styleClass="app-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.MainController">
+    <padding><Insets top="24" right="24" bottom="24" left="24" /></padding>
     <children>
-      <Label text="Create User" />
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <Label text="Email" />
-            <TextField fx:id="emailField" />
-         </children>
-      </HBox>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <Label text="Password" />
-            <PasswordField fx:id="passwordField" />
-         </children>
-      </HBox>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <Label text="Username" />
-            <TextField fx:id="usernameField" />
-         </children>
-      </HBox>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-         <children>
-            <Label text="Role" />
-            <ComboBox fx:id="roleCombo" prefWidth="150.0" />
-         </children>
-      </HBox>
-      <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onTestClick" text="Save" />
+        <VBox spacing="12" styleClass="section-card" maxWidth="620" prefWidth="620">
+            <children>
+                <Label text="Create User" styleClass="workspace-title" />
+                <HBox spacing="12" alignment="CENTER_LEFT"><children><Label text="Email" prefWidth="120" styleClass="subtitle" /><TextField fx:id="emailField" prefWidth="420" styleClass="input-field" /></children></HBox>
+                <HBox spacing="12" alignment="CENTER_LEFT"><children><Label text="Password" prefWidth="120" styleClass="subtitle" /><PasswordField fx:id="passwordField" prefWidth="420" styleClass="input-field" /></children></HBox>
+                <HBox spacing="12" alignment="CENTER_LEFT"><children><Label text="Username" prefWidth="120" styleClass="subtitle" /><TextField fx:id="usernameField" prefWidth="420" styleClass="input-field" /></children></HBox>
+                <HBox spacing="12" alignment="CENTER_LEFT"><children><Label text="Role" prefWidth="120" styleClass="subtitle" /><ComboBox fx:id="roleCombo" prefWidth="220" /></children></HBox>
+                <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onTestClick" text="Save" styleClass="gold-button" prefWidth="180" />
+            </children>
+            <padding><Insets top="18" right="18" bottom="18" left="18" /></padding>
+        </VBox>
     </children>
 </VBox>

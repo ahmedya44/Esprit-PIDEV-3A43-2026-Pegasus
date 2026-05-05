@@ -14,6 +14,8 @@
                 <Label styleClass="brand-label" text="Pegasus" />
                 <Region HBox.hgrow="ALWAYS" />
                 <Label styleClass="nav-link active-link" text="HOME" />
+                <Button mnemonicParsing="false" onAction="#onGoToGallery" styleClass="secondary-button" text="Gallery" />
+                <Button fx:id="navBackofficeButton" managed="false" mnemonicParsing="false" onAction="#onGoToBackoffice" styleClass="secondary-button" text="Backoffice" visible="false" />
                 <Button fx:id="navProfileButton" managed="false" mnemonicParsing="false" onAction="#onGoToProfile" styleClass="secondary-button" text="Profile" visible="false" />
                 <Button fx:id="navAuthButton" mnemonicParsing="false" onAction="#onGoToSignIn" styleClass="gold-button" text="Sign In" />
             </children>
