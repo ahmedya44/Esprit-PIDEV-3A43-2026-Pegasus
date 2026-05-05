@@ -52,7 +52,7 @@ public final class SceneNavigator {
         ScrollPane scrollPane = new ScrollPane(root);
         scrollPane.getStyleClass().add("app-scroll");
         scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(false);
+        scrollPane.setFitToHeight(true);
         scrollPane.setPannable(true);
         Scene scene = stage.getScene();
         if (scene == null) {

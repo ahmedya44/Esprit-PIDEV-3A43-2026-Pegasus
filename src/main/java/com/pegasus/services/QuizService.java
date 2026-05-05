@@ -166,6 +166,30 @@ public class QuizService implements CrudService<Quiz> {
         return null;
     }
 
+    public List<Quiz> getByArtistId(int artistId) {
+        List<Quiz> quizzes = new ArrayList<>();
+        String sql = "SELECT q.* FROM quiz q JOIN course c ON q.course_id = c.id WHERE c.artist_id = ?";
+
+        if (connection == null) {
+            System.out.println("Get artist quizzes error: database connection is null.");
+            return quizzes;
+        }
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, artistId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                quizzes.add(mapQuiz(rs));
+            }
+        } catch (SQLException e) {
+            System.out.println("Get artist quizzes error: " + e.getMessage());
+        }
+
+        return quizzes;
+    }
+
     private Quiz mapQuiz(ResultSet rs) throws SQLException {
         Integer timeLimit = rs.getObject("time_limit_min") == null ? null : rs.getInt("time_limit_min");
         Integer attemptLimit = rs.getObject("attempt_limit") == null ? null : rs.getInt("attempt_limit");

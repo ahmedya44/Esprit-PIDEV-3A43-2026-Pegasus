@@ -102,6 +102,9 @@ public class HomeController {
     private Button navBackofficeButton;
 
     @FXML
+    private Button navCoursesDashboardButton;
+
+    @FXML
     private VBox adminUsersBox;
 
     @FXML
@@ -260,9 +263,35 @@ public class HomeController {
         }
     }
 
+    public void onGoToCourses() {
+        if (SceneNavigator.getCurrentUser() == null) {
+            onGoToSignIn();
+            return;
+        }
+        try {
+            FrontLayoutController.showCoursesOnOpen();
+            SceneNavigator.goTo("/views/FrontLayout.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void onGoToEvents() {
         try {
             SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onGoToCoursesDashboard() {
+        if (SceneNavigator.getCurrentUser() == null) {
+            onGoToSignIn();
+            return;
+        }
+        try {
+            FrontLayoutController.showDashboardOnOpen();
+            SceneNavigator.goTo("/views/FrontLayout.fxml");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -317,6 +346,11 @@ public class HomeController {
         if (navBackofficeButton != null) {
             navBackofficeButton.setVisible(false);
             navBackofficeButton.setManaged(false);
+        }
+        if (navCoursesDashboardButton != null) {
+            boolean isArtist = isArtist(currentUser);
+            navCoursesDashboardButton.setVisible(isArtist);
+            navCoursesDashboardButton.setManaged(isArtist);
         }
 
         if (loggedIn) {
@@ -1192,5 +1226,9 @@ public class HomeController {
 
     private String safeExport(String value) {
         return value == null ? "" : value;
+    }
+
+    private boolean isArtist(User user) {
+        return user != null && "artiste".equalsIgnoreCase(user.getDtype());
     }
 }

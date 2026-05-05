@@ -21,6 +21,9 @@
                 <Region HBox.hgrow="ALWAYS" />
                 <Button mnemonicParsing="false" onAction="#onGoToHome" styleClass="secondary-button" text="Home" />
                 <Button mnemonicParsing="false" onAction="#onGoToGallery" styleClass="secondary-button" text="Gallery" />
+                <Button mnemonicParsing="false" onAction="#onGoToCourses" styleClass="secondary-button" text="Courses" />
+                <Button mnemonicParsing="false" onAction="#onGoToEvents" styleClass="secondary-button" text="Events" />
+                <Button fx:id="navCoursesDashboardButton" managed="false" mnemonicParsing="false" onAction="#onGoToCoursesDashboard" styleClass="secondary-button" text="Courses Dashboard" visible="false" />
                 <Button fx:id="navBackofficeButton" managed="false" mnemonicParsing="false" onAction="#onGoToBackoffice" styleClass="secondary-button" text="Backoffice" visible="false" />
                 <Label styleClass="nav-link active-link" text="PROFILE" />
                 <Button fx:id="navAuthButton" mnemonicParsing="false" onAction="#onGoToSignIn" styleClass="gold-button" text="Sign In" />

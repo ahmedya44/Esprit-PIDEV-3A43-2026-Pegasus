@@ -192,6 +192,55 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 3);
 }
 
+.pegasus-navbar {
+    -fx-background-color: linear-gradient(to right, #06090f, #111a2a 48%, #24313b);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.18), 18, 0, 0, 3);
+}
+
+.pegasus-navbar-inner {
+    -fx-alignment: center-left;
+    -fx-padding: 22 36 22 36;
+}
+
+.pegasus-logo-text {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 46px;
+    -fx-font-family: "Brush Script MT";
+}
+
+.pegasus-nav-button {
+    -fx-background-color: #1f2937;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 28;
+    -fx-padding: 10 22 10 22;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.pegasus-nav-button:hover,
+.pegasus-nav-button-active {
+    -fx-background-color: rgba(249, 194, 60, 0.18);
+    -fx-border-color: #f9c23c;
+    -fx-border-radius: 28;
+    -fx-text-fill: #f9c23c;
+}
+
+.pegasus-login-button {
+    -fx-background-color: #f9c23c;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 28;
+    -fx-padding: 10 24 10 24;
+    -fx-font-size: 16px;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+}
+
+.pegasus-login-button:hover {
+    -fx-background-color: #ffd84d;
+    -fx-text-fill: #111111;
+}
+
 .navbar-inner {
     -fx-alignment: center-left;
     -fx-padding: 18 24 18 24;

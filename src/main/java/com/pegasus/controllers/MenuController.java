@@ -54,6 +54,9 @@ public class MenuController {
 
     @FXML
     private Button navEventsBackofficeButton;
+
+    @FXML
+    private Button navCoursesDashboardButton;
     
     private ServiceArt artService = new ServiceArt();
     private ServiceArtComment commentService = new ServiceArtComment();
@@ -92,6 +95,11 @@ public class MenuController {
         if (navEventsBackofficeButton != null) {
             navEventsBackofficeButton.setVisible(isAdmin);
             navEventsBackofficeButton.setManaged(isAdmin);
+        }
+        if (navCoursesDashboardButton != null) {
+            boolean isArtist = currentUser != null && "artiste".equalsIgnoreCase(currentUser.getDtype());
+            navCoursesDashboardButton.setVisible(isArtist);
+            navCoursesDashboardButton.setManaged(isArtist);
         }
     }
     
@@ -1023,6 +1031,42 @@ public class MenuController {
     private void onGoToEventsFront() {
         try {
             SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onGoToCourses() {
+        if (SceneNavigator.getCurrentUser() == null) {
+            try {
+                SceneNavigator.goTo("/views/signin-view.fxml");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+        try {
+            FrontLayoutController.showCoursesOnOpen();
+            SceneNavigator.goTo("/views/FrontLayout.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onGoToCoursesDashboard() {
+        if (SceneNavigator.getCurrentUser() == null) {
+            try {
+                SceneNavigator.goTo("/views/signin-view.fxml");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+        try {
+            FrontLayoutController.showDashboardOnOpen();
+            SceneNavigator.goTo("/views/FrontLayout.fxml");
         } catch (IOException e) {
             e.printStackTrace();
         }

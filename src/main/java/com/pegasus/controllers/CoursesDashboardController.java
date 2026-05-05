@@ -37,6 +37,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import com.pegasus.entities.Course;
 import com.pegasus.entities.Quiz;
+import com.pegasus.entities.User;
 import com.pegasus.services.CourseService;
 import com.pegasus.services.QuizService;
 
@@ -49,7 +50,6 @@ import java.util.Optional;
 import java.io.IOException;
 
 public class CoursesDashboardController {
-    private static final int DEFAULT_ARTIST_ID = 2;
     private static final double COURSE_ROW_HEIGHT = 72;
     private static final double QUIZ_ROW_HEIGHT = 64;
     private static final double COURSE_THUMBNAIL_WIDTH = 72;
@@ -117,9 +117,11 @@ public class CoursesDashboardController {
     private final FilteredList<Quiz> filteredQuizzes = new FilteredList<>(quizObservableList, quiz -> true);
     private final Map<Integer, String> courseTitleById = new HashMap<>();
     private static final DateTimeFormatter CREATED_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private Integer currentArtistId;
 
     @FXML
     public void initialize() {
+        currentArtistId = resolveCurrentArtistId();
         setupCourseTable();
         setupQuizTable();
         setupSearch();
@@ -152,11 +154,17 @@ public class CoursesDashboardController {
 
     @FXML
     public void openCreateCourseDialog() {
+        if (!ensureArtistAccess()) {
+            return;
+        }
         showCourseDialog(null);
     }
 
     @FXML
     public void openCreateQuizDialog() {
+        if (!ensureArtistAccess()) {
+            return;
+        }
         showQuizDialog(null);
     }
 
@@ -488,8 +496,14 @@ public class CoursesDashboardController {
     }
 
     private void loadCourses() {
+        if (!ensureArtistAccess()) {
+            courseObservableList.clear();
+            courseTitleById.clear();
+            refreshSearchFilters();
+            return;
+        }
         try {
-            List<Course> courses = courseService.getAll();
+            List<Course> courses = courseService.getByArtistId(currentArtistId);
             courseObservableList.setAll(courses);
             courseTitleById.clear();
             for (Course course : courses) {
@@ -505,8 +519,13 @@ public class CoursesDashboardController {
     }
 
     private void loadQuizzes() {
+        if (!ensureArtistAccess()) {
+            quizObservableList.clear();
+            refreshSearchFilters();
+            return;
+        }
         try {
-            List<Quiz> quizzes = quizService.getAll();
+            List<Quiz> quizzes = quizService.getByArtistId(currentArtistId);
             quizObservableList.setAll(quizzes);
             refreshSearchFilters();
         } catch (Exception e) {
@@ -565,6 +584,10 @@ public class CoursesDashboardController {
     }
 
     private void deleteCourse(Course course) {
+        if (!ensureArtistAccess() || course == null || course.getArtistId() != currentArtistId) {
+            showAlert(Alert.AlertType.ERROR, "Access Denied", "You can only delete your own courses.");
+            return;
+        }
         if (confirmDelete("Delete Course", "Do you want to delete this course?")) {
             courseService.delete(course.getId());
             loadCourses();
@@ -573,6 +596,10 @@ public class CoursesDashboardController {
     }
 
     private void deleteQuiz(Quiz quiz) {
+        if (!ensureArtistAccess() || quiz == null || !courseTitleById.containsKey(quiz.getCourseId())) {
+            showAlert(Alert.AlertType.ERROR, "Access Denied", "You can only delete quizzes attached to your own courses.");
+            return;
+        }
         if (confirmDelete("Delete Quiz", "Do you want to delete this quiz?")) {
             quizService.delete(quiz.getId());
             loadQuizzes();
@@ -588,6 +615,13 @@ public class CoursesDashboardController {
     }
 
     private void showCourseDialog(Course courseToEdit) {
+        if (!ensureArtistAccess()) {
+            return;
+        }
+        if (courseToEdit != null && courseToEdit.getArtistId() != currentArtistId) {
+            showAlert(Alert.AlertType.ERROR, "Access Denied", "You can only edit your own courses.");
+            return;
+        }
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle(courseToEdit == null ? "Add Course" : "Edit Course");
         dialog.setHeaderText(null);
@@ -635,6 +669,13 @@ public class CoursesDashboardController {
     }
 
     private void showQuizDialog(Quiz quizToEdit) {
+        if (!ensureArtistAccess()) {
+            return;
+        }
+        if (quizToEdit != null && !courseTitleById.containsKey(quizToEdit.getCourseId())) {
+            showAlert(Alert.AlertType.ERROR, "Access Denied", "You can only edit quizzes attached to your own courses.");
+            return;
+        }
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle(quizToEdit == null ? "Add Quiz" : "Edit Quiz");
         dialog.setHeaderText(null);
@@ -815,13 +856,13 @@ public class CoursesDashboardController {
 
         try {
             if (courseToEdit == null) {
-                courseService.add(new Course(title, description, thumbnail.isEmpty() ? null : thumbnail, status, LocalDateTime.now(), DEFAULT_ARTIST_ID));
+                courseService.add(new Course(title, description, thumbnail.isEmpty() ? null : thumbnail, status, LocalDateTime.now(), currentArtistId));
             } else {
                 courseToEdit.setTitle(title);
                 courseToEdit.setDescription(description);
                 courseToEdit.setThumbnailUrl(thumbnail.isEmpty() ? null : thumbnail);
                 courseToEdit.setStatus(status);
-                courseToEdit.setArtistId(DEFAULT_ARTIST_ID);
+                courseToEdit.setArtistId(currentArtistId);
                 courseService.update(courseToEdit);
             }
 
@@ -906,5 +947,24 @@ public class CoursesDashboardController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private Integer resolveCurrentArtistId() {
+        User currentUser = SceneNavigator.getCurrentUser();
+        if (currentUser == null || currentUser.getId() == null || !isArtist(currentUser)) {
+            return null;
+        }
+        return currentUser.getId();
+    }
+
+    private boolean ensureArtistAccess() {
+        if (currentArtistId != null) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isArtist(User user) {
+        return user != null && "artiste".equalsIgnoreCase(user.getDtype());
     }
 }

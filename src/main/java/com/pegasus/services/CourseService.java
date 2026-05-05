@@ -212,4 +212,37 @@ public class CourseService implements CrudService<Course> {
 
         return courses;
     }
+
+    public List<Course> getByArtistId(int artistId) {
+        List<Course> courses = new ArrayList<>();
+        String sql = "SELECT * FROM course WHERE artist_id = ?";
+
+        if (connection == null) {
+            System.out.println("Get artist courses error: database connection is null.");
+            return courses;
+        }
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setInt(1, artistId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Course course = new Course(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("thumbnail_url"),
+                        rs.getString("status"),
+                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        rs.getInt("artist_id")
+                );
+                courses.add(course);
+            }
+        } catch (SQLException e) {
+            System.out.println("Get artist courses error: " + e.getMessage());
+        }
+
+        return courses;
+    }
 }
