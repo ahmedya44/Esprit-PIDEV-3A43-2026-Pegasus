@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="TOP_CENTER" spacing="20" style="-fx-background-color: #f8f9fa; -fx-padding: 20px;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.BackofficeSimpleController">
+   <children>
+      <!-- Header -->
+      <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-background-color: #2c3e50; -fx-padding: 15px; -fx-background-radius: 10;">
+         <children>
+            <Text text="BACKOFFICE" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: white;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="returnButton" text="Retour" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#goToHome" />
+         </children>
+      </HBox>
+      
+      <!-- Title -->
+      <Text text="Gestion des Oeuvres" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
+      
+      <!-- Status -->
+      <Label fx:id="statusLabel" text="Chargement..." style="-fx-font-size: 14px; -fx-fill: #7f8c8d;" />
+      
+      <!-- Sort Buttons -->
+      <HBox alignment="CENTER" spacing="15">
+         <children>
+            <Button fx:id="sortRecentButton" text="Plus Récent" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#sortRecent" />
+            <Button fx:id="sortOlderButton" text="Plus Ancien" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#sortOlder" />
+            <Button fx:id="refreshButton" text="Actualiser" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5;" onAction="#refreshTable" />
+         </children>
+      </HBox>
+      
+      <!-- Simple List instead of Table -->
+      <ScrollPane prefHeight="400" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+         <content>
+            <VBox fx:id="artworksContainer" spacing="10" style="-fx-padding: 20px;">
+               <!-- Artworks will be added here dynamically -->
+            </VBox>
+         </content>
+      </ScrollPane>
+      
+   </children>
+</VBox>

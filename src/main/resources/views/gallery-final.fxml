@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.pegasus.controllers.GalleryControllerFinal" 
+      spacing="20" alignment="TOP_CENTER" style="-fx-padding: 30px; -fx-background-color: #f8f9fa;">
+    
+    <children>
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <children>
+                <Button text="← Retour" onAction="#handleBack" 
+                        style="-fx-font-size: 14px; -fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8px 16px;"/>
+                <Label text="🎨 Galerie d'Art Virtuelle - PINTERSET GARANTI" 
+                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            </children>
+        </HBox>
+        
+        <!-- Gallery Container -->
+        <ScrollPane prefHeight="600" fitToWidth="true" style="-fx-background: transparent;">
+            <content>
+                <VBox fx:id="galleryContainer" spacing="20" alignment="TOP_CENTER">
+                    <!-- Les œuvres seront ajoutées ici dynamiquement -->
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</VBox>
