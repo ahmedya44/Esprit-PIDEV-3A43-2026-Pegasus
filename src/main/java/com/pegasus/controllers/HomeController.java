@@ -3,9 +3,20 @@ package com.pegasus.controllers;
 import com.pegasus.entities.User;
 import com.pegasus.services.CloudinaryService;
 import com.pegasus.services.ServiceUser;
+import com.pegasus.services.VoiceSearchService;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -26,11 +37,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.concurrent.Task;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,12 +53,14 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -81,6 +96,9 @@ public class HomeController {
     private Button navAuthButton;
 
     @FXML
+    private Button navProfileButton;
+
+    @FXML
     private VBox adminUsersBox;
 
     @FXML
@@ -103,6 +121,7 @@ public class HomeController {
 
     private ServiceUser serviceUser;
     private CloudinaryService cloudinaryService;
+    private VoiceSearchService voiceSearchService;
     private final ObservableList<User> allUsers = FXCollections.observableArrayList();
 
     @FXML
@@ -119,6 +138,9 @@ public class HomeController {
 
     @FXML
     private Button applyStatusButton;
+
+    @FXML
+    private Button voiceSearchButton;
 
     @FXML
     private ImageView profileImageView;
@@ -151,8 +173,8 @@ public class HomeController {
         }
 
         if (sortByCombo != null) {
-            sortByCombo.setItems(FXCollections.observableArrayList("ID", "Username", "Email", "Role", "Status"));
-            sortByCombo.getSelectionModel().select("ID");
+            sortByCombo.setItems(FXCollections.observableArrayList("Username", "Email", "Role", "Status"));
+            sortByCombo.getSelectionModel().select("Username");
         }
         if (sortOrderCombo != null) {
             sortOrderCombo.setItems(FXCollections.observableArrayList("Ascending", "Descending"));
@@ -207,6 +229,26 @@ public class HomeController {
         }
     }
 
+    public void onGoToHome() {
+        try {
+            SceneNavigator.goTo("/views/home-view.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onGoToProfile() {
+        if (SceneNavigator.getCurrentUser() == null) {
+            onGoToSignIn();
+            return;
+        }
+        try {
+            SceneNavigator.goTo("/views/profile-view.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void onLogout() {
         SceneNavigator.clearSession();
         refreshUserState();
@@ -224,29 +266,47 @@ public class HomeController {
         User currentUser = SceneNavigator.getCurrentUser();
         boolean loggedIn = currentUser != null;
 
-        signInButton.setVisible(!loggedIn);
-        signInButton.setManaged(!loggedIn);
-        signUpButton.setVisible(!loggedIn);
-        signUpButton.setManaged(!loggedIn);
+        if (signInButton != null) {
+            signInButton.setVisible(!loggedIn);
+            signInButton.setManaged(!loggedIn);
+        }
+        if (signUpButton != null) {
+            signUpButton.setVisible(!loggedIn);
+            signUpButton.setManaged(!loggedIn);
+        }
 
-        logoutButton.setVisible(loggedIn);
-        logoutButton.setManaged(loggedIn);
-        editProfileButton.setVisible(loggedIn);
-        editProfileButton.setManaged(loggedIn);
+        if (logoutButton != null) {
+            logoutButton.setVisible(loggedIn);
+            logoutButton.setManaged(loggedIn);
+        }
+        if (editProfileButton != null) {
+            editProfileButton.setVisible(loggedIn);
+            editProfileButton.setManaged(loggedIn);
+        }
+        if (navProfileButton != null) {
+            navProfileButton.setVisible(loggedIn);
+            navProfileButton.setManaged(loggedIn);
+        }
 
         if (loggedIn) {
-            userStatusLabel.setText("Connected as: " + currentUser.getUsername());
+            if (userStatusLabel != null) {
+                userStatusLabel.setText("Connected as: " + currentUser.getUsername());
+            }
             if (profileBox != null) {
                 profileBox.setVisible(true);
                 profileBox.setManaged(true);
             }
             updateProfileImage(currentUser);
-            navAuthButton.setText("Log Out");
-            navAuthButton.setOnAction(event -> onLogout());
+            if (navAuthButton != null) {
+                navAuthButton.setText("Log Out");
+                navAuthButton.setOnAction(event -> onLogout());
+            }
 
             boolean isAdmin = "admin".equalsIgnoreCase(currentUser.getDtype());
-            adminUsersBox.setVisible(isAdmin);
-            adminUsersBox.setManaged(isAdmin);
+            if (adminUsersBox != null) {
+                adminUsersBox.setVisible(isAdmin);
+                adminUsersBox.setManaged(isAdmin);
+            }
             if (applyStatusButton != null) {
                 applyStatusButton.setDisable(true);
             }
@@ -254,7 +314,9 @@ public class HomeController {
                 loadUsersTable();
             }
         } else {
-            userStatusLabel.setText("You are not connected.");
+            if (userStatusLabel != null) {
+                userStatusLabel.setText("You are not connected.");
+            }
             clearProfileImage();
             if (profileBox != null) {
                 profileBox.setVisible(false);
@@ -264,10 +326,14 @@ public class HomeController {
                 expandProfileButton.setVisible(false);
                 expandProfileButton.setManaged(false);
             }
-            navAuthButton.setText("Sign In");
-            navAuthButton.setOnAction(event -> onGoToSignIn());
-            adminUsersBox.setVisible(false);
-            adminUsersBox.setManaged(false);
+            if (navAuthButton != null) {
+                navAuthButton.setText("Sign In");
+                navAuthButton.setOnAction(event -> onGoToSignIn());
+            }
+            if (adminUsersBox != null) {
+                adminUsersBox.setVisible(false);
+                adminUsersBox.setManaged(false);
+            }
             if (usersTable != null) {
                 usersTable.getItems().clear();
             }
@@ -299,7 +365,7 @@ public class HomeController {
     @FXML
     public void onResetUsersFilter() {
         searchField.clear();
-        sortByCombo.getSelectionModel().select("ID");
+        sortByCombo.getSelectionModel().select("Username");
         sortOrderCombo.getSelectionModel().select("Ascending");
         applySearchAndSort();
     }
@@ -347,6 +413,89 @@ public class HomeController {
         loadUsersTable();
     }
 
+    @FXML
+    public void onExportUsersPdf() {
+        User currentUser = SceneNavigator.getCurrentUser();
+        if (currentUser == null || !"admin".equalsIgnoreCase(currentUser.getDtype())) {
+            showAlert(Alert.AlertType.ERROR, "Export PDF", "Only admins can export users.");
+            return;
+        }
+        if (usersTable == null || usersTable.getItems().isEmpty()) {
+            showAlert(Alert.AlertType.INFORMATION, "Export PDF", "No users to export.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Users Table as PDF");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        fileChooser.setInitialFileName("pegasus-users.pdf");
+        Window owner = usersTable.getScene() == null ? null : usersTable.getScene().getWindow();
+        File destination = fileChooser.showSaveDialog(owner);
+        if (destination == null) {
+            return;
+        }
+
+        try {
+            exportUsersToPdf(destination, new ArrayList<>(usersTable.getItems()));
+            showAlert(Alert.AlertType.INFORMATION, "Export PDF", "Users table exported successfully.");
+        } catch (Exception e) {
+            showAlert(Alert.AlertType.ERROR, "Export PDF", "Could not export PDF: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onVoiceSearchUsers() {
+        User currentUser = SceneNavigator.getCurrentUser();
+        if (currentUser == null || !"admin".equalsIgnoreCase(currentUser.getDtype())) {
+            showAlert(Alert.AlertType.ERROR, "Voice Search", "Only admins can use voice search.");
+            return;
+        }
+        if (voiceSearchButton != null) {
+            voiceSearchButton.setDisable(true);
+            voiceSearchButton.setText("Listening...");
+        }
+
+        Task<String> task = new Task<>() {
+            @Override
+            protected String call() {
+                if (voiceSearchService == null) {
+                    voiceSearchService = new VoiceSearchService();
+                }
+                return voiceSearchService.recognizeOnce();
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            String text = task.getValue();
+            if (voiceSearchButton != null) {
+                voiceSearchButton.setDisable(false);
+                voiceSearchButton.setText("Voice Search");
+            }
+            if (text == null || text.isBlank()) {
+                showAlert(Alert.AlertType.INFORMATION, "Voice Search", "No speech recognized. Please try again.");
+                return;
+            }
+            if (searchField != null) {
+                searchField.setText(text);
+            }
+            applySearchAndSort();
+        });
+
+        task.setOnFailed(event -> {
+            if (voiceSearchButton != null) {
+                voiceSearchButton.setDisable(false);
+                voiceSearchButton.setText("Voice Search");
+            }
+            Throwable error = task.getException();
+            String message = error == null ? "Voice recognition failed." : error.getMessage();
+            showAlert(Alert.AlertType.ERROR, "Voice Search", message);
+        });
+
+        Thread thread = new Thread(task, "voice-search-task");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
     private void applySearchAndSort() {
         if (usersTable == null) {
             return;
@@ -373,7 +522,7 @@ public class HomeController {
     }
 
     private Comparator<User> buildComparator() {
-        String sortBy = sortByCombo == null ? "ID" : sortByCombo.getValue();
+        String sortBy = sortByCombo == null ? "Username" : sortByCombo.getValue();
         String order = sortOrderCombo == null ? "Ascending" : sortOrderCombo.getValue();
 
         Comparator<User> comparator;
@@ -386,7 +535,7 @@ public class HomeController {
         } else if ("Status".equals(sortBy)) {
             comparator = Comparator.comparing(user -> safe(user.getStatus()), String::compareToIgnoreCase);
         } else {
-            comparator = Comparator.comparing(user -> user.getId() == null ? Integer.MAX_VALUE : user.getId());
+            comparator = Comparator.comparing(user -> safe(user.getUsername()), String::compareToIgnoreCase);
         }
 
         if ("Descending".equals(order)) {
@@ -624,6 +773,11 @@ public class HomeController {
         ButtonType defaultButton = new ButtonType("Choose default avatar");
         ButtonType stylizeButton = new ButtonType("Stylize with Cloudflare");
         dialog.getDialogPane().getButtonTypes().addAll(uploadButton, defaultButton, stylizeButton, ButtonType.CANCEL);
+        styleDialog(dialog);
+        styleDialogButton(dialog, uploadButton, "gold-button");
+        styleDialogButton(dialog, defaultButton, "secondary-button");
+        styleDialogButton(dialog, stylizeButton, "secondary-button");
+        styleDialogButton(dialog, ButtonType.CANCEL, "ghost-button");
         Optional<ButtonType> choice = dialog.showAndWait();
         if (choice.isEmpty() || choice.get() == ButtonType.CANCEL) {
             return;
@@ -687,6 +841,9 @@ public class HomeController {
         dialog.setTitle("Default Avatars");
         dialog.setHeaderText("Choose a default avatar");
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        styleDialog(dialog);
+        styleDialogButton(dialog, ButtonType.OK, "gold-button");
+        styleDialogButton(dialog, ButtonType.CANCEL, "ghost-button");
 
         ListView<File> listView = new ListView<>(FXCollections.observableArrayList(avatarFiles));
         listView.setPrefHeight(320);
@@ -739,6 +896,11 @@ public class HomeController {
         ButtonType comicButton = new ButtonType("comic");
         ButtonType pixarButton = new ButtonType("pixar");
         styleDialog.getDialogPane().getButtonTypes().addAll(animeButton, comicButton, pixarButton, ButtonType.CANCEL);
+        styleDialog(styleDialog);
+        styleDialogButton(styleDialog, animeButton, "gold-button");
+        styleDialogButton(styleDialog, comicButton, "secondary-button");
+        styleDialogButton(styleDialog, pixarButton, "secondary-button");
+        styleDialogButton(styleDialog, ButtonType.CANCEL, "ghost-button");
         Optional<ButtonType> selectedStyleButton = styleDialog.showAndWait();
         if (selectedStyleButton.isEmpty() || selectedStyleButton.get() == ButtonType.CANCEL) {
             return;
@@ -927,5 +1089,73 @@ public class HomeController {
 
     private String escapeJson(String value) {
         return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    private void styleDialog(Dialog<?> dialog) {
+        if (dialog == null || dialog.getDialogPane() == null) {
+            return;
+        }
+        String theme = HomeController.class.getResource("/styles/theme.css").toExternalForm();
+        dialog.getDialogPane().getStylesheets().add(theme);
+        dialog.getDialogPane().getStyleClass().add("profile-dialog");
+    }
+
+    private void styleDialogButton(Dialog<?> dialog, ButtonType buttonType, String styleClass) {
+        if (dialog == null || dialog.getDialogPane() == null || buttonType == null) {
+            return;
+        }
+        Node node = dialog.getDialogPane().lookupButton(buttonType);
+        if (node instanceof Button button) {
+            button.getStyleClass().add(styleClass);
+            button.setPrefWidth(180);
+        }
+    }
+
+    private void exportUsersToPdf(File destination, List<User> users) throws IOException, DocumentException {
+        try (FileOutputStream outputStream = new FileOutputStream(destination)) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, outputStream);
+            document.open();
+
+            Paragraph title = new Paragraph("Pegasus - Users Export", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18));
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+            Paragraph meta = new Paragraph(
+                    "Generated: " + new Date() + " | Rows: " + users.size(),
+                    FontFactory.getFont(FontFactory.HELVETICA, 10)
+            );
+            meta.setAlignment(Element.ALIGN_CENTER);
+            document.add(meta);
+            document.add(new Paragraph(" "));
+
+            PdfPTable table = new PdfPTable(4);
+            table.setWidthPercentage(100);
+            table.setWidths(new float[]{2.0f, 3.2f, 1.6f, 1.4f});
+            addHeaderCell(table, "Username");
+            addHeaderCell(table, "Email");
+            addHeaderCell(table, "Role");
+            addHeaderCell(table, "Status");
+
+            for (User user : users) {
+                table.addCell(safeExport(user.getUsername()));
+                table.addCell(safeExport(user.getEmail()));
+                table.addCell(safeExport(user.getDtype()));
+                table.addCell(safeExport(user.getStatus()));
+            }
+            document.add(table);
+            document.close();
+        }
+    }
+
+    private void addHeaderCell(PdfPTable table, String title) {
+        PdfPCell header = new PdfPCell(new Phrase(title, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11)));
+        header.setHorizontalAlignment(Element.ALIGN_CENTER);
+        header.setBackgroundColor(new java.awt.Color(232, 238, 248));
+        header.setBorder(Rectangle.BOX);
+        table.addCell(header);
+    }
+
+    private String safeExport(String value) {
+        return value == null ? "" : value;
     }
 }
