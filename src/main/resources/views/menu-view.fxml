@@ -19,6 +19,8 @@
                 <Region HBox.hgrow="ALWAYS" />
                 <Button text="Home" styleClass="home-button" onAction="#goHome" />
                 <Button text="Gallery" styleClass="gold-button" onAction="#handleOpenGallery" />
+                <Button text="Events" styleClass="secondary-button" onAction="#onGoToEventsFront" />
+                <Button fx:id="navEventsBackofficeButton" managed="false" mnemonicParsing="false" onAction="#onGoToEventsBackoffice" styleClass="secondary-button" text="Events BO" visible="false" />
                 <Button fx:id="navBackofficeButton" managed="false" mnemonicParsing="false" onAction="#onGoToBackoffice" styleClass="secondary-button" text="Backoffice" visible="false" />
             </children>
             <padding>

@@ -51,6 +51,9 @@ public class MenuController {
 
     @FXML
     private Button navBackofficeButton;
+
+    @FXML
+    private Button navEventsBackofficeButton;
     
     private ServiceArt artService = new ServiceArt();
     private ServiceArtComment commentService = new ServiceArtComment();
@@ -86,6 +89,10 @@ public class MenuController {
         boolean isAdmin = currentUser != null && "admin".equalsIgnoreCase(currentUser.getDtype());
         navBackofficeButton.setVisible(isAdmin);
         navBackofficeButton.setManaged(isAdmin);
+        if (navEventsBackofficeButton != null) {
+            navEventsBackofficeButton.setVisible(isAdmin);
+            navEventsBackofficeButton.setManaged(isAdmin);
+        }
     }
     
     private void loadArtworks(String filter) {
@@ -1007,6 +1014,24 @@ public class MenuController {
     private void onGoToBackoffice() {
         try {
             SceneNavigator.goTo("/views/backoffice-simple.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onGoToEventsFront() {
+        try {
+            SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onGoToEventsBackoffice() {
+        try {
+            SceneNavigator.goTo("/views/backevent-view.fxml");
         } catch (IOException e) {
             e.printStackTrace();
         }

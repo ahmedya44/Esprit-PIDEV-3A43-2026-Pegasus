@@ -1,5 +1,7 @@
 package pegasus.controllers;
 
+import com.pegasus.controllers.EventsRoleRouter;
+import com.pegasus.controllers.SceneNavigator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -7,9 +9,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import pegasus.entities.Evenement;
 import pegasus.services.ServiceEvenement;
@@ -102,6 +102,26 @@ public class BackEventController {
         Stage stage = (Stage) source.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/views/back-view.fxml"));
         stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    void goHome(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/home-view.fxml");
+    }
+
+    @FXML
+    void goGallery(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/menu-view.fxml");
+    }
+
+    @FXML
+    void goEvents(ActionEvent event) throws IOException {
+        SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+    }
+
+    @FXML
+    void goBackoffice(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/backoffice-simple.fxml");
     }
 
     private void ouvrirModalFormulaire(String fxmlPath, String titrePage, Evenement e) {

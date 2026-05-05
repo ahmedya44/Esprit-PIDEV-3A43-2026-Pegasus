@@ -5,12 +5,17 @@ import pegasus.entities.User;
 public class Session {
     private static User currentUser;
 
-    // Simulation d'une session (on définit un utilisateur par défaut pour le test)
-    static {
-        currentUser = new User(1, "Doe", "John", "john.doe@email.com", "55123456");
-    }
-
     public static User getCurrentUser() {
+        com.pegasus.entities.User appUser = com.pegasus.controllers.SceneNavigator.getCurrentUser();
+        if (appUser != null) {
+            User bridged = new User();
+            bridged.setId(appUser.getId() == null ? 0 : appUser.getId());
+            bridged.setNom(appUser.getUsername() == null ? "" : appUser.getUsername());
+            bridged.setPrenom("");
+            bridged.setEmail(appUser.getEmail() == null ? "" : appUser.getEmail());
+            bridged.setTelephone(appUser.getPhone() == null ? "" : appUser.getPhone());
+            currentUser = bridged;
+        }
         return currentUser;
     }
 

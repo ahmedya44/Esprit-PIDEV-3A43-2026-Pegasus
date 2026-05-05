@@ -1,5 +1,7 @@
 package pegasus.controllers;
 
+import com.pegasus.controllers.EventsRoleRouter;
+import com.pegasus.controllers.SceneNavigator;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -164,6 +166,26 @@ public class BackSponsorController {
         Stage stage = (Stage) source.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/views/back-view.fxml"));
         stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    void goHome(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/home-view.fxml");
+    }
+
+    @FXML
+    void goGallery(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/menu-view.fxml");
+    }
+
+    @FXML
+    void goEvents(ActionEvent event) throws IOException {
+        SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+    }
+
+    @FXML
+    void goBackoffice(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/backoffice-simple.fxml");
     }
 
     // Classe utilitaire pour le tableau

@@ -14,6 +14,10 @@ public class MainApp extends Application {
     }
 
     public static void main(String[] args) {
+        String os = System.getProperty("os.name", "").toLowerCase();
+        if (os.contains("win") && System.getProperty("prism.order") == null) {
+            System.setProperty("prism.order", "sw");
+        }
         launch(args);
     }
 }

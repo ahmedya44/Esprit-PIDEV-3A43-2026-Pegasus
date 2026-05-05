@@ -260,6 +260,14 @@ public class HomeController {
         }
     }
 
+    public void onGoToEvents() {
+        try {
+            SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void onGoToBackoffice() {
         try {
             SceneNavigator.goTo("/views/backoffice-simple.fxml");

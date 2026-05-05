@@ -5,23 +5,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import pegasus.entities.Evenement;
 import pegasus.services.ServiceEvenement;
-import javafx.application.Platform;
 import javafx.scene.web.WebView;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.io.IOException;
 
 public class DetailsEvenementArtisteController {
@@ -48,6 +40,19 @@ public class DetailsEvenementArtisteController {
 
     private Evenement currentEvenement;
     private ServiceEvenement serviceEvenement = new ServiceEvenement();
+
+    private void cleanupMapBeforeNavigation() {
+        if (mapWebView == null) {
+            return;
+        }
+        try {
+            mapWebView.getEngine().load("about:blank");
+            mapWebView.getEngine().getLoadWorker().cancel();
+            mapWebView.setVisible(false);
+            mapWebView.setManaged(false);
+        } catch (Exception ignored) {
+        }
+    }
 
     public void initData(Evenement e) {
         this.currentEvenement = e;
@@ -110,6 +115,7 @@ public class DetailsEvenementArtisteController {
 
     @FXML
     void modifier(ActionEvent event) throws IOException {
+        cleanupMapBeforeNavigation();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/modifier-evenement-view.fxml"));
         Parent root = loader.load();
         
@@ -123,12 +129,14 @@ public class DetailsEvenementArtisteController {
 
     @FXML
     void supprimer(ActionEvent event) throws IOException {
+        cleanupMapBeforeNavigation();
         serviceEvenement.supprimer(currentEvenement);
         retourCatalogue(event);
     }
 
     @FXML
     void packSponsoring(ActionEvent event) throws IOException {
+        cleanupMapBeforeNavigation();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/sponsoring-pack-view.fxml"));
         Parent root = loader.load();
         
@@ -141,6 +149,7 @@ public class DetailsEvenementArtisteController {
 
     @FXML
     void participant(ActionEvent event) throws IOException {
+        cleanupMapBeforeNavigation();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/liste-participants-view.fxml"));
         Parent root = loader.load();
         
@@ -153,6 +162,7 @@ public class DetailsEvenementArtisteController {
 
     @FXML
     void retourCatalogue(ActionEvent event) throws IOException {
+        cleanupMapBeforeNavigation();
         Node source = (Node) event.getSource();
         Stage stage = (Stage) source.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/views/liste-evenement-artiste.fxml"));

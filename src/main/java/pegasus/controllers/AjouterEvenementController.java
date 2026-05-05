@@ -1,25 +1,29 @@
 package pegasus.controllers;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import pegasus.entities.Evenement;
+import pegasus.services.ServiceEvenement;
+
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import javafx.application.Platform;
-import java.net.URL;
-import java.util.ResourceBundle;
-import javafx.fxml.Initializable;
-import pegasus.services.ServiceEvenement;
-import pegasus.entities.Evenement;
-import javafx.scene.Parent;
-import javafx.fxml.FXMLLoader;
-import javafx.stage.Stage;
-import javafx.scene.Node;
+import java.util.Properties;
 
 public class AjouterEvenementController {
 
@@ -33,9 +37,10 @@ public class AjouterEvenementController {
     @FXML private TextArea descField;
     @FXML private Label messageLabel;
 
-    private ServiceEvenement serviceEvenement = new ServiceEvenement();
-    private int selectedId = -1;
+    private final ServiceEvenement serviceEvenement = new ServiceEvenement();
     private String origin = "BACK";
+
+    private static final String GROQ_CONFIG_PATH = "/groq.properties";
 
     public void setOrigin(String origin) {
         this.origin = origin;
@@ -47,21 +52,18 @@ public class AjouterEvenementController {
     }
 
     private void setupRealTimeValidation() {
-        // Validation capacité (chiffres uniquement)
         capaciteField.textProperty().addListener((obs, old, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 capaciteField.setText(newValue.replaceAll("[^\\d]", ""));
             }
         });
 
-        // Validation prix (chiffres et point)
         prixField.textProperty().addListener((obs, old, newValue) -> {
             if (!newValue.matches("\\d*([\\.]\\d*)?")) {
                 prixField.setText(old);
             }
         });
-        
-        // Format heure HH:mm
+
         heureField.textProperty().addListener((obs, old, newValue) -> {
             if (newValue.length() > 5) {
                 heureField.setText(old);
@@ -71,28 +73,30 @@ public class AjouterEvenementController {
 
     @FXML
     void ajouterEvenement(ActionEvent event) {
-        if (!validerChamps()) return;
+        if (!validerChamps()) {
+            return;
+        }
 
         try {
             Evenement e = new Evenement(
-                titreField.getText().trim(),
-                dateField.getValue().toString(),
-                heureField.getText().trim(),
-                lieuField.getText().trim(),
-                descField.getText().trim(),
-                imageField.getText().trim(),
-                Integer.parseInt(capaciteField.getText().trim()),
-                Float.parseFloat(prixField.getText().trim()),
-                "Confirmé"
+                    titreField.getText().trim(),
+                    dateField.getValue().toString(),
+                    heureField.getText().trim(),
+                    lieuField.getText().trim(),
+                    descField.getText().trim(),
+                    imageField.getText().trim(),
+                    Integer.parseInt(capaciteField.getText().trim()),
+                    Float.parseFloat(prixField.getText().trim()),
+                    "Confirme"
             );
             serviceEvenement.ajouter(e);
-            
+
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Succès");
+            alert.setTitle("Succes");
             alert.setHeaderText(null);
-            alert.setContentText("L'événement a été ajouté avec succès !");
+            alert.setContentText("L'evenement a ete ajoute avec succes !");
             alert.showAndWait();
-            
+
             fermer(event);
         } catch (Exception ex) {
             afficherErreur("Erreur technique : " + ex.getMessage());
@@ -104,14 +108,14 @@ public class AjouterEvenementController {
         boolean valid = true;
 
         if (titreField.getText().trim().length() < 3) {
-            sb.append("- Le titre doit contenir au moins 3 caractères\n");
+            sb.append("- Le titre doit contenir au moins 3 caracteres\n");
             valid = false;
         }
         if (dateField.getValue() == null) {
             sb.append("- La date est obligatoire.\n");
             valid = false;
         } else if (dateField.getValue().isBefore(java.time.LocalDate.now().plusDays(14))) {
-            sb.append("- L'événement doit être prévu au moins 14 jours à l'avance.\n");
+            sb.append("- L'evenement doit etre prevu au moins 14 jours a l'avance.\n");
             valid = false;
         }
         if (heureField.getText().trim().isEmpty()) {
@@ -122,22 +126,22 @@ public class AjouterEvenementController {
             valid = false;
         }
         if (lieuField.getText().trim().isEmpty() || lieuField.getText().trim().length() < 3) {
-            sb.append("- Le lieu doit contenir au moins 3 caractères.\n");
+            sb.append("- Le lieu doit contenir au moins 3 caracteres.\n");
             valid = false;
         }
 
         if (capaciteField.getText().trim().isEmpty()) {
-            sb.append("- La capacité est obligatoire.\n");
+            sb.append("- La capacite est obligatoire.\n");
             valid = false;
         } else {
             try {
                 int cap = Integer.parseInt(capaciteField.getText().trim());
                 if (cap <= 0) {
-                    sb.append("- La capacité doit être supérieure à 0.\n");
+                    sb.append("- La capacite doit etre superieure a 0.\n");
                     valid = false;
                 }
             } catch (NumberFormatException e) {
-                sb.append("- La capacité doit être un nombre valide.\n");
+                sb.append("- La capacite doit etre un nombre valide.\n");
                 valid = false;
             }
         }
@@ -149,16 +153,16 @@ public class AjouterEvenementController {
             try {
                 float pr = Float.parseFloat(prixField.getText().trim());
                 if (pr < 0) {
-                    sb.append("- Le prix ne peut pas être négatif.\n");
+                    sb.append("- Le prix ne peut pas etre negatif.\n");
                     valid = false;
                 }
             } catch (NumberFormatException e) {
-                sb.append("- Le prix doit être un nombre valide.\n");
+                sb.append("- Le prix doit etre un nombre valide.\n");
                 valid = false;
             }
         }
         if (descField.getText().trim().length() < 10) {
-            sb.append("- La description doit contenir au moins 10 caractères\n");
+            sb.append("- La description doit contenir au moins 10 caracteres\n");
             valid = false;
         }
 
@@ -183,45 +187,63 @@ public class AjouterEvenementController {
         }
     }
 
-    private static final String GROQ_API_KEY = "clé apiii";
+    private String loadGroqApiKey() {
+        Properties properties = new Properties();
+        try (InputStream inputStream = getClass().getResourceAsStream(GROQ_CONFIG_PATH)) {
+            if (inputStream == null) {
+                return null;
+            }
+            properties.load(inputStream);
+            String value = properties.getProperty("groq.api.key");
+            if (value == null || value.trim().isEmpty()) {
+                return null;
+            }
+            return value.trim();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
     @FXML
     void genererDescription(ActionEvent event) {
         String titre = titreField.getText().trim();
         if (titre.isEmpty()) {
-            afficherErreur("Veuillez saisir un titre avant de générer la description.");
+            afficherErreur("Veuillez saisir un titre avant de generer la description.");
             return;
         }
 
-        descField.setText("Génération par IA en cours...");
+        String groqApiKey = loadGroqApiKey();
+        if (groqApiKey == null) {
+            afficherErreur("Cle Groq introuvable. Ajoutez groq.api.key dans src/main/resources/groq.properties");
+            return;
+        }
+
+        descField.setText("Generation par IA en cours...");
         messageLabel.setText("");
 
         new Thread(() -> {
             try {
-                // Construction manuelle du JSON pour éviter les dépendances externes
                 String escapedTitre = titre.replace("\\", "\\\\").replace("\"", "\\\"");
                 String jsonBody = "{"
                         + "\"model\":\"llama-3.3-70b-versatile\","
-                        + "\"messages\":[{\"role\":\"user\",\"content\":\"Génère une description courte et attrayante (max 3 phrases) pour un événement intitulé : " + escapedTitre + "\"}]"
+                        + "\"messages\":[{\"role\":\"user\",\"content\":\"Genere une description courte et attrayante (max 3 phrases) pour un evenement intitule : " + escapedTitre + "\"}]"
                         + "}";
 
                 HttpClient client = HttpClient.newHttpClient();
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create("https://api.groq.com/openai/v1/chat/completions"))
-                        .header("Authorization", "Bearer " + GROQ_API_KEY)
+                        .header("Authorization", "Bearer " + groqApiKey)
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(jsonBody, StandardCharsets.UTF_8))
                         .build();
-                        
+
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 String body = response.body();
 
                 if (response.statusCode() == 200) {
-                    // Extraction manuelle simplifiée
                     int start = body.indexOf("\"content\":\"") + 11;
                     int end = body.indexOf("\"", start);
-                    
-                    // On cherche la fin du contenu en gérant les guillemets échappés
+
                     while (end > 0 && body.charAt(end - 1) == '\\') {
                         end = body.indexOf("\"", end + 1);
                     }
@@ -231,16 +253,15 @@ public class AjouterEvenementController {
                                 .replace("\\n", "\n")
                                 .replace("\\\"", "\"")
                                 .replace("\\\\", "\\");
-                        
+
                         Platform.runLater(() -> descField.setText(content.trim()));
                     } else {
-                        throw new Exception("Réponse malformée");
+                        throw new Exception("Reponse malformee");
                     }
                 } else {
                     Platform.runLater(() -> {
                         descField.setText("");
-                        // On affiche un bout du message d'erreur réel de Groq pour diagnostiquer
-                        String errorHint = body.length() > 100 ? body.substring(0, 100) : body;
+                        String errorHint = body.length() > 160 ? body.substring(0, 160) : body;
                         afficherErreur("Erreur Groq (" + response.statusCode() + ") : " + errorHint);
                     });
                 }

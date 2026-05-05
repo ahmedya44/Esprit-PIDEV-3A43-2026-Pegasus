@@ -1,5 +1,8 @@
 package pegasus.controllers;
 
+import com.pegasus.controllers.EventsRoleRouter;
+import com.pegasus.controllers.SceneNavigator;
+import com.pegasus.entities.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -33,6 +36,7 @@ public class SponsoringPackController {
     @FXML private TextField prixField;
     @FXML private TextArea descField;
     @FXML private Label messageLabel;
+    @FXML private Button navBackofficeButton;
 
     private ServiceSponsoringPack servicePack = new ServiceSponsoringPack();
     private int selectedPackId = -1;
@@ -46,7 +50,12 @@ public class SponsoringPackController {
 
     @FXML
     public void initialize() {
-        // chargerLister sera appelé par initData
+        User currentUser = SceneNavigator.getCurrentUser();
+        boolean isAdmin = currentUser != null && "admin".equalsIgnoreCase(currentUser.getDtype());
+        if (navBackofficeButton != null) {
+            navBackofficeButton.setVisible(isAdmin);
+            navBackofficeButton.setManaged(isAdmin);
+        }
         setupRealTimeValidation();
     }
 
@@ -67,6 +76,16 @@ public class SponsoringPackController {
         if (currentEvenement == null) return;
         
         List<SponsoringPack> list = servicePack.afficherParEvenement(currentEvenement.getId());
+        if (list.isEmpty()) {
+            List<SponsoringPack> allPacks = servicePack.afficherTout();
+            if (!allPacks.isEmpty()) {
+                list = allPacks;
+                if (messageLabel != null) {
+                    messageLabel.setText("Aucun pack lie a cet evenement. Affichage de tous les packs de la base.");
+                    messageLabel.setStyle("-fx-text-fill: #e67e22;");
+                }
+            }
+        }
         
         int row = 0;
         int col = 0;
@@ -189,18 +208,28 @@ public class SponsoringPackController {
         }
 
         try {
-            SponsoringPack p = new SponsoringPack(
-                nomField.getText().trim(),
-                descField.getText().trim(),
-                Float.parseFloat(prixField.getText().trim()),
-                currentEvenement.getId()
-            );
+            if (currentEvenement == null || currentEvenement.getId() <= 0) {
+                afficherErreur("Evenement invalide: impossible de lier le pack.");
+                return;
+            }
+
+            SponsoringPack p = new SponsoringPack();
+            p.setNom_pack(nomField.getText().trim());
+            p.setDescription(descField.getText().trim());
+            p.setPrix(Float.parseFloat(prixField.getText().trim()));
+            p.setId_evenement(currentEvenement.getId());
+            p.setId_sponsor(0);
             
             if (selectedPackId != -1) {
                 p.setId_pack(selectedPackId);
                 servicePack.modifier(p);
             } else {
                 servicePack.ajouter(p);
+            }
+
+            if (servicePack.getLastError() != null && !servicePack.getLastError().isBlank()) {
+                afficherErreur("Erreur DB: " + servicePack.getLastError());
+                return;
             }
             
             chargerLister();
@@ -423,4 +452,26 @@ public class SponsoringPackController {
         label.setStyle("-fx-font-size: 13px; " + extraStyle);
         return label;
     }
+
+    @FXML
+    private void goHome() throws IOException {
+        SceneNavigator.goTo("/views/home-view.fxml");
+    }
+
+    @FXML
+    private void goGallery() throws IOException {
+        SceneNavigator.goTo("/views/menu-view.fxml");
+    }
+
+    @FXML
+    private void goEvents() throws IOException {
+        SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+    }
+
+    @FXML
+    private void goBackoffice() throws IOException {
+        SceneNavigator.goTo("/views/backoffice-simple.fxml");
+    }
 }
+
+

@@ -1,5 +1,8 @@
 package pegasus.controllers;
 
+import com.pegasus.controllers.EventsRoleRouter;
+import com.pegasus.controllers.SceneNavigator;
+import com.pegasus.entities.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -23,12 +26,20 @@ public class ListeEvenementArtisteController {
     @FXML private FlowPane eventsFlowPane;
     @FXML private TextField searchField;
     @FXML private ComboBox<String> sortCombo;
+    @FXML private Button navBackofficeButton;
 
     private ServiceEvenement serviceEvenement = new ServiceEvenement();
     private List<Evenement> touseEvenements = new ArrayList<>();
 
     @FXML
     void initialize() {
+        User currentUser = SceneNavigator.getCurrentUser();
+        boolean isAdmin = currentUser != null && "admin".equalsIgnoreCase(currentUser.getDtype());
+        if (navBackofficeButton != null) {
+            navBackofficeButton.setVisible(isAdmin);
+            navBackofficeButton.setManaged(isAdmin);
+        }
+
         // Initialize Sort Options
         sortCombo.getItems().addAll("Date (Plus récent)", "Date (Plus ancien)", "Prix (Croissant)", "Prix (Décroissant)", "Titre (A-Z)");
         sortCombo.setValue("Date (Plus récent)");
@@ -235,4 +246,25 @@ public class ListeEvenementArtisteController {
         controller.setOrigin("FRONT");
         searchField.getScene().setRoot(root);
     }
+
+    @FXML
+    private void goHome() throws IOException {
+        SceneNavigator.goTo("/views/home-view.fxml");
+    }
+
+    @FXML
+    private void goGallery() throws IOException {
+        SceneNavigator.goTo("/views/menu-view.fxml");
+    }
+
+    @FXML
+    private void goEvents() throws IOException {
+        SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+    }
+
+    @FXML
+    private void goBackoffice() throws IOException {
+        SceneNavigator.goTo("/views/backoffice-simple.fxml");
+    }
 }
+

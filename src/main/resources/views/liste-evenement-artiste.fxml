@@ -10,11 +10,23 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
 
-<VBox alignment="TOP_CENTER" spacing="30" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pegasus.controllers.ListeEvenementArtisteController" prefWidth="1100" prefHeight="850" style="-fx-background-color: white;">
+<VBox alignment="TOP_CENTER" spacing="20" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pegasus.controllers.ListeEvenementArtisteController" prefWidth="1100" prefHeight="850" styleClass="app-root gallery-root">
     <padding>
-        <Insets top="40" right="40" bottom="40" left="40"/>
+        <Insets top="20" right="30" bottom="30" left="30"/>
     </padding>
+
+    <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="14">
+        <children>
+            <Label text="Pegasus" styleClass="brand-label" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Home" styleClass="home-button" onAction="#goHome" />
+            <Button text="Gallery" styleClass="secondary-button" onAction="#goGallery" />
+            <Button text="Events" styleClass="gold-button" onAction="#goEvents" />
+            <Button fx:id="navBackofficeButton" managed="false" visible="false" text="Backoffice" styleClass="secondary-button" onAction="#goBackoffice" />
+        </children>
+    </HBox>
 
     <!-- Header Section -->
     <VBox alignment="CENTER" spacing="20">

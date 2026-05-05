@@ -1,5 +1,7 @@
 package pegasus.controllers;
 
+import com.pegasus.controllers.EventsRoleRouter;
+import com.pegasus.controllers.SceneNavigator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,7 +22,13 @@ import java.util.List;
 public class BackParticipantController {
 
     @FXML private TableView<Evenement> eventsTable;
+    @FXML private TableColumn<Evenement, String> colEventTitre;
+    @FXML private TableColumn<Evenement, String> colEventDate;
     @FXML private TableView<User> participantsTable;
+    @FXML private TableColumn<User, String> colUserNom;
+    @FXML private TableColumn<User, String> colUserPrenom;
+    @FXML private TableColumn<User, String> colUserEmail;
+    @FXML private TableColumn<User, String> colUserTel;
     @FXML private TextField searchEventField;
     @FXML private Label selectedEventLabel;
     @FXML private Button btnSupprimer;
@@ -59,7 +67,9 @@ public class BackParticipantController {
 
         // Écouter la sélection d'un participant pour activer le bouton supprimer
         participantsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            btnSupprimer.setDisable(newSelection == null);
+            if (btnSupprimer != null) {
+                btnSupprimer.setDisable(newSelection == null);
+            }
         });
     }
 
@@ -109,5 +119,25 @@ public class BackParticipantController {
         Stage stage = (Stage) source.getScene().getWindow();
         Parent root = FXMLLoader.load(getClass().getResource("/views/back-view.fxml"));
         stage.getScene().setRoot(root);
+    }
+
+    @FXML
+    void goHome(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/home-view.fxml");
+    }
+
+    @FXML
+    void goGallery(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/menu-view.fxml");
+    }
+
+    @FXML
+    void goEvents(ActionEvent event) throws IOException {
+        SceneNavigator.goTo(EventsRoleRouter.resolveEventsEntryFxml());
+    }
+
+    @FXML
+    void goBackoffice(ActionEvent event) throws IOException {
+        SceneNavigator.goTo("/views/backoffice-simple.fxml");
     }
 }
