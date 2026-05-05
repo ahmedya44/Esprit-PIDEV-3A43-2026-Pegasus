@@ -22,8 +22,11 @@ public class AiAutocompleteClient {
 
     public List<String> suggest(String field, String text, String context, String locale, int limit) {
         String cleanText = text == null ? "" : text.trim();
-        if (cleanText.isBlank() || apiKey.isBlank()) {
+        if (cleanText.isBlank()) {
             return List.of();
+        }
+        if (apiKey.isBlank()) {
+            return localFallbackSuggestions(cleanText, limit);
         }
         int boundedLimit = Math.max(1, Math.min(8, limit));
         try {
@@ -105,6 +108,16 @@ public class AiAutocompleteClient {
             }
         }
         return result;
+    }
+
+    private List<String> localFallbackSuggestions(String input, int limit) {
+        int boundedLimit = Math.max(1, Math.min(8, limit));
+        List<String> fallback = new ArrayList<>();
+        fallback.add(input + " inspired by surreal art.");
+        fallback.add(input + " with warm lighting and textured brushwork.");
+        fallback.add(input + " exploring symbolism and emotion.");
+        fallback.add(input + " in a modern abstract composition.");
+        return normalize(fallback, input, boundedLimit);
     }
 
     private String merge(String input, String suggestion) {

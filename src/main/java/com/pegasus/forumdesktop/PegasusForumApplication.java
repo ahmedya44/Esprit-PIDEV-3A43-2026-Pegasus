@@ -6,7 +6,6 @@ import com.pegasus.forumdesktop.dao.PostDao;
 import com.pegasus.forumdesktop.dao.RatingDao;
 import com.pegasus.forumdesktop.dao.TranslationDao;
 import com.pegasus.forumdesktop.dao.UserDao;
-import com.pegasus.forumdesktop.service.AuthService;
 import com.pegasus.forumdesktop.service.AiAutocompleteClient;
 import com.pegasus.forumdesktop.service.ForumService;
 import com.pegasus.forumdesktop.service.GifSearchClient;
@@ -36,10 +35,9 @@ public class PegasusForumApplication extends Application {
             new AiAutocompleteClient(),
             new GifSearchClient()
         );
-        AuthService authService = new AuthService(userDao);
         ForumView view = new ForumView();
 
-        new ForumController(view, authService, forumService);
+        new ForumController(view, forumService);
 
         Scene scene = new Scene(view.getRoot(), 1320, 820);
         var css = getClass().getResource("/com/pegasus/forumdesktop/app.css");

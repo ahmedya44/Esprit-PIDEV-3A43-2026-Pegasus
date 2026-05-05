@@ -1,5 +1,6 @@
 package com.pegasus.forumdesktop.controller;
 
+import com.pegasus.controllers.SceneNavigator;
 import com.pegasus.forumdesktop.dao.PostDao;
 import com.pegasus.forumdesktop.model.Comment;
 import com.pegasus.forumdesktop.model.GifItem;
@@ -7,7 +8,6 @@ import com.pegasus.forumdesktop.model.Post;
 import com.pegasus.forumdesktop.model.PostStatus;
 import com.pegasus.forumdesktop.model.TranslationValue;
 import com.pegasus.forumdesktop.model.User;
-import com.pegasus.forumdesktop.service.AuthService;
 import com.pegasus.forumdesktop.service.ForumService;
 import com.pegasus.forumdesktop.view.ForumView;
 import javafx.collections.FXCollections;
@@ -24,6 +24,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,22 +41,36 @@ public class ForumController {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final ForumView view;
-    private final AuthService authService;
     private final ForumService forumService;
     private User currentUser;
     private Post selectedPost;
     private Comment selectedComment;
     private boolean backOffice;
 
-    public ForumController(ForumView view, AuthService authService, ForumService forumService) {
+    public ForumController(ForumView view, ForumService forumService) {
         this.view = view;
-        this.authService = authService;
         this.forumService = forumService;
         bind();
     }
 
+    public void bootstrapWithForumUser(User forumUser) {
+        if (forumUser == null) {
+            showError("Please sign in from Pegasus.");
+            return;
+        }
+        currentUser = forumUser;
+        backOffice = forumUser.isAdmin() || "admin".equalsIgnoreCase(forumUser.getDtype());
+
+        view.activeUserLabel.setText((backOffice ? "Back Office: " : "Front Office: ") + forumUser.getDisplayName());
+        view.showForum(backOffice);
+        refreshPosts();
+        if (backOffice) {
+            refreshAdminComments();
+            refreshStats();
+        }
+    }
+
     private void bind() {
-        view.loginButton.setOnAction(event -> login());
         view.logoutButton.setOnAction(event -> logout());
         view.searchField.textProperty().addListener((obs, oldValue, newValue) -> refreshPosts());
         view.statusFilter.setOnAction(event -> refreshPosts());
@@ -96,32 +111,16 @@ public class ForumController {
         view.statsButton.setOnAction(event -> refreshStats());
     }
 
-    private void login() {
-        try {
-            authService.authenticate(view.loginEmail.getText(), view.loginPassword.getText()).ifPresentOrElse(user -> {
-                currentUser = user;
-                backOffice = user.isAdmin();
-                view.activeUserLabel.setText((backOffice ? "Back Office: " : "Front Office: ") + user.getDisplayName());
-                view.showForum(backOffice);
-                refreshPosts();
-                if (backOffice) {
-                    refreshAdminComments();
-                    refreshStats();
-                }
-            }, () -> view.loginMessage.setText("Invalid email or password."));
-        } catch (RuntimeException ex) {
-            view.loginMessage.setText(ex.getMessage());
-        }
-    }
-
     private void logout() {
-        currentUser = null;
-        selectedPost = null;
-        selectedComment = null;
-        backOffice = false;
-        view.loginPassword.clear();
-        view.loginMessage.setText("");
-        view.showLogin();
+        SceneNavigator.clearSession();
+        try {
+            SceneNavigator.goTo("/views/signin-view.fxml");
+        } catch (Exception e) {
+            showError("Failed to redirect to sign in: " + e.getMessage());
+        }
+        if (view.getRoot().getScene() != null && view.getRoot().getScene().getWindow() instanceof Stage forumStage) {
+            forumStage.close();
+        }
     }
 
     private void refreshPosts() {
@@ -541,6 +540,11 @@ public class ForumController {
         if (!view.feedbackLabel.getStyleClass().contains("error")) {
             view.feedbackLabel.getStyleClass().add("error");
         }
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Forum Error");
+        alert.setHeaderText("Action failed");
+        alert.setContentText(message == null || message.isBlank() ? "Unknown error." : message);
+        alert.showAndWait();
     }
 
     private String nullToBlank(String value) {
@@ -599,10 +603,7 @@ public class ForumController {
             safeBase = "forum-image";
         }
 
-        Path uploadDir = Path.of(System.getenv().getOrDefault(
-            "PEGASUS_FORUM_UPLOADS_DIR",
-            "C:\\Users\\mentis\\Downloads\\Pegasus-forum\\Pegasus-forum\\public\\uploads\\forum"
-        ));
+        Path uploadDir = forumUploadsDir();
         Files.createDirectories(uploadDir);
         String storedName = safeBase + "-" + UUID.randomUUID().toString().substring(0, 12) + extension;
         Files.copy(source, uploadDir.resolve(storedName), StandardCopyOption.REPLACE_EXISTING);
@@ -620,7 +621,7 @@ public class ForumController {
         if (!source.startsWith("http://") && !source.startsWith("https://") && !source.startsWith("file:/")) {
             String uploadsDir = System.getenv().getOrDefault(
                 "PEGASUS_FORUM_UPLOADS_DIR",
-                "C:\\Users\\mentis\\Downloads\\Pegasus-forum\\Pegasus-forum\\public\\uploads\\forum"
+                forumUploadsDir().toString()
             );
             source = new File(uploadsDir, source).toURI().toString();
         }
@@ -628,5 +629,13 @@ public class ForumController {
         Image image = new Image(source, 320, 190, true, true, true);
         view.postImagePreview.setImage(image);
         view.postImageMessage.setText(imageName);
+    }
+
+    private Path forumUploadsDir() {
+        String configured = System.getenv("PEGASUS_FORUM_UPLOADS_DIR");
+        if (configured != null && !configured.isBlank()) {
+            return Path.of(configured);
+        }
+        return Path.of(System.getProperty("user.home"), "pegasus", "uploads", "forum");
     }
 }

@@ -17,7 +17,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
@@ -31,17 +30,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 public class ForumView {
     private final StackPane root = new StackPane();
-
-    public final TextField loginEmail = new TextField();
-    public final PasswordField loginPassword = new PasswordField();
-    public final Button loginButton = new Button("Login");
-    public final Label loginMessage = new Label();
 
     public final Label activeUserLabel = new Label();
     public final Button logoutButton = new Button("Logout");
@@ -95,15 +88,11 @@ public class ForumView {
 
     public ForumView() {
         configureControls();
-        showLogin();
+        showForum();
     }
 
     public Parent getRoot() {
         return root;
-    }
-
-    public void showLogin() {
-        root.getChildren().setAll(buildLoginPane());
     }
 
     public void showForum() {
@@ -112,37 +101,6 @@ public class ForumView {
 
     public void showForum(boolean admin) {
         root.getChildren().setAll(buildForumPane(admin));
-    }
-
-    private Parent buildLoginPane() {
-        Label brand = new Label("Pegasus");
-        brand.getStyleClass().add("brand-label");
-        Label active = new Label("FORUM");
-        active.getStyleClass().addAll("nav-link", "active-link");
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox nav = new HBox(28, brand, spacer, active);
-        nav.setAlignment(Pos.CENTER_LEFT);
-        nav.getStyleClass().add("top-nav");
-
-        Label title = new Label("Sign In");
-        title.getStyleClass().add("card-title");
-        loginEmail.setPromptText("Symfony user email");
-        loginPassword.setPromptText("Symfony password");
-        loginEmail.getStyleClass().add("input-field");
-        loginPassword.getStyleClass().add("input-field");
-        loginButton.getStyleClass().add("gold-button");
-        loginMessage.getStyleClass().add("error-label");
-
-        VBox panel = new VBox(12, title, loginEmail, loginPassword, loginButton, loginMessage);
-        panel.setMaxWidth(420);
-        panel.setAlignment(Pos.CENTER);
-        panel.setPadding(new Insets(28));
-        panel.getStyleClass().add("card");
-        VBox wrapper = new VBox(28, nav, panel);
-        wrapper.setAlignment(Pos.TOP_CENTER);
-        wrapper.getStyleClass().add("app-root");
-        return wrapper;
     }
 
     private Parent buildForumPane(boolean admin) {

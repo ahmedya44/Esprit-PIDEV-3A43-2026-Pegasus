@@ -13,6 +13,7 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 
 public final class SceneNavigator {
     private static Stage stage;
@@ -57,7 +58,15 @@ public final class SceneNavigator {
         Scene scene = stage.getScene();
         if (scene == null) {
             scene = new Scene(scrollPane, 800, 520);
-            scene.getStylesheets().add(SceneNavigator.class.getResource("/styles/theme.css").toExternalForm());
+            URL primaryTheme = SceneNavigator.class.getResource("/styles/theme.css");
+            if (primaryTheme != null) {
+                scene.getStylesheets().add(primaryTheme.toExternalForm());
+            } else {
+                URL fallbackTheme = SceneNavigator.class.getResource("/css/style.css");
+                if (fallbackTheme != null) {
+                    scene.getStylesheets().add(fallbackTheme.toExternalForm());
+                }
+            }
             stage.setScene(scene);
         } else {
             scene.setRoot(scrollPane);

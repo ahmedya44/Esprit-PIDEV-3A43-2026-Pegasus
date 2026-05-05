@@ -17,6 +17,7 @@
                 <Button mnemonicParsing="false" onAction="#onGoToGallery" styleClass="secondary-button" text="Gallery" />
                 <Button mnemonicParsing="false" onAction="#onGoToEvents" styleClass="secondary-button" text="Events" />
                 <Button mnemonicParsing="false" onAction="#onGoToProduit" styleClass="secondary-button" text="Produit" />
+                <Button mnemonicParsing="false" onAction="#onGoToForum" styleClass="secondary-button" text="Forum" />
                 <Button fx:id="navBackofficeButton" managed="false" mnemonicParsing="false" onAction="#onGoToBackoffice" styleClass="secondary-button" text="Backoffice" visible="false" />
                 <Button fx:id="navProfileButton" managed="false" mnemonicParsing="false" onAction="#onGoToProfile" styleClass="secondary-button" text="Profile" visible="false" />
                 <Button fx:id="navAuthButton" mnemonicParsing="false" onAction="#onGoToSignIn" styleClass="gold-button" text="Sign In" />

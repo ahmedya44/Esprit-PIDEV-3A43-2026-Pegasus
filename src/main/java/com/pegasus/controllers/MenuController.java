@@ -1055,6 +1055,11 @@ public class MenuController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    public void onGoToForum() {
+        ForumModuleLauncher.openForumWindow();
+    }
 }
 
 

@@ -286,6 +286,11 @@ public class HomeController {
         }
     }
 
+    @FXML
+    public void onGoToForum() {
+        ForumModuleLauncher.openForumWindow();
+    }
+
     public void onGoToBackoffice() {
         try {
             SceneNavigator.goTo("/views/backoffice-simple.fxml");
