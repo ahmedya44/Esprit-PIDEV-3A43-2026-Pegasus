@@ -16,6 +16,7 @@ public class MainFX extends Application {
 
         stage.setTitle("Pegasus App");
         stage.setScene(scene);
+        stage.setResizable(true);
         stage.show();
     }
 

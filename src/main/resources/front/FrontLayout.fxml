@@ -3,34 +3,40 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="700.0" prefWidth="1100.0"
+<BorderPane prefHeight="700.0" prefWidth="1100.0"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="tn.esprit.pegasus.controllers.front.FrontLayoutController">
 
-    <children>
-        <AnchorPane layoutX="0.0" layoutY="0.0" prefHeight="80.0" prefWidth="1100.0"
-                    styleClass="navbar">
-            <children>
-                <Label layoutX="30.0" layoutY="24.0" text="Pegasus" styleClass="logo-text" />
-
-                <Button layoutX="220.0" layoutY="22.0" prefHeight="35.0" prefWidth="100.0"
-                        text="Home" onAction="#showHome" styleClass="nav-button" />
-                <Button layoutX="340.0" layoutY="22.0" prefHeight="35.0" prefWidth="100.0"
-                        text="Courses" onAction="#showCourses" styleClass="nav-button" />
-                <Button layoutX="460.0" layoutY="22.0" prefHeight="35.0" prefWidth="100.0"
-                        text="Gallery" onAction="#showGallery" styleClass="nav-button" />
-                <Button layoutX="580.0" layoutY="22.0" prefHeight="35.0" prefWidth="160.0"
-                        text="Courses Dashboard" onAction="#showCoursesDashboard" styleClass="nav-button" />
-
-                <Button layoutX="920.0" layoutY="20.0" prefHeight="38.0" prefWidth="100.0"
+    <top>
+        <VBox styleClass="navbar" BorderPane.alignment="CENTER">
+            <HBox spacing="20.0" styleClass="navbar-inner">
+                <Label text="Pegasus" styleClass="logo-text" />
+                <Region HBox.hgrow="ALWAYS" />
+                <FlowPane hgap="8.0" vgap="8.0" HBox.hgrow="ALWAYS" styleClass="nav-links">
+                    <Button prefHeight="40.0" prefWidth="100.0"
+                            text="Home" onAction="#showHome" styleClass="nav-button" />
+                    <Button prefHeight="40.0" prefWidth="100.0"
+                            text="Courses" onAction="#showCourses" styleClass="nav-button" />
+                    <Button prefHeight="40.0" prefWidth="100.0"
+                            text="Gallery" onAction="#showGallery" styleClass="nav-button" />
+                    <Button prefHeight="40.0" prefWidth="160.0"
+                            text="Courses Dashboard" onAction="#showCoursesDashboard" styleClass="nav-button" />
+                </FlowPane>
+                <Button prefHeight="40.0" prefWidth="110.0"
                         text="Login" styleClass="login-button" />
-            </children>
-        </AnchorPane>
+            </HBox>
+        </VBox>
+    </top>
 
-        <AnchorPane fx:id="contentArea" layoutX="0.0" layoutY="80.0"
-                    prefHeight="620.0" prefWidth="1100.0"
+    <center>
+        <AnchorPane fx:id="contentArea" BorderPane.alignment="CENTER"
                     styleClass="content-surface" />
-    </children>
-</AnchorPane>
+    </center>
+</BorderPane>

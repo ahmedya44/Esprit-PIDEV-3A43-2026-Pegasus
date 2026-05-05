@@ -1,4 +1,9 @@
 target/
+.env
+.m2/
+apache-maven-*/
+maven.zip
+certificates/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
