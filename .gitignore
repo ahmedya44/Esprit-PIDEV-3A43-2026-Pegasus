@@ -8,6 +8,11 @@ src/main/resources/cloudflare.properties
 src/main/resources/cloudinary.properties
 src/main/resources/voice.properties
 src/main/resources/groq.properties
+.env
+.m2/
+apache-maven-*/
+maven.zip
+certificates/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -18,6 +23,7 @@ src/main/resources/groq.properties
 .idea/compiler.xml
 .idea/libraries/
 *.iws
+*.iml
 *.ipr
 
 ### Eclipse ###
