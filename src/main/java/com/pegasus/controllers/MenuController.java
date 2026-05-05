@@ -1036,6 +1036,25 @@ public class MenuController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    private void onGoToProduit() {
+        try {
+            User currentUser = SceneNavigator.getCurrentUser();
+            if (currentUser == null) {
+                SceneNavigator.goTo("/views/signin-view.fxml");
+                return;
+            }
+            String role = currentUser.getDtype() == null ? "" : currentUser.getDtype().toLowerCase();
+            if ("artiste".equals(role)) {
+                SceneNavigator.goTo("/fxml/DashboardArtiste.fxml");
+            } else {
+                SceneNavigator.goTo("/fxml/DashboardUser.fxml");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 

@@ -26,6 +26,7 @@
                     onAction="#showLikes"/>
             <Label style="-fx-text-fill: white; -fx-font-size: 13px;"
                    text="👤 user"/>
+            <Button onAction="#handleBackHome" styleClass="navbar-btn" text="Home"/>
             <Button onAction="#handleLogout" styleClass="logout-btn" text="⇥"/>
         </HBox>
     </top>

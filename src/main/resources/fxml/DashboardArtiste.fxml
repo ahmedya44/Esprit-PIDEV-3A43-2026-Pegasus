@@ -47,6 +47,7 @@
             <Region prefWidth="30"/>
             <Label text="✏  artiste"
                    style="-fx-text-fill: #f0a500; -fx-font-size: 13px;"/>
+            <Button text="Home" styleClass="navbar-btn" onAction="#handleBackHome"/>
             <Button text="⇥" styleClass="logout-btn" onAction="#handleLogout"/>
         </HBox>
     </top>

@@ -8,6 +8,7 @@ src/main/resources/cloudflare.properties
 src/main/resources/cloudinary.properties
 src/main/resources/voice.properties
 src/main/resources/groq.properties
+src/main/resources/stripe.properties
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

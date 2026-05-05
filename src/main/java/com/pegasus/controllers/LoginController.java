@@ -40,4 +40,16 @@ public class LoginController {
             System.err.println(e.getMessage());
         }
     }
+
+    @FXML
+    public void handleBackHome() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/views/home-view.fxml"));
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
 }

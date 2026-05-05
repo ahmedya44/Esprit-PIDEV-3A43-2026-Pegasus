@@ -616,13 +616,26 @@ public class DashboardArtisteController implements Initializable {
     @FXML
     public void handleLogout() {
         try {
-            Parent root = FXMLLoader.load(
-                    getClass().getResource("/fxml/Login.fxml"));
-            Stage stage = (Stage) produitsGrid.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
+            SceneNavigator.clearSession();
+            SceneNavigator.goTo("/views/signin-view.fxml");
         } catch (Exception e) {
             System.err.println(e.getMessage());
+        }
+    }
+
+    @FXML
+    public void handleBackHome() {
+        try {
+            SceneNavigator.goTo("/views/home-view.fxml");
+        } catch (Exception e) {
+            try {
+                Parent root = FXMLLoader.load(getClass().getResource("/views/home-view.fxml"));
+                Stage stage = (Stage) produitsGrid.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (Exception ex) {
+                System.err.println(ex.getMessage());
+            }
         }
     }
 }
