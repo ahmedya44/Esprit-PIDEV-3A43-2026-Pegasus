@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="620.0" prefWidth="1100.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pegasus.controllers.CoursesDashboardController"
+            styleClass="artist-dashboard-root">
+
+    <top>
+        <VBox spacing="10.0" styleClass="artist-dashboard-header">
+            <Label text="Artist Dashboard" styleClass="artist-dashboard-title" />
+            <Label text="Manage your courses and quizzes from here." styleClass="artist-dashboard-subtitle" />
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="36.0" style="-fx-padding: 0 28 28 28; -fx-alignment: top-center;">
+            <VBox prefWidth="280.0" minWidth="260.0" spacing="16.0" styleClass="artist-dashboard-sidebar">
+                <Button fx:id="btnCoursesTab" text="1  Courses" onAction="#showCoursesView"
+                        styleClass="dashboard-nav-item dashboard-nav-item-active" maxWidth="Infinity" />
+                <Button fx:id="btnQuizzesTab" text="2  Quizzes" onAction="#showQuizzesView"
+                        styleClass="dashboard-nav-item" maxWidth="Infinity" />
+            </VBox>
+
+            <StackPane HBox.hgrow="ALWAYS">
+                <VBox fx:id="coursesPane" spacing="0.0" styleClass="artist-dashboard-card">
+                    <HBox styleClass="artist-dashboard-card-header">
+                        <Label text="Courses" styleClass="artist-dashboard-card-title" />
+                        <TextField fx:id="txtCourseSearch" promptText="Search courses..." styleClass="dashboard-search-field" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="+ Add Course" onAction="#openCreateCourseDialog"
+                                styleClass="artist-add-button" />
+                    </HBox>
+
+                    <TableView fx:id="tvCourses" VBox.vgrow="ALWAYS" styleClass="artist-dashboard-table">
+                        <columns>
+                            <TableColumn fx:id="colThumbnail" prefWidth="120.0" text="Thumbnail" />
+                            <TableColumn fx:id="colCourse" prefWidth="450.0" text="Course" />
+                            <TableColumn fx:id="colStatus" prefWidth="160.0" text="Status" />
+                            <TableColumn fx:id="colCreated" prefWidth="190.0" text="Created" />
+                            <TableColumn fx:id="colActions" prefWidth="180.0" text="Actions" />
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <VBox fx:id="quizzesPane" spacing="0.0" styleClass="artist-dashboard-card" visible="false" managed="false">
+                    <HBox styleClass="artist-dashboard-card-header">
+                        <Label text="Quizzes" styleClass="artist-dashboard-card-title" />
+                        <TextField fx:id="txtQuizSearch" promptText="Search quizzes..." styleClass="dashboard-search-field" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Button text="+ Add Quiz" onAction="#openCreateQuizDialog"
+                                styleClass="artist-add-button" />
+                    </HBox>
+
+                    <TableView fx:id="tvQuizzes" VBox.vgrow="ALWAYS" styleClass="artist-dashboard-table">
+                        <columns>
+                            <TableColumn fx:id="colQuizTitle" prefWidth="470.0" text="Quiz" />
+                            <TableColumn fx:id="colQuizPassing" prefWidth="150.0" text="Passing" />
+                            <TableColumn fx:id="colQuizAttempts" prefWidth="150.0" text="Attempts" />
+                            <TableColumn fx:id="colQuizCourseId" prefWidth="180.0" text="Course Name" />
+                            <TableColumn fx:id="colQuizActions" prefWidth="180.0" text="Actions" />
+                        </columns>
+                    </TableView>
+                </VBox>
+            </StackPane>
+        </HBox>
+    </center>
+</BorderPane>

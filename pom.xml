@@ -52,7 +52,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>tn.esprit.pegasus.MainFX</mainClass>
+                    <mainClass>com.pegasus.MainFX</mainClass>
                 </configuration>
             </plugin>
         </plugins>
