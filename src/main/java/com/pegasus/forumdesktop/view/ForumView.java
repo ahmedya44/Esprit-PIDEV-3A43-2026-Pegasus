@@ -57,7 +57,6 @@ public class ForumView {
     public final TextField postImageName = new TextField();
     public final Button choosePostImageButton = new Button("Choose Image");
     public final Button clearPostImageButton = new Button("Clear Image");
-    public final TextField allowedViewerIds = new TextField();
     public final Button newPostButton = new Button("New");
     public final Button savePostButton = new Button("Save");
     public final Button deletePostButton = new Button("Delete");
@@ -202,7 +201,6 @@ public class ForumView {
     private Parent buildPostPane(boolean admin) {
         postContent.setWrapText(true);
         postContent.setPrefRowCount(10);
-        allowedViewerIds.setPromptText("Example: 2, 8, 15. Used only for HIDDEN posts.");
         postImageName.setPromptText("Image filename");
         postImageName.setEditable(false);
         GridPane form = new GridPane();
@@ -214,7 +212,6 @@ public class ForumView {
         HBox imageControls = new HBox(8, postImageName, choosePostImageButton, clearPostImageButton);
         HBox.setHgrow(postImageName, Priority.ALWAYS);
         form.addRow(3, new Label("Image"), imageControls);
-        form.addRow(4, new Label("Allowed viewers"), allowedViewerIds);
         GridPane.setHgrow(postTitle, Priority.ALWAYS);
         GridPane.setHgrow(postContent, Priority.ALWAYS);
 
@@ -297,7 +294,7 @@ public class ForumView {
             @Override
             protected void updateItem(Post post, boolean empty) {
                 super.updateItem(post, empty);
-                setText(empty || post == null ? null : "#" + post.getId() + " [" + post.getStatus() + "] " + post.getTitle());
+                setText(empty || post == null ? null : "[" + post.getStatus() + "] " + post.getTitle());
             }
         });
         commentsList.setCellFactory(list -> new CommentCell());
@@ -314,7 +311,7 @@ public class ForumView {
                 return;
             }
             String content = comment.getContent() == null || comment.getContent().isBlank() ? "(GIF only)" : comment.getContent();
-            Label author = new Label("#" + comment.getId() + " by " + comment.getOwnerName());
+            Label author = new Label("By " + comment.getOwnerName());
             author.getStyleClass().add("comment-author");
             Label body = new Label(content);
             body.setWrapText(true);

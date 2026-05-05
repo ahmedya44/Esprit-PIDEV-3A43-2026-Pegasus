@@ -271,17 +271,46 @@ public class ForumService {
     }
 
     public Set<Integer> parseIds(String raw) {
+        return parseAllowedViewers(raw);
+    }
+
+    public Set<Integer> parseAllowedViewers(String raw) {
         Set<Integer> ids = new LinkedHashSet<>();
-        if (raw == null) {
+        if (raw == null || raw.isBlank()) {
             return ids;
         }
-        for (String part : raw.split("[^0-9]+")) {
-            if (part.isBlank()) {
+        List<User> users = userDao.findAll();
+        for (String part : raw.split("[,;\\R]+")) {
+            String token = part.trim();
+            if (token.isBlank()) {
                 continue;
             }
-            ids.add(Integer.parseInt(part));
+            User matched = users.stream()
+                .filter(user -> sameToken(token, user.getEmail())
+                    || sameToken(token, user.getUsername())
+                    || sameToken(token, user.getDisplayName()))
+                .findFirst()
+                .orElseGet(() -> token.matches("\\d+") ? userDao.findById(Integer.parseInt(token)).orElse(null) : null);
+            if (matched == null) {
+                throw new IllegalArgumentException("Allowed viewers must be existing user emails or usernames.");
+            }
+            ids.add(matched.getId());
         }
         return ids;
+    }
+
+    public String formatAllowedViewers(Set<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return "";
+        }
+        return ids.stream()
+            .map(id -> userDao.findById(id).map(User::getEmail).orElse(""))
+            .filter(value -> !value.isBlank())
+            .collect(java.util.stream.Collectors.joining(", "));
+    }
+
+    private boolean sameToken(String token, String value) {
+        return value != null && value.trim().equalsIgnoreCase(token);
     }
 
     private Set<Integer> sanitizeAllowedViewers(User actor, PostStatus status, Set<Integer> rawIds) {

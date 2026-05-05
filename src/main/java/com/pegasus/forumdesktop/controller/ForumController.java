@@ -161,10 +161,7 @@ public class ForumController {
             view.postStatus.setValue(selectedPost.getStatus());
             view.postImageName.setText(nullToBlank(selectedPost.getImageName()));
             renderPostImage(selectedPost.getImageName());
-            view.allowedViewerIds.setText(selectedPost.getAllowedViewerIds().stream().map(String::valueOf).collect(Collectors.joining(", ")));
-            view.postMetaLabel.setText("#" + selectedPost.getId()
-                + " | owner: " + selectedPost.getOwnerName()
-                + " | author email: " + selectedPost.getAuthorEmail()
+            view.postMetaLabel.setText("Owner: " + selectedPost.getOwnerName()
                 + " | created: " + (selectedPost.getCreatedAt() == null ? "-" : DATE_FORMAT.format(selectedPost.getCreatedAt())));
             view.ratingLabel.setText(forumService.ratingSummary(selectedPost.getId()).label());
             view.commentsList.setItems(FXCollections.observableArrayList(forumService.commentsForPost(selectedPost.getId())));
@@ -204,7 +201,6 @@ public class ForumController {
         view.postStatus.setValue(PostStatus.OPEN);
         view.postImageName.clear();
         renderPostImage(null);
-        view.allowedViewerIds.clear();
         view.savePostButton.setDisable(false);
         view.deletePostButton.setDisable(true);
         setPostFormEditable(true);
@@ -212,7 +208,7 @@ public class ForumController {
 
     private void savePost() {
         try {
-            Set<Integer> allowedIds = forumService.parseIds(view.allowedViewerIds.getText());
+            Set<Integer> allowedIds = Set.of();
             if (selectedPost == null) {
                 forumService.createPost(currentUser, view.postTitle.getText(), view.postContent.getText(), view.postStatus.getValue(), view.postImageName.getText(), allowedIds);
                 showInfo("Post created.");
@@ -483,8 +479,7 @@ public class ForumController {
             }
             builder.append("\nTotal comments: ").append(stats.totalComments()).append("\n\nTop commented posts\n");
             for (PostDao.TopPost top : stats.topCommentedPosts()) {
-                builder.append("#").append(top.post().getId())
-                    .append(" ").append(top.post().getTitle())
+                builder.append(top.post().getTitle())
                     .append(" - ").append(top.commentsCount()).append(" comment(s)\n");
             }
             view.statsArea.setText(builder.toString());
@@ -503,7 +498,7 @@ public class ForumController {
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (PostDao.TopPost top : stats.topCommentedPosts()) {
-            String label = "#" + top.post().getId();
+            String label = top.post().getTitle();
             series.getData().add(new XYChart.Data<>(label, top.commentsCount()));
         }
         view.topPostsChart.getData().setAll(series);
@@ -554,7 +549,6 @@ public class ForumController {
         view.postImageName.setDisable(!editable);
         view.choosePostImageButton.setDisable(!editable);
         view.clearPostImageButton.setDisable(!editable);
-        view.allowedViewerIds.setDisable(!editable);
     }
 
     private void choosePostImage() {

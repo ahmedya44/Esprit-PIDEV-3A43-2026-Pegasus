@@ -124,6 +124,6 @@ public class Post {
 
     @Override
     public String toString() {
-        return "#" + id + " [" + status + "] " + title;
+        return "[" + status + "] " + title;
     }
 }
