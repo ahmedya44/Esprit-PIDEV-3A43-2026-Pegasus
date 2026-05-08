@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.BackofficeController">
+    <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="admin-toolbar">
+        <Label text="Artwork Review Queue" styleClass="admin-panel-title" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Label text="Status" styleClass="admin-muted-label" />
+        <ComboBox fx:id="statusFilter" prefWidth="170.0" styleClass="admin-combo" />
+        <Button fx:id="refreshButton" text="Refresh" onAction="#refreshTable" styleClass="admin-secondary-button" />
+    </HBox>
+
+    <TableView fx:id="artworksTable" prefHeight="560.0" VBox.vgrow="ALWAYS" styleClass="admin-table">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="60" />
+            <TableColumn fx:id="colTitle" text="Title" prefWidth="180" />
+            <TableColumn fx:id="colDescription" text="Description" prefWidth="260" />
+            <TableColumn fx:id="colImageUrl" text="Image URL" prefWidth="230" />
+            <TableColumn fx:id="colStatus" text="Status" prefWidth="110" />
+            <TableColumn fx:id="colCreatedAt" text="Created" prefWidth="150" />
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="230" />
+        </columns>
+    </TableView>
+
+    <Label fx:id="statusLabel" text="Loading..." styleClass="admin-page-subtitle" />
+</VBox>

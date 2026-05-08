@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.BackEventController">
+    <HBox spacing="12.0" alignment="CENTER_LEFT" styleClass="admin-toolbar">
+        <Button text="+ Add Event" onAction="#ajouterEvenement" styleClass="admin-primary-button" />
+        <Button text="Edit" onAction="#modifierEvenement" styleClass="admin-secondary-button" />
+        <Button text="Delete" onAction="#supprimerEvenement" styleClass="admin-danger-button" />
+        <Region HBox.hgrow="ALWAYS" />
+        <TextField fx:id="searchField" promptText="Search title or location..." prefWidth="280.0" styleClass="admin-search-field" />
+    </HBox>
+
+    <TableView fx:id="eventsTable" VBox.vgrow="ALWAYS" prefHeight="560.0" styleClass="admin-table">
+        <columns>
+            <TableColumn text="Title" prefWidth="250">
+                <cellValueFactory><PropertyValueFactory property="titre" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Date" prefWidth="120">
+                <cellValueFactory><PropertyValueFactory property="date" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Time" prefWidth="100">
+                <cellValueFactory><PropertyValueFactory property="heure" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Location" prefWidth="210">
+                <cellValueFactory><PropertyValueFactory property="lieu" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Capacity" prefWidth="100">
+                <cellValueFactory><PropertyValueFactory property="capacite_max" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Price" prefWidth="100">
+                <cellValueFactory><PropertyValueFactory property="prix" /></cellValueFactory>
+            </TableColumn>
+        </columns>
+    </TableView>
+</VBox>

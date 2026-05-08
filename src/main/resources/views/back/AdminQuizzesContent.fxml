@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="20.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.AdminQuizzesController"
+      styleClass="admin-module-root">
+
+    <HBox spacing="14.0" styleClass="admin-stat-strip">
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-mini-card-accent">
+            <Label text="Quizzes" styleClass="admin-mini-card-label" />
+            <Label fx:id="quizCountLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="All quizzes attached to courses" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card">
+            <Label text="Linked Courses" styleClass="admin-mini-card-label" />
+            <Label fx:id="linkedCourseCountLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="Courses currently used by quizzes" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-mini-card-warm">
+            <Label text="Admin Role" styleClass="admin-mini-card-label" />
+            <Label text="Edit" styleClass="admin-mini-card-value admin-mini-card-word" />
+            <Label text="No quiz approval status in this module" styleClass="admin-mini-card-copy" />
+        </VBox>
+    </HBox>
+
+    <VBox spacing="18.0" VBox.vgrow="ALWAYS" styleClass="admin-workspace-shell">
+        <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="admin-workspace-header">
+            <VBox spacing="4.0">
+                <Label text="All Quizzes" styleClass="admin-workspace-title" />
+                <Label text="Quizzes can be edited or deleted by admin. Approval stays course-only." styleClass="admin-workspace-subtitle" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="allQuizzesModeButton" text="All Quizzes" onAction="#showAllQuizzes"
+                    styleClass="admin-mode-button admin-mode-button-active" />
+            <Button text="Refresh" onAction="#refreshQuizzes" styleClass="admin-mode-button" />
+        </HBox>
+
+        <TableView fx:id="quizzesTable" prefHeight="560.0" VBox.vgrow="ALWAYS" styleClass="admin-table admin-data-table">
+            <columns>
+                <TableColumn fx:id="titleColumn" prefWidth="300.0" text="Quiz Name" />
+                <TableColumn fx:id="courseColumn" prefWidth="290.0" text="Course" />
+                <TableColumn fx:id="artistColumn" prefWidth="210.0" text="Artist" />
+                <TableColumn fx:id="passingColumn" prefWidth="110.0" text="Passing" />
+                <TableColumn fx:id="actionsColumn" prefWidth="220.0" text="Actions" />
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

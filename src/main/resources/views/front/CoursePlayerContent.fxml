@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="720.0" prefWidth="1100.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pegasus.controllers.front.CoursePlayerController"
+            styleClass="course-player-root">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="18.0" styleClass="course-player-topbar">
+            <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                <Label fx:id="lblCourseEyebrow" text="Course player" styleClass="course-player-eyebrow" />
+                <Label fx:id="lblHeaderTitle" text="Course title" styleClass="course-player-page-title" />
+            </VBox>
+            <Button text="Back" onAction="#goBackToCourses" styleClass="course-player-back-button" />
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fx:id="playerScrollPane" fitToWidth="true" hbarPolicy="NEVER" styleClass="course-player-scroll">
+            <content>
+                <VBox spacing="24.0" styleClass="course-player-shell">
+                    <StackPane fx:id="heroThumbnailBox" prefHeight="280.0" styleClass="course-player-hero" />
+
+                    <VBox spacing="14.0" styleClass="course-player-summary-card">
+                        <Label fx:id="lblSummaryTitle" text="Course title" styleClass="course-player-summary-title" />
+                        <Label fx:id="lblSummaryDescription" text="Course description" wrapText="true" styleClass="course-player-summary-copy" />
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
+                            <Label fx:id="lblSummaryMeta" text="0 section(s)" styleClass="course-player-meta-pill" />
+                            <Label fx:id="lblSummaryStatus" text="PUBLISHED" styleClass="course-player-meta-pill dark" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button fx:id="btnStartCourse" text="Start Course" onAction="#startCourse" styleClass="course-player-start-button" />
+                        </HBox>
+                    </VBox>
+
+                    <VBox fx:id="playerArea" spacing="18.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="Learning path" styleClass="course-player-panel-title" />
+                            <Label fx:id="lblProgress" text="0/0 sections completed" styleClass="course-player-progress-label" />
+                        </HBox>
+
+                        <HBox alignment="TOP_LEFT" spacing="24.0">
+                            <VBox spacing="16.0" prefWidth="340.0" minWidth="300.0" styleClass="course-player-sidebar-card">
+                                <Label text="Sections" styleClass="course-player-panel-title" />
+                                <VBox fx:id="sectionsListContainer" spacing="14.0" />
+                            </VBox>
+
+                            <VBox fx:id="lessonContentCard" spacing="18.0" styleClass="course-player-lesson-card" HBox.hgrow="ALWAYS">
+                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="course-player-lesson-header">
+                                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                        <Label fx:id="lblPlayerSectionTitle" text="Lesson" styleClass="course-player-panel-title" />
+                                        <Label fx:id="lblPlayerSectionMeta" text="Section details" styleClass="course-player-panel-subtitle" />
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="10.0" styleClass="course-player-lesson-copy-box">
+                                    <Label fx:id="lblPlayerLessonTitle" text="No lesson selected" styleClass="course-player-lesson-title" />
+                                    <Label fx:id="lblPlayerLessonMeta" text="Lesson metadata" styleClass="course-player-panel-subtitle" />
+                                    <Label fx:id="lblLessonDescription" text="Lesson instructions" wrapText="true" styleClass="course-player-summary-copy" />
+                                </VBox>
+
+                                <StackPane fx:id="lessonVideoBox" prefHeight="290.0" styleClass="course-player-video-box">
+                                    <VBox alignment="CENTER" spacing="12.0">
+                                        <Label fx:id="lblLessonVideoTitle" text="Lesson video" styleClass="course-player-video-title" />
+                                        <Label fx:id="lblLessonStatus" text="Open the lesson video to continue." styleClass="course-player-video-status" />
+                                        <HBox alignment="CENTER" spacing="12.0">
+                                            <Button fx:id="btnOpenVideo" text="Open Video" onAction="#openSelectedVideo" styleClass="course-player-video-button" />
+                                            <Button fx:id="btnCompleteLesson" text="Complete Lesson" onAction="#completeSelectedLesson" styleClass="course-player-complete-button" />
+                                        </HBox>
+                                    </VBox>
+                                </StackPane>
+                            </VBox>
+
+                            <VBox fx:id="quizArea" spacing="18.0" styleClass="course-player-lesson-card" HBox.hgrow="ALWAYS">
+                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                    <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                        <Label fx:id="lblQuizTitle" text="Course Quiz" styleClass="course-player-panel-title" />
+                                        <Label fx:id="lblQuizMeta" text="Quiz details" styleClass="course-player-panel-subtitle" />
+                                    </VBox>
+                                    <Label fx:id="lblQuizResult" text="" />
+                                </HBox>
+
+                                <Label fx:id="lblQuizAttemptStatus" text="Finish the course to unlock the quiz." wrapText="true" styleClass="course-player-summary-copy" />
+                                <VBox fx:id="quizQuestionsContainer" spacing="16.0" />
+                                <Button fx:id="btnSubmitQuiz" text="Submit Quiz" onAction="#submitQuiz" styleClass="course-player-complete-button" />
+
+                                <VBox fx:id="careerInsightsCard" spacing="14.0" styleClass="course-player-quiz-report-card">
+                                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                            <Label text="Quiz Report" styleClass="course-player-section-title" />
+                                            <Label fx:id="lblCareerSummary" text="Submit the quiz to unlock the learning report." wrapText="true" styleClass="course-player-panel-subtitle" />
+                                        </VBox>
+                                    </HBox>
+
+                                    <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                        <Label fx:id="lblQuizScoreDetail" text="Score: --" styleClass="course-player-meta-pill" />
+                                        <Label fx:id="lblQuizTimeDetail" text="Time: --" styleClass="course-player-meta-pill" />
+                                        <Label fx:id="lblQuizRemainingDetail" text="Remaining: --" styleClass="course-player-meta-pill dark" />
+                                    </HBox>
+
+                                    <VBox spacing="8.0">
+                                        <Label text="Skill profile" styleClass="course-player-section-title" />
+                                        <FlowPane fx:id="skillProfileContainer" hgap="8.0" vgap="8.0" />
+                                    </VBox>
+
+                                    <VBox spacing="8.0">
+                                        <Label text="Recommended next steps" styleClass="course-player-section-title" />
+                                        <VBox fx:id="recommendationsContainer" spacing="8.0" />
+                                    </VBox>
+
+                                    <VBox spacing="10.0">
+                                        <Label text="Certificate PDF" styleClass="course-player-section-title" />
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                            <TextField fx:id="txtLearnerName" promptText="Learner name" text="Pegasus Learner" styleClass="fantasy-chat-input" HBox.hgrow="ALWAYS" />
+                                            <Button fx:id="btnGenerateCertificate" text="Download PDF" onAction="#generateCertificate" styleClass="course-player-start-button" />
+                                        </HBox>
+                                        <Label fx:id="lblCertificateStatus" text="Submit the quiz to unlock the PDF certificate." wrapText="true" styleClass="course-player-panel-subtitle" />
+                                    </VBox>
+                                </VBox>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

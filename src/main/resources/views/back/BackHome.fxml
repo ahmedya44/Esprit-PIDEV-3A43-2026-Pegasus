@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="600.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1">
+
+    <children>
+        <Label layoutX="350.0" layoutY="250.0"
+               text="Back Office Home"
+               style="-fx-font-size: 30px; -fx-font-weight: bold;" />
+    </children>
+</AnchorPane>
