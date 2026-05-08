@@ -58,6 +58,7 @@ public class CourseService implements CrudService<Course> {
 
     @Override
     public void delete(int id) {
+        new LearningProgressService().deleteCourseProgress(id);
         String deleteQuizChoicesSql =
                 "DELETE qc FROM quiz_choice qc " +
                 "JOIN quiz_question qq ON qc.question_id = qq.id " +
@@ -141,7 +142,7 @@ public class CourseService implements CrudService<Course> {
                         rs.getString("description"),
                         rs.getString("thumbnail_url"),
                         rs.getString("status"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        readCreatedAt(rs),
                         rs.getInt("artist_id")
                 );
                 courses.add(course);
@@ -170,7 +171,7 @@ public class CourseService implements CrudService<Course> {
                         rs.getString("description"),
                         rs.getString("thumbnail_url"),
                         rs.getString("status"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        readCreatedAt(rs),
                         rs.getInt("artist_id")
                 );
             }
@@ -201,7 +202,7 @@ public class CourseService implements CrudService<Course> {
                         rs.getString("description"),
                         rs.getString("thumbnail_url"),
                         rs.getString("status"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        readCreatedAt(rs),
                         rs.getInt("artist_id")
                 );
                 courses.add(course);
@@ -234,7 +235,7 @@ public class CourseService implements CrudService<Course> {
                         rs.getString("description"),
                         rs.getString("thumbnail_url"),
                         rs.getString("status"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        readCreatedAt(rs),
                         rs.getInt("artist_id")
                 );
                 courses.add(course);
@@ -244,5 +245,10 @@ public class CourseService implements CrudService<Course> {
         }
 
         return courses;
+    }
+
+    private java.time.LocalDateTime readCreatedAt(ResultSet rs) throws SQLException {
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        return createdAt == null ? null : createdAt.toLocalDateTime();
     }
 }

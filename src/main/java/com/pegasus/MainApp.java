@@ -10,7 +10,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         SceneNavigator.init(stage);
-        SceneNavigator.goTo("/views/home-view.fxml");
+        SceneNavigator.goTo("/views/front/home-view.fxml");
     }
 
     public static void main(String[] args) {

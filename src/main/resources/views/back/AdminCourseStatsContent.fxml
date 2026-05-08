@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="statsRoot" spacing="22.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.AdminCourseStatsController"
+      styleClass="admin-module-root admin-stats-root">
+
+    <HBox spacing="14.0" styleClass="admin-stat-strip">
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-mini-card-accent admin-animated-card">
+            <Label text="Courses" styleClass="admin-mini-card-label" />
+            <Label fx:id="totalCoursesLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="Total course records" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-animated-card">
+            <Label text="Published" styleClass="admin-mini-card-label" />
+            <Label fx:id="publishedCoursesLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="Visible to learners" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-mini-card-warm admin-animated-card">
+            <Label text="Course Starts" styleClass="admin-mini-card-label" />
+            <Label fx:id="startedCoursesLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="User-course progress rows" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-animated-card">
+            <Label text="Completed" styleClass="admin-mini-card-label" />
+            <Label fx:id="completedCoursesLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="Finished course paths" styleClass="admin-mini-card-copy" />
+        </VBox>
+    </HBox>
+
+    <HBox spacing="14.0" styleClass="admin-stat-strip">
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-mini-card-accent admin-animated-card">
+            <Label text="Quiz Attempts" styleClass="admin-mini-card-label" />
+            <Label fx:id="quizAttemptsLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="One saved attempt per user and quiz" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-animated-card">
+            <Label text="Average Score" styleClass="admin-mini-card-label" />
+            <Label fx:id="averageScoreLabel" text="0%" styleClass="admin-mini-card-value" />
+            <Label text="Across all submitted quizzes" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-mini-card-warm admin-animated-card">
+            <Label text="Pass Rate" styleClass="admin-mini-card-label" />
+            <Label fx:id="passRateLabel" text="0%" styleClass="admin-mini-card-value" />
+            <Label text="Attempts meeting quiz passing score" styleClass="admin-mini-card-copy" />
+        </VBox>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="admin-workspace-header admin-stats-toolbar">
+        <VBox spacing="4.0">
+            <Label text="Learning Analytics" styleClass="admin-workspace-title" />
+            <Label text="Course progress and quiz performance from saved learner activity." styleClass="admin-workspace-subtitle" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Refresh" onAction="#refreshStats" styleClass="admin-secondary-button" />
+    </HBox>
+
+    <HBox spacing="18.0">
+        <VBox spacing="14.0" HBox.hgrow="ALWAYS" styleClass="admin-workspace-shell admin-stat-panel">
+            <HBox alignment="CENTER_LEFT" spacing="12.0">
+                <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                    <Label text="Course Engagement" styleClass="admin-panel-title" />
+                    <Label text="Started and completed users per course." styleClass="admin-workspace-subtitle" />
+                </VBox>
+            </HBox>
+            <VBox fx:id="courseEngagementContainer" spacing="12.0" VBox.vgrow="ALWAYS" />
+        </VBox>
+
+        <VBox spacing="14.0" prefWidth="420.0" minWidth="360.0" styleClass="admin-workspace-shell admin-stat-panel">
+            <Label text="Quiz Pass Split" styleClass="admin-panel-title" />
+            <PieChart fx:id="quizPassPieChart" legendVisible="true" labelsVisible="true" prefHeight="320.0" styleClass="admin-chart admin-pass-chart" />
+        </VBox>
+    </HBox>
+
+    <VBox spacing="14.0" styleClass="admin-workspace-shell admin-stat-panel">
+        <VBox spacing="3.0">
+            <Label text="Quiz Average Scores" styleClass="admin-panel-title" />
+            <Label text="Average result per quiz, animated as score meters." styleClass="admin-workspace-subtitle" />
+        </VBox>
+        <VBox fx:id="quizScoreContainer" spacing="12.0" />
+    </VBox>
+
+    <VBox spacing="14.0" minHeight="500.0" styleClass="admin-workspace-shell admin-stat-table-shell">
+        <Label text="Course Statistics" styleClass="admin-panel-title" />
+        <TableView fx:id="courseStatsTable" minHeight="390.0" prefHeight="430.0" VBox.vgrow="ALWAYS" styleClass="admin-table admin-data-table admin-stats-table">
+            <columns>
+                <TableColumn fx:id="courseNameColumn" prefWidth="300.0" text="Course" />
+                <TableColumn fx:id="courseStatusColumn" prefWidth="125.0" text="Status" />
+                <TableColumn fx:id="courseStartedColumn" prefWidth="105.0" text="Started" />
+                <TableColumn fx:id="courseCompletedColumn" prefWidth="115.0" text="Completed" />
+                <TableColumn fx:id="courseLessonsColumn" prefWidth="130.0" text="Lessons Done" />
+                <TableColumn fx:id="courseQuizAttemptsColumn" prefWidth="115.0" text="Quiz Takes" />
+                <TableColumn fx:id="courseAvgScoreColumn" prefWidth="110.0" text="Avg Score" />
+                <TableColumn fx:id="coursePassRateColumn" prefWidth="110.0" text="Pass Rate" />
+            </columns>
+        </TableView>
+    </VBox>
+
+    <VBox spacing="14.0" minHeight="500.0" styleClass="admin-workspace-shell admin-stat-table-shell">
+        <Label text="Quiz Statistics" styleClass="admin-panel-title" />
+        <TableView fx:id="quizStatsTable" minHeight="390.0" prefHeight="430.0" VBox.vgrow="ALWAYS" styleClass="admin-table admin-data-table admin-stats-table">
+            <columns>
+                <TableColumn fx:id="quizNameColumn" prefWidth="280.0" text="Quiz" />
+                <TableColumn fx:id="quizCourseColumn" prefWidth="270.0" text="Course" />
+                <TableColumn fx:id="quizAttemptsColumn" prefWidth="95.0" text="Taken" />
+                <TableColumn fx:id="quizPassedColumn" prefWidth="95.0" text="Passed" />
+                <TableColumn fx:id="quizFailedColumn" prefWidth="95.0" text="Failed" />
+                <TableColumn fx:id="quizAvgScoreColumn" prefWidth="110.0" text="Avg Score" />
+                <TableColumn fx:id="quizScoreRangeColumn" prefWidth="130.0" text="Score Range" />
+                <TableColumn fx:id="quizAvgTimeColumn" prefWidth="115.0" text="Avg Time" />
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

@@ -81,6 +81,7 @@ public class QuizService implements CrudService<Quiz> {
 
     @Override
     public void delete(int id) {
+        new LearningProgressService().deleteQuizAttempts(id);
         String deleteChoicesSql =
                 "DELETE qc FROM quiz_choice qc " +
                 "JOIN quiz_question qq ON qc.question_id = qq.id " +

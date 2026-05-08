@@ -23,31 +23,19 @@ public class ServiceArt {
                 if (!rs.next()) {
                     // La colonne n'existe pas, l'ajouter
                     try (Statement stmt = conn.createStatement()) {
-                        System.out.println("Ajout de la colonne 'artist' à la table art...");
                         stmt.execute("ALTER TABLE art ADD COLUMN artist VARCHAR(255)");
-                        System.out.println("Colonne 'artist' ajoutée avec succès!");
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors de la vérification/création de la colonne artist: " + e.getMessage());
+            System.err.println("Could not prepare art table: " + e.getMessage());
         }
     }
     
     public boolean createArt(Art art) {
         String sql = "INSERT INTO art (title, description, image_url, status, created_at, artist) VALUES (?, ?, ?, ?, ?, ?)";
         
-        System.out.println("🗄️ Requête SQL INSERT:");
-        System.out.println("  📌 Titre: " + art.getTitle());
-        System.out.println("  📝 Description: " + art.getDescription());
-        System.out.println("  🖼️  Image URL: " + art.getImageUrl());
-        System.out.println("  📊 Statut: " + art.getStatus());
-        System.out.println("  📅 Créé le: " + art.getCreatedAt());
-        System.out.println("  👨 Artiste: " + art.getArtist());
-        
         try (Connection conn = dbConnection.getConnection()) {
-            System.out.println("✅ Connexion à la base de données réussie");
-            
             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             
             pstmt.setString(1, art.getTitle());
@@ -58,25 +46,17 @@ public class ServiceArt {
             pstmt.setString(6, art.getArtist());
             
             int affectedRows = pstmt.executeUpdate();
-            System.out.println("📊 affectedRows: " + affectedRows);
             
             if (affectedRows > 0) {
                 ResultSet generatedKeys = pstmt.getGeneratedKeys();
                 if (generatedKeys.next()) {
                     int generatedId = generatedKeys.getInt(1);
                     art.setId(generatedId);
-                    System.out.println("✅ Œuvre insérée avec ID: " + generatedId);
-                    System.out.println("🎨 Artwork added successfully!");
                     return true;
-                } else {
-                    System.out.println("❌ Pas d'ID généré");
                 }
-            } else {
-                System.out.println("❌ Aucune ligne insérée");
             }
         } catch (SQLException e) {
-            System.err.println("❌ Erreur SQL lors de l'ajout: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error creating artwork: " + e.getMessage());
         }
         
         return false;
@@ -97,7 +77,6 @@ public class ServiceArt {
             }
         } catch (SQLException e) {
             System.err.println("Error getting art by id: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return Optional.empty();
@@ -107,39 +86,20 @@ public class ServiceArt {
         List<Art> arts = new ArrayList<>();
         String sql = "SELECT * FROM art ORDER BY created_at DESC";
         
-        System.out.println("🔍 Requête SQL: " + sql);
-        
         try (Connection conn = dbConnection.getConnection()) {
-            System.out.println("✅ Connexion réussie pour getAllArts");
-            
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
             
-            int count = 0;
             while (rs.next()) {
                 Art art = mapResultSetToArt(rs);
                 arts.add(art);
-                count++;
-                
-                System.out.println("📌 Œuvre #" + count + ":");
-                System.out.println("  ID: " + art.getId());
-                System.out.println("  Titre: " + art.getTitle());
-                System.out.println("  Statut: " + art.getStatus());
-                System.out.println("  Créé: " + art.getCreatedAt());
-                System.out.println("  Artiste: " + art.getArtist());
-                System.out.println("  ---");
             }
-            
-            System.out.println("📊 Total d'œuvres trouvées: " + count);
-            
         } catch (SQLException e) {
-            System.err.println("❌ Erreur SQL dans getAllArts: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error loading artworks: " + e.getMessage());
         }
         
         // Si la base de données est vide, créer des données de test
         if (arts.isEmpty()) {
-            System.out.println("⚠️ Aucune œuvre trouvée, création de données de test...");
             arts = createSampleData();
         }
         
@@ -205,7 +165,6 @@ public class ServiceArt {
         art5.setLikes(189);
         sampleArts.add(art5);
         
-        System.out.println("Créé " + sampleArts.size() + " œuvres de test");
         return sampleArts;
     }
     
@@ -225,7 +184,6 @@ public class ServiceArt {
             }
         } catch (SQLException e) {
             System.err.println("Error getting arts by status: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return arts;
@@ -248,7 +206,6 @@ public class ServiceArt {
             return affectedRows > 0;
         } catch (SQLException e) {
             System.err.println("Error updating art: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -265,7 +222,6 @@ public class ServiceArt {
             return affectedRows > 0;
         } catch (SQLException e) {
             System.err.println("Error deleting art: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -282,7 +238,6 @@ public class ServiceArt {
             return affectedRows > 0;
         } catch (SQLException e) {
             System.err.println("Error incrementing likes: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -299,7 +254,6 @@ public class ServiceArt {
             return affectedRows > 0;
         } catch (SQLException e) {
             System.err.println("Error decrementing likes: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -311,31 +265,31 @@ public class ServiceArt {
         art.setDescription(rs.getString("description"));
         art.setImageUrl(rs.getString("image_url"));
         art.setStatus(rs.getString("status"));
-        
-        // Récupérer l'artiste
+
         try {
             String artist = rs.getString("artist");
-            System.out.println("DEBUG - Artiste récupéré pour ID " + art.getId() + ": " + artist);
-            art.setArtist(artist != null && !artist.trim().isEmpty() ? artist : "Artiste inconnu");
+            art.setArtist(artist != null && !artist.trim().isEmpty() ? artist : "Unknown artist");
         } catch (SQLException e) {
-            // Si la colonne artist n'existe pas encore
-            System.out.println("DEBUG - Colonne artist non trouvée pour ID " + art.getId());
-            art.setArtist("Artiste inconnu");
+            art.setArtist("Unknown artist");
         }
-        
+
         Timestamp timestamp = rs.getTimestamp("created_at");
         if (timestamp != null) {
             art.setCreatedAt(timestamp.toLocalDateTime());
         }
-        
-        // Récupérer les likes (nouveau champ)
+
         try {
             art.setLikes(rs.getInt("likes"));
         } catch (SQLException e) {
-            // Si la colonne likes n'existe pas encore, mettre 0 par défaut
             art.setLikes(0);
         }
-        
+
+        try {
+            art.setDislikes(rs.getInt("dislikes"));
+        } catch (SQLException e) {
+            art.setDislikes(0);
+        }
+
         return art;
     }
 }

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="20.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.AdminCourseModerationController"
+      styleClass="admin-module-root">
+
+    <HBox spacing="14.0" styleClass="admin-stat-strip">
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-mini-card-accent">
+            <Label text="Draft Queue" styleClass="admin-mini-card-label" />
+            <Label fx:id="draftCountLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="Courses waiting for admin approval" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card">
+            <Label text="Catalogue" styleClass="admin-mini-card-label" />
+            <Label fx:id="totalCountLabel" text="0" styleClass="admin-mini-card-value" />
+            <Label text="All artist-created course records" styleClass="admin-mini-card-copy" />
+        </VBox>
+        <VBox HBox.hgrow="ALWAYS" styleClass="admin-mini-card admin-mini-card-warm">
+            <Label text="Admin Role" styleClass="admin-mini-card-label" />
+            <Label text="Approve" styleClass="admin-mini-card-value admin-mini-card-word" />
+            <Label text="Admins edit, delete and publish only" styleClass="admin-mini-card-copy" />
+        </VBox>
+    </HBox>
+
+    <VBox spacing="18.0" VBox.vgrow="ALWAYS" styleClass="admin-workspace-shell">
+        <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="admin-workspace-header">
+            <VBox spacing="4.0">
+                <Label fx:id="viewTitleLabel" text="Approval Queue" styleClass="admin-workspace-title" />
+                <Label fx:id="viewSubtitleLabel" text="Draft courses stay here until an admin publishes them." styleClass="admin-workspace-subtitle" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="approvalModeButton" text="Approve Courses" onAction="#showApprovalQueue"
+                    styleClass="admin-mode-button admin-mode-button-active" />
+            <Button fx:id="allCoursesModeButton" text="All Courses" onAction="#showAllCourses"
+                    styleClass="admin-mode-button" />
+            <Button text="Refresh" onAction="#refreshCourses" styleClass="admin-secondary-button" />
+        </HBox>
+
+        <TableView fx:id="coursesTable" prefHeight="560.0" VBox.vgrow="ALWAYS" styleClass="admin-table admin-data-table">
+            <columns>
+                <TableColumn fx:id="titleColumn" prefWidth="360.0" text="Course Name" />
+                <TableColumn fx:id="artistColumn" prefWidth="260.0" text="Artist" />
+                <TableColumn fx:id="statusColumn" prefWidth="160.0" text="Status" />
+                <TableColumn fx:id="actionsColumn" prefWidth="280.0" text="Actions" />
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

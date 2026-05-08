@@ -9,9 +9,10 @@ public class MainFX extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/FrontLayout.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/front/FrontLayout.fxml"));
         Scene scene = new Scene(loader.load(), 1100, 700);
 
+        scene.getStylesheets().add(getClass().getResource("/styles/theme.css").toExternalForm());
         scene.getStylesheets().add(getClass().getResource("/css/courses.css").toExternalForm());
 
         stage.setTitle("Pegasus App");

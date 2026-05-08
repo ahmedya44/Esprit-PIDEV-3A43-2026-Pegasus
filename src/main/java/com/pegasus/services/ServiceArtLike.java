@@ -9,11 +9,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceArtLike {
+
+    public ServiceArtLike() {
+        createTableIfNotExists();
+    }
+
+    private void createTableIfNotExists() {
+        String createTableSQL = """
+            CREATE TABLE IF NOT EXISTS art_like (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                art_id INT NOT NULL,
+                session_id VARCHAR(180) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (art_id) REFERENCES art(id) ON DELETE CASCADE,
+                UNIQUE KEY unique_art_session (art_id, session_id)
+            )
+            """;
+
+        try (Connection conn = dbConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(createTableSQL);
+            try {
+                stmt.execute("ALTER TABLE art ADD COLUMN likes INT DEFAULT 0");
+            } catch (SQLException e) {
+                if (!e.getMessage().contains("Duplicate column name")) {
+                    System.err.println("Could not prepare art likes column: " + e.getMessage());
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Could not prepare art likes table: " + e.getMessage());
+        }
+    }
     
     public boolean addLike(int artId, String sessionId) {
-        // Check if already liked
         if (hasLiked(artId, sessionId)) {
-            System.out.println("Art already liked by this session");
             return false;
         }
         
@@ -27,11 +56,13 @@ public class ServiceArtLike {
             pstmt.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             
             int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                updateArtLikeCount(artId);
+            }
             return affectedRows > 0;
             
         } catch (SQLException e) {
             System.err.println("Error adding like: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return false;
@@ -47,14 +78,29 @@ public class ServiceArtLike {
             pstmt.setString(2, sessionId);
             
             int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                updateArtLikeCount(artId);
+            }
             return affectedRows > 0;
             
         } catch (SQLException e) {
             System.err.println("Error removing like: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return false;
+    }
+
+    private void updateArtLikeCount(int artId) {
+        String sql = "UPDATE art SET likes = COALESCE((SELECT COUNT(*) FROM art_like WHERE art_id = ?), 0) WHERE id = ?";
+
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, artId);
+            pstmt.setInt(2, artId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error updating like count: " + e.getMessage());
+        }
     }
     
     public boolean hasLiked(int artId, String sessionId) {
@@ -73,7 +119,6 @@ public class ServiceArtLike {
             
         } catch (SQLException e) {
             System.err.println("Error checking like: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return false;
@@ -95,7 +140,6 @@ public class ServiceArtLike {
             
         } catch (SQLException e) {
             System.err.println("Error getting session likes: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return likes;
@@ -117,7 +161,6 @@ public class ServiceArtLike {
             
         } catch (SQLException e) {
             System.err.println("Error getting art likes: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return likes;
@@ -138,7 +181,6 @@ public class ServiceArtLike {
             
         } catch (SQLException e) {
             System.err.println("Error getting session like count: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return 0;
@@ -159,7 +201,6 @@ public class ServiceArtLike {
             
         } catch (SQLException e) {
             System.err.println("Error getting art like count: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return 0;
@@ -190,7 +231,6 @@ public class ServiceArtLike {
             
         } catch (SQLException e) {
             System.err.println("Error getting most liked arts: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return artIds;
@@ -211,7 +251,6 @@ public class ServiceArtLike {
             
         } catch (SQLException e) {
             System.err.println("Error cleaning up old likes: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     

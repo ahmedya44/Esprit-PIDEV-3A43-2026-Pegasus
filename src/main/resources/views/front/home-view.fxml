@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" spacing="0.0" styleClass="home-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.front.HomeController">
+    <children>
+        <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="14.0" styleClass="top-nav">
+            <children>
+                <Label styleClass="brand-label" text="Pegasus" />
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox styleClass="nav-center" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#onGoToHome" styleClass="gold-button" text="Home" />
+                        <Button mnemonicParsing="false" onAction="#onGoToGallery" styleClass="secondary-button" text="Gallery" />
+                        <Button mnemonicParsing="false" onAction="#onGoToCourses" styleClass="secondary-button" text="Courses" />
+                        <Button mnemonicParsing="false" onAction="#onGoToEvents" styleClass="secondary-button" text="Events" />
+                        <Button mnemonicParsing="false" onAction="#onGoToProduit" styleClass="secondary-button" text="Products" />
+                        <Button mnemonicParsing="false" onAction="#onGoToForum" styleClass="secondary-button" text="Forum" />
+                    </children>
+                </HBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox styleClass="nav-actions">
+                    <children>
+                        <Button fx:id="navBackofficeButton" managed="false" mnemonicParsing="false" onAction="#onGoToBackoffice" styleClass="secondary-button" text="Backoffice" visible="false" />
+                        <Button fx:id="navCoursesDashboardButton" managed="false" mnemonicParsing="false" onAction="#onGoToCoursesDashboard" styleClass="secondary-button" text="Courses Dashboard" visible="false" />
+                        <Button fx:id="navAuthButton" mnemonicParsing="false" onAction="#onGoToSignIn" styleClass="gold-button" text="Sign In" />
+                        <MenuButton fx:id="navAccountMenu" managed="false" mnemonicParsing="false" styleClass="account-menu-button" text="👤" visible="false">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#onGoToProfile" text="Profile" />
+                                <MenuItem mnemonicParsing="false" onAction="#onLogout" text="Log Out" />
+                            </items>
+                        </MenuButton>
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+
+        <ScrollPane fx:id="homeScrollPane" fitToWidth="true" hbarPolicy="NEVER" styleClass="home-scroll" VBox.vgrow="ALWAYS">
+            <content>
+                <VBox alignment="TOP_CENTER" spacing="30.0" styleClass="home-content">
+                    <padding>
+                        <Insets bottom="52.0" left="34.0" right="34.0" top="34.0" />
+                    </padding>
+                    <children>
+                        <StackPane fx:id="heroCard" maxWidth="1240.0" styleClass="home-hero-v2">
+                            <children>
+                                <Region styleClass="home-hero-accent accent-top" StackPane.alignment="TOP_RIGHT" />
+                                <Region styleClass="home-hero-accent accent-bottom" StackPane.alignment="BOTTOM_LEFT" />
+                                <HBox alignment="CENTER_LEFT" maxWidth="1168.0" spacing="32.0" styleClass="home-hero-shell">
+                                    <children>
+                                        <VBox fx:id="heroTextBox" alignment="CENTER_LEFT" maxWidth="660.0" spacing="17.0">
+                                            <children>
+                                                <Label styleClass="home-eyebrow-v2" text="Creative campus for art, learning, commerce and events" />
+                                                <Label styleClass="home-hero-title-v2" text="A smoother Pegasus, alive with fresh previews." wrapText="true" />
+                                                <Label styleClass="home-hero-copy-v2" text="Explore new courses, gallery pieces and marketplace picks from one polished home screen. Sign in when you are ready to open the full workspace." wrapText="true" />
+                                                <Label fx:id="userStatusLabel" styleClass="home-status-pill-v2" text="You are not connected." />
+                                                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                                    <children>
+                                                        <Button fx:id="signInButton" mnemonicParsing="false" onAction="#onGoToSignIn" styleClass="home-primary-button" text="Sign In" />
+                                                        <Button fx:id="signUpButton" mnemonicParsing="false" onAction="#onGoToSignUp" styleClass="home-outline-button-v2" text="Create Account" />
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox fx:id="heroShowcase" alignment="CENTER" spacing="14.0" styleClass="home-command-panel" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="home-command-header">
+                                                    <children>
+                                                        <Label styleClass="command-spark" text="" />
+                                                        <VBox spacing="1.0">
+                                                            <children>
+                                                                <Label styleClass="command-title" text="Live Preview" />
+                                                                <Label styleClass="command-subtitle" text="Updated from your app data" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER" spacing="10.0">
+                                                    <children>
+                                                        <VBox alignment="CENTER_LEFT" prefWidth="132.0" spacing="6.0" styleClass="metric-card metric-card-gold">
+                                                            <children>
+                                                                <Label fx:id="coursesCountLabel" styleClass="metric-number" text="0" />
+                                                                <Label styleClass="metric-label" text="courses" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox alignment="CENTER_LEFT" prefWidth="132.0" spacing="6.0" styleClass="metric-card metric-card-teal">
+                                                            <children>
+                                                                <Label fx:id="galleryCountLabel" styleClass="metric-number" text="0" />
+                                                                <Label styleClass="metric-label" text="gallery" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER" spacing="10.0">
+                                                    <children>
+                                                        <VBox alignment="CENTER_LEFT" prefWidth="132.0" spacing="6.0" styleClass="metric-card metric-card-rose">
+                                                            <children>
+                                                                <Label fx:id="productsCountLabel" styleClass="metric-number" text="0" />
+                                                                <Label styleClass="metric-label" text="products" />
+                                                            </children>
+                                                        </VBox>
+                                                        <VBox alignment="CENTER_LEFT" prefWidth="132.0" spacing="6.0" styleClass="metric-card metric-card-ink">
+                                                            <children>
+                                                                <Label styleClass="metric-number" text="Forum" />
+                                                                <Label styleClass="metric-label" text="community" />
+                                                            </children>
+                                                        </VBox>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </StackPane>
+
+                        <FlowPane fx:id="homeFeatureCards" alignment="CENTER" hgap="14.0" maxWidth="1240.0" prefWrapLength="1180.0" vgap="14.0">
+                            <children>
+                                <VBox prefWidth="290.0" spacing="8.0" styleClass="home-feature-card-v2">
+                                    <children>
+                                        <Label styleClass="feature-icon feature-icon-course" text="01" />
+                                        <Label styleClass="feature-title-v2" text="Learn" />
+                                        <Label styleClass="feature-copy-v2" text="Compact course previews, clean categories and quick entry to lessons." wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <VBox prefWidth="290.0" spacing="8.0" styleClass="home-feature-card-v2">
+                                    <children>
+                                        <Label styleClass="feature-icon feature-icon-gallery" text="02" />
+                                        <Label styleClass="feature-title-v2" text="Discover" />
+                                        <Label styleClass="feature-copy-v2" text="Recent artworks from the gallery with visual cards and artist names." wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <VBox prefWidth="290.0" spacing="8.0" styleClass="home-feature-card-v2">
+                                    <children>
+                                        <Label styleClass="feature-icon feature-icon-shop" text="03" />
+                                        <Label styleClass="feature-title-v2" text="Collect" />
+                                        <Label styleClass="feature-copy-v2" text="Marketplace picks stay smaller than catalogue cards for fast scanning." wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <VBox prefWidth="290.0" spacing="8.0" styleClass="home-feature-card-v2">
+                                    <children>
+                                        <Label styleClass="feature-icon feature-icon-event" text="04" />
+                                        <Label styleClass="feature-title-v2" text="Connect" />
+                                        <Label styleClass="feature-copy-v2" text="Events and forum remain one click away for logged-in members." wrapText="true" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </FlowPane>
+
+                        <VBox maxWidth="1240.0" spacing="18.0" styleClass="home-detail-section">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="section-heading-row">
+                                    <children>
+                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="home-section-kicker-v2" text="Why Pegasus" />
+                                                <Label styleClass="home-section-title-v2" text="Designed for creators, learners and collectors" />
+                                            </children>
+                                        </VBox>
+                                        <Button mnemonicParsing="false" onAction="#onGoToGallery" styleClass="home-section-button" text="Explore workspace" />
+                                    </children>
+                                </HBox>
+                                <FlowPane fx:id="homeDetailCards" alignment="CENTER" hgap="18.0" prefWrapLength="1180.0" vgap="18.0">
+                                    <children>
+                                        <VBox spacing="12.0" prefWidth="370.0" styleClass="home-detail-card">
+                                            <children>
+                                                <Label styleClass="home-detail-pill home-pill-teal" text="01 - Discover" />
+                                                <Label styleClass="home-detail-title" text="A clear hub for everything new" wrapText="true" />
+                                                <Label styleClass="home-detail-copy" text="Courses, artwork, products and events sit in one clean feed so the home page feels useful right away." wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="12.0" prefWidth="370.0" styleClass="home-detail-card">
+                                            <children>
+                                                <Label styleClass="home-detail-pill home-pill-gold" text="02 - Learn" />
+                                                <Label styleClass="home-detail-title" text="Fast access to fresh courses" wrapText="true" />
+                                                <Label styleClass="home-detail-copy" text="Learning cards show categories and recent content, then take users directly to the full course workspace." wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="12.0" prefWidth="370.0" styleClass="home-detail-card">
+                                            <children>
+                                                <Label styleClass="home-detail-pill home-pill-rose" text="03 - Connect" />
+                                                <Label styleClass="home-detail-title" text="Community actions stay close" wrapText="true" />
+                                                <Label styleClass="home-detail-copy" text="Gallery, forum, events and marketplace previews make the app feel alive before users open a full section." wrapText="true" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </FlowPane>
+                            </children>
+                        </VBox>
+
+                        <VBox maxWidth="1240.0" spacing="14.0" styleClass="home-preview-section">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="section-heading-row">
+                                    <children>
+                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="home-section-kicker-v2" text="Courses" />
+                                                <Label styleClass="home-section-title-v2" text="Fresh learning cards" />
+                                            </children>
+                                        </VBox>
+                                        <Button mnemonicParsing="false" onAction="#onGoToCourses" styleClass="home-section-button" text="View Courses" />
+                                    </children>
+                                </HBox>
+                                <FlowPane fx:id="homeCoursesContainer" hgap="14.0" prefWrapLength="1160.0" vgap="14.0" />
+                            </children>
+                        </VBox>
+
+                        <VBox maxWidth="1240.0" spacing="14.0" styleClass="home-preview-section">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="section-heading-row">
+                                    <children>
+                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="home-section-kicker-v2" text="Gallery" />
+                                                <Label styleClass="home-section-title-v2" text="Recent artwork pulse" />
+                                            </children>
+                                        </VBox>
+                                        <Button mnemonicParsing="false" onAction="#onGoToGallery" styleClass="home-section-button" text="Open Gallery" />
+                                    </children>
+                                </HBox>
+                                <FlowPane fx:id="homeGalleryContainer" hgap="14.0" prefWrapLength="1160.0" vgap="14.0" />
+                            </children>
+                        </VBox>
+
+                        <VBox maxWidth="1240.0" spacing="14.0" styleClass="home-preview-section">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="section-heading-row">
+                                    <children>
+                                        <VBox spacing="4.0" HBox.hgrow="ALWAYS">
+                                            <children>
+                                                <Label styleClass="home-section-kicker-v2" text="Products" />
+                                                <Label styleClass="home-section-title-v2" text="Marketplace highlights" />
+                                            </children>
+                                        </VBox>
+                                        <Button mnemonicParsing="false" onAction="#onGoToProduit" styleClass="home-section-button" text="Shop Products" />
+                                    </children>
+                                </HBox>
+                                <FlowPane fx:id="homeProductsContainer" hgap="14.0" prefWrapLength="1160.0" vgap="14.0" />
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER_LEFT" maxWidth="1240.0" spacing="18.0" styleClass="home-cta-band-v2">
+                            <children>
+                                <VBox HBox.hgrow="ALWAYS" spacing="5.0">
+                                    <children>
+                                        <Label styleClass="cta-title" text="Ready to unlock the full workspace?" />
+                                        <Label styleClass="cta-copy" text="Login opens gallery actions, courses, products, events, forum and role-based dashboards." wrapText="true" />
+                                    </children>
+                                </VBox>
+                                <Button mnemonicParsing="false" onAction="#onGoToSignIn" styleClass="home-primary-button" text="Sign In" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</VBox>

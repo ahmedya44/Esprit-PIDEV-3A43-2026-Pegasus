@@ -19,28 +19,22 @@ public class ServiceArtDislike {
             CREATE TABLE IF NOT EXISTS art_dislike (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 art_id INT NOT NULL,
-                session_id VARCHAR(255) NOT NULL,
+                session_id VARCHAR(180) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (art_id) REFERENCES art(id) ON DELETE CASCADE,
                 UNIQUE KEY unique_art_session (art_id, session_id)
             )
             """;
         
-        String addColumnSQL = """
-            ALTER TABLE art ADD COLUMN IF NOT EXISTS dislikes INT DEFAULT 0
-            """;
+        String addColumnSQL = "ALTER TABLE art ADD COLUMN dislikes INT DEFAULT 0";
         
         try (Connection conn = dbConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             
-            // Créer la table art_dislike
             stmt.execute(createTableSQL);
-            System.out.println("✅ Table art_dislike créée ou déjà existante");
             
-            // Ajouter la colonne dislikes
             try {
                 stmt.execute(addColumnSQL);
-                System.out.println("✅ Colonne dislikes ajoutée ou déjà existante");
             } catch (SQLException e) {
                 if (!e.getMessage().contains("Duplicate column name")) {
                     System.err.println("Erreur ajout colonne dislikes: " + e.getMessage());
@@ -49,14 +43,12 @@ public class ServiceArtDislike {
             
         } catch (SQLException e) {
             System.err.println("Erreur création table: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
     public boolean addDislike(int artId, String sessionId) {
         // Check if already disliked
         if (hasDisliked(artId, sessionId)) {
-            System.out.println("Art already disliked by this session");
             return false;
         }
         
@@ -80,7 +72,6 @@ public class ServiceArtDislike {
             
         } catch (SQLException e) {
             System.err.println("Error adding dislike: " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }
@@ -95,25 +86,21 @@ public class ServiceArtDislike {
             pstmt.setInt(1, artId);
             pstmt.setInt(2, artId);
             
-            int affectedRows = pstmt.executeUpdate();
-            System.out.println("✅ Updated dislike count for art " + artId + ": " + affectedRows + " rows affected");
+            pstmt.executeUpdate();
             
         } catch (SQLException e) {
-            System.err.println("❌ Error updating dislike count: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error updating dislike count: " + e.getMessage());
             
-            // Si ça échoue, essayer une mise à jour simple
             try {
                 String simpleSQL = "UPDATE art SET dislikes = dislikes + 1 WHERE id = ?";
                 try (Connection conn2 = dbConnection.getConnection();
                      PreparedStatement pstmt2 = conn2.prepareStatement(simpleSQL)) {
                     
                     pstmt2.setInt(1, artId);
-                    int rows = pstmt2.executeUpdate();
-                    System.out.println("✅ Simple increment for art " + artId + ": " + rows + " rows affected");
+                    pstmt2.executeUpdate();
                 }
             } catch (SQLException e2) {
-                System.err.println("❌ Even simple update failed: " + e2.getMessage());
+                System.err.println("Fallback dislike update failed: " + e2.getMessage());
             }
         }
     }
@@ -167,6 +154,9 @@ public class ServiceArtDislike {
             pstmt.setString(2, sessionId);
             
             int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                updateArtDislikeCount(artId);
+            }
             return affectedRows > 0;
             
         } catch (SQLException e) {

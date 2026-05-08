@@ -23,11 +23,10 @@ public class ServiceArtComment {
             
             // Simplement ajouter la colonne parent_id si elle n'existe pas
             try {
-                stmt.execute("ALTER TABLE art_comment ADD COLUMN IF NOT EXISTS parent_id INT DEFAULT NULL");
-                System.out.println("✅ Colonne parent_id ajoutée à la table art_comment");
+                stmt.execute("ALTER TABLE art_comment ADD COLUMN parent_id INT DEFAULT NULL");
             } catch (SQLException e) {
-                if (!e.getMessage().contains("Duplicate column name")) {
-                    System.out.println("✅ Colonne parent_id existe déjà");
+                if (e.getMessage() != null && e.getMessage().contains("Duplicate column name")) {
+                    return;
                 } else {
                     System.err.println("Erreur lors de l'ajout de la colonne parent_id: " + e.getMessage());
                 }
@@ -50,14 +49,12 @@ public class ServiceArtComment {
             """;
         
         try (Connection conn = dbConnection.getConnection();
-             Statement stmt = conn.createStatement()) {
+            Statement stmt = conn.createStatement()) {
             
             stmt.execute(createTableSQL);
-            System.out.println("✅ Table art_comment créée ou déjà existante");
             
         } catch (SQLException e) {
             System.err.println("Erreur création table commentaires: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
@@ -75,13 +72,11 @@ public class ServiceArtComment {
             int affectedRows = pstmt.executeUpdate();
             
             if (affectedRows > 0) {
-                System.out.println("✅ Commentaire ajouté pour art " + artId + " par " + username);
                 return true;
             }
             
         } catch (SQLException e) {
             System.err.println("Erreur ajout commentaire: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return false;

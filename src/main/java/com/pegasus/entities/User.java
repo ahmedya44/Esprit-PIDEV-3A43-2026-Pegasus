@@ -72,6 +72,13 @@ public class User {
         this.id = id;
     }
 
+    public User(int id, String nom, String prenom, String email, String telephone) {
+        this.id = id;
+        this.username = joinName(nom, prenom);
+        this.email = email;
+        this.phone = telephone;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -128,12 +135,42 @@ public class User {
         this.username = username;
     }
 
+    public String getNom() {
+        return username == null ? "" : username;
+    }
+
+    public void setNom(String nom) {
+        this.username = joinName(nom, getPrenom());
+    }
+
+    public String getPrenom() {
+        return "";
+    }
+
+    public void setPrenom(String prenom) {
+        this.username = joinName(getNom(), prenom);
+    }
+
     public String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getTelephone() {
+        return phone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.phone = telephone;
+    }
+
+    private String joinName(String nom, String prenom) {
+        String first = nom == null ? "" : nom.trim();
+        String second = prenom == null ? "" : prenom.trim();
+        return (first + " " + second).trim();
     }
 
     public String getAvatarUrl() {

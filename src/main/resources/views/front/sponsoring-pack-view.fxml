@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Region?>
+
+<VBox spacing="20" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.front.SponsoringPackController" prefWidth="1000" prefHeight="800" styleClass="app-root gallery-root">
+    <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="14" maxWidth="Infinity">
+        <children>
+            <Label text="Pegasus" styleClass="brand-label" />
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox styleClass="nav-center" HBox.hgrow="ALWAYS">
+                <children>
+                    <Button text="Home" styleClass="secondary-button" onAction="#goHome" />
+                    <Button text="Gallery" styleClass="secondary-button" onAction="#goGallery" />
+                    <Button text="Courses" styleClass="secondary-button" onAction="#goCourses" />
+                    <Button text="Events" styleClass="gold-button" onAction="#goEvents" />
+                    <Button text="Products" styleClass="secondary-button" onAction="#goProducts" />
+                    <Button text="Forum" styleClass="secondary-button" onAction="#goForum" />
+                </children>
+            </HBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox styleClass="nav-actions">
+                <children>
+                    <Button fx:id="navProfileButton" managed="false" visible="false" text="Profile" styleClass="secondary-button" onAction="#goProfile" />
+                    <Button fx:id="navAuthButton" text="Sign In" styleClass="gold-button" onAction="#handleAuth" />
+                    <MenuButton fx:id="navAccountMenu" managed="false" mnemonicParsing="false" styleClass="account-menu-button" text="ðŸ‘¤" visible="false">
+                        <items>
+                            <MenuItem mnemonicParsing="false" onAction="#goProfile" text="Profile" />
+                            <MenuItem mnemonicParsing="false" onAction="#handleAuth" text="Log Out" />
+                        </items>
+                    </MenuButton>
+                </children>
+            </HBox>
+        </children>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <Button text="Back" onAction="#retour" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
+        <Label text="Gestion des Packs Sponsoring" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2d3436;" />
+        <Pane HBox.hgrow="ALWAYS" />
+        <Button text="Ajouter un Pack +" onAction="#afficherFormulaire" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 20;" />
+    </HBox>
+
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <VBox spacing="10" HBox.hgrow="ALWAYS">
+            <Label text="Packs disponibles" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <content>
+                    <StackPane alignment="CENTER">
+                        <GridPane fx:id="packsContainer" hgap="25" vgap="25" alignment="CENTER" style="-fx-padding: 15;" />
+                    </StackPane>
+                </content>
+            </ScrollPane>
+        </VBox>
+
+        <VBox fx:id="formSection" spacing="15" visible="false" managed="false" minWidth="350" maxWidth="350" style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #dfe6e9; -fx-border-radius: 10; -fx-background-radius: 10;">
+            <Label text="Nouveau Pack" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #27ae60;" />
+
+            <VBox spacing="10">
+                <Label text="Nom du pack :" style="-fx-font-weight: bold;" />
+                <TextField fx:id="nomField" promptText="Ex: Pack Or" />
+
+                <Label text="Prix (TND) :" style="-fx-font-weight: bold;" />
+                <TextField fx:id="prixField" promptText="Ex: 5000" />
+
+                <Label text="Description :" style="-fx-font-weight: bold;" />
+                <TextArea fx:id="descField" prefRowCount="5" promptText="Avantages du pack..." wrapText="true" />
+            </VBox>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Annuler" onAction="#cacherFormulaire" style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-cursor: hand;" />
+                <Button text="Enregistrer" onAction="#enregistrerPack" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
+            </HBox>
+            <Label fx:id="messageLabel" textFill="red" wrapText="true" />
+        </VBox>
+    </HBox>
+
+    <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 15, 0, 0, 5);" minHeight="250">
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <Label text="Liste des Sponsors" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #2d3436;" />
+            <Pane HBox.hgrow="ALWAYS" />
+            <Button text="Exporter PDF" onAction="#exporterSponsorsPDF" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 20; -fx-background-radius: 20;" />
+        </HBox>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;" VBox.vgrow="ALWAYS" prefHeight="180">
+            <content>
+                <VBox fx:id="sponsorsContainer" spacing="8" style="-fx-padding: 5;" />
+            </content>
+        </ScrollPane>
+    </VBox>
+</VBox>

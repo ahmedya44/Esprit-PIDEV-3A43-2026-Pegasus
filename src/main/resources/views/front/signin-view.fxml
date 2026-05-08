@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" spacing="0.0" styleClass="app-root signin-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.front.SignInController">
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="top-nav" maxWidth="Infinity">
+            <children>
+                <Label styleClass="brand-label" text="Pegasus" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button mnemonicParsing="false" onAction="#onBackHome" styleClass="secondary-button" text="Home" />
+                <Label styleClass="nav-link active-link" text="Sign In" />
+                <Button mnemonicParsing="false" onAction="#onGoToSignUp" styleClass="gold-button" text="Sign Up" />
+            </children>
+        </HBox>
+
+        <StackPane alignment="CENTER" VBox.vgrow="ALWAYS">
+            <children>
+                <VBox alignment="CENTER" spacing="18.0" styleClass="signin-panel">
+                    <padding>
+                        <Insets bottom="38.0" left="42.0" right="42.0" top="36.0" />
+                    </padding>
+                    <children>
+                        <VBox alignment="CENTER" spacing="6.0">
+                            <children>
+                                <Label styleClass="signin-title" text="Welcome Back" />
+                                <Label styleClass="signin-subtitle" text="Sign in to continue to Pegasus." />
+                            </children>
+                        </VBox>
+
+                        <VBox alignment="CENTER_LEFT" fillWidth="true" maxWidth="430.0" spacing="10.0">
+                            <children>
+                                <Label styleClass="signin-field-label" text="Email" />
+                                <TextField fx:id="emailField" maxWidth="Infinity" promptText="you@example.com" styleClass="signin-input" />
+                                <Label styleClass="signin-field-label" text="Password" />
+                                <HBox alignment="CENTER" maxWidth="430.0" spacing="10.0">
+                                    <children>
+                                        <PasswordField fx:id="passwordField" maxWidth="Infinity" promptText="Enter your password" HBox.hgrow="ALWAYS" styleClass="signin-input" />
+                                        <TextField fx:id="passwordVisibleField" managed="false" maxWidth="Infinity" promptText="Enter your password" HBox.hgrow="ALWAYS" styleClass="signin-input" visible="false" />
+                                        <Button fx:id="togglePasswordButton" minWidth="82.0" mnemonicParsing="false" onAction="#onTogglePassword" prefWidth="82.0" styleClass="signin-eye-button" text="Show" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <VBox alignment="CENTER" maxWidth="430.0" spacing="10.0">
+                            <children>
+                                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#onSignIn" styleClass="signin-primary-button" text="Sign In" />
+                                <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#onSignInWithGoogle" styleClass="signin-secondary-button" text="Continue with Google" />
+                            </children>
+                        </VBox>
+
+                        <HBox alignment="CENTER" spacing="18.0">
+                            <children>
+                                <Hyperlink onAction="#onGoToForgotPassword" text="Forgot password?" />
+                                <Hyperlink onAction="#onGoToEmailVerification" text="Verify email" />
+                            </children>
+                        </HBox>
+                        <Hyperlink onAction="#onResendVerificationEmail" text="Resend verification email" />
+                        <HBox alignment="CENTER" spacing="6.0">
+                            <children>
+                                <Label styleClass="signin-muted" text="New here?" />
+                                <Hyperlink onAction="#onGoToSignUp" text="Create an account" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </children>
+</VBox>
