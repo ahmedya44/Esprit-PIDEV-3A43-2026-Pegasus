@@ -36,6 +36,11 @@
             <Button fx:id="homeNavButton" text="Home Dashboard" maxWidth="Infinity" onAction="#showHome" styleClass="admin-nav-button" />
             <Button fx:id="usersNavButton" text="Users Dashboard" maxWidth="Infinity" onAction="#showUsers" styleClass="admin-nav-button" />
             <Button fx:id="eventsNavButton" text="Event Dashboard" maxWidth="Infinity" onAction="#showEvents" styleClass="admin-nav-button" />
+            <VBox fx:id="eventSubmenu" visible="false" managed="false" spacing="6.0" styleClass="admin-subnav">
+                <Button fx:id="eventEventsNavButton" text="Events" maxWidth="Infinity" onAction="#showEventEvents" styleClass="admin-subnav-button" />
+                <Button fx:id="eventParticipantsNavButton" text="Participants" maxWidth="Infinity" onAction="#showEventParticipants" styleClass="admin-subnav-button" />
+                <Button fx:id="eventSponsorsNavButton" text="Sponsors" maxWidth="Infinity" onAction="#showEventSponsors" styleClass="admin-subnav-button" />
+            </VBox>
             <Button fx:id="coursesNavButton" text="Course Dashboard" maxWidth="Infinity" onAction="#showCourses" styleClass="admin-nav-button" />
             <VBox fx:id="courseSubmenu" visible="false" managed="false" spacing="6.0" styleClass="admin-subnav">
                 <Button fx:id="courseCoursesNavButton" text="Course" maxWidth="Infinity" onAction="#showCourseCourses" styleClass="admin-subnav-button" />

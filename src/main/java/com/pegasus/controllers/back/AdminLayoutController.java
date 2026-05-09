@@ -47,6 +47,10 @@ public class AdminLayoutController {
     @FXML private Button homeNavButton;
     @FXML private Button usersNavButton;
     @FXML private Button eventsNavButton;
+    @FXML private VBox eventSubmenu;
+    @FXML private Button eventEventsNavButton;
+    @FXML private Button eventParticipantsNavButton;
+    @FXML private Button eventSponsorsNavButton;
     @FXML private Button coursesNavButton;
     @FXML private VBox courseSubmenu;
     @FXML private Button courseCoursesNavButton;
@@ -60,10 +64,12 @@ public class AdminLayoutController {
     @FXML private Button logoutButton;
 
     private List<Button> navButtons;
+    private List<Button> eventSubNavButtons;
     private List<Button> courseSubNavButtons;
     private final Map<Button, String> expandedButtonTexts = new LinkedHashMap<>();
     private final Map<Button, String> collapsedButtonTexts = new LinkedHashMap<>();
     private boolean sidebarCollapsed;
+    private boolean eventSubmenuRequested;
     private boolean courseSubmenuRequested;
 
     @FXML
@@ -82,6 +88,11 @@ public class AdminLayoutController {
                 courseCoursesNavButton,
                 courseQuizzesNavButton,
                 courseStatsNavButton
+        );
+        eventSubNavButtons = List.of(
+                eventEventsNavButton,
+                eventParticipantsNavButton,
+                eventSponsorsNavButton
         );
         cacheSidebarLabels();
         setSidebarCollapsed(false, false);
@@ -118,6 +129,7 @@ public class AdminLayoutController {
 
     @FXML
     public void showHome() {
+        hideEventSubmenu();
         hideCourseSubmenu();
         loadSection(
                 "/views/back/AdminHomeContent.fxml",
@@ -129,6 +141,7 @@ public class AdminLayoutController {
 
     @FXML
     public void showUsers() {
+        hideEventSubmenu();
         hideCourseSubmenu();
         loadSection(
                 "/views/back/AdminUsersContent.fxml",
@@ -140,13 +153,49 @@ public class AdminLayoutController {
 
     @FXML
     public void showEvents() {
-        hideCourseSubmenu();
-        loadSection(
+        showEventEvents();
+    }
+
+    @FXML
+    public void showEventEvents() {
+        loadEventSection(
                 "/views/back/AdminEventsContent.fxml",
-                eventsNavButton,
+                eventEventsNavButton,
                 "Event Dashboard",
                 "Manage event records, capacity, pricing and schedule data."
         );
+    }
+
+    @FXML
+    public void showEventParticipants() {
+        loadEventSection(
+                "/views/back/AdminEventParticipantsContent.fxml",
+                eventParticipantsNavButton,
+                "Event Participants",
+                "Review registered participants by event."
+        );
+    }
+
+    @FXML
+    public void showEventSponsors() {
+        loadEventSection(
+                "/views/back/AdminEventSponsorsContent.fxml",
+                eventSponsorsNavButton,
+                "Event Sponsors",
+                "Review sponsorship reservations and packs across events."
+        );
+    }
+
+    private void loadEventSection(String fxmlPath, Button activeSubButton, String title, String subtitle) {
+        hideCourseSubmenu();
+        showEventSubmenu();
+        loadSection(
+                fxmlPath,
+                eventsNavButton,
+                title,
+                subtitle
+        );
+        setActiveEventSubButton(activeSubButton);
     }
 
     @FXML
@@ -185,6 +234,7 @@ public class AdminLayoutController {
     }
 
     private void loadCourseSection(String fxmlPath, Button activeSubButton, String title, String subtitle) {
+        hideEventSubmenu();
         showCourseSubmenu();
         loadSection(
                 fxmlPath,
@@ -197,6 +247,7 @@ public class AdminLayoutController {
 
     @FXML
     public void showGallery() {
+        hideEventSubmenu();
         hideCourseSubmenu();
         loadSection(
                 "/views/back/AdminGalleryContent.fxml",
@@ -208,6 +259,7 @@ public class AdminLayoutController {
 
     @FXML
     public void showForum() {
+        hideEventSubmenu();
         hideCourseSubmenu();
         loadSection(
                 "/views/back/AdminForumContent.fxml",
@@ -219,6 +271,7 @@ public class AdminLayoutController {
 
     @FXML
     public void showProducts() {
+        hideEventSubmenu();
         hideCourseSubmenu();
         loadSection(
                 "/views/back/AdminProductsContent.fxml",
@@ -230,6 +283,7 @@ public class AdminLayoutController {
 
     @FXML
     public void showSettings() {
+        hideEventSubmenu();
         hideCourseSubmenu();
         loadSection(
                 "/views/back/AdminSettingsContent.fxml",
@@ -319,6 +373,46 @@ public class AdminLayoutController {
         clearSubActiveButtons();
     }
 
+    private void showEventSubmenu() {
+        eventSubmenuRequested = true;
+        if (sidebarCollapsed) {
+            eventSubmenu.setVisible(false);
+            eventSubmenu.setManaged(false);
+            return;
+        }
+        if (eventSubmenu.isVisible()) {
+            return;
+        }
+        eventSubmenu.setVisible(true);
+        eventSubmenu.setManaged(true);
+        eventSubmenu.setOpacity(0);
+        eventSubmenu.setTranslateY(-6);
+
+        FadeTransition fade = new FadeTransition(Duration.millis(170), eventSubmenu);
+        fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(190), eventSubmenu);
+        slide.setToY(0);
+        new ParallelTransition(fade, slide).play();
+    }
+
+    private void hideEventSubmenu() {
+        eventSubmenuRequested = false;
+        if (eventSubmenu == null || !eventSubmenu.isVisible()) {
+            clearEventSubActiveButtons();
+            return;
+        }
+        FadeTransition fade = new FadeTransition(Duration.millis(130), eventSubmenu);
+        fade.setToValue(0);
+        fade.setOnFinished(event -> {
+            eventSubmenu.setVisible(false);
+            eventSubmenu.setManaged(false);
+            eventSubmenu.setOpacity(1);
+            eventSubmenu.setTranslateY(0);
+        });
+        fade.play();
+        clearEventSubActiveButtons();
+    }
+
     private void setActiveSubButton(Button activeButton) {
         clearSubActiveButtons();
         if (!activeButton.getStyleClass().contains(SUB_ACTIVE_CLASS)) {
@@ -328,6 +422,19 @@ public class AdminLayoutController {
 
     private void clearSubActiveButtons() {
         for (Button button : courseSubNavButtons) {
+            button.getStyleClass().remove(SUB_ACTIVE_CLASS);
+        }
+    }
+
+    private void setActiveEventSubButton(Button activeButton) {
+        clearEventSubActiveButtons();
+        if (!activeButton.getStyleClass().contains(SUB_ACTIVE_CLASS)) {
+            activeButton.getStyleClass().add(SUB_ACTIVE_CLASS);
+        }
+    }
+
+    private void clearEventSubActiveButtons() {
+        for (Button button : eventSubNavButtons) {
             button.getStyleClass().remove(SUB_ACTIVE_CLASS);
         }
     }
@@ -347,6 +454,9 @@ public class AdminLayoutController {
         registerSidebarButton(homeNavButton, "Home Dashboard", "Home");
         registerSidebarButton(usersNavButton, "Users Dashboard", "Users");
         registerSidebarButton(eventsNavButton, "Event Dashboard", "Events");
+        registerSidebarButton(eventEventsNavButton, "Events", "List");
+        registerSidebarButton(eventParticipantsNavButton, "Participants", "Users");
+        registerSidebarButton(eventSponsorsNavButton, "Sponsors", "Deals");
         registerSidebarButton(coursesNavButton, "Course Dashboard", "Courses");
         registerSidebarButton(courseCoursesNavButton, "Course", "All");
         registerSidebarButton(courseQuizzesNavButton, "Quizzes", "Quiz");
@@ -381,6 +491,11 @@ public class AdminLayoutController {
             boolean showSubmenu = courseSubmenuRequested && !collapsed;
             courseSubmenu.setVisible(showSubmenu);
             courseSubmenu.setManaged(showSubmenu);
+        }
+        if (eventSubmenu != null) {
+            boolean showSubmenu = eventSubmenuRequested && !collapsed;
+            eventSubmenu.setVisible(showSubmenu);
+            eventSubmenu.setManaged(showSubmenu);
         }
 
         if (sidebarToggleButton != null) {

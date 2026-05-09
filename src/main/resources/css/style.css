@@ -838,3 +838,145 @@
     -fx-font-size: 11px;
     -fx-font-weight: 900;
 }
+
+.gallery-comments-dialog {
+    -fx-background-color: #ffffff;
+}
+
+.gallery-comments-dialog > .content {
+    -fx-padding: 0;
+}
+
+.gallery-comments-title {
+    -fx-text-fill: #07111f;
+    -fx-font-size: 28px;
+    -fx-font-weight: 900;
+}
+
+.gallery-comments-subtitle {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.gallery-comments-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.gallery-comments-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.gallery-comment-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #fbfdff);
+    -fx-background-radius: 16;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 16;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.07), 14, 0, 0, 4);
+}
+
+.gallery-comment-author,
+.gallery-comment-reply-author {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.gallery-comment-date {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.gallery-comment-text,
+.gallery-comment-reply-text {
+    -fx-text-fill: #334155;
+    -fx-font-size: 13px;
+    -fx-line-spacing: 2px;
+}
+
+.gallery-comment-reply-card {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 13;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 13;
+    -fx-padding: 12;
+}
+
+.gallery-comment-reply-button {
+    -fx-background-color: #eef6ff;
+    -fx-text-fill: #0f172a;
+    -fx-background-radius: 999;
+    -fx-border-color: #dbeafe;
+    -fx-border-radius: 999;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+    -fx-padding: 7 12 7 12;
+    -fx-cursor: hand;
+}
+
+.gallery-comment-reply-button:hover {
+    -fx-background-color: #fff1ba;
+    -fx-border-color: #f4c430;
+}
+
+.gallery-comment-composer {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 18;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 18;
+    -fx-padding: 16;
+}
+
+.gallery-comment-composer-title {
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+}
+
+.gallery-comment-input {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd5e1;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10;
+    -fx-font-size: 13px;
+    -fx-text-fill: #0f172a;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
+.gallery-comment-input:focused {
+    -fx-border-color: #f4c430;
+    -fx-effect: dropshadow(gaussian, rgba(244, 196, 48, 0.18), 10, 0, 0, 0);
+}
+
+.gallery-comment-submit-button {
+    -fx-background-color: #f4c430;
+    -fx-text-fill: #111827;
+    -fx-background-radius: 12;
+    -fx-padding: 11 18 11 18;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+    -fx-cursor: hand;
+}
+
+.gallery-comment-submit-button:hover {
+    -fx-background-color: #111827;
+    -fx-text-fill: #ffffff;
+}
+
+.gallery-comment-parent-preview,
+.gallery-comment-empty {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 14;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 14;
+    -fx-padding: 14;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}

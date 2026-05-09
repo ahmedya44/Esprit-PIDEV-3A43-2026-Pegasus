@@ -37,6 +37,7 @@
         </HBox>
         <Region HBox.hgrow="ALWAYS" />
         <HBox styleClass="nav-actions">
+            <Button fx:id="navBackofficeButton" managed="false" visible="false" text="Backoffice" onAction="#goBackoffice" styleClass="secondary-button" />
             <Button fx:id="navProfileButton" managed="false" visible="false" text="Profile" onAction="#goProfile" styleClass="secondary-button" />
             <Button fx:id="navAuthButton" text="Sign In" onAction="#handleAuth" styleClass="gold-button" />
             <MenuButton fx:id="navAccountMenu" managed="false" mnemonicParsing="false" styleClass="account-menu-button" text="Account" visible="false">

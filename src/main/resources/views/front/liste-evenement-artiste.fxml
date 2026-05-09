@@ -31,6 +31,7 @@
             <Region HBox.hgrow="ALWAYS" />
             <HBox styleClass="nav-actions">
                 <children>
+                    <Button fx:id="navBackofficeButton" managed="false" visible="false" text="Backoffice" styleClass="secondary-button" onAction="#goBackoffice" />
                     <Button fx:id="navProfileButton" managed="false" visible="false" text="Profile" styleClass="secondary-button" onAction="#goProfile" />
                     <Button fx:id="navAuthButton" text="Sign In" styleClass="gold-button" onAction="#handleAuth" />
                     <MenuButton fx:id="navAccountMenu" managed="false" mnemonicParsing="false" styleClass="account-menu-button" text="Account" visible="false">

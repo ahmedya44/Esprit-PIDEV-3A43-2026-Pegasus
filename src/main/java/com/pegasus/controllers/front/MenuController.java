@@ -734,6 +734,242 @@ public class MenuController {
     
     private void openCommentDialog(Art art) {
         Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Comments");
+        dialog.setHeaderText(null);
+
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.getStyleClass().add("gallery-comments-dialog");
+
+        VBox content = new VBox(18);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(620);
+
+        Label titleLabel = new Label("Comments");
+        titleLabel.getStyleClass().add("gallery-comments-title");
+        Label subtitleLabel = new Label(safeText(art.getTitle(), "Artwork"));
+        subtitleLabel.getStyleClass().add("gallery-comments-subtitle");
+
+        VBox commentsContainer = new VBox(12);
+        List<ServiceArtComment.Comment> comments = commentService.getCommentsByArtId(art.getId());
+        displayComments(comments, commentsContainer, art);
+
+        ScrollPane commentsScroll = new ScrollPane(commentsContainer);
+        commentsScroll.setFitToWidth(true);
+        commentsScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        commentsScroll.setPrefHeight(320);
+        commentsScroll.getStyleClass().add("gallery-comments-scroll");
+
+        User currentUser = SceneNavigator.getCurrentUser();
+        boolean loggedIn = currentUser != null;
+        String username = resolveCurrentCommentUsername();
+
+        Label composerTitle = new Label(loggedIn ? "Commenting as " + username : "Sign in to join the conversation");
+        composerTitle.getStyleClass().add("gallery-comment-composer-title");
+
+        TextArea commentArea = new TextArea();
+        commentArea.setPromptText(loggedIn ? "Write a thoughtful comment..." : "Please sign in before commenting.");
+        commentArea.setPrefHeight(94);
+        commentArea.setWrapText(true);
+        commentArea.setDisable(!loggedIn);
+        commentArea.getStyleClass().add("gallery-comment-input");
+
+        Button submitButton = new Button(loggedIn ? "Post comment" : "Sign in");
+        submitButton.getStyleClass().add("gallery-comment-submit-button");
+        submitButton.setOnAction(e -> {
+            if (!loggedIn) {
+                try {
+                    SceneNavigator.goTo("/views/front/signin-view.fxml");
+                    dialog.close();
+                } catch (IOException ignored) {
+                }
+                return;
+            }
+            String commentText = commentArea.getText().trim();
+            if (commentText.isEmpty()) {
+                return;
+            }
+            if (commentService.addComment(art.getId(), username, commentText)) {
+                commentArea.clear();
+                List<ServiceArtComment.Comment> updatedComments = commentService.getCommentsByArtId(art.getId());
+                displayComments(updatedComments, commentsContainer, art);
+                commentsScroll.setVvalue(0);
+            }
+        });
+
+        VBox composer = new VBox(10, composerTitle, commentArea, submitButton);
+        composer.getStyleClass().add("gallery-comment-composer");
+        content.getChildren().addAll(titleLabel, subtitleLabel, commentsScroll, composer);
+
+        dialogPane.setContent(content);
+        dialogPane.getButtonTypes().add(ButtonType.CLOSE);
+        dialog.showAndWait();
+    }
+
+    private void displayCommentsLegacy(List<ServiceArtComment.Comment> comments, VBox container, Art art) {
+        container.getChildren().clear();
+
+        if (comments.isEmpty()) {
+            Label noCommentsLabel = new Label("No comments yet. Start the conversation.");
+            noCommentsLabel.getStyleClass().add("gallery-comment-empty");
+            container.getChildren().add(noCommentsLabel);
+            return;
+        }
+
+        List<ServiceArtComment.Comment> mainComments = new ArrayList<>();
+        List<ServiceArtComment.Comment> replies = new ArrayList<>();
+        for (ServiceArtComment.Comment comment : comments) {
+            if (comment.getContent().startsWith("@")) {
+                replies.add(comment);
+            } else {
+                mainComments.add(comment);
+            }
+        }
+
+        for (ServiceArtComment.Comment mainComment : mainComments) {
+            VBox commentBox = new VBox(10);
+            commentBox.getStyleClass().add("gallery-comment-card");
+
+            HBox headerBox = new HBox(10);
+            headerBox.setAlignment(Pos.CENTER_LEFT);
+
+            Label usernameLabel = new Label(mainComment.getUsername());
+            usernameLabel.getStyleClass().add("gallery-comment-author");
+
+            Label dateLabel = new Label(mainComment.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+            dateLabel.getStyleClass().add("gallery-comment-date");
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            headerBox.getChildren().addAll(usernameLabel, spacer, dateLabel);
+
+            Label contentLabel = new Label(mainComment.getContent());
+            contentLabel.getStyleClass().add("gallery-comment-text");
+            contentLabel.setWrapText(true);
+            contentLabel.setMaxWidth(520);
+
+            Button replyButton = new Button("Reply");
+            replyButton.getStyleClass().add("gallery-comment-reply-button");
+            replyButton.setOnAction(e -> openReplyDialog(mainComment, art));
+
+            commentBox.getChildren().addAll(headerBox, contentLabel, replyButton);
+
+            for (ServiceArtComment.Comment reply : replies) {
+                if (reply.getContent().contains("@" + mainComment.getUsername())) {
+                    VBox replyBox = new VBox(6);
+                    replyBox.getStyleClass().add("gallery-comment-reply-card");
+
+                    HBox replyHeader = new HBox(8);
+                    replyHeader.setAlignment(Pos.CENTER_LEFT);
+
+                    Label replyUsernameLabel = new Label(reply.getUsername());
+                    replyUsernameLabel.getStyleClass().add("gallery-comment-reply-author");
+
+                    Label replyDateLabel = new Label(reply.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM HH:mm")));
+                    replyDateLabel.getStyleClass().add("gallery-comment-date");
+
+                    Region replySpacer = new Region();
+                    HBox.setHgrow(replySpacer, Priority.ALWAYS);
+                    replyHeader.getChildren().addAll(replyUsernameLabel, replySpacer, replyDateLabel);
+
+                    String replyContent = reply.getContent().replaceFirst("@" + mainComment.getUsername() + ": ", "");
+                    Label replyContentLabel = new Label(replyContent);
+                    replyContentLabel.getStyleClass().add("gallery-comment-reply-text");
+                    replyContentLabel.setWrapText(true);
+                    replyContentLabel.setMaxWidth(480);
+
+                    replyBox.getChildren().addAll(replyHeader, replyContentLabel);
+                    commentBox.getChildren().add(replyBox);
+                }
+            }
+
+            container.getChildren().add(commentBox);
+        }
+    }
+
+    private void openReplyDialogLegacy(ServiceArtComment.Comment parentComment, Art art) {
+        Dialog<String> replyDialog = new Dialog<>();
+        replyDialog.setTitle("Reply");
+        replyDialog.setHeaderText(null);
+        replyDialog.getDialogPane().getStyleClass().add("gallery-comments-dialog");
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(460);
+
+        Label titleLabel = new Label("Reply to " + parentComment.getUsername());
+        titleLabel.getStyleClass().add("gallery-comments-title");
+
+        Label parentLabel = new Label("@" + parentComment.getUsername() + ": " + parentComment.getContent());
+        parentLabel.getStyleClass().add("gallery-comment-parent-preview");
+        parentLabel.setWrapText(true);
+        parentLabel.setMaxWidth(420);
+
+        User currentUser = SceneNavigator.getCurrentUser();
+        boolean loggedIn = currentUser != null;
+        String username = resolveCurrentCommentUsername();
+
+        Label authorLabel = new Label(loggedIn ? "Replying as " + username : "Sign in to reply");
+        authorLabel.getStyleClass().add("gallery-comment-composer-title");
+
+        TextArea replyArea = new TextArea();
+        replyArea.setPromptText(loggedIn ? "Write your reply..." : "Please sign in before replying.");
+        replyArea.setPrefHeight(82);
+        replyArea.setWrapText(true);
+        replyArea.setDisable(!loggedIn);
+        replyArea.getStyleClass().add("gallery-comment-input");
+
+        content.getChildren().addAll(titleLabel, parentLabel, authorLabel, replyArea);
+        replyDialog.getDialogPane().setContent(content);
+
+        ButtonType replyButton = new ButtonType(loggedIn ? "Reply" : "Sign in", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        replyDialog.getDialogPane().getButtonTypes().addAll(replyButton, cancelButton);
+
+        replyDialog.setResultConverter(dialogButton -> {
+            if (dialogButton == replyButton) {
+                if (!loggedIn) {
+                    try {
+                        SceneNavigator.goTo("/views/front/signin-view.fxml");
+                    } catch (IOException ignored) {
+                    }
+                    return null;
+                }
+                String reply = replyArea.getText().trim();
+                if (!reply.isEmpty()) {
+                    return "@" + parentComment.getUsername() + ": " + reply;
+                }
+            }
+            return null;
+        });
+
+        Optional<String> result = replyDialog.showAndWait();
+        result.ifPresent(replyText -> {
+            if (commentService.addComment(art.getId(), username, replyText)) {
+                replyDialog.close();
+                Platform.runLater(() -> openCommentDialog(art));
+            }
+        });
+    }
+
+    private String resolveCurrentCommentUsername() {
+        User currentUser = SceneNavigator.getCurrentUser();
+        if (currentUser == null) {
+            return "Guest";
+        }
+        if (currentUser.getUsername() != null && !currentUser.getUsername().isBlank()) {
+            return currentUser.getUsername().trim();
+        }
+        if (currentUser.getEmail() != null && !currentUser.getEmail().isBlank()) {
+            return currentUser.getEmail().trim();
+        }
+        if (currentUser.getNom() != null && !currentUser.getNom().isBlank()) {
+            return currentUser.getNom().trim();
+        }
+        return "Pegasus user";
+    }
+
+    private void openCommentDialogLegacy(Art art) {
+        Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Commentaires");
         dialog.setHeaderText("Commentaires sur: " + art.getTitle());
         
