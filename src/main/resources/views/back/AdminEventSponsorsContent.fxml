@@ -20,7 +20,7 @@
             <Label text="Global sponsorship list across events and packs." styleClass="admin-workspace-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
-        <Button text="Export PDF" onAction="#exporterPDFGlobal" styleClass="admin-secondary-button" />
+        <Button text="Exporter PDF" onAction="#exporterPDFGlobal" styleClass="admin-primary-button" />
         <ComboBox fx:id="eventFilterCombo" promptText="All events" prefWidth="210.0" styleClass="admin-combo" />
         <TextField fx:id="searchField" promptText="Search sponsors..." prefWidth="260.0" styleClass="admin-search-field" />
     </HBox>

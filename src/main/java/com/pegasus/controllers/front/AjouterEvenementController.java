@@ -21,6 +21,7 @@ import com.pegasus.controllers.SceneNavigator;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
+import java.time.LocalDate;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -51,6 +52,27 @@ public class AjouterEvenementController {
     @FXML
     void initialize() {
         setupRealTimeValidation();
+        setupDatePicker();
+    }
+
+    private void setupDatePicker() {
+        dateField.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (!"ADMIN".equals(origin)) {
+                    LocalDate minDate = LocalDate.now().plusDays(14);
+                    if (date.isBefore(minDate)) {
+                        setDisable(true);
+                        setStyle("-fx-background-color: #eeeeee;");
+                    }
+                } else {
+                    if (date.isBefore(LocalDate.now())) {
+                        setDisable(true);
+                    }
+                }
+            }
+        });
     }
 
     private void setupRealTimeValidation() {
@@ -80,6 +102,7 @@ public class AjouterEvenementController {
         }
 
         try {
+            String statusInitial = "ADMIN".equals(origin) ? "ACCEPTÉE" : "EN ATTENTE";
             Evenement e = new Evenement(
                     titreField.getText().trim(),
                     dateField.getValue().toString(),
@@ -89,7 +112,7 @@ public class AjouterEvenementController {
                     imageField.getText().trim(),
                     Integer.parseInt(capaciteField.getText().trim()),
                     Float.parseFloat(prixField.getText().trim()),
-                    "Confirme"
+                    statusInitial
             );
             serviceEvenement.ajouter(e);
 
@@ -116,8 +139,11 @@ public class AjouterEvenementController {
         if (dateField.getValue() == null) {
             sb.append("- La date est obligatoire.\n");
             valid = false;
-        } else if (dateField.getValue().isBefore(java.time.LocalDate.now().plusDays(14))) {
+        } else if (!"ADMIN".equals(origin) && dateField.getValue().isBefore(java.time.LocalDate.now().plusDays(14))) {
             sb.append("- L'evenement doit etre prevu au moins 14 jours a l'avance.\n");
+            valid = false;
+        } else if (dateField.getValue().isBefore(java.time.LocalDate.now())) {
+            sb.append("- La date ne peut pas etre dans le passe.\n");
             valid = false;
         }
         if (heureField.getText().trim().isEmpty()) {

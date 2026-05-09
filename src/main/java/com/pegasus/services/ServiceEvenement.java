@@ -34,8 +34,15 @@ public class ServiceEvenement implements IService<Evenement> {
         }
     }
 
+    private String lastError;
+
+    public String getLastError() {
+        return lastError;
+    }
+
     @Override
     public void supprimer(Evenement e) {
+        lastError = null;
         String req = "DELETE FROM `evenement` WHERE id = ?";
         try {
             PreparedStatement ps = connection.prepareStatement(req);
@@ -43,6 +50,7 @@ public class ServiceEvenement implements IService<Evenement> {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
+            lastError = ex.getMessage();
             System.err.println("Erreur de suppression : " + ex.getMessage());
         }
     }
@@ -172,5 +180,16 @@ public class ServiceEvenement implements IService<Evenement> {
             System.err.println("Erreur de lecture : " + ex.getMessage());
         }
         return null;
+    }
+    public void updateStatut(int id, String statut) {
+        String req = "UPDATE `evenement` SET `statut` = ? WHERE id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(req);
+            ps.setString(1, statut);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            System.err.println("Erreur mise à jour statut : " + ex.getMessage());
+        }
     }
 }

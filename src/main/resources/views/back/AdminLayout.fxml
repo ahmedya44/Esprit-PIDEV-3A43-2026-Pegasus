@@ -40,6 +40,8 @@
                 <Button fx:id="eventEventsNavButton" text="Events" maxWidth="Infinity" onAction="#showEventEvents" styleClass="admin-subnav-button" />
                 <Button fx:id="eventParticipantsNavButton" text="Participants" maxWidth="Infinity" onAction="#showEventParticipants" styleClass="admin-subnav-button" />
                 <Button fx:id="eventSponsorsNavButton" text="Sponsors" maxWidth="Infinity" onAction="#showEventSponsors" styleClass="admin-subnav-button" />
+                <Button fx:id="eventPacksNavButton" text="Sponsoring Packs" maxWidth="Infinity" onAction="#showEventPacks" styleClass="admin-subnav-button" />
+                <Button fx:id="eventStatsNavButton" text="Statistiques" maxWidth="Infinity" onAction="#showEventStatistics" styleClass="admin-subnav-button" />
             </VBox>
             <Button fx:id="coursesNavButton" text="Course Dashboard" maxWidth="Infinity" onAction="#showCourses" styleClass="admin-nav-button" />
             <VBox fx:id="courseSubmenu" visible="false" managed="false" spacing="6.0" styleClass="admin-subnav">

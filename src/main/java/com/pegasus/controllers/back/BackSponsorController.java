@@ -30,6 +30,7 @@ public class BackSponsorController {
     @FXML private TextField searchField;
     @FXML private ComboBox<String> eventFilterCombo;
     private ServiceSponsoringPack servicePack = new ServiceSponsoringPack();
+    private com.pegasus.services.ServiceEvenement serviceEvenement = new com.pegasus.services.ServiceEvenement();
     private ObservableList<SponsorRow> masterData = FXCollections.observableArrayList();
 
     @FXML
@@ -47,14 +48,17 @@ public class BackSponsorController {
 
         chargerDonnees();
 
-        // Configurer le combo box de filtrage par événement
-        List<String> eventNames = masterData.stream()
-                .map(s -> s.evenement)
+        // Configurer le combo box de filtrage par tous les événements de la base
+        eventFilterCombo.getItems().clear();
+        eventFilterCombo.getItems().add("Tous les événements");
+        
+        List<String> allEvents = serviceEvenement.afficherEvenements().stream()
+                .map(e -> e.getTitre())
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());
-        eventFilterCombo.getItems().add("Tous les événements");
-        eventFilterCombo.getItems().addAll(eventNames);
+        
+        eventFilterCombo.getItems().addAll(allEvents);
         eventFilterCombo.setValue("Tous les événements");
 
         // Recherche dynamique

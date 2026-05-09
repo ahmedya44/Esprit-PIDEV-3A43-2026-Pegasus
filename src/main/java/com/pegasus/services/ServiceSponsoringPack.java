@@ -327,10 +327,10 @@ public class ServiceSponsoringPack implements IService<SponsoringPack> {
      */
     public List<String[]> getSponsorsGlobalList() {
         List<String[]> list = new ArrayList<>();
-        String req = "SELECT u.username, u.email, u.phone, sp.nom_pack, sp.prix, e.titre as evenement_titre, sp.id_pack " +
+        String req = "SELECT u.username, u.email, u.phone, sp.nom_pack, sp.prix, COALESCE(e.titre, 'N/A') as evenement_titre, sp.id_pack " +
                      "FROM " + packTable() + " sp " +
                      "JOIN user u ON sp.id_sponsor = u.id " +
-                     "JOIN evenement e ON sp.id_evenement = e.id " +
+                     "LEFT JOIN evenement e ON sp.id_evenement = e.id " +
                      "WHERE sp.id_sponsor IS NOT NULL";
         try {
             Statement st = connection.createStatement();

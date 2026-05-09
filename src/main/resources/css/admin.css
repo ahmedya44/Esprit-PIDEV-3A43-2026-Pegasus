@@ -634,8 +634,36 @@
 }
 
 .admin-chart .axis-label {
-    -fx-text-fill: #64748b;
+    -fx-text-fill: #475569;
     -fx-font-weight: 800;
+    -fx-font-size: 12px;
+}
+
+.admin-chart .axis .tick-label {
+    -fx-fill: #1e293b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.admin-chart .chart-pie {
+    -fx-padding: 20;
+}
+
+.admin-chart .chart-pie-label {
+    -fx-fill: #1e293b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.admin-chart .chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 15 0 0 0;
+}
+
+.admin-chart .chart-legend-item {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
 }
 
 .admin-pass-chart {

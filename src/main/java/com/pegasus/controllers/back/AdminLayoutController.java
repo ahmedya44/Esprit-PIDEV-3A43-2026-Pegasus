@@ -51,6 +51,8 @@ public class AdminLayoutController {
     @FXML private Button eventEventsNavButton;
     @FXML private Button eventParticipantsNavButton;
     @FXML private Button eventSponsorsNavButton;
+    @FXML private Button eventPacksNavButton;
+    @FXML private Button eventStatsNavButton;
     @FXML private Button coursesNavButton;
     @FXML private VBox courseSubmenu;
     @FXML private Button courseCoursesNavButton;
@@ -92,7 +94,9 @@ public class AdminLayoutController {
         eventSubNavButtons = List.of(
                 eventEventsNavButton,
                 eventParticipantsNavButton,
-                eventSponsorsNavButton
+                eventSponsorsNavButton,
+                eventPacksNavButton,
+                eventStatsNavButton
         );
         cacheSidebarLabels();
         setSidebarCollapsed(false, false);
@@ -169,7 +173,7 @@ public class AdminLayoutController {
     @FXML
     public void showEventParticipants() {
         loadEventSection(
-                "/views/back/AdminEventParticipantsContent.fxml",
+                "/views/back/backparticipant-view.fxml",
                 eventParticipantsNavButton,
                 "Event Participants",
                 "Review registered participants by event."
@@ -183,6 +187,26 @@ public class AdminLayoutController {
                 eventSponsorsNavButton,
                 "Event Sponsors",
                 "Review sponsorship reservations and packs across events."
+        );
+    }
+
+    @FXML
+    public void showEventPacks() {
+        loadEventSection(
+                "/views/back/AdminSponsoringPacksContent.fxml",
+                eventPacksNavButton,
+                "Sponsoring Packs",
+                "Manage sponsorship packages, prices and descriptions."
+        );
+    }
+
+    @FXML
+    public void showEventStatistics() {
+        loadEventSection(
+                "/views/back/AdminEventStatsContent.fxml",
+                eventStatsNavButton,
+                "Event Statistics",
+                "Track participant growth, sponsorship revenue and event distribution."
         );
     }
 
@@ -457,6 +481,8 @@ public class AdminLayoutController {
         registerSidebarButton(eventEventsNavButton, "Events", "List");
         registerSidebarButton(eventParticipantsNavButton, "Participants", "Users");
         registerSidebarButton(eventSponsorsNavButton, "Sponsors", "Deals");
+        registerSidebarButton(eventPacksNavButton, "Sponsoring Packs", "Box");
+        registerSidebarButton(eventStatsNavButton, "Statistiques", "Stats");
         registerSidebarButton(coursesNavButton, "Course Dashboard", "Courses");
         registerSidebarButton(courseCoursesNavButton, "Course", "All");
         registerSidebarButton(courseQuizzesNavButton, "Quizzes", "Quiz");

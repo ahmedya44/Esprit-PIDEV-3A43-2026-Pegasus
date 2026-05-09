@@ -53,6 +53,7 @@ public class ListeEvenementSponsorController extends FrontNavController {
 
         List<Evenement> filteredList = tousEvenements.stream()
                 .filter(e -> normalize(e.getTitre()).contains(searchText))
+                .filter(e -> e.getStatut() == null || !e.getStatut().equalsIgnoreCase("REFUSÉE"))
                 .collect(Collectors.toList());
 
         // Sorting
