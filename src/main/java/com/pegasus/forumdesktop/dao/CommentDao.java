@@ -17,6 +17,7 @@ public class CommentDao {
 
     public CommentDao(UserDao userDao) {
         this.userDao = userDao;
+        ensureBanColumn();
     }
 
     public List<Comment> findByPost(int postId) {
@@ -174,6 +175,19 @@ public class CommentDao {
         }
     }
 
+    public void setBannedByAdmin(int commentId, boolean banned) {
+        String sql = "UPDATE forum_commentaire SET is_banned = ?, updated_at = ? WHERE id = ?";
+        try (var connection = DatabaseConfig.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            statement.setBoolean(1, banned);
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setInt(3, commentId);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DaoException("Could not update comment moderation state.", ex);
+        }
+    }
+
     private Comment map(ResultSet rs) throws SQLException {
         Comment comment = new Comment();
         comment.setId(rs.getInt("id"));
@@ -186,10 +200,20 @@ public class CommentDao {
         comment.setOwnerName(rs.getString("owner_username"));
         comment.setCreatedAt(JdbcMapper.dateTime(rs, "created_at"));
         comment.setUpdatedAt(JdbcMapper.dateTime(rs, "updated_at"));
+        comment.setBannedByAdmin(rs.getBoolean("is_banned"));
         return comment;
     }
 
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private void ensureBanColumn() {
+        try (var connection = DatabaseConfig.getConnection();
+             var statement = connection.createStatement()) {
+            statement.executeUpdate("ALTER TABLE forum_commentaire ADD COLUMN is_banned TINYINT(1) NOT NULL DEFAULT 0");
+        } catch (SQLException ignored) {
+            // Column already exists or migration is managed externally.
+        }
     }
 }

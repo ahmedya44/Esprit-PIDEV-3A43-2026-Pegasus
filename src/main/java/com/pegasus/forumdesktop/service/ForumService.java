@@ -15,6 +15,7 @@ import com.pegasus.forumdesktop.model.User;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 public class ForumService {
@@ -48,6 +49,17 @@ public class ForumService {
         return commentDao.findByPost(postId);
     }
 
+    public List<Comment> commentsForPost(User viewer, int postId) {
+        List<Comment> all = commentDao.findByPost(postId);
+        if (viewer != null && viewer.isAdmin()) {
+            return all;
+        }
+        return all.stream()
+                .filter(comment -> !comment.isBannedByAdmin()
+                        || (viewer != null && comment.getOwnerId() != null && comment.getOwnerId() == viewer.getId()))
+                .toList();
+    }
+
     public List<Comment> recentComments(String search) {
         return commentDao.findRecent(search, 100, 0);
     }
@@ -56,7 +68,7 @@ public class ForumService {
         return userDao.findAll();
     }
 
-    public Post createPost(User actor, String title, String content, PostStatus status, String imageName, Set<Integer> allowedViewerIds) {
+    public Post createPost(User actor, String title, String content, PostStatus status, String imageName, Set<Integer> blacklistedViewerIds) {
         requireUser(actor);
         String cleanTitle = requireText(title, "Title is required.");
         String cleanContent = requireText(content, "Content is required.");
@@ -65,16 +77,17 @@ public class ForumService {
         Post post = new Post();
         post.setTitle(cleanTitle);
         post.setContent(cleanContent);
-        post.setStatus(status == null ? PostStatus.OPEN : status);
+        post.setStatus(PostStatus.IN_PROGRESS);
         post.setOwnerId(actor.getId());
         post.setAuthorName(actor.getDisplayName());
         post.setAuthorEmail(actor.getEmail());
         post.setImageName(blankToNull(imageName));
-        post.setAllowedViewerIds(sanitizeAllowedViewers(actor, post.getStatus(), allowedViewerIds));
+        post.setRequestType("CREATE");
+        post.setBlacklistedViewerIds(sanitizeBlacklistedViewers(actor, blacklistedViewerIds));
         return postDao.insert(post);
     }
 
-    public void updatePost(User actor, Post post, String title, String content, PostStatus status, String imageName, Set<Integer> allowedViewerIds) {
+    public void updatePost(User actor, Post post, String title, String content, PostStatus status, String imageName, Set<Integer> blacklistedViewerIds) {
         requireUser(actor);
         requirePostManager(actor, post);
         String cleanTitle = requireText(title, "Title is required.");
@@ -83,14 +96,24 @@ public class ForumService {
 
         post.setTitle(cleanTitle);
         post.setContent(cleanContent);
-        post.setStatus(status == null ? PostStatus.OPEN : status);
+        PostStatus requested = status == null ? PostStatus.OPEN : status;
+        if (actor.isAdmin()) {
+            if (requested != PostStatus.OPEN && requested != PostStatus.CLOSED && requested != PostStatus.IN_PROGRESS && requested != PostStatus.DENIED) {
+                requested = PostStatus.OPEN;
+            }
+            post.setStatus(requested);
+        } else {
+            // Any owner edit must be re-reviewed by admins.
+            post.setStatus(PostStatus.IN_PROGRESS);
+            post.setRequestType("EDIT");
+        }
         post.setImageName(blankToNull(imageName));
         if (post.getOwnerId() == null) {
             post.setOwnerId(actor.getId());
         }
         post.setAuthorName(post.getOwnerName() == null ? actor.getDisplayName() : post.getOwnerName());
         post.setAuthorEmail(actor.getEmail());
-        post.setAllowedViewerIds(sanitizeAllowedViewers(actor, post.getStatus(), allowedViewerIds));
+        post.setBlacklistedViewerIds(sanitizeBlacklistedViewers(actor, blacklistedViewerIds));
         postDao.update(post);
     }
 
@@ -145,19 +168,73 @@ public class ForumService {
         commentDao.delete(comment.getId());
     }
 
+    public void banPost(User actor, Post post) {
+        requireAdmin(actor);
+        postDao.setBannedByAdmin(post.getId(), true);
+        post.setBannedByAdmin(true);
+    }
+
+    public void unbanPost(User actor, Post post) {
+        requireAdmin(actor);
+        postDao.setBannedByAdmin(post.getId(), false);
+        post.setBannedByAdmin(false);
+    }
+
+    public void acceptPostRequest(User actor, Post post) {
+        requireAdmin(actor);
+        post.setStatus(PostStatus.OPEN);
+        post.setRequestType("CREATE");
+        postDao.update(post);
+    }
+
+    public void denyPostRequest(User actor, Post post) {
+        requireAdmin(actor);
+        post.setStatus(PostStatus.DENIED);
+        postDao.update(post);
+    }
+
+    public void changePostStatus(User actor, Post post, PostStatus status) {
+        requireAdmin(actor);
+        if (post == null) {
+            throw new IllegalArgumentException("Post not found.");
+        }
+        if (status == null) {
+            throw new IllegalArgumentException("Status is required.");
+        }
+        post.setStatus(status);
+        postDao.update(post);
+    }
+
+    public void banComment(User actor, Comment comment) {
+        requireAdmin(actor);
+        commentDao.setBannedByAdmin(comment.getId(), true);
+    }
+
+    public void unbanComment(User actor, Comment comment) {
+        requireAdmin(actor);
+        commentDao.setBannedByAdmin(comment.getId(), false);
+    }
+
     public void ratePost(User actor, Post post, double value) {
         requireUser(actor);
         if (!canAccessPost(actor, post)) {
             throw new IllegalArgumentException("You cannot rate this hidden post.");
         }
-        if (value < 0.5 || value > 5.0) {
-            throw new IllegalArgumentException("Rating must be between 0.5 and 5.");
+        if (value < 0.0 || value > 5.0) {
+            throw new IllegalArgumentException("Rating must be between 0 and 5.");
         }
         ratingDao.upsert(post.getId(), actor.getEmail(), value);
     }
 
     public RatingSummary ratingSummary(int postId) {
         return ratingDao.summaryForPost(postId);
+    }
+
+    public OptionalDouble userRatingForPost(User actor, int postId) {
+        if (actor == null) {
+            return OptionalDouble.empty();
+        }
+        return ratingDao.userRatingForPost(postId, actor.getEmail());
     }
 
     public TranslationValue translatedPost(Post post, String locale) {
@@ -247,11 +324,10 @@ public class ForumService {
     }
 
     public boolean canAccessPost(User viewer, Post post) {
-        if (!post.isHidden()) {
-            return true;
-        }
         if (viewer == null) {
-            return false;
+            return !post.isBannedByAdmin()
+                    && post.getStatus() != PostStatus.IN_PROGRESS
+                    && post.getStatus() != PostStatus.DENIED;
         }
         if (viewer.isAdmin()) {
             return true;
@@ -259,7 +335,13 @@ public class ForumService {
         if (post.getOwnerId() != null && post.getOwnerId() == viewer.getId()) {
             return true;
         }
-        return post.getAllowedViewerIds().contains(viewer.getId());
+        if (post.isBannedByAdmin()) {
+            return false;
+        }
+        if (post.getStatus() == PostStatus.IN_PROGRESS || post.getStatus() == PostStatus.DENIED) {
+            return false;
+        }
+        return !post.getBlacklistedViewerIds().contains(viewer.getId());
     }
 
     public boolean canManagePost(User actor, Post post) {
@@ -284,8 +366,8 @@ public class ForumService {
         return ids;
     }
 
-    private Set<Integer> sanitizeAllowedViewers(User actor, PostStatus status, Set<Integer> rawIds) {
-        if (status != PostStatus.HIDDEN || rawIds == null) {
+    private Set<Integer> sanitizeBlacklistedViewers(User actor, Set<Integer> rawIds) {
+        if (rawIds == null) {
             return Set.of();
         }
         Set<Integer> ids = new LinkedHashSet<>();
@@ -306,6 +388,12 @@ public class ForumService {
     private void requirePostManager(User actor, Post post) {
         if (!canManagePost(actor, post)) {
             throw new IllegalArgumentException("Only the owner or an admin can modify this post.");
+        }
+    }
+
+    private void requireAdmin(User actor) {
+        if (actor == null || !actor.isAdmin()) {
+            throw new IllegalArgumentException("Only admins can perform this moderation action.");
         }
     }
 

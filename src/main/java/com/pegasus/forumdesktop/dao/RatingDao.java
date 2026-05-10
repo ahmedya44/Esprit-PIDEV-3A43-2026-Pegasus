@@ -6,6 +6,7 @@ import com.pegasus.forumdesktop.model.RatingSummary;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.OptionalDouble;
 
 public class RatingDao {
     public RatingSummary summaryForPost(int postId) {
@@ -50,6 +51,27 @@ public class RatingDao {
             }
         } catch (SQLException ex) {
             throw new DaoException("Could not save rating.", ex);
+        }
+    }
+
+    public OptionalDouble userRatingForPost(int postId, String raterEmail) {
+        String email = raterEmail == null ? "" : raterEmail.trim().toLowerCase();
+        if (email.isBlank()) {
+            return OptionalDouble.empty();
+        }
+        String sql = "SELECT value FROM forum_post_rating WHERE post_id = ? AND rater_email = ? LIMIT 1";
+        try (var connection = DatabaseConfig.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, postId);
+            statement.setString(2, email);
+            try (var rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return OptionalDouble.of(rs.getDouble("value"));
+                }
+                return OptionalDouble.empty();
+            }
+        } catch (SQLException ex) {
+            throw new DaoException("Could not load user rating.", ex);
         }
     }
 }

@@ -1,14 +1,19 @@
 package com.pegasus.forumdesktop.model;
 
 public enum PostStatus {
+    IN_PROGRESS,
     OPEN,
     CLOSED,
-    HIDDEN;
+    DENIED;
 
     public static PostStatus fromDatabase(String value) {
         if (value == null || value.isBlank()) {
-            return OPEN;
+            return IN_PROGRESS;
         }
-        return PostStatus.valueOf(value.trim().toUpperCase());
+        try {
+            return PostStatus.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException ignored) {
+            return IN_PROGRESS;
+        }
     }
 }

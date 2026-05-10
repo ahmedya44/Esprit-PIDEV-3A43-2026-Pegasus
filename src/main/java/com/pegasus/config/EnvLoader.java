@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class EnvLoader {
-    private static final Map<String, String> DOTENV_VALUES = loadDotEnv();
-
     private EnvLoader() {
     }
 
@@ -17,7 +15,7 @@ public final class EnvLoader {
         if (value != null && !value.isBlank()) {
             return value.trim();
         }
-        return DOTENV_VALUES.getOrDefault(key, "");
+        return loadDotEnv().getOrDefault(key, "");
     }
 
     public static String getOrDefault(String key, String defaultValue) {

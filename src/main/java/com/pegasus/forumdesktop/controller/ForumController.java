@@ -155,7 +155,7 @@ public class ForumController {
             view.postStatus.setValue(selectedPost.getStatus());
             view.postImageName.setText(nullToBlank(selectedPost.getImageName()));
             renderPostImage(selectedPost.getImageName());
-            view.allowedViewerIds.setText(selectedPost.getAllowedViewerIds().stream().map(String::valueOf).collect(Collectors.joining(", ")));
+            view.allowedViewerIds.setText(selectedPost.getBlacklistedViewerIds().stream().map(String::valueOf).collect(Collectors.joining(", ")));
             view.postMetaLabel.setText("#" + selectedPost.getId()
                 + " | owner: " + selectedPost.getOwnerName()
                 + " | author email: " + selectedPost.getAuthorEmail()

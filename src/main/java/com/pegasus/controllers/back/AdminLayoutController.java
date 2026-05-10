@@ -46,6 +46,9 @@ public class AdminLayoutController {
     @FXML private Button sidebarToggleButton;
     @FXML private Button homeNavButton;
     @FXML private Button usersNavButton;
+    @FXML private VBox usersSubmenu;
+    @FXML private Button usersListSubNavButton;
+    @FXML private Button usersStatsNavButton;
     @FXML private Button roleRequestsNavButton;
     @FXML private Button eventsNavButton;
     @FXML private VBox eventSubmenu;
@@ -61,32 +64,44 @@ public class AdminLayoutController {
     @FXML private Button courseStatsNavButton;
     @FXML private Button galleryNavButton;
     @FXML private Button forumNavButton;
+    @FXML private VBox forumSubmenu;
+    @FXML private Button forumDashboardSubNavButton;
+    @FXML private Button forumRequestsNavButton;
+    @FXML private Button forumStatsNavButton;
     @FXML private Button productsNavButton;
     @FXML private Button settingsNavButton;
     @FXML private Button frontOfficeButton;
     @FXML private Button logoutButton;
 
     private List<Button> navButtons;
+    private List<Button> usersSubNavButtons;
     private List<Button> eventSubNavButtons;
     private List<Button> courseSubNavButtons;
+    private List<Button> forumSubNavButtons;
     private final Map<Button, String> expandedButtonTexts = new LinkedHashMap<>();
     private final Map<Button, String> collapsedButtonTexts = new LinkedHashMap<>();
     private boolean sidebarCollapsed;
+    private boolean usersSubmenuRequested;
     private boolean eventSubmenuRequested;
     private boolean courseSubmenuRequested;
+    private boolean forumSubmenuRequested;
 
     @FXML
     public void initialize() {
         navButtons = List.of(
                 homeNavButton,
                 usersNavButton,
-                roleRequestsNavButton,
                 eventsNavButton,
                 coursesNavButton,
                 galleryNavButton,
                 forumNavButton,
                 productsNavButton,
                 settingsNavButton
+        );
+        usersSubNavButtons = List.of(
+                usersListSubNavButton,
+                usersStatsNavButton,
+                roleRequestsNavButton
         );
         courseSubNavButtons = List.of(
                 courseCoursesNavButton,
@@ -99,6 +114,11 @@ public class AdminLayoutController {
                 eventSponsorsNavButton,
                 eventPacksNavButton,
                 eventStatsNavButton
+        );
+        forumSubNavButtons = List.of(
+                forumDashboardSubNavButton,
+                forumRequestsNavButton,
+                forumStatsNavButton
         );
         cacheSidebarLabels();
         setSidebarCollapsed(false, false);
@@ -117,6 +137,7 @@ public class AdminLayoutController {
             case "courses" -> showCourses();
             case "gallery" -> showGallery();
             case "forum" -> showForum();
+            case "forumStats" -> showForumStats();
             case "products" -> showProducts();
             case "settings" -> showSettings();
             default -> showHome();
@@ -135,8 +156,10 @@ public class AdminLayoutController {
 
     @FXML
     public void showHome() {
+        hideUsersSubmenu();
         hideEventSubmenu();
         hideCourseSubmenu();
+        hideForumSubmenu();
         loadSection(
                 "/views/back/AdminHomeContent.fxml",
                 homeNavButton,
@@ -147,26 +170,37 @@ public class AdminLayoutController {
 
     @FXML
     public void showUsers() {
+        showUsersList();
+    }
+
+    @FXML
+    public void showUsersList() {
         hideEventSubmenu();
         hideCourseSubmenu();
+        hideForumSubmenu();
+        showUsersSubmenu();
         loadSection(
                 "/views/back/AdminUsersContent.fxml",
                 usersNavButton,
                 "Users Dashboard",
                 "Manage roles, account status and member access across Pegasus."
         );
+        setActiveUsersSubButton(usersListSubNavButton);
     }
 
     @FXML
     public void showRoleRequests() {
         hideEventSubmenu();
         hideCourseSubmenu();
+        hideForumSubmenu();
+        showUsersSubmenu();
         loadSection(
                 "/views/back/AdminRoleRequestsContent.fxml",
-                roleRequestsNavButton,
+                usersNavButton,
                 "Role Requests Dashboard",
                 "Review and manage pending role change requests."
         );
+        setActiveUsersSubButton(roleRequestsNavButton);
     }
 
     @FXML
@@ -225,7 +259,9 @@ public class AdminLayoutController {
     }
 
     private void loadEventSection(String fxmlPath, Button activeSubButton, String title, String subtitle) {
+        hideUsersSubmenu();
         hideCourseSubmenu();
+        hideForumSubmenu();
         showEventSubmenu();
         loadSection(
                 fxmlPath,
@@ -272,7 +308,9 @@ public class AdminLayoutController {
     }
 
     private void loadCourseSection(String fxmlPath, Button activeSubButton, String title, String subtitle) {
+        hideUsersSubmenu();
         hideEventSubmenu();
+        hideForumSubmenu();
         showCourseSubmenu();
         loadSection(
                 fxmlPath,
@@ -285,8 +323,10 @@ public class AdminLayoutController {
 
     @FXML
     public void showGallery() {
+        hideUsersSubmenu();
         hideEventSubmenu();
         hideCourseSubmenu();
+        hideForumSubmenu();
         loadSection(
                 "/views/back/AdminGalleryContent.fxml",
                 galleryNavButton,
@@ -297,20 +337,74 @@ public class AdminLayoutController {
 
     @FXML
     public void showForum() {
+        showForumDashboard();
+    }
+
+    @FXML
+    public void showUsersStats() {
         hideEventSubmenu();
         hideCourseSubmenu();
+        hideForumSubmenu();
+        showUsersSubmenu();
         loadSection(
+                "/views/back/AdminUsersStatsContent.fxml",
+                usersNavButton,
+                "Users Statistics",
+                "Track user growth, role split and account status distribution."
+        );
+        setActiveUsersSubButton(usersStatsNavButton);
+    }
+
+    @FXML
+    public void showForumDashboard() {
+        loadForumSection(
                 "/views/back/AdminForumContent.fxml",
-                forumNavButton,
+                forumDashboardSubNavButton,
                 "Forum Dashboard",
                 "Moderation entry point for community conversations."
         );
     }
 
     @FXML
-    public void showProducts() {
+    public void showForumRequests() {
+        loadForumSection(
+                "/views/back/AdminForumRequestsContent.fxml",
+                forumRequestsNavButton,
+                "Forum Post Requests",
+                "Review new posts waiting for moderation decision."
+        );
+    }
+
+    @FXML
+    public void showForumStats() {
+        loadForumSection(
+                "/views/back/AdminForumStatsContent.fxml",
+                forumStatsNavButton,
+                "Forum Statistics",
+                "Monitor forum activity, moderation and engagement trends."
+        );
+    }
+
+    private void loadForumSection(String fxmlPath, Button activeSubButton, String title, String subtitle) {
+        hideUsersSubmenu();
         hideEventSubmenu();
         hideCourseSubmenu();
+        showForumSubmenu();
+        loadSection(
+                fxmlPath,
+                forumNavButton,
+                title,
+                subtitle
+        );
+        setActiveForumSubButton(activeSubButton);
+    }
+
+    @FXML
+    public void showProducts() {
+        hideUsersSubmenu();
+        hideEventSubmenu();
+        hideCourseSubmenu();
+        hideForumSubmenu();
         loadSection(
                 "/views/back/AdminProductsContent.fxml",
                 productsNavButton,
@@ -321,8 +415,10 @@ public class AdminLayoutController {
 
     @FXML
     public void showSettings() {
+        hideUsersSubmenu();
         hideEventSubmenu();
         hideCourseSubmenu();
+        hideForumSubmenu();
         loadSection(
                 "/views/back/AdminSettingsContent.fxml",
                 settingsNavButton,
@@ -368,6 +464,62 @@ public class AdminLayoutController {
         }
         if (!activeButton.getStyleClass().contains(ACTIVE_CLASS)) {
             activeButton.getStyleClass().add(ACTIVE_CLASS);
+        }
+    }
+
+    private void showUsersSubmenu() {
+        usersSubmenuRequested = true;
+        if (sidebarCollapsed) {
+            usersSubmenu.setVisible(false);
+            usersSubmenu.setManaged(false);
+            return;
+        }
+        if (usersSubmenu.isVisible()) {
+            return;
+        }
+        usersSubmenu.setVisible(true);
+        usersSubmenu.setManaged(true);
+        usersSubmenu.setOpacity(0);
+        usersSubmenu.setTranslateY(-6);
+
+        FadeTransition fade = new FadeTransition(Duration.millis(170), usersSubmenu);
+        fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(190), usersSubmenu);
+        slide.setToY(0);
+        new ParallelTransition(fade, slide).play();
+    }
+
+    private void hideUsersSubmenu() {
+        usersSubmenuRequested = false;
+        if (usersSubmenu == null || !usersSubmenu.isVisible()) {
+            clearUsersSubActiveButtons();
+            return;
+        }
+        FadeTransition fade = new FadeTransition(Duration.millis(130), usersSubmenu);
+        fade.setToValue(0);
+        fade.setOnFinished(event -> {
+            usersSubmenu.setVisible(false);
+            usersSubmenu.setManaged(false);
+            usersSubmenu.setOpacity(1);
+            usersSubmenu.setTranslateY(0);
+        });
+        fade.play();
+        clearUsersSubActiveButtons();
+    }
+
+    private void setActiveUsersSubButton(Button activeButton) {
+        clearUsersSubActiveButtons();
+        if (activeButton != null && !activeButton.getStyleClass().contains(SUB_ACTIVE_CLASS)) {
+            activeButton.getStyleClass().add(SUB_ACTIVE_CLASS);
+        }
+    }
+
+    private void clearUsersSubActiveButtons() {
+        if (usersSubNavButtons == null) {
+            return;
+        }
+        for (Button button : usersSubNavButtons) {
+            button.getStyleClass().remove(SUB_ACTIVE_CLASS);
         }
     }
 
@@ -477,6 +629,62 @@ public class AdminLayoutController {
         }
     }
 
+    private void showForumSubmenu() {
+        forumSubmenuRequested = true;
+        if (sidebarCollapsed) {
+            forumSubmenu.setVisible(false);
+            forumSubmenu.setManaged(false);
+            return;
+        }
+        if (forumSubmenu.isVisible()) {
+            return;
+        }
+        forumSubmenu.setVisible(true);
+        forumSubmenu.setManaged(true);
+        forumSubmenu.setOpacity(0);
+        forumSubmenu.setTranslateY(-6);
+
+        FadeTransition fade = new FadeTransition(Duration.millis(170), forumSubmenu);
+        fade.setToValue(1);
+        TranslateTransition slide = new TranslateTransition(Duration.millis(190), forumSubmenu);
+        slide.setToY(0);
+        new ParallelTransition(fade, slide).play();
+    }
+
+    private void hideForumSubmenu() {
+        forumSubmenuRequested = false;
+        if (forumSubmenu == null || !forumSubmenu.isVisible()) {
+            clearForumSubActiveButtons();
+            return;
+        }
+        FadeTransition fade = new FadeTransition(Duration.millis(130), forumSubmenu);
+        fade.setToValue(0);
+        fade.setOnFinished(event -> {
+            forumSubmenu.setVisible(false);
+            forumSubmenu.setManaged(false);
+            forumSubmenu.setOpacity(1);
+            forumSubmenu.setTranslateY(0);
+        });
+        fade.play();
+        clearForumSubActiveButtons();
+    }
+
+    private void setActiveForumSubButton(Button activeButton) {
+        clearForumSubActiveButtons();
+        if (activeButton != null && !activeButton.getStyleClass().contains(SUB_ACTIVE_CLASS)) {
+            activeButton.getStyleClass().add(SUB_ACTIVE_CLASS);
+        }
+    }
+
+    private void clearForumSubActiveButtons() {
+        if (forumSubNavButtons == null) {
+            return;
+        }
+        for (Button button : forumSubNavButtons) {
+            button.getStyleClass().remove(SUB_ACTIVE_CLASS);
+        }
+    }
+
     private void goToSignIn() {
         try {
             SceneNavigator.goTo("/views/front/signin-view.fxml");
@@ -491,6 +699,8 @@ public class AdminLayoutController {
     private void cacheSidebarLabels() {
         registerSidebarButton(homeNavButton, "Home Dashboard", "Home");
         registerSidebarButton(usersNavButton, "Users Dashboard", "Users");
+        registerSidebarButton(usersListSubNavButton, "Users Dashboard", "List");
+        registerSidebarButton(usersStatsNavButton, "Users Stats", "Stats");
         registerSidebarButton(roleRequestsNavButton, "Role Requests Dashboard", "Roles");
         registerSidebarButton(eventsNavButton, "Event Dashboard", "Events");
         registerSidebarButton(eventEventsNavButton, "Events", "List");
@@ -504,6 +714,9 @@ public class AdminLayoutController {
         registerSidebarButton(courseStatsNavButton, "Statistique", "Stats");
         registerSidebarButton(galleryNavButton, "Gallery Dashboard", "Gallery");
         registerSidebarButton(forumNavButton, "Forum Dashboard", "Forum");
+        registerSidebarButton(forumDashboardSubNavButton, "Forum Dashboard", "Home");
+        registerSidebarButton(forumRequestsNavButton, "Forum Post Requests", "Requests");
+        registerSidebarButton(forumStatsNavButton, "Forum Stats", "Stats");
         registerSidebarButton(productsNavButton, "Product Dashboard", "Products");
         registerSidebarButton(settingsNavButton, "Settings", "Settings");
         registerSidebarButton(frontOfficeButton, "View Front Office", "Front");
@@ -533,10 +746,20 @@ public class AdminLayoutController {
             courseSubmenu.setVisible(showSubmenu);
             courseSubmenu.setManaged(showSubmenu);
         }
+        if (usersSubmenu != null) {
+            boolean showSubmenu = usersSubmenuRequested && !collapsed;
+            usersSubmenu.setVisible(showSubmenu);
+            usersSubmenu.setManaged(showSubmenu);
+        }
         if (eventSubmenu != null) {
             boolean showSubmenu = eventSubmenuRequested && !collapsed;
             eventSubmenu.setVisible(showSubmenu);
             eventSubmenu.setManaged(showSubmenu);
+        }
+        if (forumSubmenu != null) {
+            boolean showSubmenu = forumSubmenuRequested && !collapsed;
+            forumSubmenu.setVisible(showSubmenu);
+            forumSubmenu.setManaged(showSubmenu);
         }
 
         if (sidebarToggleButton != null) {

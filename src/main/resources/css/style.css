@@ -980,3 +980,473 @@
     -fx-font-size: 13px;
     -fx-font-weight: 800;
 }
+
+/* ===== FORUM LANDING ===== */
+.forum-landing-pane {
+    -fx-padding: 28px 34px 30px 34px;
+}
+
+.forum-landing-header {
+    -fx-background-color: linear-gradient(to right, #ffffff, #f7fbff);
+    -fx-background-radius: 16px;
+    -fx-border-color: #dae5ef;
+    -fx-border-width: 1px;
+    -fx-border-radius: 16px;
+    -fx-padding: 16px 18px;
+}
+
+.forum-landing-title {
+    -fx-text-fill: #0b1220;
+    -fx-font-size: 30px;
+    -fx-font-weight: 900;
+}
+
+.forum-landing-subtitle {
+    -fx-text-fill: #607086;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.forum-stats-pill {
+    -fx-background-color: #eef4f9;
+    -fx-background-radius: 999px;
+    -fx-border-color: #d2dee9;
+    -fx-border-radius: 999px;
+    -fx-text-fill: #233247;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+    -fx-padding: 8px 12px;
+}
+
+.forum-cards-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.forum-cards-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.forum-cards-pane {
+    -fx-padding: 6px 2px 22px 2px;
+}
+
+.forum-subnav-container {
+    -fx-background-color: #d8dee5;
+    -fx-background-radius: 24px;
+    -fx-border-color: #c8d0d9;
+    -fx-border-width: 1px;
+    -fx-border-radius: 24px;
+    -fx-padding: 5px;
+    -fx-max-width: 440px;
+}
+
+.forum-subnav-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #0f2238;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+    -fx-padding: 8px 20px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-cursor: hand;
+    -fx-min-width: 145px;
+}
+
+.forum-subnav-button:hover {
+    -fx-background-color: rgba(255,255,255,0.52);
+}
+
+.forum-subnav-button-active {
+    -fx-background-color: #f6f8fb;
+    -fx-text-fill: #0a1b31;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.12), 10, 0.12, 0, 2);
+}
+
+.forum-card {
+    -fx-pref-width: 980px;
+    -fx-max-width: 980px;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14px;
+    -fx-border-color: #dce5ee;
+    -fx-border-width: 1px;
+    -fx-border-radius: 14px;
+    -fx-padding: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 14, 0.12, 0, 4);
+    -fx-cursor: hand;
+}
+
+.forum-card:hover {
+    -fx-border-color: #f0c95e;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.16), 20, 0.14, 0, 6);
+}
+
+.forum-card-status {
+    -fx-background-color: #fff4c7;
+    -fx-background-radius: 999px;
+    -fx-text-fill: #7a5a00;
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-padding: 4px 10px;
+}
+
+.forum-status-open {
+    -fx-background-color: #dcfce7;
+    -fx-text-fill: #166534;
+}
+
+.forum-status-closed {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+}
+
+.forum-status-in_progress {
+    -fx-background-color: #dbeafe;
+    -fx-text-fill: #1e40af;
+}
+
+.forum-status-denied {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+}
+
+.forum-card-open {
+    -fx-border-color: #86efac;
+}
+
+.forum-card-closed {
+    -fx-border-color: #fca5a5;
+}
+
+.forum-card-in_progress {
+    -fx-border-color: #93c5fd;
+}
+
+.forum-card-denied {
+    -fx-border-color: #fcd34d;
+}
+
+.forum-vote-rail {
+    -fx-background-color: #f5f8fc;
+    -fx-background-radius: 10px;
+    -fx-border-color: #dce5ee;
+    -fx-border-radius: 10px;
+    -fx-padding: 8px 10px;
+    -fx-min-width: 46px;
+}
+
+.forum-vote-arrow {
+    -fx-text-fill: #6a7f95;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.forum-vote-score {
+    -fx-text-fill: #17283d;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+}
+
+.forum-card-community {
+    -fx-text-fill: #0f2238;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+}
+
+.forum-card-dot {
+    -fx-text-fill: #8ea1b6;
+    -fx-font-size: 12px;
+}
+
+.forum-card-title {
+    -fx-text-fill: #07111f;
+    -fx-font-size: 18px;
+    -fx-font-weight: 900;
+}
+
+.forum-card-meta {
+    -fx-text-fill: #5f7084;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+}
+
+.forum-card-snippet {
+    -fx-text-fill: #394c62;
+    -fx-font-size: 13px;
+    -fx-line-spacing: 2px;
+}
+
+.forum-card-image {
+    -fx-background-color: #eef3f8;
+    -fx-background-radius: 10px;
+    -fx-border-color: #dce5ee;
+    -fx-border-radius: 10px;
+}
+
+.forum-card-action {
+    -fx-background-color: #eef4fa;
+    -fx-background-radius: 999px;
+    -fx-border-color: #dbe5ef;
+    -fx-border-radius: 999px;
+    -fx-text-fill: #2a3d54;
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-padding: 4px 10px;
+}
+
+.forum-card-rating-info {
+    -fx-text-fill: #53687f;
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+}
+
+.forum-rating-stars {
+    -fx-alignment: center-left;
+}
+
+.forum-star-button {
+    -fx-background-color: #f3f6fa;
+    -fx-border-color: #d6e0eb;
+    -fx-border-radius: 999px;
+    -fx-background-radius: 999px;
+    -fx-text-fill: #9aa9bb;
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+    -fx-padding: 2px 6px;
+    -fx-cursor: hand;
+}
+
+.forum-star-button:hover {
+    -fx-background-color: #e8eef5;
+    -fx-text-fill: #556b83;
+}
+
+.forum-star-button-active {
+    -fx-background-color: #fff2c4;
+    -fx-border-color: #f0c95e;
+    -fx-text-fill: #c18300;
+}
+
+.forum-star-zero-active {
+    -fx-background-color: #dbeafe;
+    -fx-border-color: #93c5fd;
+    -fx-text-fill: #1e40af;
+}
+
+.forum-icon-button {
+    -fx-background-radius: 999px;
+    -fx-border-radius: 999px;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-padding: 0;
+    -fx-font-size: 12px;
+    -fx-font-weight: 900;
+    -fx-cursor: hand;
+}
+
+.forum-edit-button {
+    -fx-background-color: #e0f2fe;
+    -fx-text-fill: #0f3a5f;
+}
+
+.forum-edit-button:hover {
+    -fx-background-color: #bae6fd;
+}
+
+.forum-delete-button {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+}
+
+.forum-delete-button:hover {
+    -fx-background-color: #fecaca;
+}
+
+.forum-comments-root {
+    -fx-background-color: #f8fbff;
+    -fx-padding: 6px;
+}
+
+.forum-popup-overlay {
+    -fx-background-color: rgba(15, 23, 42, 0.42);
+    -fx-padding: 32px;
+    -fx-alignment: center;
+}
+
+.forum-popup-card {
+    -fx-background-color: #111827;
+    -fx-background-radius: 16px;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-radius: 16px;
+    -fx-padding: 18px;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.36), 32, 0.22, 0, 12);
+}
+
+.forum-popup-overlay .forum-create-title {
+    -fx-text-fill: #ffffff;
+}
+
+.forum-popup-overlay .forum-comment-input {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d7dee8;
+    -fx-text-fill: #111827;
+}
+
+.forum-popup-overlay .forum-comment-item {
+    -fx-background-color: rgba(255,255,255,0.96);
+    -fx-border-color: #dce5ee;
+}
+
+.forum-comments-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.forum-comments-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.forum-comments-list {
+    -fx-padding: 4px;
+}
+
+.forum-comment-item {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-border-color: #dce5ee;
+    -fx-border-radius: 12px;
+    -fx-padding: 12px;
+}
+
+.forum-comment-author {
+    -fx-text-fill: #0f2238;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.forum-comment-body {
+    -fx-text-fill: #31465d;
+    -fx-font-size: 13px;
+}
+
+.forum-comment-input {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10px;
+    -fx-border-color: #d2deea;
+    -fx-border-radius: 10px;
+    -fx-padding: 8px 10px;
+    -fx-font-size: 13px;
+}
+
+.forum-comment-input:focused {
+    -fx-border-color: #f0a500;
+}
+
+.forum-comment-gif {
+    -fx-background-color: #eef4fa;
+    -fx-background-radius: 10px;
+    -fx-border-color: #dce5ee;
+    -fx-border-radius: 10px;
+}
+
+.forum-comment-gif-link {
+    -fx-text-fill: #1d4ed8;
+    -fx-font-size: 11px;
+}
+
+.forum-email-chip-wrap {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14px;
+    -fx-border-color: #d2deea;
+    -fx-border-radius: 14px;
+    -fx-padding: 8px;
+}
+
+.forum-email-chip {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 999px;
+    -fx-border-color: #b8c4d3;
+    -fx-border-radius: 999px;
+    -fx-padding: 6px 10px;
+}
+
+.forum-email-chip-text {
+    -fx-text-fill: #0f2238;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.forum-email-chip-remove {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #374151;
+    -fx-font-size: 14px;
+    -fx-font-weight: 900;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+
+.forum-gif-result-tile {
+    -fx-background-color: rgba(255,255,255,0.96);
+    -fx-background-radius: 8px;
+    -fx-border-color: #dce5ee;
+    -fx-border-radius: 8px;
+    -fx-padding: 4px;
+    -fx-cursor: hand;
+}
+
+.forum-gif-result-tile:hover {
+    -fx-border-color: #f0a500;
+}
+
+.forum-gif-result-image {
+    -fx-background-radius: 6px;
+}
+
+.forum-gif-results-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 2px 0 2px 0;
+}
+
+.forum-gif-results-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.forum-gif-results-row {
+    -fx-alignment: center-left;
+    -fx-padding: 4px 2px 6px 2px;
+    -fx-min-height: 112px;
+}
+
+.forum-empty-state {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14px;
+    -fx-border-color: #dce5ee;
+    -fx-border-radius: 14px;
+    -fx-padding: 20px;
+    -fx-text-fill: #61758d;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+}
+
+.forum-create-pane {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14px;
+    -fx-border-color: #dce5ee;
+    -fx-border-radius: 14px;
+    -fx-padding: 18px;
+    -fx-max-width: 760px;
+}
+
+.forum-create-title {
+    -fx-text-fill: #0b1220;
+    -fx-font-size: 22px;
+    -fx-font-weight: 900;
+}

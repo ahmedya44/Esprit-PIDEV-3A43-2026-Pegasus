@@ -35,12 +35,13 @@ import javafx.scene.layout.VBox;
 
 public class ForumView {
     private final StackPane root = new StackPane();
+    private boolean internalHeaderVisible = true;
 
     public final Label activeUserLabel = new Label();
     public final Button logoutButton = new Button("Logout");
     public final ComboBox<String> localeBox = new ComboBox<>(FXCollections.observableArrayList("orig", "en", "fr", "es", "de", "it", "ar"));
     public final TextField searchField = new TextField();
-    public final ComboBox<String> statusFilter = new ComboBox<>(FXCollections.observableArrayList("ALL", "OPEN", "CLOSED", "HIDDEN"));
+    public final ComboBox<String> statusFilter = new ComboBox<>(FXCollections.observableArrayList("ALL", "IN_PROGRESS", "OPEN", "CLOSED", "DENIED"));
     public final CheckBox myPostsOnly = new CheckBox("My posts only");
     public final ListView<Post> postsList = new ListView<>();
 
@@ -106,12 +107,18 @@ public class ForumView {
     private Parent buildForumPane(boolean admin) {
         BorderPane shell = new BorderPane();
         shell.getStyleClass().add("app-root");
-        shell.setTop(buildTopBar());
+        if (internalHeaderVisible) {
+            shell.setTop(buildTopBar());
+        }
         shell.setLeft(buildPostsPane(admin));
         shell.setCenter(buildTabs(admin));
         shell.setBottom(feedbackLabel);
         BorderPane.setMargin(feedbackLabel, new Insets(8));
         return shell;
+    }
+
+    public void setInternalHeaderVisible(boolean internalHeaderVisible) {
+        this.internalHeaderVisible = internalHeaderVisible;
     }
 
     private Parent buildTopBar() {
@@ -132,9 +139,11 @@ public class ForumView {
         searchField.setPromptText("Search title, content, author");
         statusFilter.setValue("ALL");
         postsList.setPrefWidth(360);
+        HBox languageRow = new HBox(8, new Label("Language"), localeBox);
+        languageRow.setAlignment(Pos.CENTER_LEFT);
         Label title = new Label(admin ? "Back Office Posts" : "Forum Posts");
         title.getStyleClass().add("section-title");
-        VBox pane = new VBox(8, title, searchField, statusFilter, myPostsOnly, postsList);
+        VBox pane = new VBox(8, title, languageRow, searchField, statusFilter, myPostsOnly, postsList);
         pane.setPadding(new Insets(10));
         pane.setPrefWidth(380);
         pane.getStyleClass().add("side-pane");
@@ -160,7 +169,7 @@ public class ForumView {
     private Parent buildPostPane(boolean admin) {
         postContent.setWrapText(true);
         postContent.setPrefRowCount(10);
-        allowedViewerIds.setPromptText("Example: 2, 8, 15. Used only for HIDDEN posts.");
+        allowedViewerIds.setPromptText("Example: 2, 8, 15. Blacklisted user IDs.");
         postImageName.setPromptText("Image filename");
         postImageName.setEditable(false);
         GridPane form = new GridPane();
@@ -172,7 +181,7 @@ public class ForumView {
         HBox imageControls = new HBox(8, postImageName, choosePostImageButton, clearPostImageButton);
         HBox.setHgrow(postImageName, Priority.ALWAYS);
         form.addRow(3, new Label("Image"), imageControls);
-        form.addRow(4, new Label("Allowed viewers"), allowedViewerIds);
+        form.addRow(4, new Label("Blacklisted viewers"), allowedViewerIds);
         GridPane.setHgrow(postTitle, Priority.ALWAYS);
         GridPane.setHgrow(postContent, Priority.ALWAYS);
 

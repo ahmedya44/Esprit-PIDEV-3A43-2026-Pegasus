@@ -12,21 +12,21 @@
 <VBox spacing="18.0"
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.pegasus.controllers.back.AdminForumController">
+      fx:controller="com.pegasus.controllers.back.AdminForumRequestsController">
     <HBox alignment="CENTER_LEFT" spacing="10.0">
-        <Label text="All Posts With Comments" styleClass="admin-panel-title" />
+        <Label text="Forum Post Requests" styleClass="admin-panel-title" />
         <Region HBox.hgrow="ALWAYS" />
-        <Button text="Refresh" onAction="#refreshForumDashboard" styleClass="admin-secondary-button" />
+        <Button text="Refresh" onAction="#refreshRequests" styleClass="admin-secondary-button" />
     </HBox>
-    <Label fx:id="statusLabel" text="Loading forum dashboard..." styleClass="admin-page-subtitle" />
+    <Label fx:id="statusLabel" text="Loading requests..." styleClass="admin-page-subtitle" />
     <HBox alignment="CENTER_LEFT" spacing="8.0">
-        <TextField fx:id="searchField" promptText="Search posts, content, owner..." onAction="#refreshForumDashboard" HBox.hgrow="ALWAYS" />
-        <ComboBox fx:id="statusFilterBox" promptText="Filter status" onAction="#refreshForumDashboard" />
-        <ComboBox fx:id="sortBox" promptText="Sort by" onAction="#refreshForumDashboard" />
+        <TextField fx:id="searchField" promptText="Search request title/content/author..." onAction="#refreshRequests" HBox.hgrow="ALWAYS" />
+        <ComboBox fx:id="requestTypeFilterBox" promptText="Type" onAction="#refreshRequests" />
+        <ComboBox fx:id="sortBox" promptText="Sort by" onAction="#refreshRequests" />
     </HBox>
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="forum-cards-scroll">
         <content>
-            <VBox fx:id="postsContainer" spacing="12.0" />
+            <VBox fx:id="requestsContainer" spacing="12.0" />
         </content>
     </ScrollPane>
 </VBox>

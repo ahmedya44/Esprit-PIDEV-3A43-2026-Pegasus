@@ -21,6 +21,8 @@ public class PostDao {
 
     public PostDao(UserDao userDao) {
         this.userDao = userDao;
+        ensureBanColumn();
+        ensureRequestTypeColumn();
     }
 
     public List<Post> findVisible(User viewer, String query, PostStatus statusFilter) {
@@ -44,15 +46,28 @@ public class PostDao {
             params.add(statusFilter.name());
         }
         if (viewer == null) {
-            sql.append(" AND p.status <> 'HIDDEN'");
+            sql.append(" AND p.is_banned = 0 AND p.status NOT IN ('IN_PROGRESS', 'DENIED')");
         } else if (!viewer.isAdmin()) {
             sql.append("""
-                 AND (p.status <> 'HIDDEN'
-                    OR p.owner_id = ?
-                    OR EXISTS (SELECT 1 FROM forum_post_allowed_viewer av WHERE av.post_id = p.id AND av.user_id = ?))
+                 AND ((p.is_banned = 0 OR p.owner_id = ?)
+                    AND (p.status NOT IN ('IN_PROGRESS', 'DENIED') OR p.owner_id = ?)
+                    AND (p.owner_id = ?
+                    OR NOT EXISTS (
+                        SELECT 1
+                        FROM forum_post_allowed_viewer av
+                        LEFT JOIN `user` bu ON bu.id = av.user_id
+                        WHERE av.post_id = p.id
+                          AND (
+                              av.user_id = ?
+                              OR (bu.email IS NOT NULL AND LOWER(bu.email) = LOWER(?))
+                          )
+                    )))
                 """);
             params.add(viewer.getId());
             params.add(viewer.getId());
+            params.add(viewer.getId());
+            params.add(viewer.getId());
+            params.add(viewer.getEmail() == null ? "" : viewer.getEmail().trim());
         }
         sql.append(" ORDER BY p.created_at DESC");
 
@@ -62,7 +77,7 @@ public class PostDao {
             try (var rs = statement.executeQuery()) {
                 List<Post> posts = new ArrayList<>();
                 while (rs.next()) {
-                    posts.add(withAllowedViewers(map(rs)));
+                    posts.add(withBlacklistedViewers(map(rs)));
                 }
                 return posts;
             }
@@ -82,7 +97,7 @@ public class PostDao {
              var statement = connection.prepareStatement(sql)) {
             statement.setInt(1, id);
             try (var rs = statement.executeQuery()) {
-                return rs.next() ? Optional.of(withAllowedViewers(map(rs))) : Optional.empty();
+                return rs.next() ? Optional.of(withBlacklistedViewers(map(rs))) : Optional.empty();
             }
         } catch (SQLException ex) {
             throw new DaoException("Could not load post.", ex);
@@ -92,8 +107,8 @@ public class PostDao {
     public Post insert(Post post) {
         String sql = """
             INSERT INTO forum_post
-            (title, content, author_name, author_email, owner_id, status, created_at, updated_at, image_name)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (title, content, author_name, author_email, owner_id, status, created_at, updated_at, image_name, request_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """;
         try (var connection = DatabaseConfig.getConnection();
              var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -110,13 +125,14 @@ public class PostDao {
             statement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
             statement.setTimestamp(8, null);
             statement.setString(9, post.getImageName());
+            statement.setString(10, post.getRequestType());
             statement.executeUpdate();
             try (var keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {
                     post.setId(keys.getInt(1));
                 }
             }
-            replaceAllowedViewers(post.getId(), post.getAllowedViewerIds());
+            replaceBlacklistedViewers(post.getId(), post.getBlacklistedViewerIds());
             return post;
         } catch (SQLException ex) {
             throw new DaoException("Could not create post.", ex);
@@ -126,7 +142,7 @@ public class PostDao {
     public void update(Post post) {
         String sql = """
             UPDATE forum_post
-            SET title = ?, content = ?, author_name = ?, author_email = ?, owner_id = ?, status = ?, updated_at = ?, image_name = ?
+            SET title = ?, content = ?, author_name = ?, author_email = ?, owner_id = ?, status = ?, updated_at = ?, image_name = ?, is_banned = ?, request_type = ?
             WHERE id = ?
             """;
         try (var connection = DatabaseConfig.getConnection();
@@ -143,9 +159,11 @@ public class PostDao {
             statement.setString(6, post.getStatus().name());
             statement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
             statement.setString(8, post.getImageName());
-            statement.setInt(9, post.getId());
+            statement.setBoolean(9, post.isBannedByAdmin());
+            statement.setString(10, post.getRequestType());
+            statement.setInt(11, post.getId());
             statement.executeUpdate();
-            replaceAllowedViewers(post.getId(), post.getAllowedViewerIds());
+            replaceBlacklistedViewers(post.getId(), post.getBlacklistedViewerIds());
         } catch (SQLException ex) {
             throw new DaoException("Could not update post.", ex);
         }
@@ -161,7 +179,7 @@ public class PostDao {
         }
     }
 
-    public Set<Integer> allowedViewerIds(int postId) {
+    public Set<Integer> blacklistedViewerIds(int postId) {
         String sql = "SELECT user_id FROM forum_post_allowed_viewer WHERE post_id = ? ORDER BY user_id";
         try (var connection = DatabaseConfig.getConnection();
              var statement = connection.prepareStatement(sql)) {
@@ -178,7 +196,7 @@ public class PostDao {
         }
     }
 
-    public void replaceAllowedViewers(int postId, Set<Integer> viewerIds) {
+    public void replaceBlacklistedViewers(int postId, Set<Integer> viewerIds) {
         try (var connection = DatabaseConfig.getConnection()) {
             connection.setAutoCommit(false);
             try (var delete = connection.prepareStatement("DELETE FROM forum_post_allowed_viewer WHERE post_id = ?")) {
@@ -200,7 +218,7 @@ public class PostDao {
             }
             connection.commit();
         } catch (SQLException ex) {
-            throw new DaoException("Could not save allowed viewers.", ex);
+            throw new DaoException("Could not save blacklisted viewers.", ex);
         }
     }
 
@@ -244,9 +262,22 @@ public class PostDao {
         }
     }
 
-    private Post withAllowedViewers(Post post) {
-        post.setAllowedViewerIds(allowedViewerIds(post.getId()));
+    private Post withBlacklistedViewers(Post post) {
+        post.setBlacklistedViewerIds(blacklistedViewerIds(post.getId()));
         return post;
+    }
+
+    public void setBannedByAdmin(int postId, boolean banned) {
+        String sql = "UPDATE forum_post SET is_banned = ?, updated_at = ? WHERE id = ?";
+        try (var connection = DatabaseConfig.getConnection();
+             var statement = connection.prepareStatement(sql)) {
+            statement.setBoolean(1, banned);
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setInt(3, postId);
+            statement.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DaoException("Could not update post moderation state.", ex);
+        }
     }
 
     private Post map(ResultSet rs) throws SQLException {
@@ -262,7 +293,27 @@ public class PostDao {
         post.setCreatedAt(JdbcMapper.dateTime(rs, "created_at"));
         post.setUpdatedAt(JdbcMapper.dateTime(rs, "updated_at"));
         post.setImageName(rs.getString("image_name"));
+        post.setBannedByAdmin(rs.getBoolean("is_banned"));
+        post.setRequestType(rs.getString("request_type"));
         return post;
+    }
+
+    private void ensureBanColumn() {
+        try (var connection = DatabaseConfig.getConnection();
+             var statement = connection.createStatement()) {
+            statement.executeUpdate("ALTER TABLE forum_post ADD COLUMN is_banned TINYINT(1) NOT NULL DEFAULT 0");
+        } catch (SQLException ignored) {
+            // Column already exists or migration is managed externally.
+        }
+    }
+
+    private void ensureRequestTypeColumn() {
+        try (var connection = DatabaseConfig.getConnection();
+             var statement = connection.createStatement()) {
+            statement.executeUpdate("ALTER TABLE forum_post ADD COLUMN request_type VARCHAR(16) NOT NULL DEFAULT 'CREATE'");
+        } catch (SQLException ignored) {
+            // Column already exists or migration is managed externally.
+        }
     }
 
     private void bind(java.sql.PreparedStatement statement, List<Object> params) throws SQLException {

@@ -12,11 +12,13 @@ public class Post {
     private String authorEmail;
     private Integer ownerId;
     private String ownerName;
-    private PostStatus status = PostStatus.OPEN;
+    private PostStatus status = PostStatus.IN_PROGRESS;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String imageName;
-    private Set<Integer> allowedViewerIds = new LinkedHashSet<>();
+    private boolean bannedByAdmin;
+    private String requestType = "CREATE";
+    private Set<Integer> blacklistedViewerIds = new LinkedHashSet<>();
 
     public int getId() {
         return id;
@@ -87,7 +89,7 @@ public class Post {
     }
 
     public boolean isHidden() {
-        return status == PostStatus.HIDDEN;
+        return false;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -114,12 +116,28 @@ public class Post {
         this.imageName = imageName;
     }
 
-    public Set<Integer> getAllowedViewerIds() {
-        return allowedViewerIds;
+    public boolean isBannedByAdmin() {
+        return bannedByAdmin;
     }
 
-    public void setAllowedViewerIds(Set<Integer> allowedViewerIds) {
-        this.allowedViewerIds = allowedViewerIds == null ? new LinkedHashSet<>() : allowedViewerIds;
+    public void setBannedByAdmin(boolean bannedByAdmin) {
+        this.bannedByAdmin = bannedByAdmin;
+    }
+
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(String requestType) {
+        this.requestType = requestType == null || requestType.isBlank() ? "CREATE" : requestType.trim().toUpperCase();
+    }
+
+    public Set<Integer> getBlacklistedViewerIds() {
+        return blacklistedViewerIds;
+    }
+
+    public void setBlacklistedViewerIds(Set<Integer> blacklistedViewerIds) {
+        this.blacklistedViewerIds = blacklistedViewerIds == null ? new LinkedHashSet<>() : blacklistedViewerIds;
     }
 
     @Override

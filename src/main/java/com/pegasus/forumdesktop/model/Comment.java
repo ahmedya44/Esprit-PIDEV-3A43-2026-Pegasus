@@ -13,6 +13,7 @@ public class Comment {
     private String ownerName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean bannedByAdmin;
 
     public int getId() {
         return id;
@@ -92,5 +93,13 @@ public class Comment {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isBannedByAdmin() {
+        return bannedByAdmin;
+    }
+
+    public void setBannedByAdmin(boolean bannedByAdmin) {
+        this.bannedByAdmin = bannedByAdmin;
     }
 }

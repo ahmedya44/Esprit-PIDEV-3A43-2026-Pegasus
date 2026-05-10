@@ -35,7 +35,11 @@
             <Label fx:id="workspaceSectionLabel" text="WORKSPACE" styleClass="admin-section-label" />
             <Button fx:id="homeNavButton" text="Home Dashboard" maxWidth="Infinity" onAction="#showHome" styleClass="admin-nav-button" />
             <Button fx:id="usersNavButton" text="Users Dashboard" maxWidth="Infinity" onAction="#showUsers" styleClass="admin-nav-button" />
-            <Button fx:id="roleRequestsNavButton" text="Role Requests Dashboard" maxWidth="Infinity" onAction="#showRoleRequests" styleClass="admin-nav-button" />
+            <VBox fx:id="usersSubmenu" visible="false" managed="false" spacing="6.0" styleClass="admin-subnav">
+                <Button fx:id="usersListSubNavButton" text="Users Dashboard" maxWidth="Infinity" onAction="#showUsersList" styleClass="admin-subnav-button" />
+                <Button fx:id="usersStatsNavButton" text="Users Stats" maxWidth="Infinity" onAction="#showUsersStats" styleClass="admin-subnav-button" />
+                <Button fx:id="roleRequestsNavButton" text="Role Requests Dashboard" maxWidth="Infinity" onAction="#showRoleRequests" styleClass="admin-subnav-button" />
+            </VBox>
             <Button fx:id="eventsNavButton" text="Event Dashboard" maxWidth="Infinity" onAction="#showEvents" styleClass="admin-nav-button" />
             <VBox fx:id="eventSubmenu" visible="false" managed="false" spacing="6.0" styleClass="admin-subnav">
                 <Button fx:id="eventEventsNavButton" text="Events" maxWidth="Infinity" onAction="#showEventEvents" styleClass="admin-subnav-button" />
@@ -52,6 +56,11 @@
             </VBox>
             <Button fx:id="galleryNavButton" text="Gallery Dashboard" maxWidth="Infinity" onAction="#showGallery" styleClass="admin-nav-button" />
             <Button fx:id="forumNavButton" text="Forum Dashboard" maxWidth="Infinity" onAction="#showForum" styleClass="admin-nav-button" />
+            <VBox fx:id="forumSubmenu" visible="false" managed="false" spacing="6.0" styleClass="admin-subnav">
+                <Button fx:id="forumDashboardSubNavButton" text="Forum Dashboard" maxWidth="Infinity" onAction="#showForumDashboard" styleClass="admin-subnav-button" />
+                <Button fx:id="forumRequestsNavButton" text="Forum Post Requests" maxWidth="Infinity" onAction="#showForumRequests" styleClass="admin-subnav-button" />
+                <Button fx:id="forumStatsNavButton" text="Forum Stats" maxWidth="Infinity" onAction="#showForumStats" styleClass="admin-subnav-button" />
+            </VBox>
             <Button fx:id="productsNavButton" text="Product Dashboard" maxWidth="Infinity" onAction="#showProducts" styleClass="admin-nav-button" />
 
             <Label fx:id="systemSectionLabel" text="SYSTEM" styleClass="admin-section-label" />
