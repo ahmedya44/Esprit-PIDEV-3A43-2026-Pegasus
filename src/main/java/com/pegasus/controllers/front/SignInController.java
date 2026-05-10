@@ -2,10 +2,8 @@ package com.pegasus.controllers.front;
 
 import com.pegasus.controllers.SceneNavigator;
 import com.pegasus.entities.User;
-import com.pegasus.services.EmailService;
 import com.pegasus.services.GoogleAuthService;
 import com.pegasus.services.GoogleUserProfile;
-import com.pegasus.services.ServiceNormalUser;
 import com.pegasus.services.ServiceUser;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -29,8 +27,6 @@ public class SignInController {
     private Button togglePasswordButton;
 
     private ServiceUser serviceUser;
-    private ServiceNormalUser serviceNormalUser;
-    private EmailService emailService;
 
     @FXML
     public void initialize() {
@@ -108,7 +104,8 @@ public class SignInController {
 
     public void onGoToSignUp() {
         try {
-            SceneNavigator.goTo("/views/front/role-selection-view.fxml");
+            SceneNavigator.setSelectedRole("NORMAL_USER");
+            SceneNavigator.goTo("/views/front/signup-view.fxml");
         } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", e.getMessage());
         }
@@ -153,43 +150,6 @@ public class SignInController {
         }
     }
 
-    public void onResendVerificationEmail() {
-        String email = emailField.getText();
-        if (isBlank(email)) {
-            showAlert(Alert.AlertType.ERROR, "Resend Verification", "Enter your email first.");
-            return;
-        }
-        if (!initServices()) {
-            return;
-        }
-
-        try {
-            if (emailService == null) {
-                emailService = new EmailService();
-            }
-
-            User user = serviceUser.findByEmail(email);
-            if (user == null) {
-                showAlert(Alert.AlertType.ERROR, "Resend Verification", "No account was found for that email.");
-                return;
-            }
-            if (!"LOCAL".equalsIgnoreCase(user.getProvider())) {
-                showAlert(Alert.AlertType.INFORMATION, "Resend Verification", "This account signs in with Google and does not need email verification.");
-                return;
-            }
-            if (ServiceUser.STATUS_ACTIVE.equalsIgnoreCase(user.getStatus())) {
-                showAlert(Alert.AlertType.INFORMATION, "Resend Verification", "This account is already active.");
-                return;
-            }
-
-            String verificationToken = serviceUser.createEmailVerificationToken(user);
-            emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationToken);
-            showAlert(Alert.AlertType.INFORMATION, "Resend Verification", "A new verification email has been sent.");
-        } catch (IllegalStateException e) {
-            showAlert(Alert.AlertType.ERROR, "Resend Verification", e.getMessage());
-        }
-    }
-
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
@@ -198,9 +158,6 @@ public class SignInController {
         try {
             if (serviceUser == null) {
                 serviceUser = new ServiceUser();
-            }
-            if (serviceNormalUser == null) {
-                serviceNormalUser = new ServiceNormalUser();
             }
             return true;
         } catch (RuntimeException e) {
@@ -248,10 +205,7 @@ public class SignInController {
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        boolean isError = type == Alert.AlertType.ERROR;
+        SceneNavigator.showSnackbar(title, content, isError);
     }
 }

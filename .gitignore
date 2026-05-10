@@ -2,13 +2,15 @@ target/
 .idea/
 .vscode/
 *.iml
+*.properties
+.env
+.env.*
 src/main/resources/google-oauth.properties
 src/main/resources/mail.properties
 src/main/resources/cloudflare.properties
 src/main/resources/cloudinary.properties
 src/main/resources/voice.properties
 src/main/resources/groq.properties
-.env
 .m2/
 apache-maven-*/
 maven.zip

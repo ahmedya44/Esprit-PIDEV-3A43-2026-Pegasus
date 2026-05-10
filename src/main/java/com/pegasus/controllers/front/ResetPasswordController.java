@@ -12,6 +12,8 @@ import javafx.scene.control.TextField;
 import java.io.IOException;
 
 public class ResetPasswordController {
+    private static String pendingResetEmail;
+
     @FXML
     private TextField emailField;
 
@@ -26,6 +28,14 @@ public class ResetPasswordController {
 
     private ServiceUser serviceUser;
     private EmailService emailService;
+
+    @FXML
+    public void initialize() {
+        if (emailField != null && pendingResetEmail != null && !pendingResetEmail.isBlank()) {
+            emailField.setText(pendingResetEmail);
+            emailField.setDisable(true);
+        }
+    }
 
     public void onSendResetCode() {
         String email = trimToNull(emailField.getText());
@@ -46,9 +56,13 @@ public class ResetPasswordController {
         try {
             String token = serviceUser.createPasswordResetToken(user);
             emailService.sendPasswordResetEmail(user.getEmail(), user.getUsername(), token);
+            pendingResetEmail = user.getEmail();
             showAlert(Alert.AlertType.INFORMATION, "Reset Password", "Reset code sent. Check your email.");
+            SceneNavigator.goTo("/views/front/reset-password-confirm-view.fxml");
         } catch (IllegalStateException e) {
             showAlert(Alert.AlertType.ERROR, "Reset Password", e.getMessage());
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open reset form.");
         }
     }
 
@@ -84,10 +98,20 @@ public class ResetPasswordController {
         }
 
         showAlert(Alert.AlertType.INFORMATION, "Reset Password", "Password updated successfully. You can sign in now.");
+        pendingResetEmail = null;
         try {
             SceneNavigator.goTo("/views/front/signin-view.fxml");
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open sign in page.");
+        }
+    }
+
+    public void onBackToResetRequest() {
+        pendingResetEmail = null;
+        try {
+            SceneNavigator.goTo("/views/front/reset-password-view.fxml");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open reset request page.");
         }
     }
 
@@ -113,7 +137,8 @@ public class ResetPasswordController {
 
     public void onGoToSignUp() {
         try {
-            SceneNavigator.goTo("/views/front/role-selection-view.fxml");
+            SceneNavigator.setSelectedRole("NORMAL_USER");
+            SceneNavigator.goTo("/views/front/signup-view.fxml");
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open sign up page.");
         }
@@ -150,10 +175,7 @@ public class ResetPasswordController {
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        boolean isError = type == Alert.AlertType.ERROR;
+        SceneNavigator.showSnackbar(title, content, isError);
     }
 }

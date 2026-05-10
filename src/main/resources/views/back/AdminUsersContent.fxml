@@ -18,6 +18,7 @@
         <TextField fx:id="searchField" promptText="Search users..." prefWidth="280.0" styleClass="admin-search-field" />
         <ComboBox fx:id="roleFilter" prefWidth="160.0" styleClass="admin-combo" />
         <ComboBox fx:id="statusFilter" prefWidth="190.0" styleClass="admin-combo" />
+        <Button fx:id="voiceSearchButton" text="Voice Search" onAction="#onVoiceSearchUsers" styleClass="admin-secondary-button" />
         <Region HBox.hgrow="ALWAYS" />
         <Label fx:id="summaryLabel" text="Loading..." styleClass="admin-page-subtitle" />
         <Button text="Refresh" onAction="#refreshUsers" styleClass="admin-secondary-button" />

@@ -1,8 +1,6 @@
 package com.pegasus.controllers.front;
 
 import com.pegasus.controllers.SceneNavigator;
-import com.pegasus.entities.Admin;
-import com.pegasus.entities.Artiste;
 import com.pegasus.entities.NormalUser;
 import com.pegasus.entities.User;
 import com.pegasus.services.GoogleUserProfile;
@@ -32,9 +30,6 @@ public class SignUpController {
             Pattern.compile("^\\+?[0-9]{8,15}$");
 
     @FXML
-    private Label roleLabel;
-
-    @FXML
     private TextField emailField;
 
     @FXML
@@ -60,9 +55,6 @@ public class SignUpController {
 
     @FXML
     private TextField phoneField;
-
-    @FXML
-    private TextField avatarUrlField;
 
     @FXML
     private VBox adminBox;
@@ -114,13 +106,8 @@ public class SignUpController {
 
     @FXML
     public void initialize() {
-        String role = SceneNavigator.getSelectedRole();
-        if (role == null || role.isBlank()) {
-            role = "NORMAL_USER";
-            SceneNavigator.setSelectedRole(role);
-        }
-        roleLabel.setText("Role: " + role);
-        configureRoleSections(role);
+        SceneNavigator.setSelectedRole("NORMAL_USER");
+        configureRoleSections("NORMAL_USER");
 
         passwordVisibleField.setManaged(false);
         passwordVisibleField.setVisible(false);
@@ -175,15 +162,11 @@ public class SignUpController {
         String password = getPassword();
         String confirmPassword = getConfirmPassword();
         String phone = textOrNull(phoneField.getText());
-        String avatarUrl = textOrNull(avatarUrlField.getText());
         if (!initServices()) {
             return;
         }
 
-        String role = SceneNavigator.getSelectedRole();
-        if (role == null || role.isBlank()) {
-            role = "NORMAL_USER";
-        }
+        String role = "NORMAL_USER";
 
         GoogleUserProfile googleProfile = SceneNavigator.getPendingGoogleUserProfile();
         boolean googleSignup = googleProfile != null;
@@ -217,7 +200,7 @@ public class SignUpController {
         user.setUsername(username);
         user.setStatus(googleSignup ? ServiceUser.STATUS_ACTIVE : ServiceUser.STATUS_PENDING_VERIFICATION);
         user.setPhone(phone);
-        user.setAvatarUrl(avatarUrl);
+        user.setAvatarUrl(googleSignup ? textOrNull(googleProfile.pictureUrl()) : null);
         if (googleSignup) {
             user.setProvider("GOOGLE");
             user.setGoogleSub(googleProfile.sub());
@@ -228,16 +211,8 @@ public class SignUpController {
             user.setGoogleSub(null);
         }
 
-        if ("ADMIN".equals(role)) {
-            user.setRoles("[\"ROLE_ADMIN\"]");
-            user.setDtype("admin");
-        } else if ("ARTISTE".equals(role)) {
-            user.setRoles("[\"ROLE_ARTISTE\"]");
-            user.setDtype("artiste");
-        } else {
-            user.setRoles("[\"ROLE_USER\"]");
-            user.setDtype("normal_user");
-        }
+        user.setRoles("[\"ROLE_USER\"]");
+        user.setDtype("normal_user");
 
         serviceUser.ajouter(user);
         if (user.getId() == null) {
@@ -245,43 +220,14 @@ public class SignUpController {
             return;
         }
 
-        if ("ADMIN".equals(role)) {
-            Admin admin = new Admin();
-            admin.setId(user.getId());
-            admin.setSuperAdmin(adminSuperAdminCheckBox.isSelected());
-            admin.setBirthDate(adminBirthDatePicker.getValue());
-            serviceAdmin.ajouter(admin);
-            if (serviceAdmin.getLastError() != null) {
-                rollbackUser(user);
-                showSignupError(serviceAdmin.getLastError());
-                return;
-            }
-        } else if ("ARTISTE".equals(role)) {
-            Artiste artiste = new Artiste();
-            artiste.setId(user.getId());
-            artiste.setBio(textOrNull(artisteBioArea.getText()));
-            artiste.setStyles(textOrNull(artisteStylesField.getText()));
-            artiste.setFacebook(textOrNull(artisteFacebookField.getText()));
-            artiste.setInstagram(textOrNull(artisteInstagramField.getText()));
-            artiste.setPortfolioUrl(textOrNull(artistePortfolioUrlField.getText()));
-            artiste.setVerified(artisteVerifiedCheckBox.isSelected());
-            artiste.setBirthDate(artisteBirthDatePicker.getValue());
-            serviceArtiste.ajouter(artiste);
-            if (serviceArtiste.getLastError() != null) {
-                rollbackUser(user);
-                showSignupError(serviceArtiste.getLastError());
-                return;
-            }
-        } else {
-            NormalUser normalUser = new NormalUser();
-            normalUser.setId(user.getId());
-            normalUser.setBirthDate(normalBirthDatePicker.getValue());
-            serviceNormalUser.ajouter(normalUser);
-            if (serviceNormalUser.getLastError() != null) {
-                rollbackUser(user);
-                showSignupError(serviceNormalUser.getLastError());
-                return;
-            }
+        NormalUser normalUser = new NormalUser();
+        normalUser.setId(user.getId());
+        normalUser.setBirthDate(normalBirthDatePicker.getValue());
+        serviceNormalUser.ajouter(normalUser);
+        if (serviceNormalUser.getLastError() != null) {
+            rollbackUser(user);
+            showSignupError(serviceNormalUser.getLastError());
+            return;
         }
 
         if (!googleSignup) {
@@ -305,7 +251,7 @@ public class SignUpController {
 
         showAlert(Alert.AlertType.INFORMATION, "Sign Up",
                 googleSignup
-                        ? "Account created for role: " + role
+                        ? "Account created successfully."
                         : "Account created. Check your email for the verification code before signing in.");
         clearForm();
         try {
@@ -391,11 +337,8 @@ public class SignUpController {
         }
 
         SceneNavigator.setSelectedRole("NORMAL_USER");
-        roleLabel.setText("Role: NORMAL_USER (Google)");
         emailField.setText(nullToEmpty(googleProfile.email()));
         usernameField.setText(resolveGoogleUsername(googleProfile));
-        avatarUrlField.setText(nullToEmpty(googleProfile.pictureUrl()));
-
         emailField.setDisable(true);
         configurePasswordFields(false);
     }
@@ -451,8 +394,6 @@ public class SignUpController {
         toggleConfirmPasswordButton.setText("Show");
         usernameField.clear();
         phoneField.clear();
-        avatarUrlField.clear();
-
         adminSuperAdminCheckBox.setSelected(false);
         adminBirthDatePicker.setValue(null);
 
@@ -465,14 +406,6 @@ public class SignUpController {
         artisteBirthDatePicker.setValue(null);
 
         normalBirthDatePicker.setValue(null);
-    }
-
-    public void onBackToRoleSelection() {
-        try {
-            SceneNavigator.goTo("/views/front/role-selection-view.fxml");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void onGoHome() {
@@ -517,9 +450,10 @@ public class SignUpController {
     }
 
     private void showSignupError(String message) {
-        signupMessageLabel.setText(message);
-        signupMessageLabel.setVisible(true);
-        signupMessageLabel.setManaged(true);
+        signupMessageLabel.setText("");
+        signupMessageLabel.setVisible(false);
+        signupMessageLabel.setManaged(false);
+        SceneNavigator.showSnackbar("Sign Up", message, true);
     }
 
     private void clearSignupMessage() {
@@ -542,10 +476,7 @@ public class SignUpController {
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        boolean isError = type == Alert.AlertType.ERROR;
+        SceneNavigator.showSnackbar(title, content, isError);
     }
 }

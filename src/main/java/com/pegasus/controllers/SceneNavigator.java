@@ -45,10 +45,10 @@ public final class SceneNavigator {
     private static final BooleanProperty authModalOpen = new SimpleBooleanProperty(false);
     private static final Set<String> AUTH_VIEWS = Set.of(
             "/views/front/signin-view.fxml",
-            "/views/front/role-selection-view.fxml",
             "/views/front/signup-view.fxml",
             "/views/front/email-verification-view.fxml",
-            "/views/front/reset-password-view.fxml"
+            "/views/front/reset-password-view.fxml",
+            "/views/front/reset-password-confirm-view.fxml"
     );
 
     private SceneNavigator() {
@@ -180,6 +180,74 @@ public final class SceneNavigator {
         });
     }
 
+    public static void showSnackbar(String title, String message, boolean error) {
+        if (stage == null) {
+            return;
+        }
+
+        Platform.runLater(() -> {
+            if (stage.getScene() == null || !stage.isShowing()) {
+                return;
+            }
+
+            Popup popup = new Popup();
+            popup.setAutoFix(true);
+            popup.setAutoHide(true);
+
+            String accent = error ? "#ef4444" : "#22c55e";
+            Label dot = new Label("●");
+            dot.setStyle("-fx-text-fill: " + accent + "; -fx-font-size: 14px; -fx-font-weight: 900;");
+
+            Label titleLabel = new Label(title == null ? "" : title);
+            titleLabel.setStyle("-fx-text-fill: #f8fafc; -fx-font-size: 13px; -fx-font-weight: 800;");
+
+            Label messageLabel = new Label(message == null ? "" : message);
+            messageLabel.setWrapText(true);
+            messageLabel.setStyle("-fx-text-fill: #d1d5db; -fx-font-size: 12px; -fx-font-weight: 600;");
+
+            VBox copy = new VBox(2, titleLabel, messageLabel);
+            copy.setAlignment(Pos.CENTER_LEFT);
+
+            HBox bar = new HBox(10, dot, copy);
+            bar.setAlignment(Pos.CENTER_LEFT);
+            bar.setPrefWidth(420);
+            bar.setStyle(
+                    "-fx-background-color: rgba(17,24,39,0.96);" +
+                    "-fx-background-radius: 12;" +
+                    "-fx-padding: 10 14 10 14;" +
+                    "-fx-border-color: rgba(255,255,255,0.1);" +
+                    "-fx-border-radius: 12;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 24, 0, 0, 8);"
+            );
+
+            popup.getContent().add(bar);
+            bar.setOpacity(0);
+            bar.setTranslateY(8);
+
+            double x = stage.getX() + (stage.getWidth() - 420) / 2.0;
+            double y = stage.getY() + stage.getHeight() - 96;
+            popup.show(stage, Math.max(stage.getX() + 16, x), y);
+
+            FadeTransition in = new FadeTransition(Duration.millis(160), bar);
+            in.setToValue(1);
+            TranslateTransition up = new TranslateTransition(Duration.millis(160), bar);
+            up.setToY(0);
+            new ParallelTransition(in, up).play();
+
+            PauseTransition stay = new PauseTransition(Duration.seconds(2.6));
+            stay.setOnFinished(event -> {
+                FadeTransition out = new FadeTransition(Duration.millis(150), bar);
+                out.setToValue(0);
+                TranslateTransition down = new TranslateTransition(Duration.millis(150), bar);
+                down.setToY(8);
+                ParallelTransition exit = new ParallelTransition(out, down);
+                exit.setOnFinished(done -> popup.hide());
+                exit.play();
+            });
+            stay.play();
+        });
+    }
+
     private static boolean showAuthOverlay(URL fxmlUrl, String fxmlPath) throws IOException {
         Scene scene = stage.getScene();
         if (scene == null || scene.getRoot() == null) {
@@ -298,8 +366,7 @@ public final class SceneNavigator {
                 .findFirst()
                 .orElse(null);
         Node wrappedNextPanel = wrapAuthPanel(nextPanel, fxmlPath);
-        boolean reverse = "/views/front/signin-view.fxml".equals(fxmlPath)
-                || "/views/front/role-selection-view.fxml".equals(fxmlPath);
+        boolean reverse = "/views/front/signin-view.fxml".equals(fxmlPath);
         double offset = reverse ? -78 : 78;
         wrappedNextPanel.setTranslateX(offset);
         wrappedNextPanel.setOpacity(0);

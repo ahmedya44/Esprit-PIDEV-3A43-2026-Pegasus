@@ -46,6 +46,7 @@ public class AdminLayoutController {
     @FXML private Button sidebarToggleButton;
     @FXML private Button homeNavButton;
     @FXML private Button usersNavButton;
+    @FXML private Button roleRequestsNavButton;
     @FXML private Button eventsNavButton;
     @FXML private VBox eventSubmenu;
     @FXML private Button eventEventsNavButton;
@@ -79,6 +80,7 @@ public class AdminLayoutController {
         navButtons = List.of(
                 homeNavButton,
                 usersNavButton,
+                roleRequestsNavButton,
                 eventsNavButton,
                 coursesNavButton,
                 galleryNavButton,
@@ -152,6 +154,18 @@ public class AdminLayoutController {
                 usersNavButton,
                 "Users Dashboard",
                 "Manage roles, account status and member access across Pegasus."
+        );
+    }
+
+    @FXML
+    public void showRoleRequests() {
+        hideEventSubmenu();
+        hideCourseSubmenu();
+        loadSection(
+                "/views/back/AdminRoleRequestsContent.fxml",
+                roleRequestsNavButton,
+                "Role Requests Dashboard",
+                "Review and manage pending role change requests."
         );
     }
 
@@ -477,6 +491,7 @@ public class AdminLayoutController {
     private void cacheSidebarLabels() {
         registerSidebarButton(homeNavButton, "Home Dashboard", "Home");
         registerSidebarButton(usersNavButton, "Users Dashboard", "Users");
+        registerSidebarButton(roleRequestsNavButton, "Role Requests Dashboard", "Roles");
         registerSidebarButton(eventsNavButton, "Event Dashboard", "Events");
         registerSidebarButton(eventEventsNavButton, "Events", "List");
         registerSidebarButton(eventParticipantsNavButton, "Participants", "Users");

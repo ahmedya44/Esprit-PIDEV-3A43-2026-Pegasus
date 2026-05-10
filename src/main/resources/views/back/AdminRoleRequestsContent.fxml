@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.AdminRoleRequestsController">
+    <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="admin-toolbar">
+        <Label text="Review role upgrade requests from users." styleClass="admin-page-subtitle" />
+        <ComboBox fx:id="statusFilterBox" prefWidth="180.0" onAction="#onFilterChanged" styleClass="admin-combo" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Refresh" onAction="#refreshRequests" styleClass="admin-secondary-button" />
+    </HBox>
+
+    <TableView fx:id="requestsTable" VBox.vgrow="ALWAYS" prefHeight="560.0" styleClass="admin-table admin-data-table">
+        <columns>
+            <TableColumn fx:id="colUser" text="User" prefWidth="150" />
+            <TableColumn fx:id="colEmail" text="Email" prefWidth="230" />
+            <TableColumn fx:id="colCurrentRole" text="Current Role" prefWidth="120" />
+            <TableColumn fx:id="colRequestedRole" text="Requested Role" prefWidth="140" />
+            <TableColumn fx:id="colStatus" text="Status" prefWidth="120" />
+            <TableColumn fx:id="colCreatedAt" text="Created At" prefWidth="170" />
+            <TableColumn fx:id="colDetails" text="Submitted Info" prefWidth="260" />
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="220" />
+        </columns>
+    </TableView>
+
+    <Label fx:id="statusLabel" text="Loading requests..." styleClass="admin-page-subtitle" />
+</VBox>

@@ -35,6 +35,7 @@
             <Label fx:id="workspaceSectionLabel" text="WORKSPACE" styleClass="admin-section-label" />
             <Button fx:id="homeNavButton" text="Home Dashboard" maxWidth="Infinity" onAction="#showHome" styleClass="admin-nav-button" />
             <Button fx:id="usersNavButton" text="Users Dashboard" maxWidth="Infinity" onAction="#showUsers" styleClass="admin-nav-button" />
+            <Button fx:id="roleRequestsNavButton" text="Role Requests Dashboard" maxWidth="Infinity" onAction="#showRoleRequests" styleClass="admin-nav-button" />
             <Button fx:id="eventsNavButton" text="Event Dashboard" maxWidth="Infinity" onAction="#showEvents" styleClass="admin-nav-button" />
             <VBox fx:id="eventSubmenu" visible="false" managed="false" spacing="6.0" styleClass="admin-subnav">
                 <Button fx:id="eventEventsNavButton" text="Events" maxWidth="Infinity" onAction="#showEventEvents" styleClass="admin-subnav-button" />

@@ -25,42 +25,73 @@ public class EmailService {
     public void sendVerificationEmail(String toEmail, String username, String verificationToken) {
         String displayName = username == null || username.isBlank() ? "there" : username.trim();
         String subject = "Verify your Pegasus account";
-        String body = """
-                Hello %s,
-
-                Welcome to Pegasus.
-
-                Your verification code is:
-                %s
-
-                Enter this code in the Pegasus app to activate your account.
-
-                If you did not create this account, you can ignore this email.
-                """.formatted(displayName, verificationToken);
-
-        sendTextEmail(toEmail, subject, body);
+        String html = buildBrandedHtml(
+                "Verify Your Email",
+                "Welcome <strong>" + escapeHtml(displayName) + "</strong>, use this code to activate your Pegasus account.",
+                "Verification Code",
+                verificationToken,
+                "If you did not create this account, you can safely ignore this email."
+        );
+        sendHtmlEmail(toEmail, subject, html);
     }
 
     public void sendPasswordResetEmail(String toEmail, String username, String resetToken) {
         String displayName = username == null || username.isBlank() ? "there" : username.trim();
         String subject = "Reset your Pegasus password";
-        String body = """
-                Hello %s,
+        String html = buildBrandedHtml(
+                "Reset Password",
+                "Hello <strong>" + escapeHtml(displayName) + "</strong>, we received a request to reset your Pegasus password.",
+                "Reset Code",
+                resetToken,
+                "If you did not request a password reset, you can safely ignore this email."
+        );
+        sendHtmlEmail(toEmail, subject, html);
+    }
 
-                We received a request to reset your Pegasus password.
+    public void sendRoleRequestApprovedEmail(String toEmail, String username, String requestedRole) {
+        String displayName = username == null || username.isBlank() ? "there" : username.trim();
+        String role = requestedRole == null || requestedRole.isBlank() ? "requested role" : requestedRole.trim();
+        String subject = "Role request approved";
+        String html = buildBrandedHtml(
+                "Request Approved",
+                "Hello <strong>" + escapeHtml(displayName) + "</strong>, your request to become <strong>"
+                        + escapeHtml(role) + "</strong> has been approved.",
+                null,
+                null,
+                "You can now sign in and use your new role features."
+        );
+        sendHtmlEmail(toEmail, subject, html);
+    }
 
-                Your reset code is:
-                %s
+    public void sendRoleRequestRejectedEmail(String toEmail, String username, String requestedRole, String reason) {
+        String displayName = username == null || username.isBlank() ? "there" : username.trim();
+        String role = requestedRole == null || requestedRole.isBlank() ? "requested role" : requestedRole.trim();
+        String rejectReason = reason == null || reason.isBlank() ? "No reason provided" : reason.trim();
+        String subject = "Role request update";
+        String html = buildBrandedHtml(
+                "Request Rejected",
+                "Hello <strong>" + escapeHtml(displayName) + "</strong>, your request to become <strong>"
+                        + escapeHtml(role) + "</strong> was rejected.",
+                "Reason",
+                rejectReason,
+                "You can update your information and submit a new request anytime."
+        );
+        sendHtmlEmail(toEmail, subject, html);
+    }
 
-                Enter this code in the Pegasus app to choose a new password.
-
-                If you did not request a password reset, you can ignore this email.
-                """.formatted(displayName, resetToken);
-
+    public void sendPlainEmail(String toEmail, String subject, String body) {
         sendTextEmail(toEmail, subject, body);
     }
 
     private void sendTextEmail(String toEmail, String subject, String body) {
+        sendEmail(toEmail, subject, body, false);
+    }
+
+    private void sendHtmlEmail(String toEmail, String subject, String htmlBody) {
+        sendEmail(toEmail, subject, htmlBody, true);
+    }
+
+    private void sendEmail(String toEmail, String subject, String body, boolean html) {
         Properties properties = new Properties();
         properties.put("mail.smtp.host", config.host());
         properties.put("mail.smtp.port", config.port());
@@ -79,15 +110,81 @@ public class EmailService {
             message.setFrom(new InternetAddress(config.from()));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             message.setSubject(subject);
-            message.setText(body);
+            if (html) {
+                message.setContent(body, "text/html; charset=UTF-8");
+            } else {
+                message.setText(body);
+            }
             Transport.send(message);
         } catch (MessagingException e) {
             String detail = e.getMessage();
             if (detail == null || detail.isBlank()) {
                 detail = "Unknown SMTP error.";
             }
-            throw new IllegalStateException("Could not send verification email: " + detail, e);
+            throw new IllegalStateException("Could not send email: " + detail, e);
         }
+    }
+
+    private String buildBrandedHtml(String title, String introHtml, String keyLabel, String keyValue, String footerText) {
+        String codeSection = "";
+        if (keyLabel != null && keyValue != null && !keyValue.isBlank()) {
+            codeSection = """
+                    <div style="margin:20px 0; background:#f5f7ff; border:1px solid #e4e8ff; border-radius:10px; padding:16px;">
+                      <div style="font-size:12px; color:#58607a; margin-bottom:8px;">%s</div>
+                      <div style="font-size:26px; letter-spacing:2px; font-weight:800; color:#111a3b;">%s</div>
+                    </div>
+                    """.formatted(escapeHtml(keyLabel), escapeHtml(keyValue));
+        }
+        return """
+                <html>
+                <body style="margin:0; padding:0; background:#f2f4fb; font-family:Segoe UI,Arial,sans-serif; color:#1e2438;">
+                  <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="padding:26px 12px;">
+                    <tr>
+                      <td align="center">
+                        <table role="presentation" width="620" cellpadding="0" cellspacing="0" style="width:620px; max-width:100%%; background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #e8ebf6;">
+                          <tr>
+                            <td style="background:linear-gradient(135deg,#0f1f4d,#223f9a); color:#ffffff; padding:22px 26px;">
+                              <div style="font-size:20px; font-weight:800; letter-spacing:.4px;">Pegasus</div>
+                              <div style="opacity:.86; margin-top:4px; font-size:13px;">Creative Platform</div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:24px 26px 10px 26px;">
+                              <div style="font-size:22px; font-weight:800; margin-bottom:12px;">%s</div>
+                              <div style="font-size:15px; line-height:1.65; color:#313b5f;">%s</div>
+                              %s
+                              <div style="font-size:13px; color:#6c7696; margin-top:8px;">%s</div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:18px 26px 24px 26px; border-top:1px solid #edf0fa; font-size:12px; color:#8b92ae;">
+                              This message was sent automatically by Pegasus.
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </body>
+                </html>
+                """.formatted(
+                escapeHtml(title),
+                introHtml == null ? "" : introHtml,
+                codeSection,
+                escapeHtml(footerText == null ? "" : footerText)
+        );
+    }
+
+    private String escapeHtml(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
     }
 
     private MailConfig loadConfig() {

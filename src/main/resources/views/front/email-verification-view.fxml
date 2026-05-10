@@ -32,7 +32,14 @@
                         <TextField fx:id="verificationCodeField" prefWidth="320.0" styleClass="input-field" />
                     </children>
                 </HBox>
+                <HBox alignment="CENTER" spacing="10.0">
+                    <children>
+                        <Label prefWidth="130.0" styleClass="form-label" text="Email" />
+                        <TextField fx:id="emailField" prefWidth="320.0" styleClass="input-field" />
+                    </children>
+                </HBox>
                 <Button mnemonicParsing="false" onAction="#onVerifyEmail" prefWidth="220.0" styleClass="gold-button" text="Verify Email" />
+                <Button mnemonicParsing="false" onAction="#onResendVerificationEmail" prefWidth="220.0" styleClass="secondary-button" text="Resend Verification Email" />
                 <Button mnemonicParsing="false" onAction="#onBackToSignIn" prefWidth="220.0" styleClass="secondary-button" text="Back to Sign In" />
             </children>
         </VBox>

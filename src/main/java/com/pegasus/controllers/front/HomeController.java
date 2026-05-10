@@ -122,6 +122,12 @@ public class HomeController {
     private Button editProfileButton;
 
     @FXML
+    private Button roleRequestButton;
+
+    @FXML
+    private Button roleRequestHistoryButton;
+
+    @FXML
     private Button navAuthButton;
 
     @FXML
@@ -751,7 +757,8 @@ public class HomeController {
 
     public void onGoToSignUp() {
         try {
-            SceneNavigator.goTo("/views/front/role-selection-view.fxml");
+            SceneNavigator.setSelectedRole("NORMAL_USER");
+            SceneNavigator.goTo("/views/front/signup-view.fxml");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -877,6 +884,22 @@ public class HomeController {
         }
     }
 
+    public void onGoToRoleRequest() {
+        try {
+            SceneNavigator.goTo("/views/front/role-request-view.fxml");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open role request page.");
+        }
+    }
+
+    public void onGoToRoleRequestHistory() {
+        try {
+            SceneNavigator.goTo("/views/front/role-request-history-view.fxml");
+        } catch (IOException e) {
+            showAlert(Alert.AlertType.ERROR, "Navigation Error", "Could not open role request history page.");
+        }
+    }
+
     private boolean requireSignedIn() {
         if (SceneNavigator.getCurrentUser() != null) {
             return true;
@@ -905,6 +928,16 @@ public class HomeController {
         if (editProfileButton != null) {
             editProfileButton.setVisible(loggedIn);
             editProfileButton.setManaged(loggedIn);
+        }
+        if (roleRequestButton != null) {
+            boolean canRequestRole = loggedIn && "normal_user".equalsIgnoreCase(currentUser.getDtype());
+            roleRequestButton.setVisible(canRequestRole);
+            roleRequestButton.setManaged(canRequestRole);
+        }
+        if (roleRequestHistoryButton != null) {
+            boolean canViewHistory = loggedIn;
+            roleRequestHistoryButton.setVisible(canViewHistory);
+            roleRequestHistoryButton.setManaged(canViewHistory);
         }
         if (navProfileButton != null) {
             navProfileButton.setVisible(false);
