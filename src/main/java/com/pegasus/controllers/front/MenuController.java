@@ -329,12 +329,91 @@ public class MenuController {
     }
 
     private Image loadArtworkImage(String imageUrl) {
-        String source = resolveArtworkImageSource(imageUrl);
-        Image image = new Image(source, 268, 178, false, true, true);
-        if (image.isError()) {
-            return new Image(getClass().getResource("/images/placeholder.jpg").toExternalForm(), 268, 178, false, true, true);
+        System.out.println("=== IMAGE: " + imageUrl + " ===");
+        
+        try {
+            // 1. Si URL vide -> placeholder direct
+            if (imageUrl == null || imageUrl.trim().isEmpty()) {
+                System.out.println("-> PLACEHOLDER (vide)");
+                java.io.InputStream stream = getClass().getResourceAsStream("/images/placeholder.jpg");
+                return stream != null ? new Image(stream) : createPlaceholderImage();
+            }
+            
+            String trimmed = imageUrl.trim();
+            
+            // 2. HTTP/HTTPS - test simple sans paramètres
+            if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+                System.out.println("-> TEST HTTP: " + trimmed);
+                Image img = new Image(trimmed);
+                if (!img.isError()) {
+                    System.out.println("✅ HTTP OK!");
+                    return img;
+                } else {
+                    System.out.println("❌ HTTP FAIL: " + img.getException());
+                }
+            }
+            
+            // 3. FICHIER LOCAL - méthode garantie
+            String[] pathsToTry = {
+                trimmed,                                    // nom direct
+                "uploads/" + trimmed,                        // uploads/relatif
+                System.getProperty("user.dir") + "/" + trimmed,  // absolu depuis user.dir
+                System.getProperty("user.dir") + "/uploads/" + trimmed  // uploads/absolu
+            };
+            
+            for (String path : pathsToTry) {
+                System.out.println("-> TEST FICHIER: " + path);
+                File file = new File(path);
+                if (file.exists() && file.isFile()) {
+                    try {
+                        String uri = file.toURI().toString();
+                        System.out.println("   FICHIER TROUVÉ: " + uri);
+                        Image img = new Image(uri);
+                        if (!img.isError()) {
+                            System.out.println("✅ FICHIER OK!");
+                            return img;
+                        } else {
+                            System.out.println("❌ FICHIER ERREUR: " + img.getException());
+                        }
+                    } catch (Exception e) {
+                        System.out.println("❌ FICHIER EXCEPTION: " + e.getMessage());
+                    }
+                } else {
+                    System.out.println("   FICHIER NON TROUVÉ");
+                }
+            }
+            
+            // 4. RESOURCES - test simple
+            try {
+                java.io.InputStream stream = getClass().getResourceAsStream("/images/" + trimmed);
+                if (stream != null) {
+                    System.out.println("-> RESOURCE TROUVÉE: /images/" + trimmed);
+                    Image img = new Image(stream);
+                    System.out.println("✅ RESOURCE OK!");
+                    return img;
+                }
+            } catch (Exception e) {
+                System.out.println("❌ RESOURCE FAIL: " + e.getMessage());
+            }
+            
+            // 5. PLACEHOLDER FINAL
+            System.out.println("-> PLACEHOLDER FINAL");
+            java.io.InputStream placeholderStream = getClass().getResourceAsStream("/images/placeholder.jpg");
+            if (placeholderStream != null) {
+                return new Image(placeholderStream);
+            }
+            return createPlaceholderImage();
+            
+        } catch (Exception e) {
+            System.out.println("❌ ERREUR FINALE: " + e.getMessage());
+            return createPlaceholderImage();
         }
-        return image;
+    }
+    
+    private Image createPlaceholderImage() {
+        // Crée une image placeholder de base
+        String dataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+        return new Image(dataUri);
     }
 
     private String resolveArtworkImageSource(String imageUrl) {
@@ -847,11 +926,25 @@ public class MenuController {
             contentLabel.setWrapText(true);
             contentLabel.setMaxWidth(520);
 
+            // Boutons d'action pour les commentaires principaux
+            HBox actionsBox = new HBox(8);
+            actionsBox.setAlignment(Pos.CENTER_LEFT);
+            
             Button replyButton = new Button("Reply");
             replyButton.getStyleClass().add("gallery-comment-reply-button");
             replyButton.setOnAction(e -> openReplyDialog(mainComment, art));
+            
+            Button editButton = new Button("Edit");
+            editButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #ffc107; -fx-border-color: #ffc107; -fx-border-width: 1; -fx-background-radius: 10; -fx-padding: 4px 12px; -fx-font-size: 12px; -fx-cursor: hand;");
+            editButton.setOnAction(e -> openEditCommentDialog(mainComment, art));
+            
+            Button deleteButton = new Button("Delete");
+            deleteButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #dc3545; -fx-border-color: #dc3545; -fx-border-width: 1; -fx-background-radius: 10; -fx-padding: 4px 12px; -fx-font-size: 12px; -fx-cursor: hand;");
+            deleteButton.setOnAction(e -> deleteComment(mainComment, art));
+            
+            actionsBox.getChildren().addAll(replyButton, editButton, deleteButton);
 
-            commentBox.getChildren().addAll(headerBox, contentLabel, replyButton);
+            commentBox.getChildren().addAll(headerBox, contentLabel, actionsBox);
 
             for (ServiceArtComment.Comment reply : replies) {
                 if (reply.getContent().contains("@" + mainComment.getUsername())) {
@@ -877,12 +970,88 @@ public class MenuController {
                     replyContentLabel.setWrapText(true);
                     replyContentLabel.setMaxWidth(480);
 
-                    replyBox.getChildren().addAll(replyHeader, replyContentLabel);
+                    // Boutons d'action pour les réponses
+                    HBox replyActionsBox = new HBox(6);
+                    replyActionsBox.setAlignment(Pos.CENTER_LEFT);
+
+                    Button replyEditButton = new Button("Edit");
+                    replyEditButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #ffc107; -fx-border-color: #ffc107; -fx-border-width: 1; -fx-background-radius: 8; -fx-padding: 2px 8px; -fx-font-size: 11px; -fx-cursor: hand;");
+                    replyEditButton.setOnAction(e -> openEditCommentDialog(reply, art));
+
+                    Button replyDeleteButton = new Button("Delete");
+                    replyDeleteButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #dc3545; -fx-border-color: #dc3545; -fx-border-width: 1; -fx-background-radius: 8; -fx-padding: 2px 8px; -fx-font-size: 11px; -fx-cursor: hand;");
+                    replyDeleteButton.setOnAction(e -> deleteComment(reply, art));
+
+                    Button replyReplyButton = new Button("Reply");
+                    replyReplyButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #17a2b8; -fx-border-color: #17a2b8; -fx-border-width: 1; -fx-background-radius: 8; -fx-padding: 2px 8px; -fx-font-size: 11px; -fx-cursor: hand;");
+                    replyReplyButton.setOnAction(e -> openReplyDialog(reply, art));
+
+                    replyActionsBox.getChildren().addAll(replyEditButton, replyDeleteButton, replyReplyButton);
+
+                    replyBox.getChildren().addAll(replyHeader, replyContentLabel, replyActionsBox);
                     commentBox.getChildren().add(replyBox);
                 }
             }
-
             container.getChildren().add(commentBox);
+        }
+    }
+    
+    private void openEditCommentDialog(ServiceArtComment.Comment comment, Art art) {
+        Dialog<String> editDialog = new Dialog<>();
+        editDialog.setTitle("Modifier le commentaire");
+        editDialog.setHeaderText("Modifier votre commentaire");
+        
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(20));
+        content.setPrefWidth(400);
+        
+        TextArea editArea = new TextArea(comment.getContent());
+        editArea.setPrefWidth(360);
+        editArea.setPrefHeight(100);
+        editArea.setWrapText(true);
+        editArea.setStyle("-fx-background-color: #f7fafc; -fx-border-color: #cbd5e0; -fx-border-radius: 5; -fx-padding: 8px;");
+        
+        content.getChildren().addAll(new Label("Nouveau contenu:"), editArea);
+        
+        editDialog.getDialogPane().setContent(content);
+        
+        ButtonType saveButton = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
+        editDialog.getDialogPane().getButtonTypes().addAll(saveButton, cancelButton);
+        
+        editDialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButton) {
+                String newContent = editArea.getText().trim();
+                return newContent.isEmpty() ? null : newContent;
+            }
+            return null;
+        });
+        
+        Optional<String> result = editDialog.showAndWait();
+        result.ifPresent(newContent -> {
+            if (commentService.updateComment(comment.getId(), newContent)) {
+                // Rafraîchir les commentaires
+                Platform.runLater(() -> openCommentDialog(art));
+            }
+        });
+    }
+    
+    private void deleteComment(ServiceArtComment.Comment comment, Art art) {
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Supprimer le commentaire");
+        confirmDialog.setHeaderText("Êtes-vous sûr de vouloir supprimer ce commentaire ?");
+        confirmDialog.setContentText("Cette action ne peut pas être annulée.");
+        
+        ButtonType yesButton = new ButtonType("Oui", ButtonBar.ButtonData.OK_DONE);
+        ButtonType noButton = new ButtonType("Non", ButtonBar.ButtonData.CANCEL_CLOSE);
+        confirmDialog.getButtonTypes().setAll(yesButton, noButton);
+        
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == yesButton) {
+            if (commentService.deleteComment(comment.getId())) {
+                // Rafraîchir les commentaires
+                Platform.runLater(() -> openCommentDialog(art));
+            }
         }
     }
 
@@ -1066,11 +1235,22 @@ public class MenuController {
             replyButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #17a2b8; -fx-border-color: #17a2b8; -fx-border-width: 1; -fx-background-radius: 10; -fx-padding: 4px 8px; -fx-font-size: 12px; -fx-cursor: hand;");
             replyButton.setOnAction(e -> openReplyDialog(mainComment, art));
             
-            HBox contentWithReply = new HBox(10);
-            contentWithReply.setAlignment(Pos.CENTER_LEFT);
-            contentWithReply.getChildren().addAll(contentLabel, replyButton);
+            Button editButton = new Button("Edit");
+            editButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #ffc107; -fx-border-color: #ffc107; -fx-border-width: 1; -fx-background-radius: 10; -fx-padding: 4px 8px; -fx-font-size: 12px; -fx-cursor: hand;");
+            editButton.setOnAction(e -> openEditCommentDialog(mainComment, art));
             
-            commentBox.getChildren().addAll(headerBox, contentWithReply);
+            Button deleteButton = new Button("Delete");
+            deleteButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #dc3545; -fx-border-color: #dc3545; -fx-border-width: 1; -fx-background-radius: 10; -fx-padding: 4px 8px; -fx-font-size: 12px; -fx-cursor: hand;");
+            deleteButton.setOnAction(e -> deleteComment(mainComment, art));
+            
+            HBox actionsBox = new HBox(8);
+            actionsBox.setAlignment(Pos.CENTER_LEFT);
+            actionsBox.getChildren().addAll(replyButton, editButton, deleteButton);
+            
+            VBox contentWithActions = new VBox(8);
+            contentWithActions.getChildren().addAll(contentLabel, actionsBox);
+            
+            commentBox.getChildren().addAll(headerBox, contentWithActions);
             
             // Ajouter les rÃƒÆ’Ã‚Â©ponses sous ce commentaire
             for (ServiceArtComment.Comment reply : replies) {
@@ -1099,7 +1279,25 @@ public class MenuController {
                     replyContentLabel.setStyle("-fx-text-fill: #495057; -fx-wrap-text: true; -fx-font-size: 12px;");
                     replyContentLabel.setPrefWidth(420);
                     
-                    replyBox.getChildren().addAll(replyHeader, replyContentLabel);
+                    // Buttons for replies: Reply, Edit, Delete
+                    HBox replyActionsBox = new HBox(6);
+                    replyActionsBox.setAlignment(Pos.CENTER_LEFT);
+                    
+                    Button replyReplyButton = new Button("Reply");
+                    replyReplyButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #17a2b8; -fx-border-color: #17a2b8; -fx-border-width: 1; -fx-background-radius: 8; -fx-padding: 2px 6px; -fx-font-size: 11px; -fx-cursor: hand;");
+                    replyReplyButton.setOnAction(e -> openReplyDialog(reply, art));
+                    
+                    Button replyEditButton = new Button("Edit");
+                    replyEditButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #ffc107; -fx-border-color: #ffc107; -fx-border-width: 1; -fx-background-radius: 8; -fx-padding: 2px 6px; -fx-font-size: 11px; -fx-cursor: hand;");
+                    replyEditButton.setOnAction(e -> openEditCommentDialog(reply, art));
+                    
+                    Button replyDeleteButton = new Button("Delete");
+                    replyDeleteButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #dc3545; -fx-border-color: #dc3545; -fx-border-width: 1; -fx-background-radius: 8; -fx-padding: 2px 6px; -fx-font-size: 11px; -fx-cursor: hand;");
+                    replyDeleteButton.setOnAction(e -> deleteComment(reply, art));
+                    
+                    replyActionsBox.getChildren().addAll(replyReplyButton, replyEditButton, replyDeleteButton);
+                    
+                    replyBox.getChildren().addAll(replyHeader, replyContentLabel, replyActionsBox);
                     commentBox.getChildren().add(replyBox);
                 }
             }
@@ -1111,7 +1309,7 @@ public class MenuController {
     private void openReplyDialog(ServiceArtComment.Comment parentComment, Art art) {
         Dialog<String> replyDialog = new Dialog<>();
         replyDialog.setTitle("Repondre au commentaire");
-        replyDialog.setHeaderText("Repondre a : " + parentComment.getUsername());
+        String currentUsername = resolveCurrentCommentUsername();
         
         VBox content = new VBox(10);
         content.setPadding(new Insets(20));
@@ -1123,8 +1321,8 @@ public class MenuController {
         parentLabel.setPrefWidth(360);
         
         // Champ pour la rÃƒÆ’Ã‚Â©ponse
-        TextField replyNameField = new TextField();
-        replyNameField.setPromptText("Votre nom");
+        Label userLabel = new Label("Replying as: " + currentUsername);
+        userLabel.setStyle("-fx-text-fill: #495057; -fx-font-size: 12;");
         
         TextArea replyArea = new TextArea();
         replyArea.setPromptText("Votre reponse...");
@@ -1132,7 +1330,7 @@ public class MenuController {
         replyArea.setPrefHeight(60);
         replyArea.setWrapText(true);
         
-        content.getChildren().addAll(parentLabel, new Separator(), replyNameField, replyArea);
+        content.getChildren().addAll(parentLabel, new Separator(), userLabel, replyArea);
         
         replyDialog.getDialogPane().setContent(content);
         
@@ -1142,10 +1340,9 @@ public class MenuController {
         
         replyDialog.setResultConverter(dialogButton -> {
             if (dialogButton == replyButton) {
-                String name = replyNameField.getText().trim();
                 String reply = replyArea.getText().trim();
                 
-                if (!name.isEmpty() && !reply.isEmpty()) {
+                if (!reply.isEmpty()) {
                     String replyText = "@" + parentComment.getUsername() + ": " + reply;
                     return replyText;
                 }
@@ -1155,7 +1352,7 @@ public class MenuController {
         
         Optional<String> result = replyDialog.showAndWait();
         result.ifPresent(replyText -> {
-            if (commentService.addComment(art.getId(), replyNameField.getText().trim(), replyText)) {
+            if (commentService.addComment(art.getId(), currentUsername, replyText)) {
                 
                 // Fermer le dialog principal et le rouvrir pour rafraÃƒÆ’Ã‚Â®chir
                 replyDialog.close();
@@ -1187,44 +1384,150 @@ public class MenuController {
         
         VBox content = new VBox(15);
         content.setPadding(new Insets(20));
-        content.setPrefWidth(500);
+        content.setPrefWidth(600);
         
-        // Afficher les citations
-        VBox quotesContainer = new VBox(10);
-        quotesContainer.setStyle("-fx-padding: 10px;");
+        // Afficher les citations avec design original
+        VBox quotesContainer = new VBox(15);
+        quotesContainer.setStyle("-fx-padding: 15px; -fx-background-color: #f8f9fa; -fx-background-radius: 12;");
+        
+        // Titre stylisé
+        Label quotesTitle = new Label("✨ Citations Inspirantes ✨");
+        quotesTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-alignment: center;");
+        
+        quotesContainer.getChildren().add(quotesTitle);
         
         try {
             int totalQuotes = quotesService.getTotalQuotes();
+            String[] quoteColors = {
+                "-fx-background-color: #667eea; -fx-text-fill: white;",
+                "-fx-background-color: #f093fb; -fx-text-fill: white;",
+                "-fx-background-color: #4facfe; -fx-text-fill: white;",
+                "-fx-background-color: #43e97b; -fx-text-fill: white;",
+                "-fx-background-color: #fa709a; -fx-text-fill: white;"
+            };
+            
             for (int i = 0; i < Math.min(5, totalQuotes); i++) {
                 String quote = quotesService.getQuoteByIndex(i);
-                Label quoteLabel = new Label(quote);
-                quoteLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #2c3e50; -fx-wrap-text: true; -fx-padding: 10px; -fx-background-color: #f8f9fa; -fx-background-radius: 8;");
+                
+                // Container pour chaque citation avec effet de carte
+                VBox quoteCard = new VBox(8);
+                quoteCard.setStyle(quoteColors[i % quoteColors.length] + 
+                    "-fx-background-radius: 12; -fx-padding: 15px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 2, 4); -fx-min-width: 400; -fx-pref-width: 400;");
+                
+                // Icône de citation
+                Label quoteIcon = new Label("💭");
+                quoteIcon.setStyle("-fx-font-size: 20px;");
+                
+                // Texte de la citation
+                Label quoteLabel = new Label("\"" + quote + "\"");
+                quoteLabel.setStyle("-fx-font-size: 13px; -fx-font-style: italic; -fx-wrap-text: true; -fx-line-spacing: 2; -fx-text-fill: #000000; -fx-min-width: 350; -fx-pref-width: 350;");
                 quoteLabel.setWrapText(true);
-                quotesContainer.getChildren().add(quoteLabel);
+                quoteLabel.setMaxWidth(400);
+                
+                // Numéro de citation
+                Label quoteNumber = new Label("Citation #" + (i + 1));
+                quoteNumber.setStyle("-fx-font-size: 10px; -fx-opacity: 0.8; -fx-alignment: right; -fx-text-fill: #000000;");
+                
+                quoteCard.getChildren().addAll(quoteIcon, quoteLabel, quoteNumber);
+                
+                // Animation d'entrée
+                quoteCard.setOpacity(0);
+                quoteCard.setTranslateY(20);
+                
+                Timeline fadeIn = new Timeline(
+                    new KeyFrame(Duration.ZERO, 
+                        new KeyValue(quoteCard.opacityProperty(), 0),
+                        new KeyValue(quoteCard.translateYProperty(), 20)
+                    ),
+                    new KeyFrame(Duration.millis(500 + i * 100),
+                        new KeyValue(quoteCard.opacityProperty(), 1),
+                        new KeyValue(quoteCard.translateYProperty(), 0)
+                    )
+                );
+                fadeIn.play();
+                
+                quotesContainer.getChildren().add(quoteCard);
             }
         } catch (Exception e) {
+            VBox errorCard = new VBox(10);
+            errorCard.setStyle("-fx-background-color: #ff6b6b; -fx-background-radius: 12; -fx-padding: 15px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 2, 4);");
+            
+            Label errorIcon = new Label("⚠️");
+            errorIcon.setStyle("-fx-font-size: 20px;");
+            
             Label errorLabel = new Label("Erreur lors du chargement des citations");
-            errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #e74c3c;");
-            quotesContainer.getChildren().add(errorLabel);
+            errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white; -fx-font-weight: bold;");
+            
+            errorCard.getChildren().addAll(errorIcon, errorLabel);
+            quotesContainer.getChildren().add(errorCard);
         }
         
         ScrollPane scrollPane = new ScrollPane(quotesContainer);
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefHeight(300);
         
-        // Bouton pour rafraÃƒÆ’Ã‚Â®chir les citations
-        Button refreshButton = new Button("Nouvelle citation");
-        refreshButton.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8px 16px;");
+        // Bouton pour rafraîchir les citations avec design original
+        Button refreshButton = new Button("🎲 Citation Aléatoire");
+        refreshButton.setStyle("-fx-background-color: #667eea; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10px 20px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0, 2, 4);");
+        
+        // Animation au survol
+        refreshButton.setOnMouseEntered(e -> {
+            refreshButton.setStyle("-fx-background-color: #764ba2; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10px 20px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 2, 4);");
+        });
+        
+        refreshButton.setOnMouseExited(e -> {
+            refreshButton.setStyle("-fx-background-color: #667eea; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 10px 20px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0, 2, 4);");
+        });
+        
         refreshButton.setOnAction(e -> {
             Dialog<Void> newDialog = new Dialog<>();
-            newDialog.setTitle("Citation du jour");
-            newDialog.setHeaderText("Citation aleatoire");
-            VBox newContent = new VBox(15);
-            newContent.setPadding(new Insets(20));
-            Label randomQuote = new Label(quotesService.getFormattedQuote());
-            randomQuote.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #e74c3c; -fx-wrap-text: true; -fx-padding: 15px;");
+            newDialog.setTitle("✨ Citation du Jour ✨");
+            newDialog.setHeaderText(null);
+            
+            VBox newContent = new VBox(20);
+            newContent.setPadding(new Insets(25));
+            newContent.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 15;");
+            
+            // Carte de citation aléatoire
+            VBox randomQuoteCard = new VBox(15);
+            randomQuoteCard.setStyle("-fx-background-color: #ff6b6b; -fx-background-radius: 15; -fx-padding: 25px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 12, 0, 4, 8);");
+            
+            // Icône animée
+            Label sparklesIcon = new Label("✨");
+            sparklesIcon.setStyle("-fx-font-size: 30px; -fx-alignment: center;");
+            
+            // Citation aléatoire
+            Label randomQuote = new Label("\"" + quotesService.getFormattedQuote() + "\"");
+            randomQuote.setStyle("-fx-font-size: 16px; -fx-font-style: italic; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-wrap-text: true; -fx-line-spacing: 3; -fx-alignment: center;");
             randomQuote.setWrapText(true);
-            newContent.getChildren().add(randomQuote);
+            randomQuote.setMaxWidth(400);
+            
+            // Auteur
+            Label authorLabel = new Label("- Citation Inspirante -");
+            authorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #000000; -fx-font-style: italic; -fx-alignment: right;");
+            
+            randomQuoteCard.getChildren().addAll(sparklesIcon, randomQuote, authorLabel);
+            
+            // Animation d'apparition
+            randomQuoteCard.setOpacity(0);
+            randomQuoteCard.setScaleX(0.8);
+            randomQuoteCard.setScaleY(0.8);
+            
+            Timeline popIn = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                    new KeyValue(randomQuoteCard.opacityProperty(), 0),
+                    new KeyValue(randomQuoteCard.scaleXProperty(), 0.8),
+                    new KeyValue(randomQuoteCard.scaleYProperty(), 0.8)
+                ),
+                new KeyFrame(Duration.millis(400),
+                    new KeyValue(randomQuoteCard.opacityProperty(), 1),
+                    new KeyValue(randomQuoteCard.scaleXProperty(), 1),
+                    new KeyValue(randomQuoteCard.scaleYProperty(), 1)
+                )
+            );
+            popIn.play();
+            
+            newContent.getChildren().add(randomQuoteCard);
             newDialog.getDialogPane().setContent(newContent);
             newDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
             newDialog.showAndWait();
@@ -1239,41 +1542,109 @@ public class MenuController {
     @FXML
     private void handleArtists() {
         Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Artistes celebres");
-        dialog.setHeaderText("Biographies des grands maitres");
+        dialog.setTitle("🎨 Artistes Célèbres");
+        dialog.setHeaderText("Explorez les grands maîtres de l'art");
         
-        VBox content = new VBox(10);
-        content.setPadding(new Insets(20));
-        content.setPrefWidth(600);
+        VBox content = new VBox(15);
+        content.setPadding(new Insets(25));
+        content.setPrefWidth(650);
+        content.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 15;");
         
-        // Liste des artistes
-        String[] artists = {
-            "Vincent van Gogh",
-            "Pablo Picasso", 
-            "Claude Monet",
-            "Leonardo da Vinci",
-            "Henri Matisse",
-            "Salvador Dali",
-            "Frida Kahlo",
-            "Paul Cezanne"
+        // Titre stylisé
+        Label titleLabel = new Label("🎨 Galerie des Artistes 🎨");
+        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #000000; -fx-alignment: center;");
+        
+        // Liste améliorée des artistes avec plus d'informations
+        String[][] artists = {
+            {"Vincent van Gogh", "Post-Impressionnisme", "🌻", "1853-1890"},
+            {"Pablo Picasso", "Cubisme", "🎭", "1881-1973"},
+            {"Claude Monet", "Impressionnisme", "🌅", "1840-1926"},
+            {"Leonardo da Vinci", "Renaissance", "🔬", "1452-1519"},
+            {"Henri Matisse", "Fauvisme", "🎨", "1869-1954"},
+            {"Salvador Dali", "Surréalisme", "🕰️", "1904-1989"},
+            {"Frida Kahlo", "Surréalisme", "🦋", "1907-1954"},
+            {"Paul Cézanne", "Post-Impressionnisme", "🏔️", "1839-1906"}
         };
         
-        VBox artistsList = new VBox(8);
-        artistsList.setStyle("-fx-padding: 10px;");
+        VBox artistsList = new VBox(12);
+        artistsList.setStyle("-fx-padding: 15px; -fx-background-radius: 12; -fx-background-color: white;");
         
-        for (String artist : artists) {
-            Button artistBtn = new Button(artist);
-            artistBtn.setStyle("-fx-background-color: #667eea; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 10px 16px; -fx-font-size: 12px; -fx-cursor: hand; -fx-max-width: Infinity;");
-            artistBtn.setMaxWidth(Double.MAX_VALUE);
-            artistBtn.setOnAction(e -> showArtistBiography(artist));
-            artistsList.getChildren().add(artistBtn);
+        for (int i = 0; i < artists.length; i++) {
+            String[] artist = artists[i];
+            
+            // Carte d'artiste moderne
+            HBox artistCard = new HBox(15);
+            artistCard.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-padding: 15px; -fx-border-color: #e9ecef; -fx-border-width: 1; -fx-cursor: hand;");
+            artistCard.setAlignment(Pos.CENTER_LEFT);
+            
+            // Icône de l'artiste
+            Label iconLabel = new Label(artist[2]);
+            iconLabel.setStyle("-fx-font-size: 30px;");
+            
+            // Informations de l'artiste
+            VBox artistInfo = new VBox(5);
+            
+            Label nameLabel = new Label(artist[0]);
+            nameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+            
+            Label styleLabel = new Label(artist[1]);
+            styleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6c757d; -fx-font-style: italic;");
+            
+            Label periodLabel = new Label(artist[3]);
+            periodLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #868e96;");
+            
+            artistInfo.getChildren().addAll(nameLabel, styleLabel, periodLabel);
+            
+            // Bouton d'action
+            Button detailsBtn = new Button("Voir +");
+            detailsBtn.setStyle("-fx-background-color: #667eea; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 6px 12px; -fx-font-size: 11px;");
+            
+            // Assemblage de la carte
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            
+            artistCard.getChildren().addAll(iconLabel, artistInfo, spacer, detailsBtn);
+            
+            // Animation au survol
+            artistCard.setOnMouseEntered(e -> {
+                artistCard.setStyle("-fx-background-color: #e3f2fd; -fx-background-radius: 12; -fx-padding: 15px; -fx-border-color: #667eea; -fx-border-width: 2; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 6, 0, 2, 4);");
+                detailsBtn.setStyle("-fx-background-color: #764ba2; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 6px 12px; -fx-font-size: 11px;");
+            });
+            
+            artistCard.setOnMouseExited(e -> {
+                artistCard.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 12; -fx-padding: 15px; -fx-border-color: #e9ecef; -fx-border-width: 1; -fx-cursor: hand;");
+                detailsBtn.setStyle("-fx-background-color: #667eea; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 6px 12px; -fx-font-size: 11px;");
+            });
+            
+            // Action pour voir la biographie
+            artistCard.setOnMouseClicked(e -> showArtistBiography(artist[0]));
+            detailsBtn.setOnAction(e -> showArtistBiography(artist[0]));
+            
+            // Animation d'entrée
+            artistCard.setOpacity(0);
+            artistCard.setTranslateX(-20);
+            
+            Timeline slideIn = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                    new KeyValue(artistCard.opacityProperty(), 0),
+                    new KeyValue(artistCard.translateXProperty(), -20)
+                ),
+                new KeyFrame(Duration.millis(300 + i * 50),
+                    new KeyValue(artistCard.opacityProperty(), 1),
+                    new KeyValue(artistCard.translateXProperty(), 0)
+                )
+            );
+            slideIn.play();
+            
+            artistsList.getChildren().add(artistCard);
         }
         
         ScrollPane scrollPane = new ScrollPane(artistsList);
         scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(400);
+        scrollPane.setPrefHeight(450);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
         
-        content.getChildren().addAll(new Label("Selectionnez un artiste pour sa biographie:"), scrollPane);
+        content.getChildren().addAll(titleLabel, scrollPane);
         dialog.getDialogPane().setContent(content);
         dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         dialog.showAndWait();
@@ -1281,30 +1652,166 @@ public class MenuController {
     
     private void showArtistBiography(String artistName) {
         Dialog<Void> bioDialog = new Dialog<>();
-        bioDialog.setTitle("Biographie : " + artistName);
-        bioDialog.setHeaderText(artistName);
+        bioDialog.setTitle("🎨 " + artistName);
+        bioDialog.setHeaderText(null);
         
-        VBox content = new VBox(10);
-        content.setPadding(new Insets(20));
-        content.setPrefWidth(500);
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(25));
+        content.setPrefWidth(600);
+        content.setStyle("-fx-background-color: #667eea; -fx-background-radius: 15;");
         
         try {
+            // En-tête stylisé
+            HBox headerBox = new HBox(15);
+            headerBox.setAlignment(Pos.CENTER_LEFT);
+            headerBox.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 12; -fx-padding: 20px;");
+            
+            // Icône d'artiste
+            Label artistIcon = new Label(getArtistIcon(artistName));
+            artistIcon.setStyle("-fx-font-size: 40px;");
+            
+            // Informations de l'artiste
+            VBox artistHeaderInfo = new VBox(5);
+            
+            Label artistTitle = new Label(artistName);
+            artistTitle.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;");
+            
+            Label artistStyle = new Label(getArtistStyle(artistName));
+            artistStyle.setStyle("-fx-font-size: 14px; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-style: italic;");
+            
+            Label artistPeriod = new Label(getArtistPeriod(artistName));
+            artistPeriod.setStyle("-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.7);");
+            
+            artistHeaderInfo.getChildren().addAll(artistTitle, artistStyle, artistPeriod);
+            headerBox.getChildren().addAll(artistIcon, artistHeaderInfo);
+            
+            // Contenu de la biographie
+            VBox bioContainer = new VBox(15);
+            bioContainer.setStyle("-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 25px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 4, 8);");
+            
+            Label bioTitle = new Label("📖 Biographie");
+            bioTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-alignment: center;");
+            
             String biography = artistsService.getArtistBiography(artistName);
+            
+            // Texte de biographie stylisé
             TextArea bioArea = new TextArea(biography);
             bioArea.setWrapText(true);
             bioArea.setEditable(false);
-            bioArea.setPrefHeight(300);
-            bioArea.setStyle("-fx-font-size: 12px; -fx-control-inner-background: #f8f9fa; -fx-text-fill: #2c3e50;");
-            content.getChildren().add(bioArea);
+            bioArea.setPrefHeight(250);
+            bioArea.setStyle("-fx-font-size: 13px; -fx-control-inner-background: #f8f9fa; -fx-text-fill: #2c3e50; -fx-border-color: transparent; -fx-background-radius: 8; -fx-line-spacing: 2;");
+            
+            // Section des œuvres célèbres
+            HBox worksSection = new HBox(10);
+            worksSection.setAlignment(Pos.CENTER_LEFT);
+            worksSection.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-padding: 15px;");
+            
+            Label worksIcon = new Label("🖼️");
+            worksIcon.setStyle("-fx-font-size: 20px;");
+            
+            Label worksLabel = new Label(getFamousWorks(artistName));
+            worksLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6c757d; -fx-font-style: italic;");
+            
+            worksSection.getChildren().addAll(worksIcon, worksLabel);
+            
+            bioContainer.getChildren().addAll(bioTitle, bioArea, worksSection);
+            
+            // Animation d'apparition
+            bioContainer.setOpacity(0);
+            bioContainer.setTranslateY(30);
+            
+            Timeline fadeIn = new Timeline(
+                new KeyFrame(Duration.ZERO,
+                    new KeyValue(bioContainer.opacityProperty(), 0),
+                    new KeyValue(bioContainer.translateYProperty(), 30)
+                ),
+                new KeyFrame(Duration.millis(600),
+                    new KeyValue(bioContainer.opacityProperty(), 1),
+                    new KeyValue(bioContainer.translateYProperty(), 0)
+                )
+            );
+            fadeIn.play();
+            
+            content.getChildren().addAll(headerBox, bioContainer);
+            
         } catch (Exception e) {
+            // Message d'erreur stylisé
+            VBox errorContainer = new VBox(15);
+            errorContainer.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 12; -fx-padding: 20px; -fx-alignment: center;");
+            
+            Label errorIcon = new Label("⚠️");
+            errorIcon.setStyle("-fx-font-size: 30px;");
+            
             Label errorLabel = new Label("Erreur lors du chargement de la biographie");
-            errorLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #e74c3c;");
-            content.getChildren().add(errorLabel);
+            errorLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold;");
+            
+            Label errorSubLabel = new Label("Veuillez réessayer plus tard");
+            errorSubLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.8);");
+            
+            errorContainer.getChildren().addAll(errorIcon, errorLabel, errorSubLabel);
+            content.getChildren().add(errorContainer);
         }
         
         bioDialog.getDialogPane().setContent(content);
         bioDialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
         bioDialog.showAndWait();
+    }
+    
+    // Méthodes utilitaires pour les informations des artistes
+    private String getArtistIcon(String artistName) {
+        switch (artistName) {
+            case "Vincent van Gogh": return "🌻";
+            case "Pablo Picasso": return "🎭";
+            case "Claude Monet": return "🌅";
+            case "Leonardo da Vinci": return "🔬";
+            case "Henri Matisse": return "🎨";
+            case "Salvador Dali": return "🕰️";
+            case "Frida Kahlo": return "🦋";
+            case "Paul Cézanne": return "🏔️";
+            default: return "🎨";
+        }
+    }
+    
+    private String getArtistStyle(String artistName) {
+        switch (artistName) {
+            case "Vincent van Gogh": return "Post-Impressionnisme";
+            case "Pablo Picasso": return "Cubisme";
+            case "Claude Monet": return "Impressionnisme";
+            case "Leonardo da Vinci": return "Renaissance";
+            case "Henri Matisse": return "Fauvisme";
+            case "Salvador Dali": return "Surréalisme";
+            case "Frida Kahlo": return "Surréalisme";
+            case "Paul Cézanne": return "Post-Impressionnisme";
+            default: return "Artiste";
+        }
+    }
+    
+    private String getArtistPeriod(String artistName) {
+        switch (artistName) {
+            case "Vincent van Gogh": return "1853-1890";
+            case "Pablo Picasso": return "1881-1973";
+            case "Claude Monet": return "1840-1926";
+            case "Leonardo da Vinci": return "1452-1519";
+            case "Henri Matisse": return "1869-1954";
+            case "Salvador Dali": return "1904-1989";
+            case "Frida Kahlo": return "1907-1954";
+            case "Paul Cézanne": return "1839-1906";
+            default: return "Période inconnue";
+        }
+    }
+    
+    private String getFamousWorks(String artistName) {
+        switch (artistName) {
+            case "Vincent van Gogh": return "Œuvres célèbres: Les Tournesols, La Nuit étoilée";
+            case "Pablo Picasso": return "Œuvres célèbres: Les Demoiselles d'Avignon, Guernica";
+            case "Claude Monet": return "Œuvres célèbres: Les Nymphéas, Impression, soleil levant";
+            case "Leonardo da Vinci": return "Œuvres célèbres: Mona Lisa, La Joconde, Le Vinci";
+            case "Henri Matisse": return "Œuvres célèbres: La Danse, Le Bonheur de vivre";
+            case "Salvador Dali": return "Œuvres célèbres: La Persistance de la mémoire, Éléphants";
+            case "Frida Kahlo": return "Œuvres célèbres: Les Deux Frida, La Colonne brisée";
+            case "Paul Cézanne": return "Œuvres célèbres: Les Joueurs de cartes, La Montagne Sainte-Victoire";
+            default: return "Œuvres célèbres inconnues";
+        }
     }
     
     @FXML

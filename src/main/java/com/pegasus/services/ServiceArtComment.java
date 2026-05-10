@@ -147,6 +147,25 @@ public class ServiceArtComment {
         return false;
     }
     
+    public boolean updateComment(int commentId, String newContent) {
+        String sql = "UPDATE art_comment SET content = ? WHERE id = ?";
+        
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, newContent);
+            pstmt.setInt(2, commentId);
+            
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Erreur mise à jour commentaire: " + e.getMessage());
+        }
+        
+        return false;
+    }
+    
     // Classe interne pour les commentaires
     public static class Comment {
         private int id;
