@@ -501,6 +501,14 @@
     -fx-background-color: #d7f6ef;
 }
 
+.admin-table .table-row-cell.admin-row-safe {
+    -fx-background-color: #ecfdf5;
+}
+
+.admin-table .table-row-cell.admin-row-unsafe {
+    -fx-background-color: #fff1f2;
+}
+
 .admin-table-success-button,
 .admin-table-warning-button,
 .admin-table-danger-button {
@@ -528,6 +536,7 @@
     -fx-alignment: center-left;
 }
 
+.admin-table-analyse-button,
 .admin-table-approve-button,
 .admin-table-edit-button,
 .admin-table-delete-button {
@@ -537,6 +546,14 @@
     -fx-font-weight: 900;
     -fx-padding: 7 11 7 11;
     -fx-cursor: hand;
+}
+
+.admin-table-analyse-button {
+    -fx-background-color: linear-gradient(to right, #0ea5e9, #0284c7);
+}
+
+.admin-table-analyse-button:hover {
+    -fx-background-color: linear-gradient(to right, #0284c7, #0369a1);
 }
 
 .admin-table-approve-button {

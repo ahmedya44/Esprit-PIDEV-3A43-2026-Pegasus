@@ -1,12 +1,16 @@
 package com.pegasus.controllers.back;
 
+import com.pegasus.controllers.SceneNavigator;
 import com.pegasus.entities.Course;
 import com.pegasus.entities.User;
 import com.pegasus.services.CourseService;
+import com.pegasus.services.ModerationService;
 import com.pegasus.services.ServiceUser;
+import com.pegasus.services.moderation.ModerationResult;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -27,9 +31,11 @@ import javafx.scene.layout.VBox;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public class AdminCourseModerationController {
     private static final String MODE_ACTIVE_CLASS = "admin-mode-button-active";
@@ -47,8 +53,11 @@ public class AdminCourseModerationController {
     @FXML private TableColumn<CourseRow, Void> actionsColumn;
 
     private final CourseService courseService = new CourseService();
+    private final ModerationService moderationService = new ModerationService();
     private final ObservableList<CourseRow> rows = FXCollections.observableArrayList();
     private final Map<Integer, String> artistNames = new HashMap<>();
+    private final Set<Integer> safeCourseIds = new HashSet<>();
+    private final Set<Integer> unsafeCourseIds = new HashSet<>();
     private ServiceUser userService;
     private boolean approvalMode = true;
 
@@ -100,6 +109,22 @@ public class AdminCourseModerationController {
     private void setupTable() {
         coursesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         coursesTable.setItems(rows);
+        coursesTable.setRowFactory(table -> new javafx.scene.control.TableRow<>() {
+            @Override
+            protected void updateItem(CourseRow item, boolean empty) {
+                super.updateItem(item, empty);
+                getStyleClass().removeAll("admin-row-safe", "admin-row-unsafe");
+                if (empty || item == null) {
+                    return;
+                }
+                int courseId = item.getCourse().getId();
+                if (unsafeCourseIds.contains(courseId)) {
+                    getStyleClass().add("admin-row-unsafe");
+                } else if (safeCourseIds.contains(courseId)) {
+                    getStyleClass().add("admin-row-safe");
+                }
+            }
+        });
 
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         artistColumn.setCellValueFactory(new PropertyValueFactory<>("artistName"));
@@ -129,16 +154,24 @@ public class AdminCourseModerationController {
 
     private TableCell<CourseRow, Void> createActionsCell() {
         return new TableCell<>() {
+            private final Button analyseButton = new Button("Analyse");
             private final Button approveButton = new Button("Approve");
             private final Button editButton = new Button("Edit");
             private final Button deleteButton = new Button("Delete");
             private final HBox actionsBox = new HBox(8);
 
             {
+                analyseButton.getStyleClass().add("admin-table-analyse-button");
                 approveButton.getStyleClass().add("admin-table-approve-button");
                 editButton.getStyleClass().add("admin-table-edit-button");
                 deleteButton.getStyleClass().add("admin-table-delete-button");
 
+                analyseButton.setOnAction(event -> {
+                    CourseRow row = currentRow();
+                    if (row != null) {
+                        analyzeCourse(row);
+                    }
+                });
                 approveButton.setOnAction(event -> {
                     CourseRow row = currentRow();
                     if (row != null) {
@@ -169,6 +202,7 @@ public class AdminCourseModerationController {
 
                 CourseRow row = currentRow();
                 actionsBox.getChildren().clear();
+                actionsBox.getChildren().add(analyseButton);
                 if (approvalMode && row != null) {
                     approveButton.setDisable(!"DRAFT".equalsIgnoreCase(row.getStatus()));
                     actionsBox.getChildren().add(approveButton);
@@ -186,6 +220,60 @@ public class AdminCourseModerationController {
                 return getTableView().getItems().get(index);
             }
         };
+    }
+
+    private void analyzeCourse(CourseRow row) {
+        Course course = row.getCourse();
+        if (course == null) {
+            return;
+        }
+
+        Task<ModerationResult> task = new Task<>() {
+            @Override
+            protected ModerationResult call() throws Exception {
+                return moderationService.analyzeCourse(course);
+            }
+        };
+
+        task.setOnRunning(event -> {
+            coursesTable.setDisable(true);
+            SceneNavigator.showSnackbar("Moderation Check", "Analysing \"" + course.getTitle() + "\"...", false);
+        });
+
+        task.setOnSucceeded(event -> {
+            coursesTable.setDisable(false);
+            ModerationResult result = task.getValue();
+            if (result.isSafe()) {
+                safeCourseIds.add(course.getId());
+                unsafeCourseIds.remove(course.getId());
+                coursesTable.refresh();
+                SceneNavigator.showToast("Course Moderation", "Course content is safe for approval");
+                return;
+            }
+
+            unsafeCourseIds.add(course.getId());
+            safeCourseIds.remove(course.getId());
+            coursesTable.refresh();
+            SceneNavigator.showSnackbar("Moderation Alert", "Issues detected for \"" + course.getTitle() + "\".", true);
+
+            StringBuilder issues = new StringBuilder();
+            for (String issue : result.getIssues()) {
+                issues.append("⚠ ").append(issue).append("\n");
+            }
+            showAlert(Alert.AlertType.WARNING, "Moderation Result", issues.toString().trim());
+        });
+
+        task.setOnFailed(event -> {
+            coursesTable.setDisable(false);
+            Throwable error = task.getException();
+            String message = error == null ? "Moderation analysis failed." : error.getMessage();
+            SceneNavigator.showSnackbar("Moderation Error", message, true);
+            showAlert(Alert.AlertType.ERROR, "Moderation Error", message);
+        });
+
+        Thread worker = new Thread(task, "course-moderation-task");
+        worker.setDaemon(true);
+        worker.start();
     }
 
     private void approveCourse(Course course) {
