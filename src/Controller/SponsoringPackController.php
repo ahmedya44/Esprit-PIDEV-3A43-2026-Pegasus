@@ -13,14 +13,26 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/sponsoring-pack')]
-#[IsGranted('ROLE_ADMIN')]
 class SponsoringPackController extends AbstractController
 {
-    #[Route('/', name: 'admin_sponsoring_pack_index', methods: ['GET'])]
-    public function index(SponsoringPackRepository $repo): Response
+    #[Route('/', name: 'admin_sponsoring_pack_index', methods: ['GET', 'POST'])]
+    public function index(Request $request, SponsoringPackRepository $repo, EntityManagerInterface $em): Response
     {
+        $pack = new SponsoringPack();
+        $form = $this->createForm(SponsoringPackType::class, $pack);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($pack);
+            $em->flush();
+            $this->addFlash('success', 'Pack créé avec succès.');
+            return $this->redirectToRoute('admin_sponsoring_pack_index');
+        }
+
         return $this->render('admin/sponsoring_pack/index.html.twig', [
             'packs' => $repo->findAll(),
+            'form'  => $form->createView(),
+            'form_has_errors' => $form->isSubmitted() && !$form->isValid(),
         ]);
     }
 

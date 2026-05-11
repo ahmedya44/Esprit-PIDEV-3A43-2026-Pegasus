@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -149,8 +150,15 @@ class EvenementController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('delete'.$evenement->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($evenement);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($evenement);
+                $entityManager->flush();
+                $this->addFlash('success', 'L\'événement a été supprimé.');
+            } catch (ForeignKeyConstraintViolationException $e) {
+                $this->addFlash('error', 'Impossible de supprimer cet événement car il contient déjà des participants ou des sponsors.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la suppression de l\'événement.');
+            }
         }
 
         return $this->redirectToRoute('app_evenement_index', [], Response::HTTP_SEE_OTHER);
@@ -165,9 +173,9 @@ class EvenementController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('accept'.$evenement->getId(), $request->request->get('_token'))) {
-            $evenement->setStatut('acceptée');
+            $evenement->setStatut('confirmé');
             $entityManager->flush();
-            $this->addFlash('success', 'L\'événement a été accepté.');
+            $this->addFlash('success', 'L\'événement a été confirmé.');
         }
 
         return $this->redirectToRoute('app_evenement_index', [], Response::HTTP_SEE_OTHER);
@@ -182,9 +190,9 @@ class EvenementController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('reject'.$evenement->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($evenement);
+            $evenement->setStatut('refusée');
             $entityManager->flush();
-            $this->addFlash('success', 'L\'événement a été refusé et supprimé.');
+            $this->addFlash('success', 'L\'événement a été refusé.');
         }
 
         return $this->redirectToRoute('app_evenement_index', [], Response::HTTP_SEE_OTHER);

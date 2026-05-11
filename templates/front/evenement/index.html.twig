@@ -28,7 +28,218 @@
   <!-- Custom styles for this template -->
   <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
   <!-- responsive style -->
+  <!-- responsive style -->
   <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+
+    body {
+        font-family: 'Outfit', sans-serif !important;
+    }
+
+    /* Prevent nice-select from hijacking the event sort */
+    #eventSort + .nice-select {
+        display: none !important;
+    }
+    #eventSort {
+        display: block !important;
+    }
+
+    .premium-card {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid #f1f2f6;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .premium-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    }
+
+    .img-box {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+    }
+
+    .img-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .premium-card:hover .img-box img {
+        transform: scale(1.1);
+    }
+
+    .sponsor-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(5px);
+        color: #f1c40f;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        z-index: 10;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .premium-detail {
+        padding: 25px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .premium-detail h5 {
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: #2d3436;
+        margin-bottom: 12px;
+        line-height: 1.2;
+    }
+
+    .premium-detail p {
+        color: #636e72;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+        flex-grow: 1;
+    }
+
+    .info-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #b2bec3;
+        font-weight: 600;
+    }
+
+    .info-item i {
+        color: #6c5ce7;
+    }
+
+    .price-tag {
+        color: #2ecc71;
+        font-weight: 800;
+        font-size: 1.6rem;
+    }
+
+    .btn-sponsor {
+        background: #f39c12;
+        color: white !important;
+        padding: 12px 25px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s;
+        box-shadow: 0 8px 20px rgba(243, 156, 18, 0.2);
+    }
+
+    .btn-sponsor:hover {
+        background: #e67e22;
+        transform: scale(1.05);
+    }
+
+    .btn-view {
+        background: #6c5ce7;
+        color: white !important;
+        padding: 12px 25px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        text-decoration: none !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s;
+        box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2);
+    }
+
+    .btn-view:hover {
+        background: #5b4cc4;
+        transform: scale(1.05);
+    }
+
+    .search-sort-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 60px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex-grow: 1;
+        max-width: 600px;
+        background: #fff;
+        border-radius: 50px;
+        padding: 5px 25px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+    }
+
+    .search-box input {
+        border: none !important;
+        outline: none !important;
+        height: 50px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        width: 100%;
+        margin-left: 10px;
+    }
+
+    .sort-box {
+        width: 250px;
+        background: #fff;
+        border-radius: 50px;
+        padding: 0 25px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+        position: relative;
+    }
+
+    .sort-box select {
+        border: none !important;
+        outline: none !important;
+        height: 60px;
+        width: 100%;
+        background: transparent;
+        font-weight: 700;
+        color: #2d3436;
+        cursor: pointer;
+        appearance: none;
+    }
+  </style>
 </head>
 
 <body class="sub_page">
@@ -125,56 +336,48 @@
     <!-- end header section -->
   </div>
 
-  <!-- evenements section -->
-  <section class="food_section glass-section layout_padding">
+  <section class="layout_padding" style="background: #f8f9fa;">
     <div class="container">
-      {% for label, messages in app.flashes %}
-          {% for message in messages %}
-              <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show mb-4" role="alert" style="border-radius: 15px;">
-                  {{ message }}
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-              </div>
-          {% endfor %}
-      {% endfor %}
-
-      <div class="heading_container heading_center">
-        <h2 class="neon-text">
-          Nos Événements
-        </h2>
-        <p class="mt-2 text-light opacity-75">Explorez et gérez les événements de notre communauté.</p>
-        
-        {% if is_granted('ROLE_ARTISTE') %}
-        <div class="mt-4 mb-4">
-          <a href="{{ path('front_evenements_new') }}" class="premium-btn">
-            <i class="fa fa-plus"></i> Ajouter un Événement
-          </a>
-        </div>
+      <div class="heading_container heading_center mb-5">
+        {% if is_granted('ROLE_SPONSOR') %}
+          <h2 style="font-weight: 800; font-size: 3.5rem; color: #2d3436; letter-spacing: -2px;">
+            Événements à Sponsoriser
+          </h2>
+          <p class="text-muted" style="font-size: 1.2rem; font-weight: 500;">Propulsez votre marque au cœur des meilleurs événements.</p>
+        {% else %}
+          <h2 style="font-weight: 800; font-size: 3.5rem; color: #2d3436; letter-spacing: -2px;">
+            Découvrez nos Événements
+          </h2>
+          <p class="text-muted" style="font-size: 1.2rem; font-weight: 500;">Vivez des expériences inoubliables avec notre communauté.</p>
         {% endif %}
+      </div>
 
-        <div class="row justify-content-center w-100 mt-2 mb-5">
-            <div class="col-md-8 col-lg-6 mb-3 mb-md-0">
-                <div class="search-container d-flex align-items-center" style="background-color: #ffffff !important; border-radius: 50px; padding: 5px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #a855f7;">
-                    <i class="fa fa-search" style="color: #a855f7; font-size: 18px;"></i>
-                    <input type="text" id="eventSearch" class="form-control flex-grow-1" placeholder="Rechercher un événement par titre..." style="background: transparent !important; border: none !important; color: #333 !important; font-size: 16px; font-weight: 500; height: 45px; box-shadow: none !important;">
-                </div>
-            </div>
+      <div class="search-sort-container">
+        <div class="search-box">
+            <i class="fa fa-search text-muted"></i>
+            <input type="text" id="eventSearch" placeholder="Rechercher par titre ou lieu...">
+        </div>
+        <div class="sort-box">
+            <select id="eventSort">
+                <option value="date_desc">Plus récent</option>
+                <option value="date_asc">Plus ancien</option>
+                <option value="price_asc">Prix croissant</option>
+                <option value="price_desc">Prix décroissant</option>
+                <option value="title_asc">Titre A-Z</option>
+            </select>
+            <i class="fa fa-chevron-down text-muted" style="position: absolute; right: 25px; pointer-events: none;"></i>
         </div>
       </div>
 
-      <div class="filters-content mt-5">
+      <div class="filters-content">
         <div class="row grid">
           {% for evenement in evenements %}
-          <div class="col-sm-6 col-lg-4 all mb-4">
+          <div class="col-sm-6 col-lg-4 mb-5">
             <div class="premium-card">
               <div class="img-box">
-                <div class="premium-badge d-flex align-items-center" style="gap: 10px;">
-                  <span>{{ evenement.type|default('Event')|capitalize }}</span>
-                  {% if evenement.statut == 'en attente' %}
-                    <span class="badge badge-warning" style="background-color: #f59e0b; color: white;">En attente</span>
-                  {% endif %}
-                </div>
+                {% if is_granted('ROLE_SPONSOR') %}
+                    <div class="sponsor-badge">Sponsor</div>
+                {% endif %}
                 {% if evenement.image %}
                     <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titre }}">
                 {% else %}
@@ -183,54 +386,46 @@
               </div>
               <div class="premium-detail">
                 <h5>{{ evenement.titre }}</h5>
-                <p class="text-truncate opacity-75">{{ evenement.description }}</p>
+                <p class="text-truncate-2">{{ evenement.description }}</p>
                 
-                <div class="premium-info-item">
-                  <i class="fa fa-calendar"></i>
-                  <span>{{ evenement.date ? evenement.date|date('d/m/Y') : '' }}</span>
-                </div>
-                <div class="premium-info-item">
-                  <i class="fa fa-map-marker"></i>
-                  <span>{{ evenement.lieu }}</span>
+                <div class="info-row">
+                  <div class="info-item">
+                    <i class="fa fa-calendar-o"></i>
+                    {{ evenement.date ? evenement.date|date('d M Y') : 'Date TBD' }}
+                  </div>
+                  <div class="info-item">
+                    <i class="fa fa-map-marker"></i>
+                    {{ evenement.lieu }}
+                  </div>
                 </div>
                 
-                <div class="options align-items-center">
-                  <div class="premium-price">
-                    {{ evenement.prix }} DT
+                <div class="d-flex justify-content-between align-items-center mt-auto">
+                  <div class="price-tag">
+                    {{ evenement.prix }}<small style="font-size: 0.6em; font-weight: 700; margin-left: 5px;">DT</small>
                   </div>
                   
-                  <div class="btn-group">
-                    <a href="{{ path('front_evenements_show', {'id': evenement.id}) }}" class="premium-btn py-1 px-3 mr-1" title="Voir">
-                      <i class="fa fa-eye"></i>
+                  {% if is_granted('ROLE_SPONSOR') %}
+                    <a href="{{ path('front_evenements_show', {'id': evenement.id}) }}" class="btn-sponsor">
+                      <i class="fa fa-heart"></i> Sponsoriser
                     </a>
-                    {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ARTISTE') %}
-                      <a href="{{ path('front_evenements_edit', {'id': evenement.id}) }}" class="btn text-info" title="Modifier">
-                        <i class="fa fa-edit"></i>
-                      </a>
-                      <form method="post" action="{{ path('front_evenements_delete', {'id': evenement.id}) }}" onsubmit="return confirm('Supprimer cet événement ?');" style="display:inline-block">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
-                        <button class="btn text-danger">
-                          <i class="fa fa-trash"></i>
-                        </button>
-                      </form>
-                    {% endif %}
-                    {% if is_granted('ROLE_ARTISTE') and evenement.artiste == app.user %}
-                      <a href="{{ path('front_evenements_participants', {'id': evenement.id}) }}" class="btn text-warning" title="Participants">
-                        <i class="fa fa-users"></i>
-                      </a>
-                    {% endif %}
-                  </div>
+                  {% else %}
+                    <a href="{{ path('front_evenements_show', {'id': evenement.id}) }}" class="btn-view">
+                      Détails
+                    </a>
+                  {% endif %}
                 </div>
               </div>
             </div>
           </div>
           {% else %}
-          <div class="col-12 text-center">
-            <p>Aucun événement prévu pour le moment. Revenez bientôt !</p>
+          <div class="col-12 text-center py-5">
+            <h3 class="text-muted">Aucun événement disponible pour le moment.</h3>
           </div>
           {% endfor %}
         </div>
       </div>
+    </div>
+  </section>
     </div>
   </section>
   <!-- end evenements section -->
@@ -261,7 +456,6 @@
         <div class="col-md-4 footer-col">
           <div class="footer_detail">
             <a href="{{ path('front_home') }}" class="footer-logo">Feane</a>
-            <p>Necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with</p>
             <div class="footer_social">
               <a href=""><i class="fa fa-facebook" aria-hidden="true"></i></a>
               <a href=""><i class="fa fa-twitter" aria-hidden="true"></i></a>
@@ -272,9 +466,6 @@
           </div>
         </div>
         <div class="col-md-4 footer-col">
-          <h4>Opening Hours</h4>
-          <p>Everyday</p>
-          <p>10.00 Am -10.00 Pm</p>
         </div>
       </div>
       <div class="footer-info">
@@ -299,31 +490,78 @@
   <!-- custom js -->
   <script src="{{ asset('front/js/custom.js') }}"></script>
 
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('eventSearch');
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                let filter = this.value.toLowerCase();
-                let cards = document.querySelectorAll('.grid > div');
+    $(document).ready(function() {
+        const $searchInput = $('#eventSearch');
+        const $sortSelect = $('#eventSort');
+        const $grid = $('.grid');
+
+        function filterAndSort() {
+            const filter = $searchInput.val().toLowerCase();
+            const cards = $('.grid > div').get();
+
+            // Filter
+            cards.forEach(card => {
+                const $card = $(card);
+                const title = $card.find('.premium-detail h5').text().toLowerCase();
+                const body = $card.find('.premium-detail p').text().toLowerCase();
                 
-                cards.forEach(card => {
-                    let title = card.querySelector('.premium-detail h5');
-                    let text = card.querySelector('.premium-detail p');
+                if (title.includes(filter) || body.includes(filter)) {
+                    $card.show();
+                } else {
+                    $card.hide();
+                }
+            });
+
+            // Sort
+            const sortType = $sortSelect.val();
+            const visibleCards = cards.filter(card => $(card).is(':visible'));
+
+            visibleCards.sort((a, b) => {
+                const $a = $(a);
+                const $b = $(b);
+
+                if (sortType.startsWith('date')) {
+                    // Fallback to text content if fa-calendar span not found
+                    let dateAStr = $a.find('.fa-calendar').parent().text().trim();
+                    let dateBStr = $b.find('.fa-calendar').parent().text().trim();
                     
-                    let titleText = title ? title.innerText.toLowerCase() : '';
-                    let bodyText = text ? text.innerText.toLowerCase() : '';
+                    if (!dateAStr) return 1;
+                    if (!dateBStr) return -1;
+
+                    // Match YYYY-MM-DD or DD/MM/YYYY
+                    const parseDate = (s) => {
+                        const parts = s.match(/\d+/g);
+                        if (!parts) return new Date(0);
+                        if (parts[0].length === 4) return new Date(parts[0], parts[1]-1, parts[2]); // YYYY-MM-DD
+                        return new Date(parts[2], parts[1]-1, parts[0]); // DD/MM/YYYY
+                    };
                     
-                    if (titleText.includes(filter) || bodyText.includes(filter)) {
-                        card.style.display = '';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
+                    const valA = parseDate(dateAStr);
+                    const valB = parseDate(dateBStr);
+                    
+                    return sortType === 'date_desc' ? valB - valA : valA - valB;
+                } else if (sortType.startsWith('price')) {
+                    const valA = parseFloat($a.find('div[style*="color: #27ae60"], .premium-price').text().replace(/[^\d.]/g, '')) || 0;
+                    const valB = parseFloat($b.find('div[style*="color: #27ae60"], .premium-price').text().replace(/[^\d.]/g, '')) || 0;
+                    return sortType === 'price_asc' ? valA - valB : valB - valA;
+                } else if (sortType === 'title_asc') {
+                    const valA = $a.find('h5').text().toLowerCase();
+                    const valB = $b.find('h5').text().toLowerCase();
+                    return valA.localeCompare(valB);
+                }
+                return 0;
+            });
+
+            // Re-append sorted cards to the grid
+            $.each(visibleCards, function(i, card) {
+                $grid.append(card);
             });
         }
 
-
+        $searchInput.on('input', filterAndSort);
+        $sortSelect.on('change', filterAndSort);
     });
   </script>
 

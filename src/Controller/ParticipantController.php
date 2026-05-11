@@ -53,63 +53,61 @@ class ParticipantController extends AbstractController
     }
 
     #[Route('/stats', name: 'app_participant_stats', methods: ['GET'])]
-    public function stats(EvenementRepository $evenementRepository, ParticipationRepository $participationRepository): Response
+    public function stats(EvenementRepository $evenementRepository, ParticipationRepository $participationRepository, \App\Repository\ReservationPackRepository $reservationRepository): Response
     {
         $evenements = $evenementRepository->findAll();
-        $totalParticipationsCount = count($participationRepository->findAll());
+        $participations = $participationRepository->findAll();
+        $reservations = $reservationRepository->findAll();
+
         $totalEvenements = count($evenements);
+        $totalParticipationsCount = count($participations);
+        $totalSponsors = count($reservations);
         
         $totalRevenue = 0;
-        $upcomingEventsCount = 0;
-        $now = new \DateTime();
-        
-        $statusCounts = [
-            'acceptée' => 0,
-            'en attente' => 0,
-            'refusée' => 0
-        ];
-
-        $topEvent = null;
-        $maxParticipants = -1;
-
-        $labels = [];
-        $data = [];
-        
-        foreach ($evenements as $evenement) {
-            $count = count($evenement->getParticipations());
-            $labels[] = $evenement->getTitre();
-            $data[] = $count;
-
-            // Revenue calculation
-            $totalRevenue += ($count * (float)$evenement->getPrix());
-
-            // Upcoming events
-            if ($evenement->getDate() > $now) {
-                $upcomingEventsCount++;
+        $packPopularity = [];
+        foreach ($reservations as $res) {
+            $totalRevenue += $res->getSponsoringPack()->getPrix();
+            
+            $packName = $res->getSponsoringPack()->getNomPack();
+            if (!isset($packPopularity[$packName])) {
+                $packPopularity[$packName] = 0;
             }
-
-            // Status counts
-            $statut = $evenement->getStatut();
-            if (isset($statusCounts[$statut])) {
-                $statusCounts[$statut]++;
-            }
-
-            // Top event
-            if ($count > $maxParticipants) {
-                $maxParticipants = $count;
-                $topEvent = $evenement;
-            }
+            $packPopularity[$packName]++;
         }
+
+        $eventsByVenue = [];
+        $participantsByEvent = [];
+        foreach ($evenements as $ev) {
+            $lieu = $ev->getLieu() ?: 'Inconnu';
+            if (!isset($eventsByVenue[$lieu])) {
+                $eventsByVenue[$lieu] = 0;
+            }
+            $eventsByVenue[$lieu]++;
+
+            $participantsByEvent[$ev->getTitre()] = count($ev->getParticipations());
+        }
+
+        // Sort Top 5 Events by Participants
+        arsort($participantsByEvent);
+        $top5Events = array_slice($participantsByEvent, 0, 5, true);
 
         return $this->render('back/participant/stats.html.twig', [
             'totalEvenements' => $totalEvenements,
             'totalParticipations' => $totalParticipationsCount,
+            'totalSponsors' => $totalSponsors,
             'totalRevenue' => $totalRevenue,
-            'upcomingEventsCount' => $upcomingEventsCount,
-            'statusCounts' => $statusCounts,
-            'topEvent' => $topEvent,
-            'labels' => $labels,
-            'data' => $data,
+            
+            // For Chart: Events by Venue (Pie)
+            'venueLabels' => array_keys($eventsByVenue),
+            'venueData' => array_values($eventsByVenue),
+
+            // For Chart: Top 5 Events (Bar)
+            'topEventsLabels' => array_keys($top5Events),
+            'topEventsData' => array_values($top5Events),
+
+            // For Chart: Pack Popularity (Bar)
+            'packLabels' => array_keys($packPopularity),
+            'packData' => array_values($packPopularity),
         ]);
     }
     #[Route('/evenement/{id}', name: 'app_participant_list', methods: ['GET'])]

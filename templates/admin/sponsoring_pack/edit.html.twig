@@ -1,38 +1,165 @@
 {% extends 'admin/base.html.twig' %}
 
-{% block title %}Modifier Pack{% endblock %}
+{% block title %}Modifier — {{ pack.nomPack }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .sp-edit-wrapper {
+        min-height: 100vh;
+        background: #f4f6fb;
+        padding-bottom: 40px;
+    }
+    .sp-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+        border-bottom: 1px solid #e8ecf0;
+        padding: 18px 32px;
+        margin-bottom: 32px;
+    }
+    .sp-header-center { text-align: center; flex: 1; }
+    .sp-header-center h1 { font-size: 1.35rem; font-weight: 800; color: #1e272e; margin: 0; line-height: 1.2; }
+    .btn-retour {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #1e272e; color: #fff !important; border: none;
+        border-radius: 10px; padding: 9px 18px; font-size: 0.85rem;
+        font-weight: 600; text-decoration: none; transition: background .2s; white-space: nowrap;
+    }
+    .btn-retour:hover { background: #2d3a45; }
+
+    .sp-edit-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 28px rgba(0,0,0,.07);
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 36px 40px;
+    }
+    .sp-edit-card h2 {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #1e272e;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .sp-edit-card h2 .icon-wrap {
+        width: 36px; height: 36px; border-radius: 10px;
+        background: #eaf4fe; display: flex; align-items: center; justify-content: center;
+    }
+    .sp-edit-card h2 .icon-wrap i { color: #3498db; font-size: 0.95rem; }
+
+    .sp-field { margin-bottom: 20px; }
+    .sp-field label {
+        display: block; font-size: 0.75rem; font-weight: 700;
+        color: #5a6475; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 7px;
+    }
+    .sp-field input,
+    .sp-field textarea {
+        width: 100%; border: 1.5px solid #e0e6ed; border-radius: 11px;
+        padding: 11px 15px; font-size: 0.9rem; color: #1e272e;
+        background: #f8fafc; transition: border-color .2s, box-shadow .2s;
+        outline: none; box-sizing: border-box;
+    }
+    .sp-field input:focus, .sp-field textarea:focus {
+        border-color: #3498db; box-shadow: 0 0 0 3px rgba(52,152,219,.12); background: #fff;
+    }
+    .sp-field textarea { resize: vertical; min-height: 100px; }
+    .sp-field .text-danger { font-size: 0.75rem; color: #e74c3c; margin-top: 5px; display: block; }
+
+    .sp-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .sp-actions { display: flex; gap: 12px; margin-top: 28px; }
+    .btn-save {
+        background: #3498db; color: #fff; border: none; border-radius: 11px;
+        padding: 12px 28px; font-size: 0.9rem; font-weight: 700;
+        cursor: pointer; transition: background .2s, transform .15s;
+        display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-save:hover { background: #2980b9; transform: translateY(-1px); }
+    .btn-back {
+        background: #f0f3f7; color: #5a6475; border: none; border-radius: 11px;
+        padding: 12px 22px; font-size: 0.9rem; font-weight: 600;
+        cursor: pointer; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 7px;
+        transition: background .2s;
+    }
+    .btn-back:hover { background: #e0e6ed; color: #1e272e; }
+
+    @media (max-width: 768px) {
+        .sp-header { padding: 14px 16px; }
+        .sp-edit-card { margin: 0 16px; padding: 24px 20px; }
+        .sp-row-2 { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h4 mb-0"><i class="fa fa-edit mr-2"></i> Modifier: {{ pack.nomPack }}</h2>
-        <a href="{{ path('admin_sponsoring_pack_index') }}" class="btn btn-outline-secondary">
-            <i class="fa fa-arrow-left mr-1"></i> Retour
+<div class="sp-edit-wrapper">
+
+    <div class="sp-header">
+        <a href="{{ path('admin_sponsoring_pack_index') }}" class="btn-retour">
+            <i class="fas fa-arrow-left"></i> Retour
         </a>
-    </div>
-    <div class="card shadow-sm" style="max-width: 700px;">
-        <div class="card-body">
-            {{ form_start(form) }}
-                <div class="form-group">
-                    {{ form_label(form.nomPack) }}
-                    {{ form_widget(form.nomPack) }}
-                    <div class="text-danger">{{ form_errors(form.nomPack) }}</div>
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.description) }}
-                    {{ form_widget(form.description) }}
-                    <div class="text-danger">{{ form_errors(form.description) }}</div>
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.prix) }}
-                    {{ form_widget(form.prix) }}
-                    <div class="text-danger">{{ form_errors(form.prix) }}</div>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-save mr-1"></i> Enregistrer
-                </button>
-            {{ form_end(form) }}
+        <div class="sp-header-center">
+            <h1>Gestion des Packs<br>Sponsoring</h1>
         </div>
+        <span style="width:130px;"></span>
     </div>
+
+    <div class="sp-edit-card">
+        <h2>
+            <span class="icon-wrap"><i class="fas fa-pen"></i></span>
+            Modifier : {{ pack.nomPack }}
+        </h2>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="sp-row-2">
+                <div class="sp-field">
+                    {{ form_label(form.nomPack, 'Nom du Pack') }}
+                    {{ form_widget(form.nomPack) }}
+                    <span class="text-danger">{{ form_errors(form.nomPack) }}</span>
+                </div>
+                <div class="sp-field">
+                    {{ form_label(form.prix, 'Prix (TND)') }}
+                    {{ form_widget(form.prix) }}
+                    <span class="text-danger">{{ form_errors(form.prix) }}</span>
+                </div>
+            </div>
+
+            <div class="sp-row-2">
+                <div class="sp-field">
+                    {{ form_label(form.evenement, 'Événement') }}
+                    {{ form_widget(form.evenement) }}
+                    <span class="text-danger">{{ form_errors(form.evenement) }}</span>
+                </div>
+                <div class="sp-field">
+                    {{ form_label(form.sponsor, 'Sponsor') }}
+                    {{ form_widget(form.sponsor) }}
+                    <span class="text-danger">{{ form_errors(form.sponsor) }}</span>
+                </div>
+            </div>
+
+            <div class="sp-field">
+                {{ form_label(form.description, 'Description') }}
+                {{ form_widget(form.description, {'attr': {'rows': 4}}) }}
+                <span class="text-danger">{{ form_errors(form.description) }}</span>
+            </div>
+
+            <div class="sp-actions">
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+                <a href="{{ path('admin_sponsoring_pack_index') }}" class="btn-back">
+                    Annuler
+                </a>
+            </div>
+
+        {{ form_end(form) }}
+    </div>
+
 </div>
 {% endblock %}

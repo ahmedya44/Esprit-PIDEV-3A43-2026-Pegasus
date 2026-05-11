@@ -1,203 +1,276 @@
 {% extends 'back/base.html.twig' %}
 
-{% block title %}Statistiques des Participations{% endblock %}
+{% block title %}Statistiques{% endblock %}
 
 {% block body %}
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Statistiques</h3>
-        <ul class="breadcrumbs">
-            <li class="nav-home">
-                <a href="{{ path('back_dashboard') }}">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="{{ path('app_participant_index') }}">Participants</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Statistiques</a>
-            </li>
-        </ul>
-    </div>
+    <style>
+        .custom-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+            border: 1px solid #e2e8f0;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0;
+        }
+        .header-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .kpi-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .kpi-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .kpi-dot.blue { background-color: #3b82f6; }
+        .kpi-dot.orange { background-color: #f97316; }
+        .kpi-dot.purple { background-color: #a855f7; }
+        .kpi-dot.green { background-color: #22c55e; }
+        
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+        }
+        .kpi-subtext {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0 0 4px 0;
+        }
+        .chart-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+        .canvas-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+    </style>
 
-    <div class="row">
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-primary bubble-shadow-small">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Total Événements</p>
-                                <h4 class="card-title">{{ totalEvenements }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-success bubble-shadow-small">
-                                <i class="fas fa-users"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Participations</p>
-                                <h4 class="card-title">{{ totalParticipations }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-warning bubble-shadow-small">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Revenu Total Est.</p>
-                                <h4 class="card-title">{{ totalRevenue|number_format(2) }} DT</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-info bubble-shadow-small">
-                                <i class="fas fa-hourglass-start"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Évènements à venir</p>
-                                <h4 class="card-title">{{ upcomingEventsCount }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Participations par Événement</div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="barChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Répartition des Statuts</div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="pieChart"></canvas>
-                    </div>
-                </div>
-            </div>
+    <div class="header-container" style="padding: 12px 0;">
+        <div>
+            <h1 class="header-title">Event Statistics</h1>
+            <div class="header-subtitle">Track participant growth, sponsorship revenue and event distribution.</div>
         </div>
     </div>
 
-    {% if topEvent %}
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card bg-primary-gradient text-white">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-trophy fa-4x mb-3 text-warning"></i>
-                    <h2>Événement le plus populaire</h2>
-                    <h1 class="display-4 fw-bold">{{ topEvent.titre }}</h1>
-                    <p class="lead">{{ topEvent.participations|length }} participants inscrits !</p>
-                    <a href="{{ path('app_participant_list', {id: topEvent.id}) }}" class="btn btn-light btn-round">Voir la liste</a>
-                </div>
+    <!-- KPIs -->
+    <div class="kpi-grid">
+        <div class="kpi-card" style="border-left: 4px solid #3b82f6;">
+            <div class="kpi-header">
+                <div class="kpi-dot blue"></div>
+                TOTAL EVENTS
+            </div>
+            <div class="kpi-value">{{ totalEvenements }}</div>
+            <div class="kpi-subtext">Across all categories</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #f97316;">
+            <div class="kpi-header">
+                <div class="kpi-dot orange"></div>
+                TOTAL PARTICIPANTS
+            </div>
+            <div class="kpi-value">{{ totalParticipations }}</div>
+            <div class="kpi-subtext">Registered attendees</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #a855f7;">
+            <div class="kpi-header">
+                <div class="kpi-dot purple"></div>
+                TOTAL SPONSORS
+            </div>
+            <div class="kpi-value">{{ totalSponsors }}</div>
+            <div class="kpi-subtext">Partners and brands</div>
+        </div>
+        <div class="kpi-card" style="border-left: 4px solid #22c55e;">
+            <div class="kpi-header">
+                <div class="kpi-dot green"></div>
+                TOTAL REVENUE
+            </div>
+            <div class="kpi-value">{{ totalRevenue|number_format(2, ',', ' ') }} DT</div>
+            <div class="kpi-subtext">From sponsoring packs</div>
+        </div>
+    </div>
+
+    <!-- Top Charts -->
+    <div class="charts-grid">
+        <!-- Top 5 Events -->
+        <div class="chart-card">
+            <h2 class="chart-title">Participants per Event</h2>
+            <div class="chart-subtitle">Comparative attendance volume across major events.</div>
+            <div class="canvas-container">
+                <canvas id="topEventsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Geographic Distribution -->
+        <div class="chart-card">
+            <h2 class="chart-title">Events by Venue</h2>
+            <div class="chart-subtitle">Events breakdown by venue location.</div>
+            <div class="canvas-container">
+                <canvas id="venueChart"></canvas>
             </div>
         </div>
     </div>
-    {% endif %}
+
+    <!-- Bottom Chart -->
+    <div class="chart-card" style="margin-bottom: 40px;">
+        <h2 class="chart-title">Sponsoring Pack Popularity</h2>
+        <div class="chart-subtitle">Detailed volume of sponsorship packages reserved by partners.</div>
+        <div class="canvas-container">
+            <canvas id="packChart"></canvas>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
-    <script src="{{ asset('back/js/plugin/chart.js/chart.min.js') }}"></script>
-    <script>
-        // Bar Chart
-        var barChart = document.getElementById("barChart").getContext("2d");
-        new Chart(barChart, {
-            type: "bar",
-            data: {
-                labels: {{ labels|json_encode|raw }},
-                datasets: [{
-                    label: "Nombre de Participants",
-                    backgroundColor: "rgb(23, 125, 255)",
-                    borderColor: "rgb(23, 125, 255)",
-                    data: {{ data|json_encode|raw }},
-                }],
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Top 5 Events Bar Chart
+    const ctxTopEvents = document.getElementById('topEventsChart').getContext('2d');
+    new Chart(ctxTopEvents, {
+        type: 'bar',
+        data: {
+            labels: {{ topEventsLabels|json_encode|raw }},
+            datasets: [{
+                label: 'Attendees',
+                data: {{ topEventsData|json_encode|raw }},
+                backgroundColor: '#f97316',
+                borderWidth: 0,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    yAxes: [{
-                        ticks: { beginAtZero: true }
-                    }]
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 },
+                    title: { display: true, text: 'Count' }
+                },
+                x: {
+                    title: { display: true, text: 'Event Name' }
                 }
-            },
-        });
+            }
+        }
+    });
 
-        // Pie Chart
-        var pieChart = document.getElementById("pieChart").getContext("2d");
-        new Chart(pieChart, {
-            type: "doughnut",
-            data: {
-                labels: ["Acceptés", "En attente", "Refusés"],
-                datasets: [{
-                    backgroundColor: ["#28a745", "#ffc107", "#dc3545"],
-                    data: [
-                        {{ statusCounts['acceptée'] }},
-                        {{ statusCounts['en attente'] }},
-                        {{ statusCounts['refusée'] }}
-                    ],
-                }],
+    // Events by Venue Pie Chart
+    const ctxVenue = document.getElementById('venueChart').getContext('2d');
+    new Chart(ctxVenue, {
+        type: 'pie',
+        data: {
+            labels: {{ venueLabels|json_encode|raw }},
+            datasets: [{
+                data: {{ venueData|json_encode|raw }},
+                backgroundColor: ['#eab308', '#f97316', '#22c55e', '#3b82f6', '#a855f7'],
+                borderWidth: 1,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Sponsoring Pack Popularity Bar Chart
+    const ctxPack = document.getElementById('packChart').getContext('2d');
+    new Chart(ctxPack, {
+        type: 'bar',
+        data: {
+            labels: {{ packLabels|json_encode|raw }},
+            datasets: [{
+                label: 'Sold Count',
+                data: {{ packData|json_encode|raw }},
+                backgroundColor: '#f97316',
+                borderWidth: 0,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                legend: {
-                    position: 'bottom',
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 },
+                    title: { display: true, text: 'Sold Count' }
+                },
+                x: {
+                    title: { display: true, text: 'Pack Type' }
                 }
-            },
-        });
-    </script>
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

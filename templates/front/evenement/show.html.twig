@@ -1,395 +1,305 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <!-- Basic -->
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- Mobile Metas -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <!-- Site Metas -->
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Feane - {{ evenement.titre }}</title>
+    
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+    <!-- font awesome style -->
+    <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+    <!-- Custom styles for this template -->
+    <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
 
-  <title>Feane - Détails de l'Événement</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
 
-  <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+        body {
+            background-color: #f8f9fa !important;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #2d3436;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #6c5ce7;
+            font-weight: 700;
+            text-decoration: none;
+            margin-bottom: 40px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .back-link:hover {
+            color: #5b4cc4;
+            transform: translateX(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            text-decoration: none;
+        }
+        .event-details-container {
+            padding: 60px 0 100px 0;
+        }
+        .event-image {
+            width: 100%;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            object-fit: cover;
+            height: 500px;
+            border: 8px solid white;
+        }
+        .event-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #2d3436;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+        .event-description {
+            font-size: 1.15rem;
+            color: #636e72;
+            margin-bottom: 40px;
+            font-weight: 400;
+            line-height: 1.7;
+        }
+        .info-card {
+            background: #ffffff;
+            border-radius: 30px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.04);
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid #f1f2f6;
+        }
+        .info-item {
+            margin-bottom: 30px;
+        }
+        .info-label {
+            color: #a8b0b9;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+            letter-spacing: 1.5px;
+        }
+        .info-value {
+            color: #2d3436;
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .btn-custom {
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: white !important;
+            text-decoration: none !important;
+        }
+        .btn-purple { background: #6c5ce7; box-shadow: 0 8px 20px rgba(108, 92, 231, 0.2); }
+        .btn-red { background: #ff4757; box-shadow: 0 8px 20px rgba(255, 71, 87, 0.2); }
+        .btn-orange { background: #f39c12; box-shadow: 0 8px 20px rgba(243, 156, 18, 0.2); }
+        .btn-green { background: #2ecc71; box-shadow: 0 8px 20px rgba(46, 204, 113, 0.2); }
+        
+        .btn-custom:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+        }
 
-  <!-- font awesome style -->
-  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
-
-  <!-- Custom styles for this template -->
-  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
-  <!-- responsive style -->
-  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <style>
-    #map {
-        height: 400px;
-        width: 100%;
-        border-radius: 20px;
-        margin-top: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        border: 4px solid rgba(255, 255, 255, 0.2);
-    }
-    .premium-card {
-        transition: transform 0.3s ease;
-    }
-    .premium-card:hover {
-        transform: translateY(-5px);
-    }
-  </style>
+        .btn-participate {
+            background: #6c5ce7;
+            border-radius: 40px;
+            padding: 18px 45px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: white !important;
+            text-decoration: none !important;
+            box-shadow: 0 10px 30px rgba(108, 92, 231, 0.2);
+            text-transform: uppercase;
+        }
+        .btn-participate:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(108, 92, 231, 0.3);
+        }
+    </style>
 </head>
+<body>
 
-<body class="sub_page">
+<div class="container event-details-container">
+    <a href="{{ is_granted('ROLE_SPONSOR') ? path('front_evenements_index') : path('front_evenements_index') }}" class="back-link" style="{{ is_granted('ROLE_SPONSOR') ? 'color: #f39c12;' : '' }}">
+        ← {{ is_granted('ROLE_SPONSOR') ? 'Retour aux événements' : 'Retour au catalogue' }}
+    </a>
 
-  <div class="hero_area">
-    <div class="bg-box">
-      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
-    </div>
-    <!-- header section strats -->
-    <header class="header_section">
-      <div class="container">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}">
-            <span>
-              Feane
-            </span>
-          </a>
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : 'success' }} alert-dismissible fade show mb-5" role="alert" style="border-radius: 20px;">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endfor %}
 
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class=""> </span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav  mx-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_home') }}">Home </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_about') }}">About</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
-              </li>
-              <li class="nav-item active">
-                <a class="nav-link" href="{{ path('front_evenements_index') }}">Evenements</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('app_register') }}">Sign Up</a>
-              </li>
-              {% if app.user %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ path('app_logout') }}">Logout ({{ app.user.userIdentifier }})</a>
-                </li>
-              {% else %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ path('app_login') }}">Login</a>
-                </li>
-              {% endif %}
-            </ul>
-          </div>
-        </nav>
-      </div>
-    </header>
-    <!-- end header section -->
-  </div>
-
-  <!-- details section -->
-  <section class="about_section glass-section layout_padding">
-    <div class="container">
-      {% for label, messages in app.flashes %}
-          {% for message in messages %}
-              <div class="alert alert-{{ label == 'error' ? 'danger' : label == 'warning' ? 'warning' : 'success' }} alert-dismissible fade show mb-4" role="alert" style="border-radius: 15px;">
-                  {{ message }}
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-              </div>
-          {% endfor %}
-      {% endfor %}
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <div class="img-box">
+    <div class="row align-items-start">
+        <div class="col-lg-6">
             {% if evenement.image %}
-                <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titre }}" class="img-fluid premium-card shadow-lg p-0">
+                <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titre }}" class="event-image">
             {% else %}
-                <img src="{{ asset('front/images/about-img.png') }}" alt="{{ evenement.titre }}" class="img-fluid premium-card shadow-lg p-0">
+                <img src="{{ asset('front/images/about-img.png') }}" alt="{{ evenement.titre }}" class="event-image">
             {% endif %}
-          </div>
         </div>
-        <div class="col-md-6">
-          <div class="detail-box">
-            <div class="heading_container">
-              <h2 class="neon-text mb-4">
-                {{ evenement.titre }}
-              </h2>
-            </div>
-            <p class="mt-3 text-light opacity-75" style="font-size: 1.1rem; line-height: 1.8;">
-              {{ evenement.description }}
-            </p>
-            
-            <div class="premium-card mt-4 p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-              <div class="row">
-                <div class="col-6 mb-4">
-                  <div class="premium-info-item">
-                    <i class="fa fa-calendar"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Date</small>
-                      <span class="font-weight-bold">{{ evenement.date ? evenement.date|date('d F Y') : 'N/A' }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 mb-4">
-                  <div class="premium-info-item">
-                    <i class="fa fa-clock-o"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Heure</small>
-                      <span class="font-weight-bold">{{ evenement.heure ? evenement.heure|date('H:i') : 'N/A' }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 mb-4">
-                  <div class="premium-info-item">
-                    <i class="fa fa-map-marker"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Lieu</small>
-                      <span class="font-weight-bold">{{ evenement.lieu }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 mb-4">
-                  <div class="premium-info-item">
-                    <i class="fa fa-tag"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Prix</small>
-                      <span class="font-weight-bold">{{ evenement.prix }} DT</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="premium-info-item">
-                    <i class="fa fa-users"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Capacité</small>
-                      <span class="font-weight-bold">{{ evenement.capaciteMax }} Personnes</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div class="col-lg-6 pl-lg-5">
+            <h1 class="event-title">{{ evenement.titre }}</h1>
+            <p class="event-description">{{ evenement.description }}</p>
 
-<style>
-    .action-toolbar {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 24px;
-        align-items: center;
-    }
-    .btn-action {
-        border: none;
-        border-radius: 50px;
-        color: white !important;
-        font-weight: 600;
-        font-size: 14px;
-        padding: 10px 22px;
-        display: inline-flex;
-        align-items: center;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        text-decoration: none !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    .btn-action:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        color: white !important;
-    }
-    .btn-add        { background: linear-gradient(135deg, #a855f7, #7c3aed); }
-    .btn-edit       { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-    .btn-delete     { background: linear-gradient(135deg, #ef4444, #dc2626); }
-    .btn-participate { background: linear-gradient(135deg, #10b981, #059669); }
-    .btn-sponsor    { background: linear-gradient(135deg, #f59e0b, #d97706); }
-    .btn-action.btn-participants { background: linear-gradient(135deg, #10b981, #059669); }
-    .btn-back {
-        border: 2px solid rgba(255,255,255,0.35);
-        border-radius: 50px;
-        color: rgba(255,255,255,0.85) !important;
-        padding: 8px 22px;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none !important;
-        display: inline-flex;
-        align-items: center;
-        white-space: nowrap;
-    }
-    .btn-back:hover {
-        background: rgba(255,255,255,0.1);
-        border-color: white;
-        color: white !important;
-        transform: translateX(-4px);
-    }
-    .info-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border-radius: 50px;
-        background: rgba(59, 130, 246, 0.12);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        color: #60a5fa;
-        padding: 8px 18px;
-        font-size: 14px;
-        white-space: nowrap;
-    }
-</style>
-
-            <div class="action-toolbar">
-
-              {# Participation Logic #}
-              {% if app.user %}
-                {% if is_granted('ROLE_ARTISTE') %}
-                  <span class="info-badge">
-                    <i class="fa fa-info-circle"></i>
-                    {% if evenement.artiste == app.user %}
-                      Vous organisez cet événement
+            <div class="info-card">
+                <div class="row">
+                    <div class="col-6 info-item">
+                        <span class="info-label">DATE</span>
+                        <span class="info-value">{{ evenement.date ? evenement.date|date('Y-m-d') : 'N/A' }}</span>
+                    </div>
+                    <div class="col-6 info-item">
+                        <span class="info-label">HEURE</span>
+                        <span class="info-value">{{ evenement.heure ? evenement.heure|date('H:i:s') : 'N/A' }}</span>
+                    </div>
+                    <div class="col-6 info-item">
+                        <span class="info-label">LIEU</span>
+                        <span class="info-value">{{ evenement.lieu }}</span>
+                    </div>
+                    <div class="col-6 info-item">
+                        <span class="info-label">PRIX</span>
+                        <span class="info-value">{{ evenement.prix|number_format(2, ',', ' ') }} DT</span>
+                    </div>
+                    {% if is_granted('ROLE_SPONSOR') %}
+                        <div class="col-12 info-item mb-0">
+                            <span class="info-label">CAPACITÉ</span>
+                            <span class="info-value">{{ evenement.capaciteMax }} Personnes</span>
+                        </div>
                     {% else %}
-                      Les artistes ne peuvent pas participer
+                        <div class="col-12 info-item mb-0">
+                            <span class="info-label">PLACES RESTANTES</span>
+                            <span class="info-value">
+                                {{ evenement.capaciteMax }} Places
+                            </span>
+                        </div>
                     {% endif %}
-                  </span>
-                {% else %}
-                  {% set isParticipating = false %}
-                  {% for participation in evenement.participations %}
+                </div>
+            </div>
+
+            {% set isParticipating = false %}
+            {% if app.user %}
+                {% for participation in evenement.participations %}
                     {% if participation.user == app.user %}
-                      {% set isParticipating = true %}
+                        {% set isParticipating = true %}
                     {% endif %}
-                  {% endfor %}
+                {% endfor %}
+            {% endif %}
 
-                  {% if isParticipating %}
-                    {% set daysRemaining = evenement.date.diff(date()).days %}
-                    {% set isTooLate = daysRemaining < 3 and evenement.date > date() %}
-                    
-                    {% if isTooLate %}
-                      <span class="info-badge" style="background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">
-                        <i class="fa fa-lock mr-2"></i> Annulation impossible (-3j)
-                      </span>
-                    {% else %}
-                      <form action="{{ path('front_evenements_unparticipate', {'id': evenement.id}) }}" method="POST" style="margin:0;">
-                        <button type="submit" class="btn-action btn-delete">
-                          <i class="fa fa-times mr-2"></i> Annuler ma participation
+            {% if is_granted('ROLE_ARTISTE') and evenement.artiste == app.user %}
+                <div class="button-grid mb-4">
+                    <a href="{{ path('front_evenements_edit', {'id': evenement.id}) }}" class="btn-custom btn-purple">
+                        Modifier <i class="fa fa-edit"></i>
+                    </a>
+                    <form method="post" action="{{ path('front_evenements_delete', {'id': evenement.id}) }}" onsubmit="return confirm('Supprimer cet événement ?');" style="margin:0">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
+                        <button class="btn-custom btn-red" style="width:100%">
+                            Supprimer <i class="fa fa-trash"></i>
                         </button>
-                      </form>
-                    {% endif %}
-                  {% else %}
-                    <form action="{{ path('front_evenements_participate', {'id': evenement.id}) }}" method="POST" style="margin:0;">
-                      <button type="submit" class="btn-action btn-participants">
-                        <i class="fa fa-check mr-2"></i> Participer
-                      </button>
                     </form>
-                  {% endif %}
+                    <a href="{{ path('front_evenements_sponsor', {'id': evenement.id}) }}" class="btn-custom btn-orange">
+                        Pack Sponsoring <i class="fa fa-heart"></i>
+                    </a>
+                    <a href="{{ path('front_evenements_participants', {'id': evenement.id}) }}" class="btn-custom btn-green">
+                        Espace Participant <i class="fa fa-user"></i>
+                    </a>
+                </div>
+            {% elseif is_granted('ROLE_SPONSOR') %}
+                <a href="{{ path('front_evenements_sponsor', {'id': evenement.id}) }}" class="btn-participate" style="background: #f39c12; width: 100%; border-radius: 50px;">
+                    <i class="fa fa-handshake-o"></i> SPONSORISER CET ÉVÉNEMENT
+                </a>
+            {% else %}
+                {% if app.user %}
+                    {% if isParticipating %}
+                        {% set now = date() %}
+                        {% set eventDate = date(evenement.date) %}
+                        {% set difference = eventDate.diff(now) %}
+                        {% set daysRemaining = difference.invert ? difference.days : -difference.days %}
+
+                        {% if daysRemaining >= 3 %}
+                            <form action="{{ path('front_evenements_unparticipate', {'id': evenement.id}) }}" method="POST">
+                                <button type="submit" class="btn-participate" style="background: #ff4757;">
+                                    <i class="fa fa-times"></i> ANNULER MA PARTICIPATION
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-info py-2 px-3 mb-0" style="border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 0.9rem;">
+                                <i class="fa fa-lock"></i> Participation confirmée (Annulation impossible à moins de 3j)
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <form action="{{ path('front_evenements_participate', {'id': evenement.id}) }}" method="POST">
+                            <button type="submit" class="btn-participate">
+                                <i class="fa fa-rocket"></i> PARTICIPER
+                            </button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="btn-participate">
+                        <i class="fa fa-sign-in"></i> SE CONNECTER POUR PARTICIPER
+                    </a>
                 {% endif %}
-              {% else %}
-                <a href="{{ path('app_login') }}" class="btn-action" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
-                  <i class="fa fa-sign-in mr-2"></i> Connectez-vous pour participer
-                </a>
-              {% endif %}
-
-              {# Sponsor Button #}
-              {% if is_granted('ROLE_SPONSOR') or not app.user %}
-                <a href="{{ path('front_evenements_sponsor', {'id': evenement.id}) }}" class="btn-action btn-sponsor">
-                  <i class="fa fa-handshake-o mr-2"></i> Sponsor
-                </a>
-              {% endif %}
-
-              {# Artist Actions #}
-              {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ARTISTE') %}
-                <a href="{{ path('front_evenements_new') }}" class="btn-action btn-add">
-                  <i class="fa fa-plus mr-2"></i> Ajouter
-                </a>
-                <a href="{{ path('front_evenements_edit', {'id': evenement.id}) }}" class="btn-action btn-edit">
-                  <i class="fa fa-edit mr-2"></i> Modifier
-                </a>
-                <form method="post" action="{{ path('front_evenements_delete', {'id': evenement.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');" style="margin: 0;">
-                  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
-                  <button class="btn-action btn-delete">
-                    <i class="fa fa-trash mr-2"></i> Supprimer
-                  </button>
-                </form>
-                <a href="{{ path('front_sponsoring_pack_index') }}" class="btn-action" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                  <i class="fa fa-star mr-2"></i> Packs Sponsoring
-                </a>
-                {% if evenement.artiste == app.user %}
-                  <a href="{{ path('front_evenements_participants', {'id': evenement.id}) }}" class="btn-action btn-participants">
-                    <i class="fa fa-users mr-2"></i> Participants
-                  </a>
-                {% endif %}
-              {% endif %}
-
-              <a href="{{ path('front_evenements_index') }}" class="btn-back">
-                <i class="fa fa-arrow-left mr-2"></i> Retour
-              </a>
-
-            </div>
-          </div>
+            {% endif %}
         </div>
-      </div>
-      
-      <!-- Map Section -->
-      <div class="row mt-5">
-        <div class="col-md-12">
-          <div class="heading_container mb-3">
-            <h4 class="text-warning text-uppercase" style="font-size: 14px; letter-spacing: 2px;">
-              <i class="fa fa-map-marker mr-2"></i> Localisation
+    </div>
+    
+    <div class="row mt-5 pt-5">
+        <div class="col-12">
+            <h4 class="info-label" style="font-size: 1.1rem; margin-bottom: 20px;">
+                <i class="fa fa-map-marker mr-2"></i> Localisation
             </h4>
-          </div>
-          <div id="map"></div>
+            <div id="map" style="height: 400px; width: 100%; border-radius: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid #eee;"></div>
         </div>
-      </div>
     </div>
-  </section>
-  <!-- end details section -->
+</div>
 
-  <!-- footer section -->
-  <footer class="footer_section">
-    <div class="container">
-      <div class="footer-info">
-        <p>&copy; <span id="displayYear"></span> All Rights Reserved By <a href="https://html.design/">Free Html Templates</a></p>
-      </div>
-    </div>
-  </footer>
-  <!-- footer section -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+<script src="{{ asset('front/js/bootstrap.js') }}"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- jQery -->
-  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
-  <!-- bootstrap js -->
-  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
-  
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  
-  <script>
-    document.getElementById('displayYear').innerHTML = new Date().getFullYear();
-
+<script>
     // Leaflet Map Logic
     const locationName = "{{ evenement.lieu|escape('js') }}";
-    const map = L.map('map').setView([0, 0], 13); // Default view
+    const map = L.map('map').setView([0, 0], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Geocoding using Nominatim
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}`)
         .then(response => response.json())
         .then(data => {
@@ -401,24 +311,16 @@
                     .bindPopup(`<b>{{ evenement.titre|escape('js') }}</b><br>${locationName}`)
                     .openPopup();
             } else {
-                console.warn("Location not found on OpenStreetMap, falling back to Google Maps Embed");
                 document.getElementById('map').innerHTML = `
-                    <iframe 
-                        width="100%" 
-                        height="100%" 
-                        frameborder="0" 
-                        style="border:0; border-radius: 20px;" 
-                        src="https://maps.google.com/maps?q=${encodeURIComponent(locationName)}&t=&z=15&ie=UTF8&iwloc=&output=embed" 
-                        allowfullscreen>
+                    <iframe width="100%" height="100%" frameborder="0" style="border:0; border-radius: 40px;" 
+                        src="https://maps.google.com/maps?q=${encodeURIComponent(locationName)}&output=embed">
                     </iframe>`;
             }
         })
-        .catch(error => {
-            console.error("Geocoding error:", error);
+        .catch(() => {
             document.getElementById('map').innerHTML = "<div class='text-center p-5 text-muted'>Erreur de chargement de la carte.</div>";
         });
-  </script>
+</script>
 
 </body>
-
 </html>

@@ -14,15 +14,15 @@
     </style>
 </head>
 <body>
-    <h1>Liste des Événements Pegasus</h1>
+    <h1>PEGASUS - RAPPORT D'ÉVÉNEMENTS</h1>
     <table>
         <thead>
             <tr>
-                <th>Id</th>
                 <th>Titre</th>
                 <th>Date</th>
                 <th>Heure</th>
                 <th>Lieu</th>
+                <th>Capacité</th>
                 <th>Prix</th>
                 <th>Statut</th>
             </tr>
@@ -30,13 +30,17 @@
         <tbody>
             {% for evenement in evenements %}
             <tr>
-                <td>{{ evenement.id }}</td>
                 <td>{{ evenement.titre }}</td>
                 <td>{{ evenement.date ? evenement.date|date('d/m/Y') : '' }}</td>
                 <td>{{ evenement.heure ? evenement.heure|date('H:i') : '' }}</td>
                 <td>{{ evenement.lieu }}</td>
-                <td>{{ evenement.prix }} DT</td>
-                <td><span class="statut">{{ evenement.statut }}</span></td>
+                <td style="text-align: center;">{{ evenement.capaciteMax }}</td>
+                <td style="text-align: right;">{{ evenement.prix }} DT</td>
+                <td style="text-align: center;">
+                    <span class="statut" style="color: {% if evenement.statut|lower == 'refusée' %}#e74c3c{% elseif evenement.statut|lower in ['acceptée', 'active', 'available'] %}#27ae60{% elseif evenement.statut|lower == 'confirmé' %}#3498db{% else %}#f39c12{% endif %}">
+                        {{ evenement.statut|upper }}
+                    </span>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

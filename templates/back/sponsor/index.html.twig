@@ -3,81 +3,218 @@
 {% block title %}Gestion des Sponsors{% endblock %}
 
 {% block body %}
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Sponsors</h3>
-        <ul class="breadcrumbs">
-            <li class="nav-home">
-                <a href="{{ path('back_dashboard') }}">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Sponsors</a>
-            </li>
-        </ul>
-    </div>
+    <style>
+        .custom-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0;
+        }
+        .header-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .btn-export {
+            background-color: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn-export:hover {
+            background-color: #1e293b;
+            color: white;
+        }
+        .search-input {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            width: 200px;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: #94a3b8;
+        }
+        .filter-select {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            outline: none;
+            min-width: 180px;
+            color: #334155;
+        }
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .custom-table th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+        }
+        .custom-table th:last-child {
+            border-right: none;
+        }
+        .custom-table td {
+            padding: 16px;
+            font-size: 12px;
+            color: #334155;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+            border-right: 1px solid #e2e8f0;
+        }
+        .custom-table td:last-child {
+            border-right: none;
+        }
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+        .custom-table tr:hover td {
+            background-color: #f8fafc;
+        }
+        .empty-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px !important;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+    </style>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex align-items-center">
-                        <h4 class="card-title">Choisir un Événement pour voir ses Sponsors</h4>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="basic-datatables" class="display table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Image</th>
-                                    <th>Titre</th>
-                                    <th>Date</th>
-                                    <th>Lieu</th>
-                                    <th>Nb Sponsors</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for evenement in evenements %}
-                                <tr>
-                                    <td>{{ evenement.id }}</td>
-                                    <td>
-                                        {% if evenement.image %}
-                                            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover;">
-                                        {% else %}
-                                            <span class="badge badge-count">Pas d'image</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ evenement.titre }}</td>
-                                    <td>{{ evenement.date ? evenement.date|date('d/m/Y') : '' }}</td>
-                                    <td>{{ evenement.lieu }}</td>
-                                    <td>
-                                        <span class="badge badge-info">
-                                            {{ evenement.id }} {# Temporary placeholder if we don't have a direct count easily, but wait, I can just use a filter or method #}
-                                            {# Better logic: #}
-                                            {% set countRes = 0 %}
-                                            {# Note: Since we don't have a direct relation in Evenement for ReservationPack (it's in Rp entity), 
-                                               we can either add it or just leave it for now or query it. 
-                                               For simplicity in this view, I'll just show the button. #}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="{{ path('app_admin_sponsor_list', {id: evenement.id}) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-handshake"></i> Voir les Sponsors
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    <div class="custom-card">
+        <div class="header-container" style="padding-top: 8px;">
+            <div>
+                <h1 class="header-title">Sponsors</h1>
+                <div class="header-subtitle">Global sponsorship list across events and packs.</div>
+            </div>
+            <div class="header-actions">
+                <a href="#" id="exportPdfBtn" class="btn-export" onclick="alert('Export PDF sera bientôt disponible'); return false;">Exporter PDF</a>
+                
+                <select id="eventFilter" class="filter-select">
+                    <option value="">Tous les événements</option>
+                    {% for evenement in evenements %}
+                        <option value="{{ evenement.id }}">{{ evenement.titre }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="text" id="searchSponsor" class="search-input" placeholder="Search sponsors...">
             </div>
         </div>
+
+        <div style="overflow-x: auto;">
+            <table class="custom-table" id="sponsorsTable">
+                <thead>
+                    <tr>
+                        <th>Sponsor</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Pack</th>
+                        <th>Price</th>
+                        <th>Event</th>
+                    </tr>
+                </thead>
+                <tbody id="sponsorsBody">
+                    {% for reservation in reservations %}
+                        <tr class="sponsor-row" data-event-id="{{ reservation.evenement.id }}" data-search="{{ reservation.user.nom|default('')|lower }} {{ reservation.user.prenom|default('')|lower }} {{ reservation.user.email|default('')|lower }}">
+                            <td>{{ reservation.user.nom|default('-') }} {{ reservation.user.prenom|default('') }}</td>
+                            <td>{{ reservation.user.email|default('-') }}</td>
+                            <td>{{ reservation.user.telephone|default('-') }}</td>
+                            <td>{{ reservation.sponsoringPack.nomPack }}</td>
+                            <td>{{ reservation.sponsoringPack.prix|number_format(1, '.', '') }}</td>
+                            <td>{{ reservation.evenement.titre }}</td>
+                        </tr>
+                    {% else %}
+                        <tr id="emptyRow">
+                            <td colspan="6" class="empty-state" style="text-align: center;">No content in table</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchSponsor');
+        const eventFilter = document.getElementById('eventFilter');
+        const rows = document.querySelectorAll('.sponsor-row');
+        const tbody = document.getElementById('sponsorsBody');
+        
+        let emptyRow = document.getElementById('emptyRow');
+        if (!emptyRow) {
+            emptyRow = document.createElement('tr');
+            emptyRow.id = 'emptyRow';
+            emptyRow.innerHTML = '<td colspan="6" class="empty-state" style="text-align: center;">No content in table</td>';
+            emptyRow.style.display = 'none';
+            tbody.appendChild(emptyRow);
+        }
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedEvent = eventFilter.value;
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const eventId = row.getAttribute('data-event-id');
+                const searchData = row.getAttribute('data-search');
+                
+                const matchesEvent = selectedEvent === "" || eventId === selectedEvent;
+                const matchesSearch = searchTerm === "" || searchData.includes(searchTerm);
+
+                if (matchesEvent && matchesSearch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (visibleCount === 0) {
+                emptyRow.style.display = '';
+            } else {
+                emptyRow.style.display = 'none';
+            }
+        }
+
+        if (searchInput) searchInput.addEventListener('input', filterTable);
+        if (eventFilter) eventFilter.addEventListener('change', filterTable);
+    });
+</script>
 {% endblock %}

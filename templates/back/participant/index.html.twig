@@ -3,80 +3,279 @@
 {% block title %}Gestion des Participants{% endblock %}
 
 {% block body %}
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Participants</h3>
-        <ul class="breadcrumbs">
-            <li class="nav-home">
-                <a href="{{ path('back_dashboard') }}">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Gestion</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="{{ path('app_participant_index') }}">Participants</a>
-            </li>
-        </ul>
-    </div>
+    <style>
+        .custom-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0;
+        }
+        .header-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .btn-export {
+            background-color: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn-export:hover {
+            background-color: #1e293b;
+            color: white;
+        }
+        .search-input {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            width: 250px;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: #94a3b8;
+        }
+        .split-view {
+            display: flex;
+            gap: 24px;
+        }
+        .panel {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 400px;
+        }
+        .panel-header {
+            padding: 16px;
+            font-size: 13px;
+            color: #475569;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .panel-table-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .custom-table th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 12px 16px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+        }
+        .custom-table td {
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #334155;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .event-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .event-row:hover, .event-row.active {
+            background-color: #f1f5f9;
+        }
+        .empty-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: #94a3b8;
+            font-size: 13px;
+            text-align: center;
+        }
+    </style>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex align-items-center">
-                        <h4 class="card-title">Sélectionnez un Événement pour voir les participants</h4>
-                    </div>
+    <div class="custom-card">
+        <div class="header-container" style="padding-top: 8px;">
+            <div>
+                <h2 style="font-size: 18px; font-weight: bold; margin: 0; color: #0f172a;">Participants</h2>
+                <div class="header-subtitle">Manage event registrations and attendees.</div>
+            </div>
+            <div class="header-actions">
+                <input type="text" id="searchParticipantAdmin" class="search-input" placeholder="Rechercher par nom...">
+                <a href="#" id="exportPdfBtn" class="btn-export" onclick="if(!this.href.includes('/export/pdf')) { alert('Veuillez sélectionner un événement d\'abord.'); return false; }">Exporter PDF</a>
+            </div>
+        </div>
+
+        <div class="split-view">
+            <!-- Left Panel -->
+            <div class="panel" style="flex: 0 0 40%;">
+                <div class="panel-header">
+                    1. Liste des Événements
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Titre</th>
-                                    <th>Date</th>
-                                    <th>Lieu</th>
-                                    <th>Nombre de Participants</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                <div class="panel-table-wrapper">
+                    <table class="custom-table" id="eventsTable">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left;">Événement</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             {% for evenement in evenements %}
-                                <tr>
-                                    <td>{{ evenement.id }}</td>
-                                    <td>{{ evenement.titre }}</td>
+                                <tr class="event-row" data-event-id="{{ evenement.id }}" onclick="showParticipants({{ evenement.id }}, '{{ evenement.titre|escape('js') }}')">
+                                    <td style="text-align: left;">{{ evenement.titre }}</td>
                                     <td>{{ evenement.date ? evenement.date|date('Y-m-d') : '' }}</td>
-                                    <td>{{ evenement.lieu }}</td>
-                                    <td>
-                                        <span class="badge badge-primary">
-                                            {{ evenement.participations|length }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="form-button-action">
-                                            <a href="{{ path('app_participant_list', {'id': evenement.id}) }}" class="btn btn-primary btn-round" title="Voir les participants">
-                                                <i class="fa fa-users"></i> Voir la liste
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% else %}
-                                <tr>
-                                    <td colspan="6">Aucun enregistrement trouvé</td>
                                 </tr>
                             {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="panel" style="flex: 1;">
+                <div class="panel-header" id="rightPanelHeader">
+                    2. Participants Inscrits<br>
+                    <span style="color: #94a3b8; font-size: 11px;">Sélectionnez un événement à gauche</span>
+                </div>
+                <div class="panel-table-wrapper">
+                    <table class="custom-table" id="participantsTable">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participantsBody">
+                            <tr>
+                                <td colspan="4" class="empty-state" style="border-bottom: none;">No content in table</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    // Construire un objet Javascript contenant tous les participants pour chaque événement
+    const eventParticipants = {
+        {% for evenement in evenements %}
+            "{{ evenement.id }}": [
+                {% for participation in evenement.participations %}
+                    {
+                        "nom": "{{ participation.user.nom|default('-')|escape('js') }}",
+                        "prenom": "{{ participation.user.prenom|default('-')|escape('js') }}",
+                        "email": "{{ participation.user.email|default('-')|escape('js') }}",
+                        "telephone": "{{ participation.user.telephone|default('-')|escape('js') }}"
+                    }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    let currentEventId = null;
+
+    function showParticipants(eventId, eventTitle) {
+        currentEventId = eventId;
+        
+        // Mettre à jour la ligne active
+        document.querySelectorAll('.event-row').forEach(row => {
+            row.classList.remove('active');
+            if (row.getAttribute('data-event-id') == eventId) {
+                row.classList.add('active');
+            }
+        });
+
+        // Mettre à jour l'en-tête du panneau de droite
+        document.getElementById('rightPanelHeader').innerHTML = `2. Participants Inscrits<br><span style="color: #94a3b8; font-size: 11px;">Événement sélectionné : <strong>${eventTitle}</strong></span>`;
+
+        // Mettre à jour le lien d'export PDF dynamiquement
+        const exportBtn = document.getElementById('exportPdfBtn');
+        exportBtn.href = `/admin/participants/${eventId}/export/pdf`;
+
+        renderParticipants();
+    }
+
+    function renderParticipants(filterText = '') {
+        const tbody = document.getElementById('participantsBody');
+        tbody.innerHTML = '';
+
+        if (!currentEventId || !eventParticipants[currentEventId] || eventParticipants[currentEventId].length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="empty-state" style="border-bottom: none;">No content in table</td></tr>`;
+            return;
+        }
+
+        let participants = eventParticipants[currentEventId];
+
+        // Appliquer le filtre de recherche si existant
+        if (filterText) {
+            filterText = filterText.toLowerCase();
+            participants = participants.filter(p => 
+                p.nom.toLowerCase().includes(filterText) || 
+                p.prenom.toLowerCase().includes(filterText) ||
+                p.email.toLowerCase().includes(filterText)
+            );
+        }
+
+        if (participants.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="empty-state" style="border-bottom: none;">Aucun participant trouvé</td></tr>`;
+            return;
+        }
+
+        participants.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${p.nom}</td>
+                <td>${p.prenom}</td>
+                <td>${p.email}</td>
+                <td>${p.telephone}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchParticipantAdmin');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                renderParticipants(this.value);
+            });
+        }
+    });
+</script>
 {% endblock %}

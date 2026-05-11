@@ -1,110 +1,62 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <!-- Basic -->
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- Mobile Metas -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <!-- Site Metas -->
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Feane - Modifier l'Événement</title>
+    
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+    <!-- font awesome style -->
+    <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
 
-  <title>Feane - Modifier Événement</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap');
 
-  <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
-
-  <!-- font awesome style -->
-  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
-
-  <!-- Custom styles for this template -->
-  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
-  <!-- responsive style -->
-  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+        body {
+            background-color: #fcfcfc !important;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header-section {
+            padding: 60px 0 20px 0;
+            text-align: center;
+        }
+        .header-section h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #2d3436;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        .header-section p {
+            font-size: 1.2rem;
+            color: #636e72;
+            font-weight: 500;
+        }
+    </style>
 </head>
+<body>
 
-<body class="sub_page">
-
-  <div class="hero_area">
-    <div class="bg-box">
-      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+<div class="container mb-5">
+    <div class="header-section">
+        <h1>Modifier l'Événement</h1>
+        <p>Mettez à jour les informations de votre événement</p>
     </div>
-    <!-- header section strats -->
-    <header class="header_section">
-      <div class="container">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}">
-            <span>
-              Feane
-            </span>
-          </a>
 
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class=""> </span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav  mx-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_home') }}">Home </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_about') }}">About</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
-              </li>
-              <li class="nav-item active">
-                <a class="nav-link" href="{{ path('front_evenements_index') }}">Evenements</a>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </div>
-    </header>
-    <!-- end header section -->
-  </div>
-
-  <!-- form section -->
-  <section class="glass-section layout_padding">
-    <div class="container">
-      <div class="heading_container heading_center mb-5">
-        <h2 class="neon-text">
-          Modifier l'Événement
-        </h2>
-        <p class="text-light opacity-75">Mettez à jour les informations de votre événement.</p>
-      </div>
-      <div class="row justify-content-center">
-        <div class="col-md-10">
-            {{ include('front/evenement/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            {{ include('front/evenement/_form.html.twig', {
+                'button_label': 'Enregistrer les modifications',
+                'is_edit': true
+            }) }}
         </div>
-      </div>
     </div>
-  </section>
-  <!-- end form section -->
+</div>
 
-  <!-- footer section -->
-  <footer class="footer_section">
-    <div class="container">
-      <div class="footer-info">
-        <p>&copy; <span id="displayYear"></span> All Rights Reserved By <a href="https://html.design/">Free Html Templates</a></p>
-      </div>
-    </div>
-  </footer>
-  <!-- footer section -->
-
-  <!-- jQery -->
-  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
-  <!-- bootstrap js -->
-  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+<script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+<script src="{{ asset('front/js/bootstrap.js') }}"></script>
 
 </body>
-
 </html>

@@ -1,62 +1,241 @@
 {% extends 'admin/base.html.twig' %}
 
-{% block title %}Packs de Sponsoring{% endblock %}
+{% block title %}Gestion des Packs Sponsoring{% endblock %}
 
 {% block body %}
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h4 mb-0"><i class="fa fa-star-o mr-2"></i> Packs de Sponsoring</h2>
-        <a href="{{ path('admin_sponsoring_pack_new') }}" class="btn btn-primary">
-            <i class="fa fa-plus mr-1"></i> Nouveau Pack
-        </a>
-    </div>
+    <style>
+        .custom-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 0;
+        }
+        .header-subtitle {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .btn-export {
+            background-color: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn-export:hover {
+            background-color: #1e293b;
+            color: white;
+        }
+        .search-input {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            width: 200px;
+            outline: none;
+        }
+        .search-input:focus {
+            border-color: #94a3b8;
+        }
+        .filter-select {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 13px;
+            outline: none;
+            min-width: 180px;
+            color: #334155;
+        }
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .custom-table th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+        }
+        .custom-table th:last-child {
+            border-right: none;
+        }
+        .custom-table td {
+            padding: 16px;
+            font-size: 12px;
+            color: #334155;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+            border-right: 1px solid #e2e8f0;
+        }
+        .custom-table td:last-child {
+            border-right: none;
+        }
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+        .custom-table tr:hover td {
+            background-color: #f8fafc;
+        }
+        .empty-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px !important;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        .btn-action {
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+            border: none;
+            padding: 4px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-action:hover { opacity: 0.9; }
+    </style>
 
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show">
-                {{ message }}
-                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    <div class="custom-card">
+        <div class="header-container" style="padding-top: 8px;">
+            <div>
+                <h1 class="header-title">Sponsoring Packs</h1>
+                <div class="header-subtitle">Create and manage sponsorship tiers for events.</div>
             </div>
-        {% endfor %}
-    {% endfor %}
+            <div class="header-actions">
+                <a href="#" id="exportPdfBtn" class="btn-export" onclick="alert('Export PDF sera bientôt disponible'); return false;">Exporter PDF</a>
+                
+                {% set unique_evenements = [] %}
+                {% for pack in packs %}
+                    {% if pack.evenement and pack.evenement.id not in unique_evenements|keys %}
+                        {% set unique_evenements = unique_evenements|merge({(pack.evenement.id): pack.evenement.titre}) %}
+                    {% endif %}
+                {% endfor %}
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="thead-light">
+                <select id="eventFilter" class="filter-select">
+                    <option value="">Tous les événements</option>
+                    {% for id, titre in unique_evenements %}
+                        <option value="{{ id }}">{{ titre }}</option>
+                    {% endfor %}
+                </select>
+
+                <input type="text" id="searchPack" class="search-input" placeholder="Rechercher par nom...">
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="custom-table" id="packsTable">
+                <thead>
                     <tr>
-                        <th>#</th>
                         <th>Nom du Pack</th>
                         <th>Description</th>
-                        <th>Prix (DT)</th>
-                        <th class="text-center">Actions</th>
+                        <th>Prix</th>
+                        <th>Événement</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="packsBody">
                     {% for pack in packs %}
-                    <tr>
-                        <td>{{ pack.id }}</td>
-                        <td><strong>{{ pack.nomPack }}</strong></td>
-                        <td class="text-muted" style="max-width: 300px;">{{ pack.description|slice(0, 80) }}{{ pack.description|length > 80 ? '...' : '' }}</td>
-                        <td><span class="badge badge-success">{{ pack.prix }} DT</span></td>
-                        <td class="text-center">
-                            <a href="{{ path('admin_sponsoring_pack_edit', {'id': pack.id}) }}" class="btn btn-sm btn-warning mr-1">
-                                <i class="fa fa-edit"></i>
-                            </a>
-                            <form method="post" action="{{ path('admin_sponsoring_pack_delete', {'id': pack.id}) }}" style="display: inline-block;" onsubmit="return confirm('Supprimer ce pack ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ pack.id) }}">
-                                <button class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></button>
-                            </form>
-                        </td>
-                    </tr>
+                        <tr class="pack-row" data-event-id="{{ pack.evenement ? pack.evenement.id : '' }}" data-search="{{ pack.nomPack|lower }}">
+                            <td>{{ pack.nomPack }}</td>
+                            <td>{{ pack.description|length > 50 ? pack.description|slice(0, 50) ~ '...' : pack.description }}</td>
+                            <td>{{ pack.prix|number_format(1, '.', '') }}</td>
+                            <td>{{ pack.evenement ? pack.evenement.titre : '-' }}</td>
+                            <td>
+                                <form method="post" action="{{ path('admin_sponsoring_pack_delete', {'id': pack.id}) }}" onsubmit="return confirm('Supprimer ce pack définitivement ?');" style="margin: 0;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ pack.id) }}">
+                                    <button class="btn-action" style="background-color: #e74c3c;">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
                     {% else %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-4">Aucun pack de sponsoring créé.</td>
-                    </tr>
+                        <tr id="emptyRow">
+                            <td colspan="5" class="empty-state" style="text-align: center;">No content in table</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchPack');
+        const eventFilter = document.getElementById('eventFilter');
+        const rows = document.querySelectorAll('.pack-row');
+        const tbody = document.getElementById('packsBody');
+        
+        let emptyRow = document.getElementById('emptyRow');
+        if (!emptyRow) {
+            emptyRow = document.createElement('tr');
+            emptyRow.id = 'emptyRow';
+            emptyRow.innerHTML = '<td colspan="5" class="empty-state" style="text-align: center;">No content in table</td>';
+            emptyRow.style.display = 'none';
+            tbody.appendChild(emptyRow);
+        }
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedEvent = eventFilter.value;
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const eventId = row.getAttribute('data-event-id');
+                const searchData = row.getAttribute('data-search');
+                
+                const matchesEvent = selectedEvent === "" || eventId === selectedEvent;
+                const matchesSearch = searchTerm === "" || searchData.includes(searchTerm);
+
+                if (matchesEvent && matchesSearch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (visibleCount === 0) {
+                emptyRow.style.display = '';
+            } else {
+                emptyRow.style.display = 'none';
+            }
+        }
+
+        if (searchInput) searchInput.addEventListener('input', filterTable);
+        if (eventFilter) eventFilter.addEventListener('change', filterTable);
+    });
+</script>
 {% endblock %}

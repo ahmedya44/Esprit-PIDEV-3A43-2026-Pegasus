@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\SponsoringPackRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Evenement;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: SponsoringPackRepository::class)]
 class SponsoringPack
@@ -21,6 +23,14 @@ class SponsoringPack
 
     #[ORM\Column(type: 'float')]
     private ?float $prix = null;
+
+    #[ORM\ManyToOne(targetEntity: Evenement::class)]
+    #[ORM\JoinColumn(name: 'id_evenement', referencedColumnName: 'id', nullable: true)]
+    private ?Evenement $evenement = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'id_sponsor', referencedColumnName: 'id', nullable: true)]
+    private ?User $sponsor = null;
 
     public function getId(): ?int
     {
@@ -63,5 +73,27 @@ class SponsoringPack
     public function __toString(): string
     {
         return $this->nomPack ?? '';
+    }
+
+    public function getEvenement(): ?Evenement
+    {
+        return $this->evenement;
+    }
+
+    public function setEvenement(?Evenement $evenement): self
+    {
+        $this->evenement = $evenement;
+        return $this;
+    }
+
+    public function getSponsor(): ?User
+    {
+        return $this->sponsor;
+    }
+
+    public function setSponsor(?User $sponsor): self
+    {
+        $this->sponsor = $sponsor;
+        return $this;
     }
 }

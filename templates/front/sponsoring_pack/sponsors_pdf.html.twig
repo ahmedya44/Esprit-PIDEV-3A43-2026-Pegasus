@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Sponsors - {{ evenement.titre }}</title>
+    <style>
+        body { font-family: sans-serif; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #2ecc71; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: #2c3e50; margin: 0; }
+        .header p { color: #7f8c8d; font-size: 1.1rem; }
+        .event-info { background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+        .event-info h2 { margin-top: 0; color: #2ecc71; font-size: 1.3rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background-color: #2c3e50; color: white; padding: 12px; text-align: left; font-size: 0.9rem; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 0.8rem; color: #bdc3c7; border-top: 1px solid #eee; padding-top: 10px; }
+        .price { font-weight: bold; color: #e67e22; }
+        .pack-name { font-weight: bold; color: #2ecc71; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Feane</h1>
+        <p>Rapport de Sponsoring</p>
+    </div>
+
+    <div class="event-info">
+        <h2>Événement : {{ evenement.titre }}</h2>
+        <p><strong>Date :</strong> {{ evenement.date|date('d/m/Y') }} à {{ evenement.heure|date('H:i') }}</p>
+        <p><strong>Lieu :</strong> {{ evenement.lieu }}</p>
+    </div>
+
+    <h3>Liste des Sponsors</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Sponsor</th>
+                <th>Email</th>
+                <th>Pack Réservé</th>
+                <th>Prix</th>
+                <th>Date Réservation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for res in reservations %}
+                <tr>
+                    <td><strong>{{ res.user.userIdentifier|split('@')|first }}</strong></td>
+                    <td>{{ res.user.email }}</td>
+                    <td class="pack-name">{{ res.sponsoringPack.nomPack }}</td>
+                    <td class="price">{{ res.sponsoringPack.prix }} TND</td>
+                    <td>{{ res.dateReservation|date('d/m/Y') }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 30px; color: #999;">Aucun sponsor pour cet événement.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Document généré le {{ "now"|date('d/m/Y H:i') }} - Feane &copy; 2024
+    </div>
+</body>
+</html>

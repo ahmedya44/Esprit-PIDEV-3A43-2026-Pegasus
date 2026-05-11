@@ -59,7 +59,7 @@ final class FrontController extends AbstractController
         foreach ($allEvents as $event) {
             if ($this->isGranted('ROLE_ADMIN')) {
                 $filteredEvents[] = $event;
-            } elseif ($event->getStatut() === 'acceptée') {
+            } elseif (in_array(mb_strtolower($event->getStatut(), 'UTF-8'), ['acceptée', 'acceptee', 'accepté', 'accepte'])) {
                 $filteredEvents[] = $event;
             } elseif ($user && $event->getArtiste() === $user) {
                 $filteredEvents[] = $event;
@@ -200,6 +200,11 @@ final class FrontController extends AbstractController
             return $this->redirectToRoute('front_evenements_index');
         }
         $user = $this->getUser();
+        
+        if ($user && $evenement->getArtiste() === $user) {
+            return $this->redirectToRoute('front_sponsoring_pack_index', ['eventId' => $evenement->getId()]);
+        }
+
         $packs = $packRepository->findAll();
         
         $reservations = [];
@@ -257,10 +262,26 @@ final class FrontController extends AbstractController
         if ($existing) {
             $this->addFlash('warning', 'Vous avez déjà réservé ce pack pour cet événement.');
         } else {
+            // Synchronize with the 'sponsor' table if necessary to avoid FK errors
+            $conn = $entityManager->getConnection();
+            $res = $conn->fetchOne('SELECT id FROM sponsor WHERE id = ?', [$user->getId()]);
+            
+            if (!$res) {
+                // Insert a placeholder record in the sponsor table
+                $conn->executeStatement(
+                    'INSERT INTO sponsor (id, company_name, verified) VALUES (?, ?, ?)',
+                    [$user->getId(), $user->getUserIdentifier(), 1]
+                );
+            }
+
             $reservation = new ReservationPack();
             $reservation->setEvenement($evenement);
             $reservation->setUser($user);
             $reservation->setSponsoringPack($pack);
+
+            // Also update the pack itself as requested
+            $pack->setEvenement($evenement);
+            $pack->setSponsor($user);
 
             $entityManager->persist($reservation);
             $entityManager->flush();
@@ -329,6 +350,21 @@ final class FrontController extends AbstractController
         ]);
 
         if ($existing) {
+            // Vérification de la règle des 7 jours
+            $now = new \DateTime();
+            $eventDate = $evenement->getDate();
+            $interval = $now->diff($eventDate);
+            $daysRemaining = (int)$interval->format('%r%a');
+
+            if ($daysRemaining < 7) {
+                $this->addFlash('error', 'Désolé, vous ne pouvez plus annuler votre réservation à moins de 7 jours de l\'événement.');
+                return $this->redirectToRoute('front_evenements_sponsor', ['id' => $evenement->getId()]);
+            }
+
+            // Libérer le pack
+            $pack->setEvenement(null);
+            $pack->setSponsor(null);
+
             $entityManager->remove($existing);
             $entityManager->flush();
             $this->addFlash('success', 'Votre réservation pour le pack ' . $pack->getNomPack() . ' a été annulée.');
@@ -430,20 +466,57 @@ final class FrontController extends AbstractController
     }
 
     #[Route('/evenements/{id}/participants', name: 'front_evenements_participants', methods: ['GET'])]
-    #[IsGranted('ROLE_ARTISTE')]
     public function participants(?Evenement $evenement): Response
     {
-        if (!$evenement) {
-            $this->addFlash('error', 'Cet événement est introuvable.');
-            return $this->redirectToRoute('front_evenements_index');
-        }
-
-        if ($evenement->getArtiste() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('Vous ne pouvez voir les participants que de vos propres événements.');
-        }
-
         return $this->render('front/evenement/participants.html.twig', [
             'evenement' => $evenement,
         ]);
+    }
+
+    #[Route('/evenements/{id}/participants/pdf', name: 'front_evenements_participants_pdf', methods: ['GET'])]
+    public function exportParticipantsPdf(?Evenement $evenement): Response
+    {
+        if (!$evenement) {
+            throw $this->createNotFoundException('Événement introuvable.');
+        }
+
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->setPaper('A4', 'portrait');
+
+        $html = $this->renderView('front/evenement/participants_pdf.html.twig', [
+            'evenement' => $evenement,
+        ]);
+
+        $dompdf->loadHtml($html);
+        $dompdf->render();
+
+        $output = $dompdf->output();
+        $filename = 'Participants_' . $evenement->getTitre() . '.pdf';
+
+        return new Response($output, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    #[Route('/evenements/participants/{id}/remove', name: 'front_evenements_participants_remove', methods: ['POST'])]
+    public function removeParticipant(Participation $participation, EntityManagerInterface $entityManager, Request $request): Response
+    {
+        $evenement = $participation->getEvenement();
+        
+        if (!$this->isCsrfTokenValid('remove'.$participation->getId(), $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+            return $this->redirectToRoute('front_evenements_participants', ['id' => $evenement->getId()]);
+        }
+
+        // On libère une place
+        $evenement->setCapaciteMax($evenement->getCapaciteMax() + 1);
+        
+        $entityManager->remove($participation);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Le participant a été retiré de la liste.');
+
+        return $this->redirectToRoute('front_evenements_participants', ['id' => $evenement->getId()]);
     }
 }

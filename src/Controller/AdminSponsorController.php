@@ -12,10 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class AdminSponsorController extends AbstractController
 {
     #[Route('/', name: 'app_admin_sponsor_index', methods: ['GET'])]
-    public function index(EvenementRepository $evenementRepository): Response
+    public function index(EvenementRepository $evenementRepository, ReservationPackRepository $reservationRepository): Response
     {
         return $this->render('back/sponsor/index.html.twig', [
             'evenements' => $evenementRepository->findAll(),
+            'reservations' => $reservationRepository->findAll(),
         ]);
     }
 

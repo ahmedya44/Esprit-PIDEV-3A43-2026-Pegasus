@@ -40,6 +40,7 @@ class SponsoringPackType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => SponsoringPack::class,
+            'artiste' => null,
         ]);
     }
 }

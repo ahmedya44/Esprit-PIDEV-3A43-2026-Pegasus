@@ -13,10 +13,16 @@ use Twig\Error\LoaderError;
 #[Route('/admin', name: 'back_')]
 final class BackController extends AbstractController
 {
-    #[Route('', name: 'dashboard', methods: ['GET'])]
-    public function dashboard(): RedirectResponse
+    #[Route('', name: 'dashboard_root', methods: ['GET'])]
+    public function dashboardRoot(): RedirectResponse
     {
-        return $this->redirectToRoute('back_page', ['path' => 'index']);
+        return $this->redirectToRoute('back_dashboard');
+    }
+
+    #[Route('/dashboard', name: 'dashboard', methods: ['GET'])]
+    public function dashboard(): Response
+    {
+        return $this->render('back/index.html.twig');
     }
 
     #[Route('/{path}.html', name: 'page', requirements: ['path' => '[A-Za-z0-9_\-/]+'], methods: ['GET'])]
