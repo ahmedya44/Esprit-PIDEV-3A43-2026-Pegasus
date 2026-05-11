@@ -210,6 +210,11 @@ public class ServiceArtLike {
         if (hasLiked(artId, sessionId)) {
             return removeLike(artId, sessionId);
         } else {
+            // Si l'utilisateur avait déjà un dislike, le supprimer d'abord
+            ServiceArtDislike dislikeService = new ServiceArtDislike();
+            if (dislikeService.hasDisliked(artId, sessionId)) {
+                dislikeService.removeDislike(artId, sessionId);
+            }
             return addLike(artId, sessionId);
         }
     }

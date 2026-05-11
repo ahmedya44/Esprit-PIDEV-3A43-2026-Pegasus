@@ -184,4 +184,17 @@ public class ServiceArtDislike {
         
         return dislikedArtIds;
     }
+    
+    public boolean toggleDislike(int artId, String sessionId) {
+        if (hasDisliked(artId, sessionId)) {
+            return removeDislike(artId, sessionId);
+        } else {
+            // Si l'utilisateur avait déjà un like, le supprimer d'abord
+            ServiceArtLike likeService = new ServiceArtLike();
+            if (likeService.hasLiked(artId, sessionId)) {
+                likeService.removeLike(artId, sessionId);
+            }
+            return addDislike(artId, sessionId);
+        }
+    }
 }
