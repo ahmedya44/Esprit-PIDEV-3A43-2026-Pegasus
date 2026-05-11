@@ -16,6 +16,9 @@ import java.io.IOException;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 import javafx.scene.layout.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -31,6 +34,7 @@ import java.util.ArrayList;
 import java.awt.Desktop;
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
@@ -329,101 +333,26 @@ public class MenuController {
     }
 
     private Image loadArtworkImage(String imageUrl) {
-        System.out.println("=== IMAGE: " + imageUrl + " ===");
-        
-        try {
-            // 1. Si URL vide -> placeholder direct
-            if (imageUrl == null || imageUrl.trim().isEmpty()) {
-                System.out.println("-> PLACEHOLDER (vide)");
-                java.io.InputStream stream = getClass().getResourceAsStream("/images/placeholder.jpg");
-                return stream != null ? new Image(stream) : createPlaceholderImage();
-            }
-            
-            String trimmed = imageUrl.trim();
-            
-            // 2. HTTP/HTTPS - test simple sans paramètres
-            if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-                System.out.println("-> TEST HTTP: " + trimmed);
-                Image img = new Image(trimmed);
-                if (!img.isError()) {
-                    System.out.println("✅ HTTP OK!");
-                    return img;
-                } else {
-                    System.out.println("❌ HTTP FAIL: " + img.getException());
-                }
-            }
-            
-            // 3. FICHIER LOCAL - méthode garantie
-            String[] pathsToTry = {
-                trimmed,                                    // nom direct
-                "uploads/" + trimmed,                        // uploads/relatif
-                System.getProperty("user.dir") + "/" + trimmed,  // absolu depuis user.dir
-                System.getProperty("user.dir") + "/uploads/" + trimmed  // uploads/absolu
-            };
-            
-            for (String path : pathsToTry) {
-                System.out.println("-> TEST FICHIER: " + path);
-                File file = new File(path);
-                if (file.exists() && file.isFile()) {
-                    try {
-                        String uri = file.toURI().toString();
-                        System.out.println("   FICHIER TROUVÉ: " + uri);
-                        Image img = new Image(uri);
-                        if (!img.isError()) {
-                            System.out.println("✅ FICHIER OK!");
-                            return img;
-                        } else {
-                            System.out.println("❌ FICHIER ERREUR: " + img.getException());
-                        }
-                    } catch (Exception e) {
-                        System.out.println("❌ FICHIER EXCEPTION: " + e.getMessage());
-                    }
-                } else {
-                    System.out.println("   FICHIER NON TROUVÉ");
-                }
-            }
-            
-            // 4. RESOURCES - test simple
-            try {
-                java.io.InputStream stream = getClass().getResourceAsStream("/images/" + trimmed);
-                if (stream != null) {
-                    System.out.println("-> RESOURCE TROUVÉE: /images/" + trimmed);
-                    Image img = new Image(stream);
-                    System.out.println("✅ RESOURCE OK!");
-                    return img;
-                }
-            } catch (Exception e) {
-                System.out.println("❌ RESOURCE FAIL: " + e.getMessage());
-            }
-            
-            // 5. PLACEHOLDER FINAL
-            System.out.println("-> PLACEHOLDER FINAL");
-            java.io.InputStream placeholderStream = getClass().getResourceAsStream("/images/placeholder.jpg");
-            if (placeholderStream != null) {
-                return new Image(placeholderStream);
-            }
-            return createPlaceholderImage();
-            
-        } catch (Exception e) {
-            System.out.println("❌ ERREUR FINALE: " + e.getMessage());
-            return createPlaceholderImage();
+        String source = resolveArtworkImageSource(imageUrl);
+        if (source == null) {
+            return placeholderImage();
         }
+        Image image = new Image(source, 268, 178, false, true, true);
+        return image.isError() ? placeholderImage() : image;
     }
     
     private Image createPlaceholderImage() {
-        // Crée une image placeholder de base
-        String dataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
-        return new Image(dataUri);
+        return placeholderImage();
     }
 
     private String resolveArtworkImageSource(String imageUrl) {
         if (imageUrl == null || imageUrl.isBlank()) {
-            return getClass().getResource("/images/placeholder.jpg").toExternalForm();
+            return null;
         }
 
         String trimmed = imageUrl.trim();
         if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-            return trimmed;
+            return looksLikeImageUrl(trimmed) ? trimmed : null;
         }
         if (trimmed.startsWith("file:")) {
             return trimmed;
@@ -439,7 +368,62 @@ public class MenuController {
             return resourceImage.toURI().toString();
         }
 
-        return getClass().getResource("/images/placeholder.jpg").toExternalForm();
+        File uploadImage = new File("uploads", trimmed);
+        if (uploadImage.isFile()) {
+            return uploadImage.toURI().toString();
+        }
+
+        URL bundledImage = getClass().getResource("/images/" + trimmed);
+        if (bundledImage != null) {
+            return bundledImage.toExternalForm();
+        }
+
+        return null;
+    }
+
+    private boolean looksLikeImageUrl(String value) {
+        String lower = value.toLowerCase();
+        int queryIndex = lower.indexOf('?');
+        if (queryIndex >= 0) {
+            lower = lower.substring(0, queryIndex);
+        }
+        return lower.endsWith(".jpg")
+                || lower.endsWith(".jpeg")
+                || lower.endsWith(".png")
+                || lower.endsWith(".gif")
+                || lower.endsWith(".webp");
+    }
+
+    private Image placeholderImage() {
+        int width = 268;
+        int height = 178;
+        WritableImage image = new WritableImage(width, height);
+        PixelWriter writer = image.getPixelWriter();
+        Color top = Color.web("#eef3f7");
+        Color bottom = Color.web("#dbe5ee");
+        Color accent = Color.web("#c9d6e2");
+
+        for (int y = 0; y < height; y++) {
+            double blend = (double) y / Math.max(1, height - 1);
+            Color row = top.interpolate(bottom, blend);
+            for (int x = 0; x < width; x++) {
+                writer.setColor(x, y, row);
+            }
+        }
+
+        int centerX = width / 2;
+        int centerY = height / 2;
+        for (int y = centerY - 22; y <= centerY + 22; y++) {
+            for (int x = centerX - 34; x <= centerX + 34; x++) {
+                boolean frame = x == centerX - 34 || x == centerX + 34 || y == centerY - 22 || y == centerY + 22;
+                boolean mountain = y > centerY + 5 && y > centerY + 30 - Math.abs(x - centerX);
+                boolean sun = Math.pow(x - (centerX + 17), 2) + Math.pow(y - (centerY - 8), 2) <= 36;
+                if (frame || mountain || sun) {
+                    writer.setColor(x, y, accent);
+                }
+            }
+        }
+        return image;
     }
 
     private String safeText(String value, String fallback) {

@@ -70,7 +70,6 @@ public class ArtistsService {
             String encodedName = URLEncoder.encode(artistName, StandardCharsets.UTF_8);
             String apiUrl = french ? WIKIPEDIA_API + encodedName : EN_WIKIPEDIA_API + encodedName;
             
-            System.out.println("🌐 Test URL: " + apiUrl);
             
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(apiUrl))
@@ -82,8 +81,6 @@ public class ArtistsService {
             
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             
-            System.out.println("📡 Status Code: " + response.statusCode());
-            System.out.println("📄 Response: " + response.body().substring(0, Math.min(200, response.body().length())));
             
             if (response.statusCode() == 200) {
                 return parseWikipediaResponse(response.body(), artistName, french);
@@ -91,7 +88,6 @@ public class ArtistsService {
             
         } catch (Exception e) {
             System.err.println("❌ Erreur Wikipedia: " + e.getMessage());
-            e.printStackTrace();
         }
         
         return null;
