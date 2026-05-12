@@ -80,33 +80,6 @@ class ForumController extends AbstractController
         ]);
     }
 
-    #[Route('/stats', name: 'stats', methods: ['GET'])]
-    public function stats(Request $request): Response
-    {
-        $status = (string) $request->query->get('status', '');
-        if (!in_array($status, ['', Post::STATUS_OPEN, Post::STATUS_HIDDEN], true)) {
-            $status = '';
-        }
-
-        $countsByStatus = $this->postRepository->countByStatus();
-        $topCommentedPosts = $this->postRepository->topCommented(10);
-
-        if ($status !== '') {
-            $topCommentedPosts = array_values(array_filter(
-                $topCommentedPosts,
-                static fn (array $row): bool => $row['post']->getStatus() === $status
-            ));
-        }
-
-        return $this->render('forum/stats.html.twig', [
-            'status' => $status,
-            'countsByStatus' => $countsByStatus,
-            'topCommentedPosts' => $topCommentedPosts,
-            'totalComments' => $this->commentaireRepository->totalCount(),
-            'generatedAt' => new \DateTimeImmutable(),
-        ]);
-    }
-
     #[Route('/my-posts', name: 'my_posts', methods: ['GET'])]
     public function myPosts(): Response
     {

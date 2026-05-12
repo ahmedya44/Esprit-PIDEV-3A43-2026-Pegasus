@@ -52,7 +52,6 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h1 class="feed-title mb-0">Forum</h1>
           <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ path('forum_stats') }}" class="btn-forum-soft"><i class="fa fa-bar-chart"></i> Stats</a>
             {% if app.user %}
               <a href="{{ path('forum_my_posts') }}" class="btn-forum-soft"><i class="fa fa-folder-open"></i> My Posts</a>
               <a href="{{ path('forum_new') }}" class="btn-forum-primary"><i class="fa fa-plus"></i> New Post</a>
