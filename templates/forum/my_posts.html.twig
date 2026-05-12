@@ -1,0 +1,124 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'forum' %}
+{% block title %}My Posts — Forum{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .myposts-shell { padding: 32px 0 64px; background: var(--pg-bg,#f4f6fb); min-height: 72vh; }
+  .myposts-container { max-width: 860px; margin: 0 auto; }
+  .myposts-header { background:#fff; border:1px solid #dbe5ef; border-radius:16px; padding:18px 22px; margin-bottom:20px; box-shadow:0 4px 14px rgba(15,23,42,.06); }
+  .myposts-title { font-size:1.35rem; font-weight:800; color:var(--pg-navy,#111827); margin:0; }
+  .post-card { background:#fff; border:1px solid #dbe5ef; border-radius:16px; box-shadow:0 6px 18px rgba(15,23,42,.07); padding:16px 18px; margin-bottom:14px; transition:transform .18s, box-shadow .18s; }
+  .post-card:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(15,23,42,.11); }
+  .post-card-title { font-size:1.05rem; font-weight:700; color:var(--pg-navy,#111827); margin:0 0 4px; }
+  .post-card-meta { font-size:.83rem; color:#6b7280; }
+  .post-card-content { color:#374151; font-size:.9rem; line-height:1.55; margin-top:6px; }
+  .post-card-image { width:100%; max-height:220px; object-fit:cover; border-radius:10px; border:1px solid #dbe5ef; margin-top:8px; }
+  .rating-display-stars { --rating: 0; position:relative; display:inline-block; font-size:.9rem; line-height:1; vertical-align:middle; top:-1px; }
+  .rating-display-stars::before { content:"\2605\2605\2605\2605\2605"; color:#d0d5dd; }
+  .rating-display-stars::after { content:"\2605\2605\2605\2605\2605"; color:var(--pg-gold,#f9c23c); position:absolute; top:0; left:0; width:calc((var(--rating)/5)*100%); overflow:hidden; white-space:nowrap; }
+  .badge-status { border-radius:999px; padding:3px 10px; font-size:.72rem; font-weight:700; }
+  .badge-open { background:#d1fae5; color:#065f46; }
+  .badge-closed { background:#fef3c7; color:#92400e; }
+  .btn-action { border:none; border-radius:20px; color:#fff; font-weight:700; font-size:.8rem; padding:6px 14px; display:inline-flex; align-items:center; gap:5px; text-decoration:none; transition:opacity .18s; }
+  .btn-action:hover { opacity:.85; text-decoration:none; color:#fff; }
+  .btn-view { background:var(--pg-teal,#0f766e); }
+  .btn-edit { background:#2563eb; }
+  .btn-delete { background:#dc2626; }
+  .btn-new { background:var(--pg-gold,#f9c23c); color:#111!important; }
+  .btn-back { background:#fff; border:1px solid #dbe5ef; color:#374151!important; border-radius:20px; padding:6px 16px; font-size:.85rem; font-weight:600; text-decoration:none; }
+  .btn-back:hover { background:#f4f6fb; text-decoration:none; }
+  .empty-state { text-align:center; padding:48px 20px; color:#6b7280; }
+  .empty-state i { font-size:3rem; color:#d0d5dd; margin-bottom:12px; display:block; }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="myposts-shell">
+  <div class="container">
+    <div class="myposts-container">
+
+      <div class="myposts-header d-flex justify-content-between align-items-center">
+        <h1 class="myposts-title"><i class="fa fa-folder-open mr-2" style="color:var(--pg-gold,#f9c23c);"></i>My Posts</h1>
+        <div class="d-flex gap-2">
+          <a href="{{ path('forum_index') }}" class="btn-back"><i class="fa fa-arrow-left mr-1"></i> Forum</a>
+          <a href="{{ path('forum_new') }}" class="btn-action btn-new"><i class="fa fa-plus"></i> New Post</a>
+        </div>
+      </div>
+
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+      {% endfor %}
+
+      {% if posts|length == 0 %}
+        <div class="post-card empty-state">
+          <i class="fa fa-comment-o"></i>
+          <p class="mb-3">You haven't created any posts yet.</p>
+          <a href="{{ path('forum_new') }}" class="btn-action btn-new"><i class="fa fa-plus"></i> Create your first post</a>
+        </div>
+      {% else %}
+        <p class="text-muted mb-3" style="font-size:.88rem;">{{ posts|length }} post{{ posts|length != 1 ? 's' : '' }} published</p>
+        {% for post in posts %}
+          {% set rating = ratingSummaries[post.id] ?? {avg: 0, count: 0} %}
+          <div class="post-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <p class="post-card-title">{{ post.title }}</p>
+                <div class="post-card-meta">
+                  <i class="fa fa-clock-o mr-1"></i>{{ post.createdAt|date('d M Y, H:i') }}
+                  {% if post.updatedAt %}
+                    &nbsp;&middot;&nbsp;<i class="fa fa-pencil mr-1"></i>edited {{ post.updatedAt|date('d M Y') }}
+                  {% endif %}
+                  &nbsp;&middot;&nbsp;
+                  <i class="fa fa-comment-o mr-1"></i>{{ post.commentaires|length }} comment{{ post.commentaires|length != 1 ? 's' : '' }}
+                  {% if rating.count > 0 %}
+                    &nbsp;&middot;&nbsp;
+                    <span class="rating-display-stars" style="--rating: {{ rating.avg|number_format(2,'.','') }};"></span>
+                    {{ rating.avg|number_format(1,'.','') }}/5
+                  {% endif %}
+                </div>
+              </div>
+              <div class="ml-2">
+                {% if post.status == 'IN_PROGRESS' %}
+                  <span class="badge-status" style="background:#fef3c7;color:#92400e;"><i class="fa fa-clock-o mr-1"></i>Pending</span>
+                {% elseif post.status == 'DENIED' %}
+                  <span class="badge-status" style="background:#fee2e2;color:#991b1b;"><i class="fa fa-times-circle mr-1"></i>Denied</span>
+                {% elseif post.status == 'OPEN' %}
+                  <span class="badge-status badge-open">Open</span>
+                {% elseif post.status == 'CLOSED' %}
+                  <span class="badge-status badge-closed">Closed</span>
+                {% elseif post.status == 'HIDDEN' %}
+                  <span class="badge-status" style="background:#e5e7eb;color:#374151;">Hidden</span>
+                {% endif %}
+              </div>
+            </div>
+
+            {% set cleanContent = post.content|striptags|replace({'&nbsp;': ' '})|trim %}
+            {% if cleanContent %}
+              <div class="post-card-content">{{ cleanContent|slice(0, 200) }}{% if cleanContent|length > 200 %}...{% endif %}</div>
+            {% endif %}
+
+            {% if post.imageName %}
+              <img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="{{ post.title }}" class="post-card-image">
+            {% endif %}
+
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+              <a href="{{ path('forum_show', {id: post.id}) }}" class="btn-action btn-view"><i class="fa fa-eye"></i> View</a>
+              <a href="{{ path('forum_edit', {id: post.id}) }}" class="btn-action btn-edit"><i class="fa fa-pencil"></i> Edit</a>
+              <form method="post" action="{{ path('forum_delete', {id: post.id}) }}" onsubmit="return confirm('Delete this post and all its comments?');" style="margin:0;">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ post.id) }}">
+                <button type="submit" class="btn-action btn-delete"><i class="fa fa-trash"></i> Delete</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+{% endblock %}

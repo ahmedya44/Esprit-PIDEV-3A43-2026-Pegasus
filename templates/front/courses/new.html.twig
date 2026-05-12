@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -94,7 +94,7 @@
     <header class="header_section">
       <div class="container">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Feane</span></a>
+          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Pegasus</span></a>
 
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
             <span class=""></span>
@@ -102,10 +102,7 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mx-auto">
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_home') }}">Home</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
+              
               <li class="nav-item active"><a class="nav-link" href="{{ path('artist_dashboard', {tab:'courses'}) }}">Artist Dashboard</a></li>
               <li class="nav-item"><a class="nav-link" href="{{ path('app_courses') }}">Courses</a></li>
             </ul>
@@ -139,7 +136,7 @@
       <div class="glass-card">
         <div class="glass-head">
           <h3 class="h5 mb-0">Course Information</h3>
-          <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">â† Back</a>
+          <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">← Back</a>
         </div>
 
         <div class="glass-body">
@@ -150,7 +147,7 @@
             <div class="col-12">
               <div class="field-title">Title</div>
               {{ form_row(form.title) }}
-              <div class="hint">Make it clear and specific (ex: â€œSymfony for Beginnersâ€).</div>
+              <div class="hint">Make it clear and specific (ex: “Symfony for Beginners”).</div>
             </div>
 
             <div class="col-12">
@@ -163,8 +160,8 @@
               <div class="field-title">Status</div>
               {{ form_row(form.status) }}
               <div class="hint">
-                <strong>DRAFT</strong>: not visible â€¢
-                <strong>PUBLISHED</strong>: visible â€¢
+                <strong>DRAFT</strong>: not visible •
+                <strong>PUBLISHED</strong>: visible •
                 <strong>HIDDEN</strong>: saved but hidden
               </div>
             </div>
@@ -178,7 +175,7 @@
           </div>
 
           <div class="d-flex gap-2 mt-4">
-            <button class="btn-feane" type="submit">ðŸ’¾ Save</button>
+            <button class="btn-feane" type="submit">💾 Save</button>
             <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">Cancel</a>
           </div>
 
@@ -194,4 +191,6 @@
   <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>
+
+
 

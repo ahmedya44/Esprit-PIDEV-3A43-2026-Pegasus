@@ -51,14 +51,15 @@ class ForumController extends AbstractController
 
         $page = max(1, $request->query->getInt('page', 1));
         $q = trim((string) $request->query->get('q', ''));
-        $status = (string) $request->query->get('status', '');
+        $status = Post::STATUS_OPEN;
+        $sort = (string) $request->query->get('sort', 'newest');
 
-        if (!in_array($status, [Post::STATUS_OPEN, Post::STATUS_HIDDEN], true)) {
-            $status = '';
+        if (!in_array($sort, ['newest', 'oldest', 'title_az', 'title_za', 'comments'], true)) {
+            $sort = 'newest';
         }
 
         $pagination = $this->paginator->paginate(
-            $this->postRepository->createFrontListQueryBuilder($q, $status, $viewer, $this->isGranted('ROLE_ADMIN')),
+            $this->postRepository->createFrontListQueryBuilder($q, $status, $viewer, $this->isGranted('ROLE_ADMIN'), $sort),
             $page,
             10
         );
@@ -71,9 +72,10 @@ class ForumController extends AbstractController
         }
 
         return $this->render('forum/index.html.twig', [
-            'pagination' => $pagination,
-            'q' => $q,
-            'status' => $status,
+            'pagination'     => $pagination,
+            'q'              => $q,
+            'status'         => $status,
+            'sort'           => $sort,
             'ratingSummaries' => $this->postRatingRepository->getSummariesForPostIds($postIds),
         ]);
     }
@@ -105,13 +107,31 @@ class ForumController extends AbstractController
         ]);
     }
 
+    #[Route('/my-posts', name: 'my_posts', methods: ['GET'])]
+    public function myPosts(): Response
+    {
+        $user = $this->requireAuthenticatedUser();
+        $posts = $this->postRepository->findByOwner($user);
+
+        $postIds = array_values(array_filter(
+            array_map(static fn (Post $p): ?int => $p->getId(), $posts),
+            static fn (?int $id): bool => $id !== null
+        ));
+
+        return $this->render('forum/my_posts.html.twig', [
+            'posts' => $posts,
+            'ratingSummaries' => $this->postRatingRepository->getSummariesForPostIds($postIds),
+        ]);
+    }
+
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $user = $this->requireAuthenticatedUser();
 
         $post = new Post();
-        $post->setStatus(Post::STATUS_OPEN);
+        $post->setStatus(Post::STATUS_IN_PROGRESS);
+        $post->setRequestType(Post::REQUEST_TYPE_CREATE);
         $post->setOwner($user);
         $post->setAuthorName($this->userDisplayName($user));
         $post->setAuthorEmail((string) ($user->getEmail() ?? ''));
@@ -120,32 +140,33 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->applyAllowedViewersFromForm($post, $form->get('allowedViewerIds')->getData());
-
             $owner = $post->getOwner();
             if ($owner instanceof User) {
                 $post->setAuthorName($this->userDisplayName($owner));
                 $post->setAuthorEmail((string) ($owner->getEmail() ?? ''));
             }
 
-            if ($this->hasForbiddenWords([$post->getTitle(), $post->getContent()])) {
-                $this->addFlash('error', 'Le sujet contient des mots interdits.');
+            $badWords = $this->detectForbiddenWords([$post->getTitle(), $post->getContent()]);
+            if ($badWords !== []) {
+                $this->addFlash('error', 'Your post contains forbidden words: ' . implode(', ', $badWords) . '. Please edit and resubmit.');
 
                 return $this->render('forum/new.html.twig', [
                     'form' => $form,
+                    'bad_words' => $badWords,
                 ], new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
             }
 
             $this->entityManager->persist($post);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Votre sujet a ete cree avec succes.');
+            $this->addFlash('success', 'Your post has been submitted and is pending admin approval.');
 
             return $this->redirectToRoute('forum_show', ['id' => $post->getId()]);
         }
 
         return $this->render('forum/new.html.twig', [
             'form' => $form,
+            'bad_words' => [],
         ]);
     }
 
@@ -254,21 +275,32 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->applyAllowedViewersFromForm($post, $form->get('allowedViewerIds')->getData());
+            if ($form->has('allowedViewerIds')) {
+                $this->applyAllowedViewersFromForm($post, $form->get('allowedViewerIds')->getData());
+            }
 
-            if ($this->hasForbiddenWords([$post->getTitle(), $post->getContent()])) {
-                $this->addFlash('error', 'Le sujet contient des mots interdits.');
+            $badWords = $this->detectForbiddenWords([$post->getTitle(), $post->getContent()]);
+            if ($badWords !== []) {
+                $this->addFlash('error', 'Your post contains forbidden words: ' . implode(', ', $badWords) . '. Please edit and resubmit.');
 
                 return $this->render('forum/edit.html.twig', [
                     'form' => $form,
                     'post' => $post,
+                    'bad_words' => $badWords,
                 ], new Response('', Response::HTTP_UNPROCESSABLE_ENTITY));
             }
 
             $post->setUpdatedAt(new \DateTimeImmutable());
-            $this->entityManager->flush();
 
-            $this->addFlash('success', 'Votre sujet a ete modifie avec succes.');
+            if (!$this->isGranted('ROLE_ADMIN') && $post->isOpen()) {
+                $post->setStatus(Post::STATUS_IN_PROGRESS);
+                $post->setRequestType(Post::REQUEST_TYPE_EDIT);
+                $this->addFlash('success', 'Your edit has been submitted and is pending admin approval.');
+            } else {
+                $this->addFlash('success', 'Post updated successfully.');
+            }
+
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('forum_show', ['id' => $post->getId()]);
         }
@@ -343,8 +375,9 @@ class ForumController extends AbstractController
                 $commentaire->setAuthorEmail((string) ($owner->getEmail() ?? ''));
             }
 
-            if ($this->hasForbiddenWords([$commentaire->getContent()])) {
-                $this->addFlash('error', 'Le commentaire contient des mots interdits.');
+            $badWords = $this->detectForbiddenWords([$commentaire->getContent()]);
+            if ($badWords !== []) {
+                $this->addFlash('error', 'Your comment contains forbidden words: ' . implode(', ', $badWords) . '.');
                 $rateActionParams = ['id' => $post->getId()];
                 if ($locale !== null) {
                     $rateActionParams['lang'] = $locale;
@@ -464,8 +497,9 @@ class ForumController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($this->hasForbiddenWords([$commentaire->getContent()])) {
-                $this->addFlash('error', 'Le commentaire contient des mots interdits.');
+            $badWords = $this->detectForbiddenWords([$commentaire->getContent()]);
+            if ($badWords !== []) {
+                $this->addFlash('error', 'Your comment contains forbidden words: ' . implode(', ', $badWords) . '.');
 
                 return $this->render('forum/comment_edit.html.twig', [
                     'form' => $form,
@@ -586,16 +620,20 @@ class ForumController extends AbstractController
 
     /**
      * @param array<int, string> $texts
+     * @return array<int, string>
      */
-    private function hasForbiddenWords(array $texts): bool
+    private function detectForbiddenWords(array $texts): array
     {
+        $all = [];
         foreach ($texts as $text) {
-            if ($this->badWordsDetector->hasBadWords($text)) {
-                return true;
+            foreach ($this->badWordsDetector->findBadWords($text) as $word) {
+                if (!in_array($word, $all, true)) {
+                    $all[] = $word;
+                }
             }
         }
 
-        return false;
+        return $all;
     }
 
     private function requireAuthenticatedUser(): User
@@ -622,30 +660,37 @@ class ForumController extends AbstractController
 
     private function canAccessPost(Post $post): bool
     {
-        if (!$post->isHidden()) {
-            return true;
-        }
-
         if ($this->isGranted('ROLE_ADMIN')) {
             return true;
         }
 
         $user = $this->getUser();
-        if (!$user instanceof User) {
+        $isOwner = $user instanceof User
+            && $post->getOwner() instanceof User
+            && $post->getOwner()->getId() === $user->getId();
+
+        if ($post->isBannedByAdmin()) {
+            return $isOwner;
+        }
+
+        if ($post->isInProgress() || $post->isDenied()) {
+            return $isOwner;
+        }
+
+        if ($post->isHidden()) {
+            if ($isOwner) {
+                return true;
+            }
+            foreach ($post->getAllowedViewers() as $viewer) {
+                if ($user instanceof User && $viewer->getId() === $user->getId()) {
+                    return true;
+                }
+            }
+
             return false;
         }
 
-        if ($post->getOwner() instanceof User && $post->getOwner()->getId() === $user->getId()) {
-            return true;
-        }
-
-        foreach ($post->getAllowedViewers() as $viewer) {
-            if ($viewer->getId() === $user->getId()) {
-                return true;
-            }
-        }
-
-        return false;
+        return true;
     }
 
     private function userDisplayName(User $user): string

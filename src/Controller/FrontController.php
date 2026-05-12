@@ -9,6 +9,9 @@ use App\Entity\Artiste;
 use App\Entity\NormalUser;
 use App\Entity\Sponsor;
 use App\Entity\User;
+use App\Repository\ArtRepository;
+use App\Repository\CourseRepository;
+use App\Repository\EvenementRepository;
 use App\Repository\PasskeyCredentialRepository;
 use App\Service\AvatarService;
 use App\Service\CloudflareStylizerService;
@@ -25,27 +28,39 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final class FrontController extends AbstractController
 {
     #[Route('/', name: 'front_home', methods: ['GET'])]
-    public function home(): Response
-    {
-        return $this->render('front/index.html.twig');
+    public function home(
+        ArtRepository $artRepository,
+        CourseRepository $courseRepository,
+        EvenementRepository $evenementRepository,
+    ): Response {
+        $recentArts = $artRepository->findBy([], ['id' => 'DESC'], 6);
+        $recentCourses = $courseRepository->findBy([], ['id' => 'DESC'], 4);
+
+        $allEvents = $evenementRepository->findBy(['statut' => 'acceptée'], ['id' => 'DESC'], 3);
+        if (empty($allEvents)) {
+            $allEvents = $evenementRepository->findBy(['statut' => 'acceptee'], ['id' => 'DESC'], 3);
+        }
+
+        $artCount = $artRepository->countTotal();
+        $courseCount = count($courseRepository->findAll());
+        $eventCount = count($evenementRepository->findAll());
+
+        return $this->render('front/home.html.twig', [
+            'recent_arts'     => $recentArts,
+            'recent_courses'  => $recentCourses,
+            'recent_events'   => $allEvents,
+            'art_count'       => $artCount,
+            'course_count'    => $courseCount,
+            'event_count'     => $eventCount,
+        ]);
     }
 
-    #[Route('/menu', name: 'front_menu', methods: ['GET'])]
-    public function menu(): Response
+    #[Route('/menu', name: 'front_menu_legacy', methods: ['GET'])]
+    #[Route('/about', name: 'front_about_legacy', methods: ['GET'])]
+    #[Route('/book', name: 'front_book_legacy', methods: ['GET'])]
+    public function legacyFrontPages(): Response
     {
-        return $this->render('front/menu.html.twig');
-    }
-
-    #[Route('/about', name: 'front_about', methods: ['GET'])]
-    public function about(): Response
-    {
-        return $this->render('front/about.html.twig');
-    }
-
-    #[Route('/book', name: 'front_book', methods: ['GET'])]
-    public function book(): Response
-    {
-        return $this->render('front/book.html.twig');
+        return $this->redirectToRoute('front_evenements_index');
     }
 
     #[Route('/courses', name: 'front_course', methods: ['GET'])]
@@ -465,3 +480,5 @@ final class FrontController extends AbstractController
         }
     }
 }
+
+

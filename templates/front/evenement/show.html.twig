@@ -1,479 +1,148 @@
-﻿<!DOCTYPE html>
-<html>
+{% extends 'front/layout.html.twig' %}
 
-<head>
-  <!-- Basic -->
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <!-- Mobile Metas -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <!-- Site Metas -->
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+{% set active_nav = 'events' %}
+{% block title %}Pegasus | Event Details{% endblock %}
 
-  <title>Feane - DÃ©tails de l'Ã‰vÃ©nement</title>
-
-  <!-- bootstrap core css -->
-  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
-
-  <!-- font awesome style -->
-  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
-
-  <!-- Custom styles for this template -->
-  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
-  <!-- responsive style -->
-  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <style>
-    #map {
-        height: 400px;
-        width: 100%;
-        border-radius: 20px;
-        margin-top: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        border: 4px solid rgba(255, 255, 255, 0.2);
-    }
-    .premium-card {
-        transition: transform 0.3s ease;
-    }
-    .premium-card:hover {
-        transform: translateY(-5px);
-    }
-  </style>
-</head>
-
-<body class="sub_page">
-
-  <div class="hero_area">
-    <div class="bg-box">
-      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
-    </div>
-    <!-- header section strats -->
-    <header class="header_section">
-      <div class="container">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}">
-            <span>
-              Feane
-            </span>
-          </a>
-
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class=""> </span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mx-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_home') }}">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_about') }}">About</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('forum_index') }}">Forum</a>
-              </li>
-              <li class="nav-item active">
-                <a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a>
-              </li>
-            </ul>
-            <div class="user_option">
-              {% if app.user %}
-                <a href="{{ path('front_profile') }}" class="user_link profile_link">
-                  <i class="fa fa-user" aria-hidden="true"></i>
-                  <span class="profile_name">{{ app.user.username }}</span>
-                </a>
-              {% else %}
-                <a href="{{ path('app_login') }}" class="user_link">
-                  <i class="fa fa-user" aria-hidden="true"></i>
-                </a>
-              {% endif %}
-              <a class="cart_link" href="#">
-                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
-                  <g>
-                    <g>
-                      <path d="M345.6,338.862c-29.184,0-53.248,23.552-53.248,53.248c0,29.184,23.552,53.248,53.248,53.248
-                   c29.184,0,53.248-23.552,53.248-53.248C398.336,362.926,374.784,338.862,345.6,338.862z" />
-                    </g>
-                  </g>
-                  <g>
-                    <g>
-                      <path d="M439.296,84.91c-1.024,0-2.56-0.512-4.096-0.512H112.64l-5.12-34.304C104.448,27.566,84.992,10.67,61.952,10.67H20.48
-                   C9.216,10.67,0,19.886,0,31.15c0,11.264,9.216,20.48,20.48,20.48h41.472c2.56,0,4.608,2.048,5.12,4.608l31.744,216.064
-                   c4.096,27.136,27.648,47.616,55.296,47.616h212.992c26.624,0,49.664-18.944,55.296-45.056l33.28-166.4
-                   C457.728,97.71,450.56,86.958,439.296,84.91z" />
-                    </g>
-                  </g>
-                  <g>
-                    <g>
-                      <path d="M215.04,389.55c-1.024-28.16-24.576-50.688-52.736-50.688c-29.696,1.536-52.224,26.112-51.2,55.296
-                   c1.024,28.16,24.064,50.688,52.224,50.688h1.024C193.536,443.31,216.576,418.734,215.04,389.55z" />
-                    </g>
-                  </g>
-                </svg>
-              </a>
-              <form class="form-inline">
-                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
-              </form>
-              {% if app.user %}
-                <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">
-                  Logout
-                </a>
-              {% else %}
-                <a href="{{ path('app_login') }}" class="auth_btn auth_btn--outline">
-                  Sign In
-                </a>
-                <a href="{{ path('app_register') }}" class="auth_btn auth_btn--filled">
-                  Sign Up
-                </a>
-              {% endif %}
-              <a href="" class="order_online">
-                Order Online
-              </a>
-            </div>
-          </div>
-        </nav>
-      </div>
-    </header>
-    <!-- end header section -->
-  </div>
-
-  <!-- details section -->
-  <section class="about_section glass-section layout_padding">
-    <div class="container">
-      {% for label, messages in app.flashes %}
-          {% for message in messages %}
-              <div class="alert alert-{{ label == 'error' ? 'danger' : label == 'warning' ? 'warning' : 'success' }} alert-dismissible fade show mb-4" role="alert" style="border-radius: 15px;">
-                  {{ message }}
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-              </div>
-          {% endfor %}
-      {% endfor %}
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <div class="img-box">
-            {% if evenement.image %}
-                <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titre }}" class="img-fluid premium-card shadow-lg p-0">
-            {% else %}
-                <img src="{{ asset('front/images/about-img.png') }}" alt="{{ evenement.titre }}" class="img-fluid premium-card shadow-lg p-0">
-            {% endif %}
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="detail-box">
-            <div class="heading_container">
-              <h2 class="neon-text mb-4">
-                {{ evenement.titre }}
-              </h2>
-            </div>
-            <p class="mt-3 text-light opacity-75" style="font-size: 1.1rem; line-height: 1.8;">
-              {{ evenement.description }}
-            </p>
-            
-            <div class="premium-card mt-4 p-4" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
-              <div class="row">
-                <div class="col-6 mb-4">
-                  <div class="premium-info-item">
-                    <i class="fa fa-calendar"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Date</small>
-                      <span class="font-weight-bold">{{ evenement.date ? evenement.date|date('d F Y') : 'N/A' }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 mb-4">
-                  <div class="premium-info-item">
-                    <i class="fa fa-clock-o"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Heure</small>
-                      <span class="font-weight-bold">{{ evenement.heure ? evenement.heure|date('H:i') : 'N/A' }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 mb-4">
-                  <div class="premium-info-item">
-                    <i class="fa fa-map-marker"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Lieu</small>
-                      <span class="font-weight-bold">{{ evenement.lieu }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 mb-4">
-                  <div class="premium-info-item">
-                    <i class="fa fa-tag"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">Prix</small>
-                      <span class="font-weight-bold">{{ evenement.prix }} DT</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="premium-info-item">
-                    <i class="fa fa-users"></i>
-                    <div>
-                      <small class="d-block text-warning text-uppercase" style="font-size: 10px; letter-spacing: 1px;">CapacitÃ©</small>
-                      <span class="font-weight-bold">{{ evenement.capaciteMax }} Personnes</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+{% block extra_styles %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <style>
-    .action-toolbar {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 24px;
-        align-items: center;
-    }
-    .btn-action {
-        border: none;
-        border-radius: 50px;
-        color: white !important;
-        font-weight: 600;
-        font-size: 14px;
-        padding: 10px 22px;
-        display: inline-flex;
-        align-items: center;
-        white-space: nowrap;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        text-decoration: none !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    .btn-action:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        color: white !important;
-    }
-    .btn-add        { background: linear-gradient(135deg, #a855f7, #7c3aed); }
-    .btn-edit       { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-    .btn-delete     { background: linear-gradient(135deg, #ef4444, #dc2626); }
-    .btn-participate { background: linear-gradient(135deg, #10b981, #059669); }
-    .btn-sponsor    { background: linear-gradient(135deg, #f59e0b, #d97706); }
-    .btn-action.btn-participants { background: linear-gradient(135deg, #10b981, #059669); }
-    .btn-back {
-        border: 2px solid rgba(255,255,255,0.35);
-        border-radius: 50px;
-        color: rgba(255,255,255,0.85) !important;
-        padding: 8px 22px;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none !important;
-        display: inline-flex;
-        align-items: center;
-        white-space: nowrap;
-    }
-    .btn-back:hover {
-        background: rgba(255,255,255,0.1);
-        border-color: white;
-        color: white !important;
-        transform: translateX(-4px);
-    }
-    .info-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        border-radius: 50px;
-        background: rgba(59, 130, 246, 0.12);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        color: #60a5fa;
-        padding: 8px 18px;
-        font-size: 14px;
-        white-space: nowrap;
-    }
+  .event-shell { padding: 44px 0 72px; }
+  .event-card { background:#fff; border:1px solid #dbe5ef; border-radius:20px; box-shadow:0 12px 32px rgba(15,23,42,.10); padding:24px; }
+  .event-title { font-size:1.9rem; font-weight:800; color:var(--pg-text,#111827); margin-bottom:10px; }
+  .event-desc { color:#4b5563; line-height:1.7; font-size:.975rem; }
+  .event-image { border-radius:16px; width:100%; object-fit:cover; max-height:420px; border:1px solid #dbe5ef; }
+  .event-meta-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:16px; }
+  .meta-box { background:#f8faff; border:1px solid #dbe5ef; border-radius:12px; padding:12px; color:#374151; }
+  .meta-box small { display:block; color:var(--pg-gold,#f9c23c); text-transform:uppercase; font-size:.65rem; letter-spacing:.10em; font-weight:700; margin-bottom:4px; }
+  .action-toolbar { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; align-items:center; }
+  .btn-action { border:none; border-radius:20px; color:#fff!important; font-weight:700; font-size:13px; padding:9px 16px; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; text-decoration:none!important; transition:opacity .18s; }
+  .btn-action:hover { opacity:.88; }
+  .btn-add{ background:var(--pg-teal,#0f766e); }
+  .btn-edit{ background:#2563eb; }
+  .btn-delete{ background:#dc2626; }
+  .btn-participants,.btn-participate{ background:var(--pg-teal,#0f766e); }
+  .btn-sponsor{ background:var(--pg-gold-dark,#e6a800); color:#111!important; }
+  .btn-back{ border:1px solid #dbe5ef; color:#374151!important; background:#fff; border-radius:20px; padding:9px 16px; text-decoration:none!important; transition:background .18s; }
+  .btn-back:hover{ background:#f4f6fb; }
+  #map { height: 360px; width:100%; border-radius:16px; margin-top:14px; border:1px solid #dbe5ef; box-shadow:0 8px 22px rgba(15,23,42,.07); }
+  .info-badge { display:inline-flex; align-items:center; gap:8px; border-radius:999px; background:#fef9c3; border:1px solid #f9c23c; color:#92660a; padding:7px 14px; font-size:13px; font-weight:600; }
 </style>
+{% endblock %}
 
-            <div class="action-toolbar">
-              {% set currentUserId = app.user ? app.user.id : null %}
-              {% set eventOwnerId = evenement.artiste ? evenement.artiste.id : null %}
-              {% set isOwner = currentUserId is not null and eventOwnerId is not null and currentUserId == eventOwnerId %}
+{% block body %}
+<section class="event-shell">
+  <div class="container">
+    {% for label, messages in app.flashes %}
+      {% for message in messages %}
+        <div class="alert alert-{{ label == 'error' ? 'danger' : label == 'warning' ? 'warning' : 'success' }} mb-3">{{ message }}</div>
+      {% endfor %}
+    {% endfor %}
 
-              {# Participation Logic #}
-              {% if app.user %}
-                {% if is_granted('ROLE_ARTISTE') %}
-                  <span class="info-badge">
-                    <i class="fa fa-info-circle"></i>
-                    {% if isOwner %}
-                      Vous organisez cet Ã©vÃ©nement
-                    {% else %}
-                      Les artistes ne peuvent pas participer
-                    {% endif %}
-                  </span>
-                {% else %}
-                  {% set isParticipating = false %}
-                  {% for participation in evenement.participations %}
-                    {% if participation.user and participation.user.id == currentUserId %}
-                      {% set isParticipating = true %}
-                    {% endif %}
-                  {% endfor %}
+    <div class="event-card">
+      <div class="row align-items-start">
+        <div class="col-md-6 mb-3 mb-md-0">
+          {% if evenement.image %}
+            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titre }}" class="event-image">
+          {% else %}
+            <img src="{{ asset('front/images/about-img.png') }}" alt="{{ evenement.titre }}" class="event-image">
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <h1 class="event-title">{{ evenement.titre }}</h1>
+          <p class="event-desc">{{ evenement.description }}</p>
 
-                  {% if isParticipating %}
-                    {% set daysRemaining = evenement.date.diff(date()).days %}
-                    {% set isTooLate = daysRemaining < 3 and evenement.date > date() %}
-                    
-                    {% if isTooLate %}
-                      <span class="info-badge" style="background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.3); color: #ef4444;">
-                        <i class="fa fa-lock mr-2"></i> Annulation impossible (-3j)
-                      </span>
-                    {% else %}
-                      <form action="{{ path('front_evenements_unparticipate', {'id': evenement.id}) }}" method="POST" style="margin:0;">
-                        <button type="submit" class="btn-action btn-delete">
-                          <i class="fa fa-times mr-2"></i> Annuler ma participation
-                        </button>
-                      </form>
-                    {% endif %}
-                  {% else %}
-                    <form action="{{ path('front_evenements_participate', {'id': evenement.id}) }}" method="POST" style="margin:0;">
-                      <button type="submit" class="btn-action btn-participants">
-                        <i class="fa fa-check mr-2"></i> Participer
-                      </button>
-                    </form>
-                  {% endif %}
-                {% endif %}
+          <div class="event-meta-grid">
+            <div class="meta-box"><small>Date</small>{{ evenement.date ? evenement.date|date('d F Y') : 'N/A' }}</div>
+            <div class="meta-box"><small>Heure</small>{{ evenement.heure ? evenement.heure|date('H:i') : 'N/A' }}</div>
+            <div class="meta-box"><small>Lieu</small>{{ evenement.lieu }}</div>
+            <div class="meta-box"><small>Prix</small>{{ evenement.prix }} DT</div>
+            <div class="meta-box"><small>Capacit�</small>{{ evenement.capaciteMax }} personnes</div>
+          </div>
+
+          <div class="action-toolbar">
+            {% set currentUserId = app.user ? app.user.id : null %}
+            {% set eventOwnerId = evenement.artiste ? evenement.artiste.id : null %}
+            {% set isOwner = currentUserId is not null and eventOwnerId is not null and currentUserId == eventOwnerId %}
+
+            {% if app.user %}
+              {% if is_granted('ROLE_ARTISTE') %}
+                <span class="info-badge"><i class="fa fa-info-circle"></i>{% if isOwner %} You organize this event {% else %} Artists cannot participate {% endif %}</span>
               {% else %}
-                <a href="{{ path('app_login') }}" class="btn-action" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
-                  <i class="fa fa-sign-in mr-2"></i> Connectez-vous pour participer
-                </a>
-              {% endif %}
+                {% set isParticipating = false %}
+                {% for participation in evenement.participations %}
+                  {% if participation.user and participation.user.id == currentUserId %}{% set isParticipating = true %}{% endif %}
+                {% endfor %}
 
-              {# Sponsor Button #}
-              {% if is_granted('ROLE_SPONSOR') or not app.user %}
-                <a href="{{ path('front_evenements_sponsor', {'id': evenement.id}) }}" class="btn-action btn-sponsor">
-                  <i class="fa fa-handshake-o mr-2"></i> Sponsor
-                </a>
-              {% endif %}
-
-              {# Artist Actions #}
-              {% if isOwner %}
-                <a href="{{ path('front_evenements_new') }}" class="btn-action btn-add">
-                  <i class="fa fa-plus mr-2"></i> Ajouter
-                </a>
-                <a href="{{ path('front_evenements_edit', {'id': evenement.id}) }}" class="btn-action btn-edit">
-                  <i class="fa fa-edit mr-2"></i> Modifier
-                </a>
-                <form method="post" action="{{ path('front_evenements_delete', {'id': evenement.id}) }}" onsubmit="return confirm('ÃŠtes-vous sÃ»r de vouloir supprimer cet Ã©vÃ©nement ?');" style="margin: 0;">
-                  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
-                  <button class="btn-action btn-delete">
-                    <i class="fa fa-trash mr-2"></i> Supprimer
-                  </button>
-                </form>
-                <a href="{{ path('front_sponsoring_pack_index') }}" class="btn-action" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                  <i class="fa fa-star mr-2"></i> Packs Sponsoring
-                </a>
-                {% if isOwner %}
-                  <a href="{{ path('front_evenements_participants', {'id': evenement.id}) }}" class="btn-action btn-participants">
-                    <i class="fa fa-users mr-2"></i> Participants
-                  </a>
+                {% if isParticipating %}
+                  <a href="{{ path('front_evenements_ticket', {'id': evenement.id}) }}" class="btn-action" style="background:#059669; text-decoration:none;"><i class="fa fa-download mr-2"></i>Download Ticket</a>
+                  {% set daysRemaining = evenement.date.diff(date()).days %}
+                  {% set isTooLate = daysRemaining < 3 and evenement.date > date() %}
+                  {% if isTooLate %}
+                    <span class="info-badge" style="background:#fff0f0;border-color:#f3cccc;color:#9a1b1b;"><i class="fa fa-lock"></i> Cancellation locked (-3 days)</span>
+                  {% else %}
+                    <form action="{{ path('front_evenements_unparticipate', {'id': evenement.id}) }}" method="POST" style="margin:0;"><button type="submit" class="btn-action btn-delete"><i class="fa fa-times mr-2"></i>Cancel participation</button></form>
+                  {% endif %}
+                {% else %}
+                  <form action="{{ path('front_evenements_participate', {'id': evenement.id}) }}" method="POST" style="margin:0;"><button type="submit" class="btn-action btn-participate"><i class="fa fa-check mr-2"></i>Participate</button></form>
                 {% endif %}
               {% endif %}
+            {% else %}
+              <a href="{{ path('app_login') }}" class="btn-action" style="background:#4f46e5;"><i class="fa fa-sign-in mr-2"></i>Login to participate</a>
+            {% endif %}
 
-              <a href="{{ path('front_evenements_index') }}" class="btn-back">
-                <i class="fa fa-arrow-left mr-2"></i> Retour
-              </a>
+            {% if is_granted('ROLE_SPONSOR') or not app.user %}
+              <a href="{{ path('front_evenements_sponsor', {'id': evenement.id}) }}" class="btn-action btn-sponsor"><i class="fa fa-handshake-o mr-2"></i>Sponsor</a>
+            {% endif %}
 
-            </div>
+            {% if isOwner %}
+              <a href="{{ path('front_evenements_new') }}" class="btn-action btn-add"><i class="fa fa-plus mr-2"></i>Add</a>
+              <a href="{{ path('front_evenements_edit', {'id': evenement.id}) }}" class="btn-action btn-edit"><i class="fa fa-edit mr-2"></i>Edit</a>
+              <form method="post" action="{{ path('front_evenements_delete', {'id': evenement.id}) }}" onsubmit="return confirm('�tes-vous s�r de vouloir supprimer cet �v�nement ?');" style="margin: 0;"><input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}"><button class="btn-action btn-delete"><i class="fa fa-trash mr-2"></i>Delete</button></form>
+              <a href="{{ path('front_sponsoring_pack_index') }}" class="btn-action btn-sponsor"><i class="fa fa-star mr-2"></i>Sponsoring Packs</a>
+              <a href="{{ path('front_evenements_participants', {'id': evenement.id}) }}" class="btn-action btn-participants"><i class="fa fa-users mr-2"></i>Participants</a>
+            {% endif %}
+
+            <a href="{{ path('front_evenements_index') }}" class="btn-back"><i class="fa fa-arrow-left mr-2"></i>Back</a>
           </div>
         </div>
       </div>
-      
-      <!-- Map Section -->
-      <div class="row mt-5">
-        <div class="col-md-12">
-          <div class="heading_container mb-3">
-            <h4 class="text-warning text-uppercase" style="font-size: 14px; letter-spacing: 2px;">
-              <i class="fa fa-map-marker mr-2"></i> Localisation
-            </h4>
-          </div>
-          <div id="map"></div>
-        </div>
+
+      <div class="mt-4">
+        <h4 style="font-size:1rem;color:#2f4d8d;"><i class="fa fa-map-marker mr-2"></i>Location</h4>
+        <div id="map"></div>
       </div>
     </div>
-  </section>
-  <!-- end details section -->
+  </div>
+</section>
+{% endblock %}
 
-  <!-- footer section -->
-  <footer class="footer_section">
-    <div class="container">
-      <div class="footer-info">
-        <p>&copy; <span id="displayYear"></span> All Rights Reserved By <a href="https://html.design/">Free Html Templates</a></p>
-      </div>
-    </div>
-  </footer>
-  <!-- footer section -->
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  const locationName = "{{ evenement.lieu|escape('js') }}";
+  const map = L.map('map').setView([0, 0], 13);
 
-  <!-- jQery -->
-  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
-  <!-- bootstrap js -->
-  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
-  
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  
-  <script>
-    document.getElementById('displayYear').innerHTML = new Date().getFullYear();
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
 
-    // Leaflet Map Logic
-    const locationName = "{{ evenement.lieu|escape('js') }}";
-    const map = L.map('map').setView([0, 0], 13); // Default view
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Geocoding using Nominatim
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length > 0) {
-                const lat = data[0].lat;
-                const lon = data[0].lon;
-                map.setView([lat, lon], 15);
-                L.marker([lat, lon]).addTo(map)
-                    .bindPopup(`<b>{{ evenement.titre|escape('js') }}</b><br>${locationName}`)
-                    .openPopup();
-            } else {
-                console.warn("Location not found on OpenStreetMap, falling back to Google Maps Embed");
-                document.getElementById('map').innerHTML = `
-                    <iframe 
-                        width="100%" 
-                        height="100%" 
-                        frameborder="0" 
-                        style="border:0; border-radius: 20px;" 
-                        src="https://maps.google.com/maps?q=${encodeURIComponent(locationName)}&t=&z=15&ie=UTF8&iwloc=&output=embed" 
-                        allowfullscreen>
-                    </iframe>`;
-            }
-        })
-        .catch(error => {
-            console.error("Geocoding error:", error);
-            document.getElementById('map').innerHTML = "<div class='text-center p-5 text-muted'>Erreur de chargement de la carte.</div>";
-        });
-  </script>
-
-  <script src="{{ asset('front/js/custom.js') }}"></script>
-</body>
-
-</html>
-
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.length > 0) {
+        const lat = data[0].lat;
+        const lon = data[0].lon;
+        map.setView([lat, lon], 15);
+        L.marker([lat, lon]).addTo(map)
+          .bindPopup(`<b>{{ evenement.titre|escape('js') }}</b><br>${locationName}`)
+          .openPopup();
+      } else {
+        document.getElementById('map').innerHTML = `
+          <iframe width="100%" height="100%" frameborder="0" style="border:0; border-radius: 14px;" src="https://maps.google.com/maps?q=${encodeURIComponent(locationName)}&t=&z=15&ie=UTF8&iwloc=&output=embed" allowfullscreen></iframe>`;
+      }
+    })
+    .catch(() => {
+      document.getElementById('map').innerHTML = "<div class='text-center p-5 text-muted'>Map loading error.</div>";
+    });
+</script>
+{% endblock %}

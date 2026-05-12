@@ -17,7 +17,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-#[Route('/admin/evenement')]
+#[Route('/back/evenement')]
 class EvenementController extends AbstractController
 {
     #[Route('/', name: 'app_evenement_index', methods: ['GET'])]

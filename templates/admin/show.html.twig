@@ -1,58 +1,39 @@
-{% extends 'base.html.twig' %}
+{% extends 'back/layout.html.twig' %}
 
-{% block title %}Admin{% endblock %}
+{% block title %}Admin Details{% endblock %}
 
 {% block body %}
-    <h1>Admin</h1>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Admin Details</h1>
+      <p class="text-muted mb-0">Full profile and permission information.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-secondary" href="{{ path('app_admin_index') }}">Back to list</a>
+      <a class="btn btn-primary" href="{{ path('app_admin_edit', {'id': admin.id}) }}">Edit</a>
+    </div>
+  </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ admin.id }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ admin.email }}</td>
-            </tr>
-            <tr>
-                <th>Roles</th>
-                <td>{{ admin.roles ? admin.roles|json_encode : '' }}</td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>{{ admin.password }}</td>
-            </tr>
-            <tr>
-                <th>Username</th>
-                <td>{{ admin.username }}</td>
-            </tr>
-            <tr>
-                <th>Phone</th>
-                <td>{{ admin.phone }}</td>
-            </tr>
-            <tr>
-                <th>AvatarUrl</th>
-                <td>{{ admin.avatarUrl }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ admin.createdAt ? admin.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ admin.status }}</td>
-            </tr>
-            <tr>
-                <th>SuperAdmin</th>
-                <td>{{ admin.superAdmin ? 'Yes' : 'No' }}</td>
-            </tr>
-        </tbody>
-    </table>
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6"><strong>ID:</strong> #{{ admin.id }}</div>
+        <div class="col-md-6"><strong>Email:</strong> {{ admin.email }}</div>
+        <div class="col-md-6"><strong>Username:</strong> {{ admin.username ?: 'N/A' }}</div>
+        <div class="col-md-6"><strong>Phone:</strong> {{ admin.phone ?: 'N/A' }}</div>
+        <div class="col-md-6"><strong>Status:</strong> {{ admin.status ?: 'N/A' }}</div>
+        <div class="col-md-6"><strong>Super Admin:</strong> {{ admin.superAdmin ? 'Yes' : 'No' }}</div>
+        <div class="col-md-6"><strong>Created:</strong> {{ admin.createdAt ? admin.createdAt|date('Y-m-d H:i:s') : 'N/A' }}</div>
+        <div class="col-12"><strong>Roles:</strong> <code>{{ admin.roles ? admin.roles|json_encode : '[]' }}</code></div>
+        <div class="col-12"><strong>Avatar URL:</strong> {{ admin.avatarUrl ?: 'N/A' }}</div>
+      </div>
+    </div>
+  </div>
 
-    <a href="{{ path('app_admin_index') }}">back to list</a>
-
-    <a href="{{ path('app_admin_edit', {'id': admin.id}) }}">edit</a>
-
-    {{ include('admin/_delete_form.html.twig') }}
+  <div class="card border-danger">
+    <div class="card-body">
+      <h2 class="h6 text-danger mb-2">Danger zone</h2>
+      {{ include('admin/_delete_form.html.twig') }}
+    </div>
+  </div>
 {% endblock %}

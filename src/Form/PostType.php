@@ -50,44 +50,46 @@ class PostType extends AbstractType
                 'asset_helper' => true,
             ]);
 
-        $builder->add('status', ChoiceType::class, [
-            'label' => 'Visibilite du post',
-            'choices' => [
-                'Ouvert (visible + commentaires actifs)' => Post::STATUS_OPEN,
-                'Ferme (visible + commentaires bloques)' => Post::STATUS_CLOSED,
-                'Cache (non visible en front)' => Post::STATUS_HIDDEN,
-            ],
-            'attr' => [
-                'class' => 'form-select status-3d-select',
-            ],
-        ]);
+        if ($options['is_admin']) {
+            $builder->add('status', ChoiceType::class, [
+                'label' => 'Visibilite du post',
+                'choices' => [
+                    'Ouvert (visible + commentaires actifs)' => Post::STATUS_OPEN,
+                    'Ferme (visible + commentaires bloques)' => Post::STATUS_CLOSED,
+                    'Cache (non visible en front)' => Post::STATUS_HIDDEN,
+                ],
+                'attr' => [
+                    'class' => 'form-select status-3d-select',
+                ],
+            ]);
 
-        $builder->add('allowedViewerIds', TextType::class, [
-            'mapped' => false,
-            'required' => false,
-            'label' => 'IDs autorises si cache',
-            'attr' => [
-                'class' => 'form-control',
-                'placeholder' => 'Exemple: 2, 5, 9',
-            ],
-            'help' => 'IDs des utilisateurs qui pourront voir ce post quand le statut est CACHE.',
-        ]);
+            $builder->add('allowedViewerIds', TextType::class, [
+                'mapped' => false,
+                'required' => false,
+                'label' => 'IDs autorises si cache',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Exemple: 2, 5, 9',
+                ],
+                'help' => 'IDs des utilisateurs qui pourront voir ce post quand le statut est CACHE.',
+            ]);
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event): void {
-            $post = $event->getData();
-            if (!$post instanceof Post) {
-                return;
-            }
-
-            $ids = [];
-            foreach ($post->getAllowedViewers() as $viewer) {
-                if ($viewer->getId() !== null) {
-                    $ids[] = (string) $viewer->getId();
+            $builder->addEventListener(FormEvents::PRE_SET_DATA, static function (FormEvent $event): void {
+                $post = $event->getData();
+                if (!$post instanceof Post) {
+                    return;
                 }
-            }
 
-            $event->getForm()->get('allowedViewerIds')->setData(implode(', ', $ids));
-        });
+                $ids = [];
+                foreach ($post->getAllowedViewers() as $viewer) {
+                    if ($viewer->getId() !== null) {
+                        $ids[] = (string) $viewer->getId();
+                    }
+                }
+
+                $event->getForm()->get('allowedViewerIds')->setData(implode(', ', $ids));
+            });
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

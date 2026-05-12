@@ -1,0 +1,163 @@
+{% extends 'back/layout.html.twig' %}
+{% block title %}Forum Management — Admin{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .post-card { background:#fff; border:1px solid #e5eaf5; border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.07); padding:16px; margin-bottom:14px; }
+  .post-title { font-size:1rem; font-weight:700; color:#111827; margin:0 0 4px; }
+  .post-meta { font-size:.8rem; color:#6b7280; }
+  .post-content-preview { color:#374151; font-size:.86rem; line-height:1.5; margin-top:6px; }
+  .badge-status { border-radius:999px; padding:3px 10px; font-size:.72rem; font-weight:700; }
+  .badge-open { background:#d1fae5; color:#065f46; }
+  .badge-pending { background:#fef3c7; color:#92400e; }
+  .badge-denied { background:#fee2e2; color:#991b1b; }
+  .badge-closed { background:#e5e7eb; color:#374151; }
+  .badge-banned { background:#fee2e2; color:#991b1b; }
+  .btn-ban { background:#fff; border:1px solid #fca5a5; color:#dc2626; border-radius:20px; padding:5px 14px; font-size:.8rem; font-weight:600; cursor:pointer; transition:background .15s; }
+  .btn-ban:hover { background:#fee2e2; }
+  .btn-unban { background:#fff; border:1px solid #6ee7b7; color:#059669; border-radius:20px; padding:5px 14px; font-size:.8rem; font-weight:600; cursor:pointer; transition:background .15s; }
+  .btn-unban:hover { background:#d1fae5; }
+  .comment-row { background:#f8faff; border:1px solid #e5eaf5; border-radius:10px; padding:10px 12px; margin-top:8px; }
+  .comment-row.is-banned { opacity:.5; }
+  .status-form select { border-radius:10px; font-size:.83rem; border:1px solid #dbe5ef; padding:4px 8px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-inner">
+  <div class="page-header mb-4">
+    <h4 class="page-title">All Forum Posts</h4>
+    <ul class="breadcrumbs">
+      <li class="nav-home"><a href="{{ path('back_dashboard') }}"><i class="fas fa-home"></i></a></li>
+      <li class="separator"><i class="fas fa-chevron-right"></i></li>
+      <li class="nav-item active">Forum</li>
+    </ul>
+  </div>
+
+  {% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible">{{ message }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>
+  {% endfor %}
+  {% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible">{{ message }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>
+  {% endfor %}
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex gap-2">
+          <a href="{{ path('admin_forum_requests') }}" class="btn btn-warning btn-sm"><i class="fa fa-clock-o mr-1"></i>Requests</a>
+          <a href="{{ path('admin_forum_stats') }}" class="btn btn-secondary btn-sm"><i class="fa fa-bar-chart mr-1"></i>Stats</a>
+        </div>
+        <span class="text-muted" style="font-size:.85rem;">{{ posts|length }} post{{ posts|length != 1 ? 's' : '' }}</span>
+      </div>
+      <form method="get" class="row g-2">
+        <div class="col-md-8">
+          <input type="search" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Search by title, content, author...">
+        </div>
+        <div class="col-md-3">
+          <select name="status" class="form-control form-control-sm">
+            <option value="">All statuses</option>
+            <option value="OPEN" {{ status == 'OPEN' ? 'selected' : '' }}>Open</option>
+            <option value="IN_PROGRESS" {{ status == 'IN_PROGRESS' ? 'selected' : '' }}>Pending</option>
+            <option value="DENIED" {{ status == 'DENIED' ? 'selected' : '' }}>Denied</option>
+            <option value="CLOSED" {{ status == 'CLOSED' ? 'selected' : '' }}>Closed</option>
+            <option value="HIDDEN" {{ status == 'HIDDEN' ? 'selected' : '' }}>Hidden</option>
+          </select>
+        </div>
+        <div class="col-md-1"><button type="submit" class="btn btn-dark btn-sm w-100">Go</button></div>
+      </form>
+    </div>
+  </div>
+
+  {% if posts|length == 0 %}
+    <div class="card"><div class="card-body text-center text-muted py-5">No posts found.</div></div>
+  {% else %}
+    {% for post in posts %}
+      {% set rating = ratingSummaries[post.id] ?? {avg: 0, count: 0} %}
+      <div class="post-card" id="post-{{ post.id }}">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div class="flex-grow-1">
+            <p class="post-title">{{ post.title }}</p>
+            <div class="post-meta">
+              By <strong>{{ post.authorName }}</strong> &middot; {{ post.createdAt|date('d M Y, H:i') }}
+              {% if post.commentaires|length > 0 %}&nbsp;&middot;&nbsp;<i class="fa fa-comment-o"></i> {{ post.commentaires|length }}{% endif %}
+              {% if rating.count > 0 %}&nbsp;&middot;&nbsp;<i class="fa fa-star" style="color:#f9c23c;"></i> {{ rating.avg|number_format(1,'.','') }}/5 ({{ rating.count }}){% endif %}
+            </div>
+          </div>
+          <div class="d-flex gap-1 flex-wrap align-items-center">
+            {% if post.bannedByAdmin %}
+              <span class="badge-status badge-banned"><i class="fa fa-ban mr-1"></i>Banned</span>
+            {% endif %}
+            {% if post.status == 'IN_PROGRESS' %}
+              <span class="badge-status badge-pending">Pending</span>
+            {% elseif post.status == 'DENIED' %}
+              <span class="badge-status badge-denied">Denied</span>
+            {% elseif post.status == 'OPEN' %}
+              <span class="badge-status badge-open">Open</span>
+            {% elseif post.status == 'CLOSED' %}
+              <span class="badge-status badge-closed">Closed</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% set cleanContent = post.content|striptags|replace({'&nbsp;': ' '})|trim %}
+        {% if cleanContent %}
+          <div class="post-content-preview">{{ cleanContent|slice(0, 200) }}{% if cleanContent|length > 200 %}...{% endif %}</div>
+        {% endif %}
+
+        <div class="d-flex gap-2 mt-3 flex-wrap align-items-center">
+          <form method="post" action="{{ path('admin_forum_post_ban', {id: post.id}) }}" style="margin:0;">
+            <input type="hidden" name="_token" value="{{ csrf_token('forum_ban_post_' ~ post.id) }}">
+            {% if post.bannedByAdmin %}
+              <button type="submit" class="btn-unban"><i class="fa fa-check mr-1"></i>Unban</button>
+            {% else %}
+              <button type="submit" class="btn-ban"><i class="fa fa-ban mr-1"></i>Ban</button>
+            {% endif %}
+          </form>
+
+          <form method="post" action="{{ path('admin_forum_post_status', {id: post.id}) }}" class="d-flex gap-1 align-items-center status-form" style="margin:0;">
+            <input type="hidden" name="_token" value="{{ csrf_token('forum_status_' ~ post.id) }}">
+            <select name="status">
+              <option value="OPEN" {{ post.status == 'OPEN' ? 'selected' : '' }}>Open</option>
+              <option value="CLOSED" {{ post.status == 'CLOSED' ? 'selected' : '' }}>Closed</option>
+              <option value="HIDDEN" {{ post.status == 'HIDDEN' ? 'selected' : '' }}>Hidden</option>
+              <option value="DENIED" {{ post.status == 'DENIED' ? 'selected' : '' }}>Denied</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-outline-secondary">Set</button>
+          </form>
+
+          <a href="{{ path('forum_show', {id: post.id}) }}" target="_blank" class="btn btn-sm btn-outline-secondary">View <i class="fa fa-external-link ml-1"></i></a>
+        </div>
+
+        {% if post.commentaires|length > 0 %}
+          <div class="mt-3 border-top pt-3">
+            <small class="text-muted font-weight-bold">Comments:</small>
+            {% for commentaire in post.commentaires %}
+              <div class="comment-row {{ commentaire.bannedByAdmin ? 'is-banned' : '' }}">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <strong style="font-size:.85rem;">{{ commentaire.authorName }}</strong>
+                    <small class="text-muted ml-2">{{ commentaire.createdAt|date('d M Y, H:i') }}</small>
+                    {% if commentaire.bannedByAdmin %}
+                      <span class="badge-status badge-banned ml-2" style="font-size:.65rem;">Banned</span>
+                    {% endif %}
+                  </div>
+                  <form method="post" action="{{ path('admin_forum_comment_ban', {id: commentaire.id}) }}" style="margin:0;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('forum_ban_comment_' ~ commentaire.id) }}">
+                    {% if commentaire.bannedByAdmin %}
+                      <button type="submit" class="btn-unban" style="padding:3px 10px;font-size:.75rem;">Unban</button>
+                    {% else %}
+                      <button type="submit" class="btn-ban" style="padding:3px 10px;font-size:.75rem;">Ban</button>
+                    {% endif %}
+                  </form>
+                </div>
+                <p style="font-size:.83rem;color:#374151;margin:4px 0 0;">{{ commentaire.content|striptags|replace({'&nbsp;': ' '})|trim|slice(0, 160) }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

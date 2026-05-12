@@ -1,441 +1,196 @@
-<!DOCTYPE html>
-<html>
+{% extends 'front/layout.html.twig' %}
 
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+{% block title %}Pegasus | Profile{% endblock %}
+{% set active_nav = 'home' %}
 
-  <title>Feane - Profile</title>
-
-  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
-  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
-  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
-  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
-
+{% block extra_styles %}
   <style>
-    .profile_section {
-      padding: 70px 0;
-    }
-
-    .profile_card {
+    .profile-shell { padding: 44px 0 72px; }
+    .profile-grid { display: grid; gap: 18px; }
+    .profile-card {
       background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 14px rgba(0, 0, 0, 0.1);
+      border: 1px solid #dbe5ef;
+      border-radius: 20px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
       padding: 24px;
     }
-
-    .profile_title {
-      margin-bottom: 18px;
-      font-weight: 700;
-    }
-
-    .avatar_wrap {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 10px;
-    }
-
-    .avatar_box {
-      position: relative;
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 3px solid #ffbe33;
-      background: #f7f7f7;
-    }
-
-    .avatar_img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      cursor: pointer;
-    }
-
-    .preset_avatar_block {
-      display: none;
-      margin-bottom: 20px;
-      padding: 18px;
-      border: 1px solid #f0e2c1;
-      border-radius: 10px;
-      background: #fffaf0;
-    }
-
-    .preset_avatar_block.is_open {
-      display: block;
-    }
-
-    .avatar_hint {
-      text-align: center;
-      color: #666;
-      font-size: 14px;
-      margin-bottom: 16px;
-    }
-
-    .choice_title {
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #222831;
-    }
-
-    .preset_avatar_grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .preset_avatar_btn {
-      padding: 0;
-      border: 2px solid transparent;
-      border-radius: 50%;
-      background: transparent;
-      cursor: pointer;
-    }
-
-    .preset_avatar_btn:hover {
-      border-color: #ffbe33;
-    }
-
-    .preset_avatar_img {
-      width: 66px;
-      height: 66px;
-      border-radius: 50%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .style_preview_grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .style_preview_card {
-      border: 1px solid #ececec;
-      border-radius: 10px;
-      padding: 12px;
-      background: #fff;
-      text-align: center;
-    }
-
-    .style_preview_img {
-      width: 100%;
-      max-width: 160px;
-      aspect-ratio: 1 / 1;
-      border-radius: 10px;
-      object-fit: cover;
-      margin-bottom: 8px;
-      border: 1px solid #f0f0f0;
-    }
-
-    .style_name {
-      text-transform: capitalize;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #222831;
-    }
-
-    .action_btn {
-      min-width: 150px;
-      border-radius: 30px;
-      font-weight: 600;
-    }
-
-    .upload_block {
-      background: #fff;
-      border: 1px solid #ececec;
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 14px;
-    }
-
-    .upload_block .form-control {
-      border-radius: 8px;
-    }
-
-    .choice_divider {
-      margin: 16px 0;
-      border-color: #ead8ac;
-    }
-
-    .profile_item {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .profile_item:last-child {
-      border-bottom: none;
-    }
-
-    .profile_label {
-      color: #666;
-      font-weight: 600;
-    }
-
-    .profile_value {
-      color: #1a1a1a;
-      text-align: right;
-      word-break: break-word;
-    }
-
-    .passkey_block {
-      border: 1px solid #ececec;
-      border-radius: 10px;
-      padding: 14px;
-      background: #fafafa;
-      margin-bottom: 18px;
-    }
-
-    .passkey_list {
-      margin-top: 12px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .passkey_item {
-      background: #fff;
-      border: 1px solid #ececec;
-      border-radius: 10px;
-      padding: 12px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .passkey_meta {
-      font-size: 13px;
-      color: #666;
-      margin-top: 2px;
-    }
+    .profile-head h1 { font-size: 1.7rem; margin: 0; color: var(--pg-text,#111827); font-weight: 800; }
+    .profile-head p { margin: 8px 0 0; color: var(--pg-text-muted,#6b7280); font-size: 0.9rem; }
+    .avatar-wrap { display: flex; flex-direction: column; align-items: center; margin-top: 16px; }
+    .avatar-box { width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid var(--pg-gold,#f9c23c); background: #f8faff; cursor: pointer; }
+    .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-hint { margin-top: 10px; color: var(--pg-text-muted,#6b7280); font-size: 0.85rem; }
+    .profile-actions { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .pbtn { border-radius: 20px; padding: 9px 18px; font-weight: 700; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; transition: all .18s; }
+    .pbtn--primary { background: var(--pg-gold,#f9c23c); color: #111; border-color: var(--pg-gold,#f9c23c); }
+    .pbtn--primary:hover { background: var(--pg-gold-dark,#e6a800); color: #111; }
+    .pbtn--soft { background: #fff; border-color: #dbe5ef; color: #374151; }
+    .pbtn--soft:hover { background: #f4f6fb; }
+    .pbtn--danger { background: #fff; border-color: #fca5a5; color: #991b1b; }
+    .pbtn--danger:hover { background: #fee2e2; }
+    .flash { border-radius: 12px; padding: 10px 14px; font-size: 0.9rem; margin-top: 10px; }
+    .flash-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .flash-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .kv { display: grid; gap: 10px; margin-top: 4px; }
+    .kv-item { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+    .kv-item:last-child { border-bottom: none; }
+    .kv-label { font-weight: 600; color: var(--pg-text-muted,#6b7280); font-size: .875rem; }
+    .kv-value { color: var(--pg-text,#111827); text-align: right; word-break: break-word; font-weight: 500; }
+    .section-title { font-size: 1.05rem; font-weight: 700; color: var(--pg-text,#111827); margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+    .section-title::before { content:''; display:inline-block; width:3px; height:16px; background:var(--pg-gold,#f9c23c); border-radius:2px; }
+    .choice-block { display: none; margin-top: 14px; border: 1px solid #fde68a; border-radius: 14px; padding: 16px; background: #fef9c3; }
+    .choice-block.is_open { display: block; }
+    .choice-title { font-weight: 700; color: #92660a; margin: 0 0 8px; }
+    .avatar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 10px; }
+    .avatar-btn { padding: 0; border: 2px solid transparent; border-radius: 999px; background: transparent; transition: border-color .18s; }
+    .avatar-btn:hover { border-color: var(--pg-gold,#f9c23c); }
+    .avatar-pic { width: 68px; height: 68px; border-radius: 50%; object-fit: cover; display: block; }
+    .mini-form { background: #f8faff; border: 1px solid #dbe5ef; border-radius: 12px; padding: 14px; margin-top: 10px; }
+    .mini-form .form-control { border-radius: 10px; border-color: #dbe5ef; }
+    .style-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px; }
+    .style-card { background: #fff; border: 1px solid #dbe5ef; border-radius: 12px; padding: 12px; text-align: center; }
+    .style-img { width: 100%; max-width: 160px; aspect-ratio: 1 / 1; border-radius: 10px; object-fit: cover; margin-bottom: 8px; border: 1px solid #dbe5ef; }
+    .passkey-item { background: #f8faff; border: 1px solid #dbe5ef; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-top: 8px; }
+    .passkey-meta { color: var(--pg-text-muted,#6b7280); font-size: 0.82rem; }
   </style>
-</head>
+{% endblock %}
 
-<body class="sub_page">
-
-  <div class="hero_area">
-    <div class="bg-box">
-      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
-    </div>
-    <header class="header_section">
-      <div class="container">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}">
-            <span>Feane</span>
-          </a>
-
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class=""> </span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav  mx-auto ">
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_home') }}">Home</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('forum_index') }}">Forum</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a></li>
-            </ul>
-            <div class="user_option">
-              <a href="{{ path('front_profile') }}" class="user_link profile_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
-                <span class="profile_name">{{ app.user.username }}</span>
-              </a>
-              <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">Logout</a>
-            </div>
-          </div>
-        </nav>
-      </div>
-    </header>
-  </div>
-
-  <section class="profile_section">
+{% block body %}
+  <section class="profile-shell">
     <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <div class="profile_card">
-            <h3 class="profile_title">My Profile</h3>
+      <div class="profile-grid">
+        <div class="profile-card">
+          <div class="profile-head">
+            <h1>My Profile</h1>
+            <p>Manage your account details, avatar, and passkeys.</p>
+          </div>
 
-            {% for message in app.flashes('success') %}
-              <div class="alert alert-success">{{ message }}</div>
-            {% endfor %}
-            {% for message in app.flashes('danger') %}
-              <div class="alert alert-danger">{{ message }}</div>
-            {% endfor %}
+          {% for message in app.flashes('success') %}<div class="flash flash-success">{{ message }}</div>{% endfor %}
+          {% for message in app.flashes('danger') %}<div class="flash flash-danger">{{ message }}</div>{% endfor %}
 
-            <div class="avatar_wrap">
-              <form id="avatarForm" method="post" enctype="multipart/form-data">
+          <div class="avatar-wrap">
+            {% set raw_avatar = profile_user.avatarUrl|default('') %}
+            {% set avatar_src = raw_avatar ? ((raw_avatar starts with('http://') or raw_avatar starts with('https://') or raw_avatar starts with('/')) ? raw_avatar : asset(raw_avatar)) : asset('front/images/client1.jpg') %}
+            <div class="avatar-box" id="avatarImageTrigger" title="Change picture">
+              <img class="avatar-img" src="{{ avatar_src }}" alt="Profile picture" onerror="this.onerror=null;this.src='{{ asset('front/images/client1.jpg') }}';">
+            </div>
+            <div class="avatar-hint">Click avatar to open customization</div>
+          </div>
+
+          <div class="choice-block" id="avatarChoices">
+            <p class="choice-title">Choose an existing avatar</p>
+            <div class="avatar-grid">
+              {% for avatar_path in preset_avatars %}
+                <form method="post">
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
+                  <input type="hidden" name="preset_avatar" value="{{ avatar_path }}">
+                  <button type="submit" class="avatar-btn" title="Use this avatar"><img src="{{ asset(avatar_path) }}" alt="Preset avatar" class="avatar-pic"></button>
+                </form>
+              {% endfor %}
+            </div>
+
+            <div class="mini-form">
+              <form method="post" enctype="multipart/form-data">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
-                <div class="avatar_box">
-                  {% set raw_avatar = profile_user.avatarUrl|default('') %}
-                  {% set avatar_src = raw_avatar ? ((raw_avatar starts with('http://') or raw_avatar starts with('https://') or raw_avatar starts with('/')) ? raw_avatar : asset(raw_avatar)) : asset('front/images/client1.jpg') %}
-                  <img id="avatarImageTrigger" class="avatar_img" src="{{ avatar_src }}" alt="Profile picture" title="Change picture" onerror="this.onerror=null;this.src='{{ asset('front/images/client1.jpg') }}';">
-                </div>
+                <label>Or upload from your computer</label>
+                <input type="file" name="avatar" class="form-control mb-2" accept="image/png,image/jpeg,image/webp" required>
+                <button type="submit" class="pbtn pbtn--soft">Upload Avatar</button>
               </form>
             </div>
-            <div class="avatar_hint">Click the picture to change your avatar</div>
 
-            <div class="preset_avatar_block" id="avatarChoices">
-              <div class="choice_title">Choose one of the existing avatars</div>
-              <div class="preset_avatar_grid">
-                {% for avatar_path in preset_avatars %}
-                  <form method="post">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
-                    <input type="hidden" name="preset_avatar" value="{{ avatar_path }}">
-                    <button type="submit" class="preset_avatar_btn" title="Use this avatar">
-                      <img src="{{ asset(avatar_path) }}" alt="Preset avatar" class="preset_avatar_img">
-                    </button>
-                  </form>
+            <hr>
+            <p class="choice-title">Generate a stylized avatar</p>
+            <div class="mini-form">
+              <form method="post" enctype="multipart/form-data">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
+                <label>Upload your photo</label>
+                <input type="file" name="stylize_source" class="form-control mb-2" accept="image/png,image/jpeg,image/webp" required>
+                <label>Style</label>
+                <select name="stylize_style" class="form-control mb-2" required>
+                  <option value="anime">Anime</option>
+                  <option value="comic">Comic</option>
+                  <option value="pixar">Pixar-like</option>
+                </select>
+                <button type="submit" class="pbtn pbtn--primary">Generate Style</button>
+              </form>
+            </div>
+
+            {% if stylized_avatar_options is not empty %}
+              <p class="choice-title" style="margin-top:12px;">Generated styles</p>
+              <div class="style-grid">
+                {% for style_name, style_path in stylized_avatar_options %}
+                  <div class="style-card">
+                    <img src="{{ asset(style_path) }}" alt="{{ style_name }} avatar" class="style-img">
+                    <div style="font-weight:600; text-transform:capitalize; margin-bottom:8px;">{{ style_name }}</div>
+                    <form method="post">
+                      <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
+                      <input type="hidden" name="stylized_avatar" value="{{ style_path }}">
+                      <button type="submit" class="pbtn pbtn--soft">Use This Style</button>
+                    </form>
+                  </div>
                 {% endfor %}
               </div>
+            {% endif %}
+          </div>
 
-              <div class="upload_block">
-                <form method="post" enctype="multipart/form-data">
-                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
-                  <div class="form-group mb-2">
-                    <label>Or upload from your computer</label>
-                    <input type="file" name="avatar" class="form-control" accept="image/png,image/jpeg,image/webp" required>
-                  </div>
-                  <button type="submit" class="btn btn-warning btn-sm action_btn">Upload Avatar</button>
-                </form>
-              </div>
+          <div class="profile-actions">
+            <a href="{{ path('front_profile_edit') }}" class="pbtn pbtn--primary">Modify Profile</a>
+            {% if not (is_granted('ROLE_ARTISTE') or is_granted('ROLE_SPONSOR') or is_granted('ROLE_ADMIN')) %}
+            <a href="{{ path('role_request_new') }}" class="pbtn pbtn--soft">Request Role Change</a>
+            {% endif %}
+            <a href="{{ path('role_request_status') }}" class="pbtn pbtn--soft" style="font-size:.88rem;">My Role Requests</a>
+          </div>
+        </div>
 
-              <hr class="choice_divider">
-              <div class="choice_title">Generate a stylized avatar</div>
-
-              <div class="upload_block">
-                <form method="post" enctype="multipart/form-data">
-                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
-                  <div class="form-group mb-2">
-                    <label>Upload your photo</label>
-                    <input type="file" name="stylize_source" class="form-control" accept="image/png,image/jpeg,image/webp" required>
-                  </div>
-                  <div class="form-group mb-2">
-                    <label>Style</label>
-                    <select name="stylize_style" class="form-control" required>
-                      <option value="anime">Anime</option>
-                      <option value="comic">Comic</option>
-                      <option value="pixar">Pixar-like</option>
-                    </select>
-                  </div>
-                  <button type="submit" class="btn btn-dark btn-sm action_btn">Generate Style</button>
-                </form>
-              </div>
-
-              {% if stylized_avatar_options is not empty %}
-                <div class="choice_title" style="margin-top: 16px;">Generated styles</div>
-                <div class="style_preview_grid">
-                  {% for style_name, style_path in stylized_avatar_options %}
-                    <div class="style_preview_card">
-                      <img src="{{ asset(style_path) }}" alt="{{ style_name }} avatar" class="style_preview_img">
-                      <div class="style_name">{{ style_name }}</div>
-                      <form method="post">
-                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_avatar_update') }}">
-                        <input type="hidden" name="stylized_avatar" value="{{ style_path }}">
-                        <button type="submit" class="btn btn-success btn-sm action_btn">Use This Style</button>
-                      </form>
-                    </div>
-                  {% endfor %}
-                </div>
-              {% endif %}
+        <div class="profile-card">
+          <h2 class="section-title">Passkeys</h2>
+          <div class="d-flex flex-wrap justify-content-between align-items-center">
+            <div style="color:#5f6f8a; font-size:0.9rem;">Registered passkeys: {{ passkey_count|default(0) }}</div>
+            <div class="d-flex gap-2 mt-2 mt-sm-0">
+              <button type="button" class="pbtn pbtn--primary" id="registerPasskeyBtn">Add This Device</button>
+              <button type="button" class="pbtn pbtn--soft" id="registerPhonePasskeyBtn">Add iPhone/Android</button>
             </div>
+          </div>
 
-            <div style="margin-bottom: 24px;">
-              <a href="{{ path('front_profile_edit') }}" class="btn btn-warning">Modify Profile</a>
-            </div>
-
-            <div class="passkey_block">
-              <div class="d-flex flex-wrap justify-content-between align-items-center">
+          {% if passkeys is not empty %}
+            {% for passkey in passkeys %}
+              <div class="passkey-item">
                 <div>
-                  <strong>Passkey Login</strong>
-                  <div style="font-size: 13px; color: #666;">Registered passkeys: {{ passkey_count|default(0) }}</div>
+                  <div><strong>{{ passkey.label ?: 'Unnamed device' }}</strong></div>
+                  <div class="passkey-meta">
+                    Last used: {{ passkey.lastUsedAt ? passkey.lastUsedAt|date('Y-m-d H:i') : 'Never' }}
+                    {% if passkey.transports %} | Transport: {{ passkey.transports }}{% endif %}
+                  </div>
                 </div>
-                <div class="d-flex gap-2 mt-2 mt-sm-0">
-                  <button type="button" class="btn btn-dark btn-sm" id="registerPasskeyBtn">Add This Device</button>
-                  <button type="button" class="btn btn-outline-dark btn-sm" id="registerPhonePasskeyBtn">Add iPhone/Android</button>
-                </div>
+                <form method="post" action="{{ path('app_passkey_remove', {id: passkey.id}) }}" onsubmit="return confirm('Remove this passkey?');">
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('remove_passkey_' ~ passkey.id) }}">
+                  <button type="submit" class="pbtn pbtn--danger">Remove</button>
+                </form>
               </div>
+            {% endfor %}
+          {% endif %}
+        </div>
 
-              {% if passkeys is not empty %}
-                <div class="passkey_list">
-                  {% for passkey in passkeys %}
-                    <div class="passkey_item">
-                      <div>
-                        <div><strong>{{ passkey.label ?: 'Unnamed device' }}</strong></div>
-                        <div class="passkey_meta">
-                          Last used:
-                          {{ passkey.lastUsedAt ? passkey.lastUsedAt|date('Y-m-d H:i') : 'Never' }}
-                          {% if passkey.transports %}
-                            | Transport: {{ passkey.transports }}
-                          {% endif %}
-                        </div>
-                      </div>
-                      <form method="post" action="{{ path('app_passkey_remove', {id: passkey.id}) }}" onsubmit="return confirm('Remove this passkey?');">
-                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('remove_passkey_' ~ passkey.id) }}">
-                        <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
-                      </form>
-                    </div>
-                  {% endfor %}
-                </div>
-              {% endif %}
-            </div>
-
-            <div class="profile_item">
-              <span class="profile_label">Username</span>
-              <span class="profile_value">{{ profile_user.username }}</span>
-            </div>
-            <div class="profile_item">
-              <span class="profile_label">Email</span>
-              <span class="profile_value">{{ profile_user.email }}</span>
-            </div>
-            <div class="profile_item">
-              <span class="profile_label">Phone</span>
-              <span class="profile_value">{{ profile_user.phone ?: 'Not set' }}</span>
-            </div>
-            <div class="profile_item">
-              <span class="profile_label">Account Type</span>
-              <span class="profile_value">{{ account_type }}</span>
-            </div>
-            <div class="profile_item">
-              <span class="profile_label">Account Status</span>
-              <span class="profile_value">{{ profile_user.status.value }}</span>
-            </div>
-            <div class="profile_item">
-              <span class="profile_label">Created At</span>
-              <span class="profile_value">{{ profile_user.createdAt ? profile_user.createdAt|date('Y-m-d H:i') : 'N/A' }}</span>
-            </div>
-
+        <div class="profile-card">
+          <h2 class="section-title">Account Details</h2>
+          <div class="kv">
+            <div class="kv-item"><span class="kv-label">Username</span><span class="kv-value">{{ profile_user.username }}</span></div>
+            <div class="kv-item"><span class="kv-label">Email</span><span class="kv-value">{{ profile_user.email }}</span></div>
+            <div class="kv-item"><span class="kv-label">Phone</span><span class="kv-value">{{ profile_user.phone ?: 'Not set' }}</span></div>
+            <div class="kv-item"><span class="kv-label">Account Type</span><span class="kv-value">{{ account_type }}</span></div>
+            <div class="kv-item"><span class="kv-label">Account Status</span><span class="kv-value">{{ profile_user.status.value }}</span></div>
+            <div class="kv-item"><span class="kv-label">Created At</span><span class="kv-value">{{ profile_user.createdAt ? profile_user.createdAt|date('Y-m-d H:i') : 'N/A' }}</span></div>
             {% for label, value in extra_fields %}
-              <div class="profile_item">
-                <span class="profile_label">{{ label }}</span>
-                <span class="profile_value">{{ value }}</span>
-              </div>
+              <div class="kv-item"><span class="kv-label">{{ label }}</span><span class="kv-value">{{ value }}</span></div>
             {% endfor %}
           </div>
         </div>
       </div>
     </div>
   </section>
+{% endblock %}
 
-  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-  <script src="{{ asset('front/js/custom.js') }}"></script>
+{% block extra_scripts %}
   <script>
     function ensurePasskeyCompatibleOrigin() {
       if (window.location.hostname === '127.0.0.1') {
@@ -451,9 +206,7 @@
       const pad = '='.repeat((4 - (base64.length % 4)) % 4);
       const binary = atob(base64 + pad);
       const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i += 1) {
-        bytes[i] = binary.charCodeAt(i);
-      }
+      for (let i = 0; i < binary.length; i += 1) { bytes[i] = binary.charCodeAt(i); }
       return bytes.buffer;
     }
 
@@ -465,10 +218,7 @@
     }
 
     async function registerPasskey(mode) {
-      if (!ensurePasskeyCompatibleOrigin()) {
-        return;
-      }
-
+      if (!ensurePasskeyCompatibleOrigin()) { return; }
       if (!window.PublicKeyCredential || !navigator.credentials) {
         alert('Passkeys are not supported on this browser.');
         return;
@@ -476,31 +226,20 @@
 
       try {
         const optionsRes = await fetch('{{ path('app_passkey_register_options') }}', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: mode || 'device' })
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode: mode || 'device' })
         });
         const optionsData = await optionsRes.json();
-        if (!optionsRes.ok) {
-          throw new Error(optionsData.error || 'Could not start passkey registration.');
-        }
+        if (!optionsRes.ok) throw new Error(optionsData.error || 'Could not start passkey registration.');
 
         const publicKey = optionsData.publicKey;
         publicKey.challenge = base64UrlToArrayBuffer(publicKey.challenge);
-        if (publicKey.user && publicKey.user.id) {
-          publicKey.user.id = base64UrlToArrayBuffer(publicKey.user.id);
-        }
+        if (publicKey.user && publicKey.user.id) publicKey.user.id = base64UrlToArrayBuffer(publicKey.user.id);
         if (Array.isArray(publicKey.excludeCredentials)) {
-          publicKey.excludeCredentials = publicKey.excludeCredentials.map((cred) => ({
-            ...cred,
-            id: base64UrlToArrayBuffer(cred.id)
-          }));
+          publicKey.excludeCredentials = publicKey.excludeCredentials.map((cred) => ({ ...cred, id: base64UrlToArrayBuffer(cred.id) }));
         }
 
         const credential = await navigator.credentials.create({ publicKey: publicKey });
-        if (!credential) {
-          throw new Error('No passkey credential returned.');
-        }
+        if (!credential) throw new Error('No passkey credential returned.');
 
         const verifyPayload = {
           id: credential.id,
@@ -515,19 +254,13 @@
 
         const defaultLabel = mode === 'phone' ? 'My iPhone/Android' : 'My device';
         const labelInput = prompt('Device label (optional). Example: ' + defaultLabel);
-        if (labelInput && labelInput.trim().length > 0) {
-          verifyPayload.label = labelInput.trim().slice(0, 120);
-        }
+        if (labelInput && labelInput.trim().length > 0) verifyPayload.label = labelInput.trim().slice(0, 120);
 
         const verifyRes = await fetch('{{ path('app_passkey_register_verify') }}', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(verifyPayload)
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(verifyPayload)
         });
         const verifyData = await verifyRes.json();
-        if (!verifyRes.ok || !verifyData.ok) {
-          throw new Error(verifyData.error || 'Passkey registration failed.');
-        }
+        if (!verifyRes.ok || !verifyData.ok) throw new Error(verifyData.error || 'Passkey registration failed.');
 
         alert('Passkey registered successfully.');
         window.location.reload();
@@ -537,26 +270,19 @@
     }
 
     const registerPasskeyBtn = document.getElementById('registerPasskeyBtn');
-    if (registerPasskeyBtn) {
-      registerPasskeyBtn.addEventListener('click', function () { registerPasskey('device'); });
-    }
+    if (registerPasskeyBtn) registerPasskeyBtn.addEventListener('click', function () { registerPasskey('device'); });
 
     const registerPhonePasskeyBtn = document.getElementById('registerPhonePasskeyBtn');
-    if (registerPhonePasskeyBtn) {
-      registerPhonePasskeyBtn.addEventListener('click', function () { registerPasskey('phone'); });
+    if (registerPhonePasskeyBtn) registerPhonePasskeyBtn.addEventListener('click', function () { registerPasskey('phone'); });
+
+    const trigger = document.getElementById('avatarImageTrigger');
+    if (trigger) {
+      trigger.addEventListener('click', function () {
+        var choices = document.getElementById('avatarChoices');
+        if (!choices) return;
+        choices.classList.toggle('is_open');
+        if (choices.classList.contains('is_open')) choices.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
     }
-
-    document.getElementById('avatarImageTrigger').addEventListener('click', function () {
-      var choices = document.getElementById('avatarChoices');
-      if (!choices) {
-        return;
-      }
-      choices.classList.toggle('is_open');
-      if (choices.classList.contains('is_open')) {
-        choices.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
   </script>
-</body>
-
-</html>
+{% endblock %}

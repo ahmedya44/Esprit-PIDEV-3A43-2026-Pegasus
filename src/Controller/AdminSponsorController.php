@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/admin/sponsors')]
+#[Route('/back/sponsors')]
 class AdminSponsorController extends AbstractController
 {
     #[Route('/', name: 'app_admin_sponsor_index', methods: ['GET'])]

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -13,7 +13,7 @@
   <meta name="author" content="" />
   <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
 
-  <title>Feane - Sign Up</title>
+  <title>Pegasus - Sign Up</title>
 
   <!-- bootstrap core css -->
   <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
@@ -39,7 +39,7 @@
         <nav class="navbar navbar-expand-lg custom_nav-container ">
           <a class="navbar-brand" href="{{ path('front_home') }}">
             <span>
-              Feane
+              Pegasus
             </span>
           </a>
 
@@ -49,18 +49,10 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav  mx-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_home') }}">Home </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_about') }}">About</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
-              </li>
+              
+              
+              
+              
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('front_evenements_index') }}">Evenements</a>
               </li>
@@ -89,9 +81,9 @@
     <div class="container">
       <div class="heading_container heading_center">
         <h2>
-          CrÃ©er un compte
+          Créer un compte
         </h2>
-        <p class="mt-2">Rejoignez la communautÃ© Feane</p>
+        <p class="mt-2">Rejoignez la communauté Pegasus</p>
       </div>
       <div class="row justify-content-center mt-4">
         <div class="col-md-6">
@@ -103,13 +95,13 @@
                 {{ form_errors(registrationForm.email) }}
               </div>
               <div class="form-group">
-                {{ form_label(registrationForm.type, 'Vous Ãªtes ?') }}
+                {{ form_label(registrationForm.type, 'Vous êtes ?') }}
                 {{ form_widget(registrationForm.type, {'attr': {'class': 'form-control'}}) }}
                 {{ form_errors(registrationForm.type) }}
               </div>
               <div class="form-group">
                 {{ form_label(registrationForm.plainPassword, 'Mot de passe') }}
-                {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Minimum 6 caractÃ¨res'}}) }}
+                {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control', 'placeholder': 'Minimum 6 caractères'}}) }}
                 {{ form_errors(registrationForm.plainPassword) }}
               </div>
               <div class="btn_box">
@@ -144,4 +136,7 @@
 </body>
 
 </html>
+
+
+
 

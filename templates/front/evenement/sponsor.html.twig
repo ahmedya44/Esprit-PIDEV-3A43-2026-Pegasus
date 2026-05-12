@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -13,7 +13,7 @@
   <meta name="author" content="" />
   <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
 
-  <title>Feane - Sponsoriser {{ evenement.titre }}</title>
+  <title>Pegasus - Sponsoriser {{ evenement.titre }}</title>
 
   <!-- bootstrap core css -->
   <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
@@ -39,7 +39,7 @@
         <nav class="navbar navbar-expand-lg custom_nav-container ">
           <a class="navbar-brand" href="{{ path('front_home') }}">
             <span>
-              Feane
+              Pegasus
             </span>
           </a>
 
@@ -49,18 +49,10 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mx-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_home') }}">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_about') }}">About</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
-              </li>
+              
+              
+              
+              
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a>
               </li>
@@ -139,10 +131,10 @@
     <div class="container">
       <div class="heading_container heading_center mb-5">
         <h2 class="neon-text">
-          Sponsoriser l'Ã©vÃ©nement
+          Sponsoriser l'événement
         </h2>
         <h3 class="text-warning mt-2">{{ evenement.titre }}</h3>
-        <p class="text-light opacity-75 mt-3">Soutenez la culture et boostez votre visibilitÃ©.</p>
+        <p class="text-light opacity-75 mt-3">Soutenez la culture et boostez votre visibilité.</p>
       </div>
 
       {% if is_granted('ROLE_SPONSOR') %}
@@ -184,14 +176,14 @@
                           </span>
                         {% else %}
                           <span class="badge" style="background: #d1fae5; color: #059669; padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 13px;">
-                            <i class="fa fa-check-circle mr-1"></i> Demande acceptÃ©e
+                            <i class="fa fa-check-circle mr-1"></i> Demande acceptée
                           </span>
                         {% endif %}
                       </div>
-                      <form action="{{ path('front_evenements_sponsor_cancel', {'id': evenement.id, 'packId': pack.id}) }}" method="post" style="margin: 0;" onsubmit="return confirm('ÃŠtes-vous sÃ»r de vouloir annuler cette rÃ©servation ?');">
+                      <form action="{{ path('front_evenements_sponsor_cancel', {'id': evenement.id, 'packId': pack.id}) }}" method="post" style="margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ pack.id) }}">
                         <button type="submit" class="premium-btn py-2 px-4 shadow-sm w-100" style="background: linear-gradient(135deg, #f87171, #ef4444); border: none; border-radius: 50px; color: white; font-weight: 700; cursor: pointer; transition: transform 0.2s;">
-                          <i class="fa fa-times mr-2"></i> Annuler la rÃ©servation
+                          <i class="fa fa-times mr-2"></i> Annuler la réservation
                         </button>
                       </form>
                     {% else %}
@@ -215,8 +207,8 @@
               <i class="fa fa-handshake-o fa-5x text-warning mb-4"></i>
               <h2 class="neon-text mb-4">Devenir un sponsor</h2>
               <p class="text-light opacity-75 mb-4" style="font-size: 1.2rem;">
-                Vous souhaitez associer votre marque Ã  cet Ã©vÃ©nement exceptionnel ? 
-                Rejoignez notre cercle de partenaires et profitez d'une visibilitÃ© unique auprÃ¨s de notre communautÃ©.
+                Vous souhaitez associer votre marque à cet événement exceptionnel ? 
+                Rejoignez notre cercle de partenaires et profitez d'une visibilité unique auprès de notre communauté.
               </p>
               <div class="btn_box">
                 <a href="{{ path('app_register') }}" class="premium-btn px-5 py-3 shadow-lg">
@@ -224,7 +216,7 @@
                 </a>
               </div>
               <div class="mt-4">
-                <a href="{{ path('front_evenements_index') }}" class="btn btn-link text-light opacity-50">Retour aux Ã©vÃ©nements</a>
+                <a href="{{ path('front_evenements_index') }}" class="btn btn-link text-light opacity-50">Retour aux événements</a>
               </div>
             </div>
           </div>
@@ -233,7 +225,7 @@
 
       <div class="text-center mt-5">
         <a href="{{ path('front_evenements_index') }}" class="btn btn-outline-light px-5" style="border-radius: 45px;">
-          <i class="fa fa-arrow-left mr-2"></i> Retour Ã  la liste
+          <i class="fa fa-arrow-left mr-2"></i> Retour à la liste
         </a>
       </div>
     </div>
@@ -262,4 +254,7 @@
 </body>
 
 </html>
+
+
+
 

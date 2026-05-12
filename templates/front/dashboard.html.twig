@@ -1,4 +1,4 @@
-﻿{# templates/front/dashboard.html.twig #}
+{# templates/front/dashboard.html.twig #}
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,6 +13,7 @@
   <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
   <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
   <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/pegasus-design.css') }}" rel="stylesheet" />
 
   <style>
     .artist-shell { padding: 60px 0; }
@@ -26,17 +27,19 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 16px;
+      padding: 12px 16px;
       border-radius: 14px;
       text-decoration: none;
-      color: #222;
-      background: #f6f6f6;
-      margin-bottom: 12px;
+      color: #374151;
+      background: #f8faff;
+      border: 1px solid #dbe5ef;
+      margin-bottom: 10px;
       font-weight: 600;
-      transition: .2s ease;
+      font-size: .875rem;
+      transition: .18s ease;
     }
-    .artist-side a:hover { transform: translateY(-1px); background: #ffe6b3; }
-    .artist-side a.active { background: #ffbe33; color: #111; }
+    .artist-side a:hover { transform: translateY(-1px); background: #fef9c3; border-color: #f9c23c; color: #92660a; }
+    .artist-side a.active { background: #f9c23c; border-color: #f9c23c; color: #111; }
     .artist-side .num {
       width: 30px; height: 30px;
       border-radius: 10px;
@@ -101,7 +104,7 @@
       <div class="container">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
           <a class="navbar-brand" href="{{ path('front_home') }}">
-            <span>Feane</span>
+            <span>Pegasus</span>
           </a>
 
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -111,21 +114,13 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mx-auto ">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_home') }}">Home</a>
-              </li>
+              
 
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_menu') }}">Menu</a>
-              </li>
+              
 
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_about') }}">About</a>
-              </li>
+              
 
-              <li class="nav-item">
-                <a class="nav-link" href="{{ path('front_book') }}">Book Table</a>
-              </li>
+              
 
               <li class="nav-item">
                 <a class="nav-link" href="{{ path('app_courses') }}">Courses</a>
@@ -387,8 +382,8 @@
                             <td>
                               <div class="fw-bold">{{ quiz.title }}</div>
                               <div class="text-muted small">
-                                {% if quiz.timeLimit is defined and quiz.timeLimit %}â± {{ quiz.timeLimit }} min{% endif %}
-                                {% if quiz.attemptLimit is defined and quiz.attemptLimit %} Â· ðŸŽ¯ {{ quiz.attemptLimit }} attempts{% endif %}
+                                {% if quiz.timeLimit is defined and quiz.timeLimit %}⏱ {{ quiz.timeLimit }} min{% endif %}
+                                {% if quiz.attemptLimit is defined and quiz.attemptLimit %} · 🎯 {{ quiz.attemptLimit }} attempts{% endif %}
                               </div>
                             </td>
 
@@ -436,7 +431,7 @@
                 {% elseif view == 'stats' %}
 
                   <div class="alert alert-info mb-0">
-                    Stats view coming next âœ… (weâ€™ll add pass rate, attempts, etc.)
+                    Stats view coming next ✅ (we’ll add pass rate, attempts, etc.)
                     <br>
                     <a class="btn btn-sm btn-secondary mt-3"
                        style="border-radius:12px;font-weight:800;"
@@ -476,7 +471,7 @@
                       <div class="dash-ico" style="background:#2ecc71;"><i class="fa fa-bar-chart"></i></div>
                       <div>
                         <div class="text-muted" style="font-weight:800;">Statistics</div>
-                        <h4>{{ totalQuizzes is defined ? totalQuizzes : 'â€”' }} quizzes</h4>
+                        <h4>{{ totalQuizzes is defined ? totalQuizzes : '—' }} quizzes</h4>
                         <p>View quiz stats, pass rates, and attempts.</p>
                         <a href="{{ path('artist_dashboard', { tab: 'quizzes', view: 'stats' }) }}"
                            class="btn btn-success btn-sm">
@@ -504,4 +499,7 @@
   <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>
+
+
+
 

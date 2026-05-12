@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-#[Route('/admin/participants')]
+#[Route('/back/participants')]
 class ParticipantController extends AbstractController
 {
     #[Route('/', name: 'app_participant_index', methods: ['GET'])]

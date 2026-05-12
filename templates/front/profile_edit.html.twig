@@ -1,83 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
-  <title>Feane - Edit Profile</title>
-  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
-  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
-  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
-  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
-  <style>
-    .profile_section { padding: 70px 0; }
-    .profile_card { background: #fff; border-radius: 10px; box-shadow: 0 2px 14px rgba(0, 0, 0, 0.1); padding: 24px; }
-    .profile_title { margin-bottom: 18px; font-weight: 700; }
-    .password-field { position: relative; }
-    .password-field input { padding-right: 42px; }
-    .password-toggle {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: none;
-      background: transparent;
-      color: #666;
-      cursor: pointer;
-      padding: 2px 4px;
-    }
-  </style>
-</head>
-<body class="sub_page">
-  <div class="hero_area">
-    <div class="bg-box"><img src="{{ asset('front/images/hero-bg.jpg') }}" alt=""></div>
-    <header class="header_section">
-      <div class="container">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Feane</span></a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"><span class=""> </span></button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav  mx-auto ">
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_home') }}">Home</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('forum_index') }}">Forum</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a></li>
-            </ul>
-            <div class="user_option">
-              <a href="{{ path('front_profile') }}" class="user_link profile_link">
-                <i class="fa fa-user" aria-hidden="true"></i>
-                <span class="profile_name">{{ app.user.username }}</span>
-              </a>
-              <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">Logout</a>
-            </div>
-          </div>
-        </nav>
-      </div>
-    </header>
-  </div>
+{% extends 'front/layout.html.twig' %}
 
-  <section class="profile_section">
+{% block title %}Pegasus | Edit Profile{% endblock %}
+{% set active_nav = 'home' %}
+
+{% block extra_styles %}
+  <style>
+    .edit-shell { background: linear-gradient(180deg, #f2f5fb 0%, #ffffff 100%); padding: 44px 0 72px; }
+    .edit-card { background: #fff; border: 1px solid #e5eaf7; border-radius: 16px; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08); padding: 22px; }
+    .edit-head h1 { font-family: "Poppins", sans-serif; font-size: 1.65rem; margin: 0; color: #17233a; font-weight: 700; }
+    .edit-head p { margin: 8px 0 0; color: #5f6f8a; font-size: 0.93rem; }
+    .flash { border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin-top: 10px; }
+    .flash-success { background: #e7f9ec; color: #14532d; border: 1px solid #c8f0d6; }
+    .flash-danger { background: #ffe5e8; color: #7f1d2a; border: 1px solid #ffc7ce; }
+    .form-block { margin-top: 16px; }
+    .form-block label { font-size: 0.9rem; font-weight: 600; color: #22324d; margin-bottom: 6px; }
+    .form-control { border: 1px solid #d7deee; border-radius: 11px; padding: 10px 12px; background: #fbfcff; }
+    .form-control:focus { border-color: #7a92d6; box-shadow: 0 0 0 3px rgba(71, 102, 179, 0.15); background: #fff; }
+    .password-field { position: relative; }
+    .password-field .form-control { padding-right: 44px; }
+    .password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: transparent; color: #6b7d9e; cursor: pointer; }
+    .ebtn { border-radius: 10px; padding: 9px 13px; font-weight: 600; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 8px; }
+    .ebtn--primary { background: #223d78; color: #fff; }
+    .ebtn--soft { background: #fff; border-color: #ccd6ec; color: #253451; }
+    .ebtn--dark { background: #152340; color: #fff; }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <section class="edit-shell">
     <div class="container">
       <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <div class="profile_card">
-            <h3 class="profile_title">Modify Profile</h3>
+        <div class="col-lg-9">
+          <div class="edit-card">
+            <div class="edit-head">
+              <h1>Modify Profile</h1>
+              <p>Update your details and account security settings.</p>
+            </div>
 
-            {% for message in app.flashes('success') %}
-              <div class="alert alert-success">{{ message }}</div>
-            {% endfor %}
-            {% for message in app.flashes('danger') %}
-              <div class="alert alert-danger">{{ message }}</div>
-            {% endfor %}
+            {% for message in app.flashes('success') %}<div class="flash flash-success">{{ message }}</div>{% endfor %}
+            {% for message in app.flashes('danger') %}<div class="flash flash-danger">{{ message }}</div>{% endfor %}
 
-            <form method="post" action="{{ path('front_profile_update') }}" novalidate>
+            <form method="post" action="{{ path('front_profile_update') }}" class="form-block" novalidate>
               <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_update') }}">
 
               <div class="row">
@@ -113,25 +76,23 @@
                 <div class="form-group"><label>Description</label><textarea name="description" class="form-control" rows="3">{{ profile_user.description }}</textarea></div>
               {% endif %}
 
-              <div style="display: flex; gap: 10px; margin-top: 8px;">
-                <button type="submit" class="btn btn-warning">Save Changes</button>
-                <a href="{{ path('front_profile') }}" class="btn btn-secondary">Cancel</a>
+              <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
+                <button type="submit" class="ebtn ebtn--primary">Save Changes</button>
+                <a href="{{ path('front_profile') }}" class="ebtn ebtn--soft">Cancel</a>
               </div>
             </form>
 
             <hr style="margin: 24px 0;">
 
-            <h4 style="margin-bottom: 14px;">Change Password</h4>
-            <form method="post" action="{{ path('front_profile_change_password') }}" novalidate>
+            <h2 style="font-family:'Poppins',sans-serif; font-size:1.15rem; color:#1f2f4d;">Change Password</h2>
+            <form method="post" action="{{ path('front_profile_change_password') }}" class="form-block" novalidate>
               <input type="hidden" name="_csrf_token" value="{{ csrf_token('change_password') }}">
 
               <div class="form-group">
                 <label>Current Password</label>
                 <div class="password-field">
                   <input type="password" name="currentPassword" class="form-control js-password-input" required>
-                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
-                    <i class="fa fa-eye" aria-hidden="true"></i>
-                  </button>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password"><i class="fa fa-eye" aria-hidden="true"></i></button>
                 </div>
               </div>
 
@@ -139,9 +100,7 @@
                 <label>New Password</label>
                 <div class="password-field">
                   <input type="password" name="newPassword" class="form-control js-password-input" required>
-                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
-                    <i class="fa fa-eye" aria-hidden="true"></i>
-                  </button>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password"><i class="fa fa-eye" aria-hidden="true"></i></button>
                 </div>
               </div>
 
@@ -149,32 +108,26 @@
                 <label>Confirm New Password</label>
                 <div class="password-field">
                   <input type="password" name="confirmPassword" class="form-control js-password-input" required>
-                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
-                    <i class="fa fa-eye" aria-hidden="true"></i>
-                  </button>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password"><i class="fa fa-eye" aria-hidden="true"></i></button>
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-dark">Change Password</button>
+              <button type="submit" class="ebtn ebtn--dark">Change Password</button>
             </form>
           </div>
         </div>
       </div>
     </div>
   </section>
+{% endblock %}
 
-  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
-  <script src="{{ asset('front/js/custom.js') }}"></script>
+{% block extra_scripts %}
   <script>
     document.querySelectorAll('.js-password-toggle').forEach(function (toggleButton) {
       toggleButton.addEventListener('click', function () {
         var passwordInput = toggleButton.parentElement.querySelector('.js-password-input');
         var icon = toggleButton.querySelector('i');
-        if (!passwordInput || !icon) {
-          return;
-        }
+        if (!passwordInput || !icon) return;
 
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
@@ -188,6 +141,4 @@
       });
     });
   </script>
-</body>
-</html>
-
+{% endblock %}

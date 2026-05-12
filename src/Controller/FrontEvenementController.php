@@ -336,6 +336,33 @@ final class FrontEvenementController extends AbstractController
             'participations' => $evenement->getParticipations(),
         ]);
     }
+
+    #[Route('/evenements/{id}/ticket', name: 'front_evenements_ticket', methods: ['GET'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function downloadTicket(
+        Evenement $evenement,
+        ParticipationRepository $participationRepository,
+        \App\Service\TicketPdfService $ticketPdfService,
+    ): Response {
+        $user = $this->getUser();
+        $participation = $participationRepository->findOneBy([
+            'user'      => $user,
+            'evenement' => $evenement,
+        ]);
+
+        if (!$participation) {
+            $this->addFlash('error', 'You are not registered for this event.');
+            return $this->redirectToRoute('front_evenements_show', ['id' => $evenement->getId()]);
+        }
+
+        $pdf = $ticketPdfService->generateEventTicket($participation);
+        $filename = 'ticket_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', (string) $evenement->getTitre()) . '.pdf';
+
+        return new Response($pdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
 }
 
 

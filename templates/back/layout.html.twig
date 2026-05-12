@@ -143,10 +143,9 @@
               </a>
               <div class="collapse" id="forumMenu">
                 <ul class="nav nav-collapse">
-                  <li><a href="{{ path('admin_forum_posts_index') }}"><span class="sub-item">Sujets</span></a></li>
-                  <li><a href="{{ path('admin_forum_comments_index') }}"><span class="sub-item">Commentaires</span></a></li>
-                  <li><a href="{{ path('admin_forum_stats_index') }}"><span class="sub-item">Statistiques</span></a></li>
-                  <li><a href="{{ path('admin_forum_post_new') }}"><span class="sub-item">Nouveau sujet</span></a></li>
+                  <li><a href="{{ path('admin_forum_index') }}"><span class="sub-item">All Posts</span></a></li>
+                  <li><a href="{{ path('admin_forum_requests') }}"><span class="sub-item">Post Requests</span></a></li>
+                  <li><a href="{{ path('admin_forum_stats') }}"><span class="sub-item">Statistics</span></a></li>
                 </ul>
               </div>
             </li>
@@ -157,9 +156,16 @@
                 <p>Courses & Quizzes</p>
               </a>
             </li>
+
+            <li class="nav-item">
+              <a href="{{ path('admin_role_requests_index') }}">
+                <i class="fas fa-user-tag"></i>
+                <p>Role Requests</p>
+              </a>
+            </li>
           </ul>
         </div>
-      </div
+      </div>
     </div>
 
     <div class="main-panel">

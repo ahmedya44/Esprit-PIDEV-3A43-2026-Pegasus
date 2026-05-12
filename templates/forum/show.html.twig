@@ -1,318 +1,203 @@
 {% extends 'front/layout.html.twig' %}
 
 {% set active_nav = 'forum' %}
-
 {% block title %}{{ translatedPost.title }} - Forum{% endblock %}
+
 {% block extra_styles %}
 <style>
-  .star-rating-input {
-    display: inline-flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 0;
-    white-space: nowrap;
-  }
-  .star-rating-input input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-  .star-rating-input label {
-    position: relative;
-    width: 0.5em;
-    height: 1em;
-    overflow: hidden;
-    font-size: 1.9rem;
-    line-height: 1;
-    color: #d0d5dd;
-    cursor: pointer;
-    transition: color 0.15s ease-in-out;
-    margin: 0;
-  }
-  .star-rating-input label::before {
-    content: "\2605";
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-  .star-rating-input label.star-right::before {
-    left: -0.5em;
-  }
-  .star-rating-input label:hover,
-  .star-rating-input label:hover ~ label,
-  .star-rating-input input[type="radio"]:checked ~ label {
-    color: #f4b400;
-  }
-  .rating-display-stars {
-    --rating: 0;
-    position: relative;
-    display: inline-block;
-    font-size: 1.25rem;
-    line-height: 1;
-  }
-  .rating-display-stars::before {
-    content: "\2605\2605\2605\2605\2605";
-    color: #d0d5dd;
-  }
-  .rating-display-stars::after {
-    content: "\2605\2605\2605\2605\2605";
-    color: #f4b400;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: calc((var(--rating) / 5) * 100%);
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  @keyframes postReveal3d {
-    from {
-      opacity: 0;
-      transform: perspective(900px) rotateX(10deg) translateY(16px) scale(0.985);
-    }
-    to {
-      opacity: 1;
-      transform: perspective(900px) rotateX(0deg) translateY(0) scale(1);
-    }
-  }
-  .forum-shell .forum-card {
-    animation: postReveal3d .32s ease-out both;
-  }
-  .forum-shell .forum-card:nth-of-type(2) { animation-delay: .04s; }
-  .forum-shell .forum-card:nth-of-type(3) { animation-delay: .08s; }
-  .forum-shell .forum-card:nth-of-type(4) { animation-delay: .12s; }
-  .action-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .icon-action-btn {
-    width: 34px;
-    height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    padding: 0;
-  }
-  .comment-card {
-    border: 1px solid #eceff5;
-    border-radius: 12px;
-    background: #fff;
-    padding: 12px 14px;
-  }
-  .gif-picker-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 8px;
-    max-height: 290px;
-    overflow: auto;
-    border: 1px solid #eef1f6;
-    border-radius: 10px;
-    padding: 8px;
-    background: #fafbff;
-  }
-  .gif-picker-item {
-    border: 1px solid #dde3ef;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    background: #fff;
-    padding: 0;
-  }
-  .gif-picker-item.is-active {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59,130,246,.18);
-  }
-  .gif-picker-item img {
-    width: 100%;
-    height: 90px;
-    object-fit: cover;
-    display: block;
-  }
+  .forum-show-shell { background: linear-gradient(180deg, #f2f5fb 0%, #ffffff 100%); padding: 30px 0 56px; }
+  .forum-wrap { max-width: 900px; margin: 0 auto; }
+  .forum-card { background:#fff; border:1px solid #e5eaf7; border-radius:12px; box-shadow:0 8px 22px rgba(15,23,42,.07); padding:14px 16px; }
+  .star-rating-input { display:inline-flex; flex-direction:row-reverse; justify-content:flex-end; align-items:center; gap:0; white-space:nowrap; }
+  .star-rating-input input[type="radio"] { position:absolute; opacity:0; pointer-events:none; }
+  .star-rating-input label { position:relative; width:.5em; height:1em; overflow:hidden; font-size:1.9rem; line-height:1; color:#d0d5dd; cursor:pointer; transition:color .15s ease-in-out; margin:0; }
+  .star-rating-input label::before { content:"\2605"; position:absolute; left:0; top:0; }
+  .star-rating-input label.star-right::before { left:-.5em; }
+  .star-rating-input label:hover,.star-rating-input label:hover ~ label,.star-rating-input input[type="radio"]:checked ~ label { color:#f4b400; }
+  .rating-display-stars { --rating:0; position:relative; display:inline-block; font-size:1.25rem; line-height:1; }
+  .rating-display-stars::before { content:"\2605\2605\2605\2605\2605"; color:#d0d5dd; }
+  .rating-display-stars::after { content:"\2605\2605\2605\2605\2605"; color:#f4b400; position:absolute; top:0; left:0; width:calc((var(--rating) / 5) * 100%); overflow:hidden; white-space:nowrap; }
+  .action-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .icon-action-btn { width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; padding:0; }
+  .comment-card { border:1px solid #eceff5; border-radius:12px; background:#fff; padding:12px 14px; }
+  .gif-picker-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; max-height:290px; overflow:auto; border:1px solid #eef1f6; border-radius:10px; padding:8px; background:#fafbff; }
+  .gif-picker-item { border:1px solid #dde3ef; border-radius:8px; overflow:hidden; cursor:pointer; background:#fff; padding:0; }
+  .gif-picker-item.is-active { border-color:#3b82f6; box-shadow:0 0 0 2px rgba(59,130,246,.18); }
+  .gif-picker-item img { width:100%; height:90px; object-fit:cover; display:block; }
 </style>
 {% endblock %}
 
 {% block body %}
-<section class="forum-shell">
-    <div class="container">
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success" role="alert">{{ message }}</div>
-        {% endfor %}
+<section class="forum-show-shell">
+  <div class="container">
+    <div class="forum-wrap">
+      {% for message in app.flashes('success') %}<div class="alert alert-success" role="alert">{{ message }}</div>{% endfor %}
+      {% for message in app.flashes('error') %}<div class="alert alert-danger" role="alert">{{ message }}</div>{% endfor %}
 
-        {% for message in app.flashes('error') %}
-            <div class="alert alert-danger" role="alert">{{ message }}</div>
-        {% endfor %}
-
-        <div class="forum-card mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0">{{ translatedPost.title }}</h2>
-                {% if post.status == 'OPEN' %}
-                    <span class="badge badge-success">Ouvert</span>
-                {% elseif post.status == 'CLOSED' %}
-                    <span class="badge badge-warning">Ferme</span>
-                {% else %}
-                    <span class="badge badge-dark">Cache</span>
-                {% endif %}
-            </div>
-
-            <p class="text-muted mb-3">Par {{ post.authorName }} ({{ post.authorEmail }}) - {{ post.createdAt|date('Y-m-d H:i') }}</p>
-
-            <div class="mb-3">
-                <span class="text-muted mr-2">Traduire :</span>
-                <a
-                    href="{{ path('forum_show', {id: post.id}) }}"
-                    class="btn btn-sm {{ displayLocale is null ? 'btn-warning' : 'btn-outline-secondary' }} mr-1 mb-1"
-                >
-                    Original
-                </a>
-                {% for locale in availableLocales %}
-                    <a
-                        href="{{ path('forum_show', {id: post.id, lang: locale}) }}"
-                        class="btn btn-sm {{ displayLocale is same as(locale) ? 'btn-warning' : 'btn-outline-secondary' }} mr-1 mb-1"
-                    >
-                        {{ locale|upper }}
-                    </a>
-                {% endfor %}
-            </div>
-
-            {% if post.imageName %}
-                <div class="mb-3">
-                    <img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="Image du sujet {{ translatedPost.title }}" class="img-fluid rounded" style="max-height: 420px;">
-                </div>
-            {% endif %}
-
-            <div class="mb-3">{{ translatedPost.content|striptags|replace({'&nbsp;': ' '})|trim|nl2br }}</div>
-
-            <div class="border rounded p-3 mb-3 bg-light">
-                <h4 class="h6 mb-2">Evaluation</h4>
-                <p class="mb-2">
-                    Moyenne:
-                    <strong>
-                        {% if ratingSummary.count > 0 %}
-                            <span class="rating-display-stars" style="--rating: {{ ratingSummary.avg|number_format(2, '.', '') }};"></span>
-                            ({{ ratingSummary.avg|number_format(2, '.', '') }}/5)
-                        {% else %}
-                            Aucune note
-                        {% endif %}
-                    </strong>
-                    ({{ ratingSummary.count }} vote{{ ratingSummary.count > 1 ? 's' : '' }})
-                </p>
-
-                {{ form_start(ratingForm) }}
-                {{ form_errors(ratingForm) }}
-                {% if app.user %}
-                <div class="form-row">
-                    <div class="form-group col-md-12">
-                        {{ form_label(ratingForm.value) }}
-                        <div class="star-rating-input">
-                            {% for choice in ratingForm.value|reverse %}
-                                {{ form_widget(choice, {attr: {onchange: 'this.form.submit()'}}) }}
-                                {% set isHalf = choice.vars.value ends with '.5' %}
-                                <label class="{{ isHalf ? 'star-left' : 'star-right' }}" for="{{ choice.vars.id }}" title="{{ choice.vars.value }}/5"></label>
-                            {% endfor %}
-                        </div>
-                        {{ form_errors(ratingForm.value) }}
-                    </div>
-                </div>
-                <noscript>
-                    <button type="submit" class="btn btn-primary">Noter</button>
-                </noscript>
-                {% else %}
-                    <div class="alert alert-info mb-0">
-                        Connectez-vous pour noter ce post.
-                        <a href="{{ path('app_login') }}">Se connecter</a>
-                    </div>
-                {% endif %}
-                {{ form_end(ratingForm) }}
-            </div>
-
-            {% if is_granted('ROLE_ADMIN') or (app.user and post.owner and app.user.id == post.owner.id) %}
-                <div class="action-row">
-                <a href="{{ path('forum_edit', {id: post.id}) }}" class="btn btn-sm btn-outline-dark icon-action-btn" title="Modifier">
-                    <i class="fa fa-pencil"></i>
-                </a>
-                <form method="post" action="{{ path('forum_delete', {id: post.id}) }}" class="d-inline" data-confirm-title="Supprimer le sujet" data-confirm-message="Supprimer ce sujet ?">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ post.id) }}">
-                    <button type="submit" class="btn btn-sm btn-outline-danger icon-action-btn" title="Supprimer">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </form>
-                </div>
-            {% endif %}
+      <div class="forum-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="mb-0">{{ translatedPost.title }}</h2>
+          {% if post.status == 'IN_PROGRESS' %}
+            <span class="badge" style="background:#fef3c7;color:#92400e;border-radius:999px;padding:5px 12px;"><i class="fa fa-clock-o mr-1"></i>Pending Review</span>
+          {% elseif post.status == 'DENIED' %}
+            <span class="badge" style="background:#fee2e2;color:#991b1b;border-radius:999px;padding:5px 12px;"><i class="fa fa-times-circle mr-1"></i>Denied</span>
+          {% elseif post.status == 'OPEN' %}
+            <span class="badge badge-success" style="border-radius:999px;padding:5px 12px;">Open</span>
+          {% elseif post.status == 'CLOSED' %}
+            <span class="badge badge-warning" style="border-radius:999px;padding:5px 12px;">Closed</span>
+          {% else %}
+            <span class="badge badge-dark" style="border-radius:999px;padding:5px 12px;">Hidden</span>
+          {% endif %}
         </div>
 
-        <div class="forum-card mb-4">
-            <h3>Commentaires ({{ post.commentaires|length }})</h3>
-            <hr>
-            {% if post.commentaires %}
-                {% for commentaire in post.commentaires %}
-                    {% set translatedComment = translatedComments[commentaire.id] ?? commentaire %}
-                    <div class="mb-3 pb-3 border-bottom comment-card">
-                        <strong>{{ commentaire.authorName }}</strong>
-                        <small class="text-muted">({{ commentaire.authorEmail }}) - {{ commentaire.createdAt|date('Y-m-d H:i') }}</small>
-                        <p class="mb-2 mt-2">{{ translatedComment.content|striptags|replace({'&nbsp;': ' '})|trim|nl2br }}</p>
-                        {% if commentaire.gifUrl %}
-                            <div class="mb-2">
-                                <img src="{{ commentaire.gifUrl }}" alt="GIF commentaire {{ commentaire.id }}" class="img-fluid rounded" style="max-height: 260px;">
-                            </div>
-                        {% endif %}
-                        {% if is_granted('ROLE_ADMIN') or (app.user and commentaire.owner and app.user.id == commentaire.owner.id) %}
-                            <div class="action-row">
-                            <a href="{{ path('forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-dark icon-action-btn" title="Modifier">
-                                <i class="fa fa-pencil"></i>
-                            </a>
-                            <form method="post" action="{{ path('forum_comment_delete', {id: commentaire.id}) }}" class="d-inline" data-confirm-title="Supprimer le commentaire" data-confirm-message="Supprimer ce commentaire ?">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ commentaire.id) }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger icon-action-btn" title="Supprimer">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </form>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="alert alert-info">Aucun commentaire.</div>
-            {% endif %}
-        </div>
-
-        {% if post.status == 'OPEN' and commentForm is not null %}
-            <div class="forum-card mb-4">
-                <h3>Ajouter un commentaire</h3>
-                <hr>
-                {{ form_start(commentForm) }}
-                {{ form_errors(commentForm) }}
-                <div class="form-group">
-                    {{ form_label(commentForm.content) }}
-                    {{ form_widget(commentForm.content) }}
-                    {{ form_errors(commentForm.content) }}
-                </div>
-                <div class="form-group">
-                    <label class="form-label d-block">GIF</label>
-                    {% include 'forum/_gif_picker.html.twig' with {
-                        field: commentForm.gifUrl,
-                        endpoint: path('forum_gif_search'),
-                        auto_submit_on_pick: true
-                    } %}
-                </div>
-                <button type="submit" class="btn btn-warning">Poster</button>
-                {{ form_end(commentForm) }}
-            </div>
-        {% elseif post.status == 'OPEN' %}
-            <div class="alert alert-info">
-                Connectez-vous pour commenter.
-                <a href="{{ path('app_login') }}">Se connecter</a>
-            </div>
-        {% elseif post.status == 'CLOSED' %}
-            <div class="alert alert-warning">Ce sujet est ferme. Les nouveaux commentaires sont desactives.</div>
+        {% if post.status == 'IN_PROGRESS' %}
+          <div class="alert alert-warning mb-3" style="border-radius:12px;">
+            <i class="fa fa-clock-o mr-2"></i><strong>Awaiting admin approval.</strong> This post is not yet visible to other users.
+          </div>
+        {% elseif post.status == 'DENIED' %}
+          <div class="alert alert-danger mb-3" style="border-radius:12px;">
+            <i class="fa fa-times-circle mr-2"></i><strong>This post was denied by an admin.</strong> You may edit and resubmit it for review.
+          </div>
+        {% elseif post.bannedByAdmin %}
+          <div class="alert alert-danger mb-3" style="border-radius:12px;">
+            <i class="fa fa-ban mr-2"></i><strong>This post has been moderated by an admin.</strong>
+          </div>
         {% endif %}
 
-        <a href="{{ path('forum_index') }}" class="btn btn-dark">Retour au forum</a>
+        <p class="text-muted mb-3">By {{ post.authorName }} &middot; {{ post.createdAt|date('d M Y, H:i') }}</p>
+
+        <div class="mb-3">
+          <span class="text-muted mr-2">Traduire :</span>
+          <a href="{{ path('forum_show', {id: post.id}) }}" class="btn btn-sm {{ displayLocale is null ? 'btn-warning' : 'btn-outline-secondary' }} mr-1 mb-1">Original</a>
+          {% for locale in availableLocales %}
+            <a href="{{ path('forum_show', {id: post.id, lang: locale}) }}" class="btn btn-sm {{ displayLocale is same as(locale) ? 'btn-warning' : 'btn-outline-secondary' }} mr-1 mb-1">{{ locale|upper }}</a>
+          {% endfor %}
+        </div>
+
+        {% if post.imageName %}
+          <div class="mb-3"><img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="Image du sujet {{ translatedPost.title }}" class="img-fluid rounded" style="max-height: 420px;"></div>
+        {% endif %}
+
+        <div class="mb-3">{{ translatedPost.content|striptags|replace({'&nbsp;': ' '})|trim|nl2br }}</div>
+
+        <div class="border rounded p-3 mb-3 bg-light">
+          <h4 class="h6 mb-2">Evaluation</h4>
+          <p class="mb-2">Moyenne:
+            <strong>
+              {% if ratingSummary.count > 0 %}
+                <span class="rating-display-stars" style="--rating: {{ ratingSummary.avg|number_format(2, '.', '') }};"></span>
+                ({{ ratingSummary.avg|number_format(2, '.', '') }}/5)
+              {% else %}
+                Aucune note
+              {% endif %}
+            </strong>
+            ({{ ratingSummary.count }} vote{{ ratingSummary.count > 1 ? 's' : '' }})
+          </p>
+
+          {{ form_start(ratingForm) }}
+          {{ form_errors(ratingForm) }}
+          {% if app.user %}
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                {{ form_label(ratingForm.value) }}
+                <div class="star-rating-input">
+                  {% for choice in ratingForm.value|reverse %}
+                    {{ form_widget(choice, {attr: {onchange: 'this.form.submit()'}}) }}
+                    {% set isHalf = choice.vars.value ends with '.5' %}
+                    <label class="{{ isHalf ? 'star-left' : 'star-right' }}" for="{{ choice.vars.id }}" title="{{ choice.vars.value }}/5"></label>
+                  {% endfor %}
+                </div>
+                {{ form_errors(ratingForm.value) }}
+              </div>
+            </div>
+            <noscript><button type="submit" class="btn btn-primary">Noter</button></noscript>
+          {% else %}
+            <div class="alert alert-info mb-0">Connectez-vous pour noter ce post. <a href="{{ path('app_login') }}">Se connecter</a></div>
+          {% endif %}
+          {{ form_end(ratingForm) }}
+        </div>
+
+        {% if is_granted('ROLE_ADMIN') or (app.user and post.owner and app.user.id == post.owner.id) %}
+          <div class="action-row">
+            <a href="{{ path('forum_edit', {id: post.id}) }}" class="btn btn-sm btn-outline-dark icon-action-btn" title="Modifier"><i class="fa fa-pencil"></i></a>
+            <form method="post" action="{{ path('forum_delete', {id: post.id}) }}" class="d-inline" data-confirm-title="Supprimer le sujet" data-confirm-message="Supprimer ce sujet ?">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ post.id) }}">
+              <button type="submit" class="btn btn-sm btn-outline-danger icon-action-btn" title="Supprimer"><i class="fa fa-trash"></i></button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="forum-card mb-4">
+        <h3>Commentaires ({{ post.commentaires|length }})</h3>
+        <hr>
+        {% if post.commentaires %}
+          {% for commentaire in post.commentaires %}
+            {% if not commentaire.bannedByAdmin or is_granted('ROLE_ADMIN') or (app.user and commentaire.owner and app.user.id == commentaire.owner.id) %}
+            {% set translatedComment = translatedComments[commentaire.id] ?? commentaire %}
+            <div class="mb-3 pb-3 border-bottom comment-card {% if commentaire.bannedByAdmin %}opacity-50{% endif %}">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <strong>{{ commentaire.authorName }}</strong>
+                  <small class="text-muted ml-2">{{ commentaire.createdAt|date('d M Y, H:i') }}</small>
+                </div>
+                {% if commentaire.bannedByAdmin %}
+                  <span class="badge" style="background:#fee2e2;color:#991b1b;border-radius:999px;font-size:.7rem;">Moderated</span>
+                {% endif %}
+              </div>
+              <p class="mb-2 mt-2">{{ translatedComment.content|striptags|replace({'&nbsp;': ' '})|trim|nl2br }}</p>
+              {% if commentaire.gifUrl %}<div class="mb-2"><img src="{{ commentaire.gifUrl }}" alt="GIF" class="img-fluid rounded" style="max-height: 260px;"></div>{% endif %}
+              {% if is_granted('ROLE_ADMIN') or (app.user and commentaire.owner and app.user.id == commentaire.owner.id) %}
+                <div class="action-row">
+                  <a href="{{ path('forum_comment_edit', {id: commentaire.id}) }}" class="btn btn-sm btn-outline-dark icon-action-btn" title="Edit"><i class="fa fa-pencil"></i></a>
+                  <form method="post" action="{{ path('forum_comment_delete', {id: commentaire.id}) }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_' ~ commentaire.id) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger icon-action-btn" title="Delete" onclick="return confirm('Delete this comment?')"><i class="fa fa-trash"></i></button>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <div class="alert alert-info">Aucun commentaire.</div>
+        {% endif %}
+      </div>
+
+      {% if post.status == 'IN_PROGRESS' or post.status == 'DENIED' %}
+        <div class="alert alert-secondary" style="border-radius:12px;">
+          <i class="fa fa-lock mr-2"></i>Comments are unavailable while this post is pending review or denied.
+        </div>
+      {% elseif post.status == 'OPEN' and commentForm is not null %}
+        <div class="forum-card mb-4">
+          <h3>Ajouter un commentaire</h3>
+          <hr>
+          {{ form_start(commentForm) }}
+          {{ form_errors(commentForm) }}
+          <div class="form-group">
+            {{ form_label(commentForm.content) }}
+            {{ form_widget(commentForm.content) }}
+            {{ form_errors(commentForm.content) }}
+          </div>
+          <div class="form-group">
+            <label class="form-label d-block">GIF</label>
+            {% include 'forum/_gif_picker.html.twig' with { field: commentForm.gifUrl, endpoint: path('forum_gif_search'), auto_submit_on_pick: true } %}
+          </div>
+          <button type="submit" class="btn btn-warning">Poster</button>
+          {{ form_end(commentForm) }}
+        </div>
+      {% elseif post.status == 'OPEN' %}
+        <div class="alert alert-info">Connectez-vous pour commenter. <a href="{{ path('app_login') }}">Se connecter</a></div>
+      {% elseif post.status == 'CLOSED' %}
+        <div class="alert alert-warning">Ce sujet est ferme. Les nouveaux commentaires sont desactives.</div>
+      {% endif %}
+
+      <a href="{{ path('forum_index') }}" class="btn btn-dark">Retour au forum</a>
     </div>
+  </div>
 </section>
 {% endblock %}
+
 {% block extra_scripts %}
 <script>
   (function () {
@@ -395,9 +280,7 @@
       }
 
       queryInput.addEventListener('input', function () {
-        if (timer) {
-          clearTimeout(timer);
-        }
+        if (timer) clearTimeout(timer);
         timer = setTimeout(search, 300);
       });
       queryInput.addEventListener('keydown', function (event) {
@@ -417,4 +300,3 @@
   })();
 </script>
 {% endblock %}
-

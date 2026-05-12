@@ -1,63 +1,49 @@
-<style>
-    .form-group ul {
-        list-style: none;
-        padding-left: 0;
-        margin-top: 5px;
-        color: #d9534f !important;
-        font-weight: 600;
-    }
-</style>
 {{ form_start(form) }}
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    {{ form_label(form.titre) }}
-                    {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.titre) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.date) }}
-                    {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.date) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.heure) }}
-                    {{ form_widget(form.heure, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.heure) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.lieu) }}
-                    {{ form_widget(form.lieu, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.lieu) }}
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    {{ form_label(form.description) }}
-                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5}}) }}
-                    {{ form_errors(form.description) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.image) }}
-                    {{ form_widget(form.image) }}
-                    {{ form_errors(form.image) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.capacite_max) }}
-                    {{ form_widget(form.capacite_max, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.capacite_max) }}
-                </div>
-                <div class="form-group">
-                    {{ form_label(form.prix) }}
-                    {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.prix) }}
-                </div>
-            </div>
-        </div>
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">{{ form_label(form.titre) }}</label>
+      {{ form_widget(form.titre, {'attr': {'class': 'form-control'}}) }}
+      <div class="text-danger small">{{ form_errors(form.titre) }}</div>
     </div>
-    <div class="card-action">
-        <button class="btn btn-success">{{ button_label|default('Enregistrer') }}</button>
-        <a href="{{ path('app_evenement_index') }}" class="btn btn-secondary">Retour à la liste</a>
+    <div class="col-md-3">
+      <label class="form-label">{{ form_label(form.date) }}</label>
+      {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
+      <div class="text-danger small">{{ form_errors(form.date) }}</div>
     </div>
+    <div class="col-md-3">
+      <label class="form-label">{{ form_label(form.heure) }}</label>
+      {{ form_widget(form.heure, {'attr': {'class': 'form-control'}}) }}
+      <div class="text-danger small">{{ form_errors(form.heure) }}</div>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">{{ form_label(form.lieu) }}</label>
+      {{ form_widget(form.lieu, {'attr': {'class': 'form-control'}}) }}
+      <div class="text-danger small">{{ form_errors(form.lieu) }}</div>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">{{ form_label(form.capacite_max) }}</label>
+      {{ form_widget(form.capacite_max, {'attr': {'class': 'form-control'}}) }}
+      <div class="text-danger small">{{ form_errors(form.capacite_max) }}</div>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">{{ form_label(form.prix) }}</label>
+      {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
+      <div class="text-danger small">{{ form_errors(form.prix) }}</div>
+    </div>
+    <div class="col-12">
+      <label class="form-label">{{ form_label(form.description) }}</label>
+      {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5}}) }}
+      <div class="text-danger small">{{ form_errors(form.description) }}</div>
+    </div>
+    <div class="col-12">
+      <label class="form-label">{{ form_label(form.image) }}</label>
+      {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+      <div class="text-danger small">{{ form_errors(form.image) }}</div>
+    </div>
+  </div>
+
+  <div class="mt-4 d-flex gap-2">
+    <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
+    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary">Cancel</a>
+  </div>
 {{ form_end(form) }}

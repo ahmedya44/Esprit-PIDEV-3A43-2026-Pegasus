@@ -1,203 +1,68 @@
-{% extends 'back/base.html.twig' %}
+{% extends 'back/layout.html.twig' %}
 
-{% block title %}Statistiques des Participations{% endblock %}
+{% block title %}Participants Statistics{% endblock %}
 
 {% block body %}
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Statistiques</h3>
-        <ul class="breadcrumbs">
-            <li class="nav-home">
-                <a href="{{ path('back_dashboard') }}">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="{{ path('app_participant_index') }}">Participants</a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Statistiques</a>
-            </li>
-        </ul>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Participation Statistics</h1>
+      <p class="text-muted mb-0">Key metrics and distribution insights.</p>
     </div>
+    <a href="{{ path('app_participant_index') }}" class="btn btn-outline-secondary">Back to Participants</a>
+  </div>
 
-    <div class="row">
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-primary bubble-shadow-small">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Total Événements</p>
-                                <h4 class="card-title">{{ totalEvenements }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-success bubble-shadow-small">
-                                <i class="fas fa-users"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Participations</p>
-                                <h4 class="card-title">{{ totalParticipations }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-warning bubble-shadow-small">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Revenu Total Est.</p>
-                                <h4 class="card-title">{{ totalRevenue|number_format(2) }} DT</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 col-md-3">
-            <div class="card card-stats card-round">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-icon">
-                            <div class="icon-big text-center icon-info bubble-shadow-small">
-                                <i class="fas fa-hourglass-start"></i>
-                            </div>
-                        </div>
-                        <div class="col col-stats ms-3 ms-sm-0">
-                            <div class="numbers">
-                                <p class="card-category">Évènements à venir</p>
-                                <h4 class="card-title">{{ upcomingEventsCount }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-muted small">Total Events</div><div class="h4 mb-0">{{ totalEvenements }}</div></div></div></div>
+    <div class="col-sm-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-muted small">Participations</div><div class="h4 mb-0">{{ totalParticipations }}</div></div></div></div>
+    <div class="col-sm-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-muted small">Estimated Revenue</div><div class="h4 mb-0">{{ totalRevenue|number_format(2) }} DT</div></div></div></div>
+    <div class="col-sm-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-muted small">Upcoming Events</div><div class="h4 mb-0">{{ upcomingEventsCount }}</div></div></div></div>
+  </div>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Participations par Événement</div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="barChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">Répartition des Statuts</div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container">
-                        <canvas id="pieChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <div class="row g-3 mb-4">
+    <div class="col-lg-8"><div class="card"><div class="card-header"><h2 class="h6 mb-0">Participations by Event</h2></div><div class="card-body" style="height:320px;"><canvas id="barChart"></canvas></div></div></div>
+    <div class="col-lg-4"><div class="card"><div class="card-header"><h2 class="h6 mb-0">Status Distribution</h2></div><div class="card-body" style="height:320px;"><canvas id="pieChart"></canvas></div></div></div>
+  </div>
 
-    {% if topEvent %}
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card bg-primary-gradient text-white">
-                <div class="card-body text-center p-5">
-                    <i class="fas fa-trophy fa-4x mb-3 text-warning"></i>
-                    <h2>Événement le plus populaire</h2>
-                    <h1 class="display-4 fw-bold">{{ topEvent.titre }}</h1>
-                    <p class="lead">{{ topEvent.participations|length }} participants inscrits !</p>
-                    <a href="{{ path('app_participant_list', {id: topEvent.id}) }}" class="btn btn-light btn-round">Voir la liste</a>
-                </div>
-            </div>
-        </div>
+  {% if topEvent %}
+    <div class="card border-0" style="background:linear-gradient(135deg,#0d6efd,#4dabf7);">
+      <div class="card-body text-white text-center py-5">
+        <h2 class="h5 mb-2">Most Popular Event</h2>
+        <div class="display-6 fw-bold mb-2">{{ topEvent.titre }}</div>
+        <p class="mb-3">{{ topEvent.participations|length }} registered participants</p>
+        <a href="{{ path('app_participant_list', {id: topEvent.id}) }}" class="btn btn-light">View Participants</a>
+      </div>
     </div>
-    {% endif %}
+  {% endif %}
 {% endblock %}
 
-{% block javascripts %}
-    <script src="{{ asset('back/js/plugin/chart.js/chart.min.js') }}"></script>
-    <script>
-        // Bar Chart
-        var barChart = document.getElementById("barChart").getContext("2d");
-        new Chart(barChart, {
-            type: "bar",
-            data: {
-                labels: {{ labels|json_encode|raw }},
-                datasets: [{
-                    label: "Nombre de Participants",
-                    backgroundColor: "rgb(23, 125, 255)",
-                    borderColor: "rgb(23, 125, 255)",
-                    data: {{ data|json_encode|raw }},
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    yAxes: [{
-                        ticks: { beginAtZero: true }
-                    }]
-                }
-            },
-        });
+{% block extra_scripts %}
+<script src="{{ asset('back/js/plugin/chart.js/chart.min.js') }}"></script>
+<script>
+  const barChart = document.getElementById('barChart').getContext('2d');
+  new Chart(barChart, {
+    type: 'bar',
+    data: {
+      labels: {{ labels|json_encode|raw }},
+      datasets: [{ label: 'Participants', backgroundColor: 'rgb(23, 125, 255)', borderColor: 'rgb(23, 125, 255)', data: {{ data|json_encode|raw }} }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
 
-        // Pie Chart
-        var pieChart = document.getElementById("pieChart").getContext("2d");
-        new Chart(pieChart, {
-            type: "doughnut",
-            data: {
-                labels: ["Acceptés", "En attente", "Refusés"],
-                datasets: [{
-                    backgroundColor: ["#28a745", "#ffc107", "#dc3545"],
-                    data: [
-                        {{ statusCounts['acceptée'] }},
-                        {{ statusCounts['en attente'] }},
-                        {{ statusCounts['refusée'] }}
-                    ],
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                legend: {
-                    position: 'bottom',
-                }
-            },
-        });
-    </script>
+  const pieChart = document.getElementById('pieChart').getContext('2d');
+  new Chart(pieChart, {
+    type: 'doughnut',
+    data: {
+      labels: ['Accepted', 'Pending', 'Rejected'],
+      datasets: [{
+        backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+        data: [
+          {{ statusCounts['acceptée']|default(0) }},
+          {{ statusCounts['en attente']|default(0) }},
+          {{ statusCounts['refusée']|default(0) }}
+        ]
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+  });
+</script>
 {% endblock %}

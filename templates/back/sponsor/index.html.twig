@@ -1,83 +1,53 @@
-{% extends 'back/base.html.twig' %}
+{% extends 'back/layout.html.twig' %}
 
-{% block title %}Gestion des Sponsors{% endblock %}
+{% block title %}Sponsors Management{% endblock %}
 
 {% block body %}
-    <div class="page-header">
-        <h3 class="fw-bold mb-3">Sponsors</h3>
-        <ul class="breadcrumbs">
-            <li class="nav-home">
-                <a href="{{ path('back_dashboard') }}">
-                    <i class="icon-home"></i>
-                </a>
-            </li>
-            <li class="separator">
-                <i class="icon-arrow-right"></i>
-            </li>
-            <li class="nav-item">
-                <a href="#">Sponsors</a>
-            </li>
-        </ul>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Sponsors Management</h1>
+      <p class="text-muted mb-0">Select an event to view sponsor reservations.</p>
     </div>
+  </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex align-items-center">
-                        <h4 class="card-title">Choisir un Événement pour voir ses Sponsors</h4>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="basic-datatables" class="display table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Image</th>
-                                    <th>Titre</th>
-                                    <th>Date</th>
-                                    <th>Lieu</th>
-                                    <th>Nb Sponsors</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for evenement in evenements %}
-                                <tr>
-                                    <td>{{ evenement.id }}</td>
-                                    <td>
-                                        {% if evenement.image %}
-                                            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover;">
-                                        {% else %}
-                                            <span class="badge badge-count">Pas d'image</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ evenement.titre }}</td>
-                                    <td>{{ evenement.date ? evenement.date|date('d/m/Y') : '' }}</td>
-                                    <td>{{ evenement.lieu }}</td>
-                                    <td>
-                                        <span class="badge badge-info">
-                                            {{ evenement.id }} {# Temporary placeholder if we don't have a direct count easily, but wait, I can just use a filter or method #}
-                                            {# Better logic: #}
-                                            {% set countRes = 0 %}
-                                            {# Note: Since we don't have a direct relation in Evenement for ReservationPack (it's in Rp entity), 
-                                               we can either add it or just leave it for now or query it. 
-                                               For simplicity in this view, I'll just show the button. #}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="{{ path('app_admin_sponsor_list', {id: evenement.id}) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-handshake"></i> Voir les Sponsors
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="card">
+    <div class="card-body table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Image</th>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Location</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for evenement in evenements %}
+          <tr>
+            <td>#{{ evenement.id }}</td>
+            <td>
+              {% if evenement.image %}
+                <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titre }}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;">
+              {% else %}
+                <span class="text-muted small">No image</span>
+              {% endif %}
+            </td>
+            <td class="fw-semibold">{{ evenement.titre }}</td>
+            <td>{{ evenement.date ? evenement.date|date('Y-m-d') : '-' }}</td>
+            <td>{{ evenement.lieu }}</td>
+            <td class="text-end">
+              <a href="{{ path('app_admin_sponsor_list', {id: evenement.id}) }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-handshake me-1"></i>View Sponsors
+              </a>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No events found.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 {% endblock %}

@@ -1,11 +1,19 @@
-{% extends 'base.html.twig' %}
+{% extends 'back/layout.html.twig' %}
 
-{% block title %}New Admin{% endblock %}
+{% block title %}Create Admin{% endblock %}
 
 {% block body %}
-    <h1>Create new Admin</h1>
+  <div class="d-flex justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Create Admin</h1>
+      <p class="text-muted mb-0">Add a new admin account.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ path('app_admin_index') }}">Back to list</a>
+  </div>
 
-    {{ include('admin/_form.html.twig') }}
-
-    <a href="{{ path('app_admin_index') }}">back to list</a>
+  <div class="card">
+    <div class="card-body">
+      {{ include('admin/_form.html.twig') }}
+    </div>
+  </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -108,7 +108,7 @@
     <header class="header_section">
       <div class="container">
         <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Feane</span></a>
+          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Pegasus</span></a>
 
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
             <span class=""></span>
@@ -116,10 +116,7 @@
 
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mx-auto">
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_home') }}">Home</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_menu') }}">Menu</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_about') }}">About</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('front_book') }}">Book Table</a></li>
+              
               <li class="nav-item active"><a class="nav-link" href="{{ path('artist_dashboard', {tab:'quizzes'}) }}">Artist Dashboard</a></li>
               <li class="nav-item"><a class="nav-link" href="{{ path('app_courses') }}">Courses</a></li>
             </ul>
@@ -142,7 +139,7 @@
 
           <div class="top-actions d-flex gap-2">
             <a class="btn-soft" href="{{ path('artist_quizzes_builder', {'id': quiz.id}) }}">
-              â† Back to Builder
+              ← Back to Builder
             </a>
           </div>
         </div>
@@ -198,7 +195,7 @@
           </div>
 
           <div class="d-flex gap-2 mt-4">
-            <button class="btn-feane" type="submit">ðŸ’¾ {{ mode == 'edit' ? 'Save Changes' : 'Save Question' }}</button>
+            <button class="btn-feane" type="submit">💾 {{ mode == 'edit' ? 'Save Changes' : 'Save Question' }}</button>
             <a class="btn-soft" href="{{ path('artist_quizzes_builder', {'id': quiz.id}) }}">Cancel</a>
           </div>
 
@@ -254,3 +251,5 @@
   <script src="{{ asset('front/js/custom.js') }}"></script>
 </body>
 </html>
+
+

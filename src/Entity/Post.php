@@ -19,15 +19,22 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 #[ORM\Index(columns: ['created_at'])]
 class Post
 {
+    public const STATUS_IN_PROGRESS = 'IN_PROGRESS';
     public const STATUS_OPEN = 'OPEN';
     public const STATUS_CLOSED = 'CLOSED';
     public const STATUS_HIDDEN = 'HIDDEN';
+    public const STATUS_DENIED = 'DENIED';
 
     public const ALLOWED_STATUSES = [
+        self::STATUS_IN_PROGRESS,
         self::STATUS_OPEN,
         self::STATUS_CLOSED,
         self::STATUS_HIDDEN,
+        self::STATUS_DENIED,
     ];
+
+    public const REQUEST_TYPE_CREATE = 'CREATE';
+    public const REQUEST_TYPE_EDIT = 'EDIT';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -59,7 +66,13 @@ class Post
     private ?User $owner = null;
 
     #[ORM\Column(type: Types::STRING, length: 20)]
-    private string $status = self::STATUS_OPEN;
+    private string $status = self::STATUS_IN_PROGRESS;
+
+    #[ORM\Column(type: Types::STRING, length: 10, nullable: true)]
+    private ?string $requestType = null;
+
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $bannedByAdmin = false;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
@@ -209,6 +222,40 @@ class Post
     public function isHidden(): bool
     {
         return $this->status === self::STATUS_HIDDEN;
+    }
+
+    public function isInProgress(): bool
+    {
+        return $this->status === self::STATUS_IN_PROGRESS;
+    }
+
+    public function isDenied(): bool
+    {
+        return $this->status === self::STATUS_DENIED;
+    }
+
+    public function getRequestType(): ?string
+    {
+        return $this->requestType;
+    }
+
+    public function setRequestType(?string $requestType): self
+    {
+        $this->requestType = $requestType;
+
+        return $this;
+    }
+
+    public function isBannedByAdmin(): bool
+    {
+        return $this->bannedByAdmin;
+    }
+
+    public function setBannedByAdmin(bool $bannedByAdmin): self
+    {
+        $this->bannedByAdmin = $bannedByAdmin;
+
+        return $this;
     }
 
     public function getCreatedAt(): \DateTimeImmutable

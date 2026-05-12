@@ -52,6 +52,9 @@ class Commentaire
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $bannedByAdmin = false;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -157,6 +160,18 @@ class Commentaire
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function isBannedByAdmin(): bool
+    {
+        return $this->bannedByAdmin;
+    }
+
+    public function setBannedByAdmin(bool $bannedByAdmin): self
+    {
+        $this->bannedByAdmin = $bannedByAdmin;
 
         return $this;
     }

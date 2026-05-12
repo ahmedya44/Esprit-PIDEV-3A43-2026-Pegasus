@@ -1,153 +1,92 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+{% extends 'front/layout.html.twig' %}
 
-  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
-  <title>Final Quiz - {{ course.title }}</title>
+{% set active_nav = 'courses' %}
+{% block title %}Final Quiz - {{ course.title }}{% endblock %}
 
-  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
-  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
-  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
-  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+{% block extra_styles %}
+<style>
+  .quiz-shell { padding: 44px 0 72px; }
+  .quiz-card { background: #fff; border-radius: 20px; box-shadow: 0 12px 32px rgba(15,23,42,.09); border: 1px solid #dbe5ef; overflow: hidden; }
+  .quiz-head { padding: 18px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; gap: 10px; background: #fff; }
+  .quiz-head h3 { font-weight: 800; color: var(--pg-text,#111827); }
+  .quiz-body { padding: 24px; }
+  .btn-feane { background: var(--pg-gold,#f9c23c); border: none; color: #111; font-weight: 800; border-radius: 20px; padding: 10px 20px; text-decoration: none; display: inline-block; transition:background .18s; }
+  .btn-feane:hover { background: var(--pg-gold-dark,#e6a800); color:#111; }
+  .btn-soft { background: var(--pg-navy-2,#1f2937); border: none; color: #fff; font-weight: 700; border-radius: 20px; padding: 10px 20px; text-decoration: none; display: inline-block; transition:opacity .18s; }
+  .btn-soft:hover { opacity:.85; color:#fff; }
+  .q-card { border: 1px solid #dbe5ef; border-radius: 14px; padding: 16px 18px; background: #f8faff; margin-bottom: 14px; }
+  .q-card .form-check-input:checked { background-color: var(--pg-gold,#f9c23c); border-color: var(--pg-gold,#f9c23c); }
+  .muted { color: var(--pg-text-muted,#6b7280); font-weight: 600; }
+</style>
+{% endblock %}
 
-  <style>
-    .quiz-shell { padding: 60px 0; }
-    .quiz-card {
-      background: rgba(255,255,255,.95);
-      border-radius: 22px;
-      box-shadow: 0 12px 35px rgba(0,0,0,.10);
-      border: 1px solid rgba(0,0,0,.06);
-      overflow: hidden;
-    }
-    .quiz-head {
-      padding: 18px 22px;
-      border-bottom: 1px solid rgba(0,0,0,.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-    .quiz-body { padding: 22px; }
-    .btn-feane {
-      background: #ffbe33;
-      border: none;
-      color: #111;
-      font-weight: 900;
-      border-radius: 14px;
-      padding: 10px 16px;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .btn-soft {
-      background: #2b2f33;
-      border: none;
-      color: #fff;
-      font-weight: 800;
-      border-radius: 14px;
-      padding: 10px 16px;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .q-card {
-      border: 1px solid rgba(0,0,0,.08);
-      border-radius: 16px;
-      padding: 14px;
-      background: #fff;
-      margin-bottom: 14px;
-    }
-    .muted { color: rgba(0,0,0,.6); font-weight: 600; }
-  </style>
-</head>
-
-<body class="sub_page">
-  <div class="hero_area">
-    <div class="bg-box">
-      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
-    </div>
-    <header class="header_section">
-      <div class="container">
-        <nav class="navbar navbar-expand-lg custom_nav-container ">
-          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Feane</span></a>
-        </nav>
+{% block body %}
+<section class="quiz-shell">
+  <div class="container">
+    <div class="quiz-card">
+      <div class="quiz-head">
+        <div>
+          <h3 class="h5 mb-0">{{ quiz.title }}</h3>
+          <div class="muted">Final quiz for: {{ course.title }}</div>
+        </div>
+        <a class="btn-soft" href="{{ path('course_learn', {id: course.id}) }}">? Back to Course</a>
       </div>
-    </header>
-  </div>
 
-  <section class="food_section layout_padding quiz-shell">
-    <div class="container">
-      <div class="quiz-card">
-        <div class="quiz-head">
-          <div>
-            <h3 class="h5 mb-0">{{ quiz.title }}</h3>
-            <div class="muted">Final quiz for: {{ course.title }}</div>
-          </div>
-          <a class="btn-soft" href="{{ path('course_learn', {id: course.id}) }}">â† Back to Course</a>
+      <div class="quiz-body">
+        <div class="mb-3">
+          <span class="badge bg-dark">Passing score: {{ quiz.passingScore }}%</span>
+          {% if quiz.timeLimitMin %}<span class="badge bg-secondary">Time: {{ quiz.timeLimitMin }} min</span>{% endif %}
+          {% if quiz.attemptLimit %}<span class="badge bg-secondary">Attempts: {{ quiz.attemptLimit }}</span>{% endif %}
         </div>
 
-        <div class="quiz-body">
-          <div class="mb-3">
-            <span class="badge bg-dark">Passing score: {{ quiz.passingScore }}%</span>
-            {% if quiz.timeLimitMin %}
-              <span class="badge bg-secondary">Time: {{ quiz.timeLimitMin }} min</span>
-            {% endif %}
-            {% if quiz.attemptLimit %}
-              <span class="badge bg-secondary">Attempts: {{ quiz.attemptLimit }}</span>
-            {% endif %}
-          </div>
-
-          {% if questions is empty %}
-            <div class="alert alert-warning mb-0">This quiz has no questions yet.</div>
-          {% else %}
-            {% if result %}
-              <div class="alert {{ result.passed ? 'alert-success' : 'alert-danger' }}">
-                <strong>{{ result.passed ? 'Passed' : 'Failed' }}</strong> -
-                Score: {{ result.score }}% ({{ result.earnedPoints }}/{{ result.totalPoints }} points),
-                Required: {{ result.passing }}%.
+        {% if questions is empty %}
+          <div class="alert alert-warning mb-0">This quiz has no questions yet.</div>
+        {% else %}
+          {% if result %}
+            <div class="alert {{ result.passed ? 'alert-success' : 'alert-danger' }}">
+              <strong>{{ result.passed ? 'Passed' : 'Failed' }}</strong> -
+              Score: {{ result.score }}% ({{ result.earnedPoints }}/{{ result.totalPoints }} points),
+              Required: {{ result.passing }}%.
+            </div>
+            {% if result.passed and app.user %}
+              <div class="mb-3">
+                <a href="{{ path('course_certificate', {id: course.id}) }}" class="btn btn-warning">
+                  <i class="fa fa-download me-1"></i> Download Certificate
+                </a>
               </div>
             {% endif %}
-
-            <form method="post">
-              <input type="hidden" name="_token" value="{{ csrf_token('course_quiz_' ~ quiz.id) }}">
-
-              {% for q in questions %}
-                <div class="q-card">
-                  <div class="fw-bold mb-2">
-                    Q{{ loop.index }}. {{ q.questionText }}
-                    <span class="muted">({{ q.points }} pts)</span>
-                  </div>
-
-                  {% set choices = q.quizChoices|sort((a,b) => a.id <=> b.id) %}
-                  {% for c in choices %}
-                    <div class="form-check mb-1">
-                      <input
-                        class="form-check-input"
-                        type="radio"
-                        name="answers[{{ q.id }}]"
-                        id="choice_{{ c.id }}"
-                        value="{{ c.id }}">
-                      <label class="form-check-label" for="choice_{{ c.id }}">{{ c.label }}</label>
-                    </div>
-                  {% endfor %}
-                </div>
-              {% endfor %}
-
-              <div class="d-flex gap-2">
-                <button class="btn-feane" type="submit">Submit Quiz</button>
-                <a class="btn-soft" href="{{ path('course_learn', {id: course.id}) }}">Cancel</a>
-              </div>
-            </form>
+          {% elseif bestAttempt is defined and bestAttempt and app.user %}
+            <div class="mb-3">
+              <a href="{{ path('course_certificate', {id: course.id}) }}" class="btn btn-outline-warning btn-sm">
+                <i class="fa fa-download me-1"></i> Download Previous Certificate
+              </a>
+            </div>
           {% endif %}
-        </div>
+
+          <form method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('course_quiz_' ~ quiz.id) }}">
+
+            {% for q in questions %}
+              <div class="q-card">
+                <div class="fw-bold mb-2">Q{{ loop.index }}. {{ q.questionText }} <span class="muted">({{ q.points }} pts)</span></div>
+                {% set choices = q.quizChoices|sort((a,b) => a.id <=> b.id) %}
+                {% for c in choices %}
+                  <div class="form-check mb-1">
+                    <input class="form-check-input" type="radio" name="answers[{{ q.id }}]" id="choice_{{ c.id }}" value="{{ c.id }}">
+                    <label class="form-check-label" for="choice_{{ c.id }}">{{ c.label }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+
+            <div class="d-flex gap-2">
+              <button class="btn-feane" type="submit">Submit Quiz</button>
+              <a class="btn-soft" href="{{ path('course_learn', {id: course.id}) }}">Cancel</a>
+            </div>
+          </form>
+        {% endif %}
       </div>
     </div>
-  </section>
-
-  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
-  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
-  <script src="{{ asset('front/js/custom.js') }}"></script>
-</body>
-</html>
-
+  </div>
+</section>
+{% endblock %}

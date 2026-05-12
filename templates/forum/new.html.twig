@@ -1,329 +1,79 @@
 {% extends 'front/layout.html.twig' %}
 
 {% set active_nav = 'forum' %}
+{% block title %}New Post — Forum{% endblock %}
 
-{% block title %}Ajouter un Post{% endblock %}
 {% block extra_styles %}
 <style>
-  .status-3d-select {
-    border-radius: 12px;
-    border: 1px solid #d9deea;
-    background: linear-gradient(155deg, #ffffff, #eef2fb);
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  }
-  .status-3d-select:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
-  }
-  .status-3d-select:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 .2rem rgba(59, 130, 246, .15), 0 16px 26px rgba(15, 23, 42, .12);
-    transform: perspective(700px) rotateX(3deg);
-  }
-  .viewer3d-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, .42);
-    backdrop-filter: blur(2px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2100;
-    padding: 20px;
-  }
-  .viewer3d-backdrop.is-open { display: flex; }
-  .viewer3d-modal {
-    width: min(470px, 100%);
-    border-radius: 16px;
-    border: 1px solid #dbe3f4;
-    background: linear-gradient(165deg, #ffffff, #eef3ff);
-    box-shadow: 0 24px 52px rgba(15, 23, 42, .28);
-    transform: perspective(900px) rotateX(10deg) translateY(16px) scale(.96);
-    opacity: 0;
-    transition: transform .22s ease, opacity .22s ease;
-    overflow: hidden;
-  }
-  .viewer3d-backdrop.is-open .viewer3d-modal {
-    transform: perspective(900px) rotateX(0deg) translateY(0) scale(1);
-    opacity: 1;
-  }
-  .viewer3d-head { padding: 14px 16px; border-bottom: 1px solid #e7ecf8; font-weight: 700; }
-  .viewer3d-body { padding: 16px; }
-  .viewer3d-tags {
-    min-height: 42px;
-    border: 1px solid #dbe3f4;
-    border-radius: 10px;
-    background: #fff;
-    padding: 6px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 10px;
-  }
-  .viewer3d-tag {
-    background: #e8efff;
-    color: #1e3a8a;
-    border-radius: 999px;
-    padding: 3px 10px;
-    font-size: .84rem;
-    font-weight: 600;
-  }
-  .viewer3d-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 16px 16px; }
+  .forum-edit-shell { padding: 30px 0 56px; background: var(--pg-bg,#f4f6fb); }
+  .forum-form-card { max-width: 780px; margin: 0 auto; background:#fff; border:1px solid #dbe5ef; border-radius:16px; box-shadow:0 8px 22px rgba(15,23,42,.08); padding:28px 28px 24px; }
+  .forum-form-title { font-size:1.4rem; font-weight:800; color:var(--pg-navy,#111827); }
+  .btn-pg-primary { background:var(--pg-gold,#f9c23c); color:#111; border:none; border-radius:20px; font-weight:700; padding:9px 22px; font-size:.9rem; transition:background .18s; }
+  .btn-pg-primary:hover { background:var(--pg-gold-dark,#e6a800); color:#111; }
+  .btn-pg-cancel { background:#fff; border:1px solid #dbe5ef; color:#374151; border-radius:20px; font-weight:600; padding:9px 20px; font-size:.9rem; text-decoration:none; transition:background .18s; }
+  .btn-pg-cancel:hover { background:#f4f6fb; color:#111; }
+  .blacklist-banner { background:#fff5f5; border:1px solid #fca5a5; border-radius:12px; padding:12px 16px; margin-bottom:16px; }
+  .blacklist-banner .banned-word { display:inline-block; background:#fee2e2; color:#991b1b; border-radius:999px; padding:2px 10px; font-size:.8rem; font-weight:700; margin:2px; }
+  .policy-info { background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:10px 14px; font-size:.83rem; color:#92400e; margin-bottom:18px; }
 </style>
 {% endblock %}
 
 {% block body %}
-<section class="forum-shell">
-    <div class="container">
-        <div class="forum-card" style="max-width: 820px; margin: 0 auto;">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h1 class="h4 mb-0">Ajouter un post</h1>
-                <a href="{{ path('forum_index') }}" class="btn btn-sm btn-outline-secondary">Retour</a>
-            </div>
+<section class="forum-edit-shell">
+  <div class="container">
+    <div class="forum-form-card">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="forum-form-title mb-0"><i class="fa fa-pencil-square-o mr-2" style="color:var(--pg-gold,#f9c23c);"></i>New Post</h1>
+        <a href="{{ path('forum_index') }}" class="btn-pg-cancel"><i class="fa fa-arrow-left mr-1"></i> Back</a>
+      </div>
 
-            {% for message in app.flashes('error') %}
-                <div class="alert alert-danger" role="alert">{{ message }}</div>
-            {% endfor %}
-
-            {{ form_start(form) }}
-            {{ form_errors(form) }}
-
-            <div class="form-group mb-3">
-                {{ form_label(form.title) }}
-                {{ form_widget(form.title) }}
-                {{ form_errors(form.title) }}
-            </div>
-            <div class="form-group mb-3">
-                {{ form_label(form.content) }}
-                {{ form_widget(form.content) }}
-                {{ form_errors(form.content) }}
-            </div>
-            <div class="form-group mb-3">
-                {{ form_label(form.status) }}
-                {{ form_widget(form.status) }}
-                {{ form_errors(form.status) }}
-            </div>
-            <div class="form-group mb-3 js-allowed-viewers-wrap" style="display:none;">
-                {{ form_label(form.allowedViewerIds) }}
-                {{ form_widget(form.allowedViewerIds) }}
-                {{ form_errors(form.allowedViewerIds) }}
-                <small class="form-text text-muted">Visible uniquement pour le proprietaire, admin et les IDs saisis.</small>
-            </div>
-            <div class="form-group mb-4">
-                {{ form_label(form.imageFile) }}
-                {{ form_widget(form.imageFile) }}
-                {{ form_errors(form.imageFile) }}
-            </div>
-
-            <div class="d-flex gap-2 justify-content-end">
-                <a href="{{ path('forum_index') }}" class="btn btn-outline-dark">Annuler</a>
-                <button type="submit" class="btn btn-warning">Publier</button>
-            </div>
-
-            {{ form_end(form) }}
+      {% if bad_words is defined and bad_words|length > 0 %}
+        <div class="blacklist-banner">
+          <strong><i class="fa fa-ban mr-1" style="color:#dc2626;"></i>Forbidden words detected:</strong>
+          {% for word in bad_words %}
+            <span class="banned-word">{{ word }}</span>
+          {% endfor %}
+          <div class="mt-1" style="font-size:.82rem; color:#7f1d1d;">Please remove these words from your title or content and resubmit.</div>
         </div>
+      {% endif %}
+
+      <div class="policy-info">
+        <i class="fa fa-info-circle mr-1"></i>
+        Posts are reviewed against our community word policy. Profanity and offensive language will be rejected automatically.
+      </div>
+
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" role="alert">{{ message }}</div>
+      {% endfor %}
+
+      {{ form_start(form) }}
+      {{ form_errors(form) }}
+
+      <div class="form-group mb-3">
+        <label class="font-weight-600 mb-1">Title</label>
+        {{ form_widget(form.title, {attr: {class: 'form-control', placeholder: 'Enter a descriptive title for your post'}}) }}
+        {{ form_errors(form.title) }}
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="font-weight-600 mb-1">Content</label>
+        {{ form_widget(form.content, {attr: {class: 'form-control', rows: 7, placeholder: 'Share your thoughts, question, or discussion topic...'}}) }}
+        {{ form_errors(form.content) }}
+      </div>
+
+      <div class="form-group mb-4">
+        <label class="font-weight-600 mb-1">Attach image <small class="text-muted font-weight-normal">(optional)</small></label>
+        {{ form_widget(form.imageFile) }}
+        {{ form_errors(form.imageFile) }}
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end">
+        <a href="{{ path('forum_index') }}" class="btn-pg-cancel">Cancel</a>
+        <button type="submit" class="btn-pg-primary"><i class="fa fa-paper-plane mr-1"></i>Publish</button>
+      </div>
+
+      {{ form_end(form) }}
     </div>
+  </div>
 </section>
-
-<div class="viewer3d-backdrop" id="viewer3d-backdrop-new" aria-hidden="true">
-    <div class="viewer3d-modal" role="dialog" aria-modal="true" aria-labelledby="viewer3d-title-new">
-        <div class="viewer3d-head" id="viewer3d-title-new">Visibilite restreinte</div>
-        <div class="viewer3d-body">
-            <p class="mb-2">Ce post sera cache. Saisis les IDs des utilisateurs autorises a le voir.</p>
-            <div class="viewer3d-tags" id="viewer3d-tags-new"></div>
-            <input type="text" class="form-control" id="viewer3d-input-new" placeholder="Saisir un ID puis Entrée">
-            <small class="text-muted d-block mt-2">Entrée ajoute un ID. Entrée sur vide confirme.</small>
-        </div>
-        <div class="viewer3d-actions">
-            <button type="button" class="btn btn-outline-secondary btn-sm" id="viewer3d-cancel-new">Annuler</button>
-            <button type="button" class="btn btn-primary btn-sm" id="viewer3d-save-new">Valider</button>
-        </div>
-    </div>
-</div>
-{% endblock %}
-{% block extra_scripts %}
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var statusField = document.getElementById('{{ form.status.vars.id }}');
-    var idsField = document.getElementById('{{ form.allowedViewerIds.vars.id }}');
-    var wrap = document.querySelector('.js-allowed-viewers-wrap');
-    var postForm = statusField ? statusField.form : null;
-    var lastStatus = statusField ? statusField.value : null;
-    var submitting = false;
-    var lastPromptAt = 0;
-    var backdrop = document.getElementById('viewer3d-backdrop-new');
-    var tags = document.getElementById('viewer3d-tags-new');
-    var modalInput = document.getElementById('viewer3d-input-new');
-    var cancelBtn = document.getElementById('viewer3d-cancel-new');
-    var saveBtn = document.getElementById('viewer3d-save-new');
-    var onResolve = null;
-
-    var draftIds = [];
-
-    if (!statusField || !idsField || !wrap || !postForm || !backdrop || !tags || !modalInput || !cancelBtn || !saveBtn) {
-      return;
-    }
-
-    function parseIds(raw) {
-      var parts = String(raw || '').split(/[^0-9]+/);
-      var out = [];
-      var seen = {};
-      parts.forEach(function (p) {
-        if (!p) return;
-        var n = parseInt(p, 10);
-        if (!Number.isFinite(n) || n <= 0) return;
-        if (seen[n]) return;
-        seen[n] = true;
-        out.push(String(n));
-      });
-      return out;
-    }
-
-    function renderTags() {
-      tags.innerHTML = '';
-      draftIds.forEach(function (id) {
-        var chip = document.createElement('span');
-        chip.className = 'viewer3d-tag';
-        chip.textContent = '#' + id;
-        tags.appendChild(chip);
-      });
-    }
-
-    function addDraftIdFromInput() {
-      var values = parseIds(modalInput.value);
-      if (values.length === 0) {
-        return false;
-      }
-      values.forEach(function (id) {
-        if (draftIds.indexOf(id) === -1) {
-          draftIds.push(id);
-        }
-      });
-      modalInput.value = '';
-      renderTags();
-      return true;
-    }
-
-    function commitDraftToField() {
-      idsField.value = draftIds.join(', ');
-    }
-
-    function syncVisibility() {
-      var isHidden = statusField.value === 'HIDDEN';
-      wrap.style.display = isHidden ? '' : 'none';
-      if (!isHidden) {
-        idsField.value = '';
-      }
-    }
-
-    function closeModal(saved) {
-      backdrop.classList.remove('is-open');
-      backdrop.setAttribute('aria-hidden', 'true');
-      if (saved) {
-        addDraftIdFromInput();
-        commitDraftToField();
-      }
-      if (typeof onResolve === 'function') {
-        onResolve(saved);
-      }
-      onResolve = null;
-    }
-
-    function openPrompt(callback) {
-      var now = Date.now();
-      if (now - lastPromptAt < 180) {
-        return;
-      }
-      lastPromptAt = now;
-      onResolve = callback || null;
-      draftIds = parseIds(idsField.value);
-      renderTags();
-      modalInput.value = '';
-      backdrop.classList.add('is-open');
-      backdrop.setAttribute('aria-hidden', 'false');
-      window.setTimeout(function () { modalInput.focus(); }, 20);
-    }
-
-    function maybePromptAllowedViewers(force, callback) {
-      var currentStatus = statusField.value;
-      var enteringHidden = currentStatus === 'HIDDEN' && lastStatus !== 'HIDDEN';
-      var needsIds = currentStatus === 'HIDDEN' && idsField.value.trim() === '';
-      if (enteringHidden || (force && needsIds)) {
-        openPrompt(function (saved) {
-          if (typeof callback === 'function') {
-            callback(saved);
-          }
-        });
-        lastStatus = currentStatus;
-        syncVisibility();
-        return;
-      }
-
-      lastStatus = currentStatus;
-      syncVisibility();
-    }
-
-    document.addEventListener('click', function (event) {
-      var option = event.target.closest('.nice-select .option');
-      if (!option) {
-        return;
-      }
-      if (String(option.getAttribute('data-value')).toUpperCase() !== 'HIDDEN') {
-        return;
-      }
-      window.setTimeout(function () {
-        maybePromptAllowedViewers(false, null);
-      }, 0);
-    });
-
-    cancelBtn.addEventListener('click', function () { closeModal(false); });
-    saveBtn.addEventListener('click', function () { closeModal(true); });
-    backdrop.addEventListener('click', function (event) {
-      if (event.target === backdrop) {
-        closeModal(false);
-      }
-    });
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && backdrop.classList.contains('is-open')) {
-        closeModal(false);
-      }
-    });
-    modalInput.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        if (modalInput.value.trim() === '') {
-          closeModal(true);
-          return;
-        }
-        addDraftIdFromInput();
-      }
-    });
-
-    statusField.addEventListener('input', function () { maybePromptAllowedViewers(false, null); });
-    statusField.addEventListener('change', function () { maybePromptAllowedViewers(false, null); });
-    postForm.addEventListener('submit', function (event) {
-      if (submitting) {
-        return;
-      }
-      if (statusField.value !== 'HIDDEN') {
-        return;
-      }
-      if (idsField.value.trim() !== '') {
-        return;
-      }
-
-      event.preventDefault();
-      maybePromptAllowedViewers(true, function (saved) {
-        if (!saved || idsField.value.trim() === '') {
-          return;
-        }
-        submitting = true;
-        postForm.submit();
-      });
-    });
-
-    syncVisibility();
-  });
-</script>
 {% endblock %}

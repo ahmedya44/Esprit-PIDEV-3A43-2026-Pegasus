@@ -89,10 +89,6 @@ $(document).ready(function () {
         var hasArtistDashboard = $nav.find('a[href="/artist"], a[href^="/artist?"], a[href^="/artist/"]').length > 0;
 
         var menuItems = [
-            { label: 'Home', href: '/' },
-            { label: 'Menu', href: '/menu' },
-            { label: 'About', href: '/about' },
-            { label: 'Book Table', href: '/book' },
             { label: 'Gallery', href: '/gallery' },
             { label: 'Forum', href: '/forum' },
             { label: 'Events', href: '/evenements' },

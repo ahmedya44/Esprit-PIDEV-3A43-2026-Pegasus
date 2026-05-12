@@ -4,10 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Course;
 use App\Entity\CourseVideo;
+use App\Entity\QuizAttempt;
 use App\Repository\CourseRepository;
 use App\Repository\CourseSectionRepository;
 use App\Repository\CourseVideoRepository;
+use App\Repository\LearningProgressRepository;
+use App\Repository\QuizAttemptRepository;
 use App\Repository\QuizRepository;
+use App\Service\CertificatePdfService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,22 +25,29 @@ final class CourseFrontController extends AbstractController
     #[Route('/courses', name: 'app_courses', methods: ['GET'])]
     public function index(
         CourseRepository $courseRepository,
+        LearningProgressRepository $progressRepo,
         Request $request,
         \App\Service\CourseCategoryClassifier $classifier
     ): Response {
         $rawActiveCat = $request->query->get('cat');
-        $activeCat = is_string($rawActiveCat) && $rawActiveCat !== '' ? $rawActiveCat : null; // art|music|fantasy|other|null
+        $activeCat = is_string($rawActiveCat) && $rawActiveCat !== '' ? $rawActiveCat : null;
 
         $allCourses = $courseRepository->findBy(['status' => 'PUBLISHED'], ['id' => 'DESC']);
         $filters = $classifier->buildAvailableFilters($allCourses);
-
         $courses = array_values(array_filter($allCourses, fn($c) => $classifier->courseMatchesCategory($c, $activeCat)));
 
+        $progressMap = [];
+        $user = $this->getUser();
+        if ($user) {
+            $progressMap = $progressRepo->getProgressMapForUser($user);
+        }
+
         return $this->render('front/courses.html.twig', [
-            'courses' => $courses,
-            'filters' => $filters,
-            'activeCat' => $activeCat,
-            'classifier' => $classifier, // so twig can show badges
+            'courses'     => $courses,
+            'filters'     => $filters,
+            'activeCat'   => $activeCat,
+            'classifier'  => $classifier,
+            'progressMap' => $progressMap,
         ]);
     }
 
@@ -47,15 +59,14 @@ final class CourseFrontController extends AbstractController
         }
 
         $sections = $sectionRepo->findBy(['course' => $course], ['orderIndex' => 'ASC']);
-
         $totalVideos = 0;
         foreach ($sections as $s) {
             $totalVideos += $s->getCourseVideos()->count();
         }
 
         return $this->render('course_front/show.html.twig', [
-            'course' => $course,
-            'sections' => $sections,
+            'course'      => $course,
+            'sections'    => $sections,
             'totalVideos' => $totalVideos,
         ]);
     }
@@ -66,7 +77,9 @@ final class CourseFrontController extends AbstractController
         Request $request,
         CourseSectionRepository $sectionRepo,
         CourseVideoRepository $videoRepo,
-        QuizRepository $quizRepo
+        QuizRepository $quizRepo,
+        LearningProgressRepository $progressRepo,
+        EntityManagerInterface $em,
     ): Response {
         if ($course->getStatus() !== 'PUBLISHED') {
             throw $this->createNotFoundException();
@@ -74,59 +87,50 @@ final class CourseFrontController extends AbstractController
 
         $sections = $sectionRepo->findBy(['course' => $course], ['orderIndex' => 'ASC']);
 
-        // Session progress (video IDs marked completed)
-        $session = $request->getSession();
-        $progressKey = 'course_progress_' . $course->getId();
-        $completed = $session->get($progressKey, []); // array like ["12" => true, "13" => true]
+        // Load progress: DB for logged-in users, session as fallback for guests
+        $user = $this->getUser();
+        if ($user) {
+            $progress = $progressRepo->findOrCreate($user, $course, $em);
+            $em->flush();
+            $completedIds = $progress->getCompletedVideoIds();
+            $completed = array_fill_keys(array_map('strval', $completedIds), true);
+        } else {
+            $progressKey = 'course_progress_' . $course->getId();
+            $completed = $request->getSession()->get($progressKey, []);
+        }
 
-        // Build a GLOBAL ordered list of videos (section.orderIndex then video.orderIndex)
+        // Build ordered video list
         $orderedVideos = [];
         foreach ($sections as $section) {
             $videos = $section->getCourseVideos()->toArray();
             usort($videos, fn (CourseVideo $a, CourseVideo $b) => $a->getOrderIndex() <=> $b->getOrderIndex());
-
             foreach ($videos as $v) {
                 $orderedVideos[] = $v;
             }
         }
 
-        // Determine which videos are unlocked (sequential gating)
-        // Rule: first video is unlocked. Video N unlocked only if video N-1 is completed.
+        // Sequential unlock gating
         $unlockedIds = [];
         $prevVideoId = null;
-
         foreach ($orderedVideos as $v) {
             $id = (string) $v->getId();
-
-            if ($prevVideoId === null) {
-                $unlockedIds[$id] = true; // first always unlocked
-            } else {
-                $unlockedIds[$id] = isset($completed[(string)$prevVideoId]);
-            }
-
+            $unlockedIds[$id] = $prevVideoId === null || isset($completed[(string)$prevVideoId]);
             $prevVideoId = $v->getId();
         }
 
         // Requested video
         $selectedVideo = null;
         $vId = $request->query->get('v');
-
         if ($vId) {
             $candidate = $videoRepo->find((int) $vId);
-
-            // must exist + belong to this course
             $candidateCourse = $candidate?->getSection()?->getCourse();
             if ($candidate instanceof CourseVideo && $candidateCourse?->getId() === $course->getId()) {
                 $candidateId = (string) $candidate->getId();
-
-                // must be unlocked
-                if (isset($unlockedIds[$candidateId]) && $unlockedIds[$candidateId] === true) {
+                if (!empty($unlockedIds[$candidateId])) {
                     $selectedVideo = $candidate;
                 }
             }
         }
-
-        // If none selected, pick the first unlocked one (usually first, or next after progress)
         if (!$selectedVideo) {
             foreach ($orderedVideos as $v) {
                 if (!empty($unlockedIds[(string)$v->getId()])) {
@@ -136,9 +140,7 @@ final class CourseFrontController extends AbstractController
             }
         }
 
-        // Is selected completed?
         $selectedCompleted = $selectedVideo ? isset($completed[(string)$selectedVideo->getId()]) : false;
-
         $allVideoCount = count($orderedVideos);
         $completedCount = 0;
         foreach ($orderedVideos as $video) {
@@ -151,16 +153,16 @@ final class CourseFrontController extends AbstractController
         $courseQuiz = $quizRepo->findOneBy(['course' => $course]);
 
         return $this->render('course_front/learn.html.twig', [
-            'course' => $course,
-            'sections' => $sections,
-            'selectedVideo' => $selectedVideo,
-            'completed' => $completed,
-            'unlockedIds' => $unlockedIds,
-            'selectedCompleted' => $selectedCompleted,
-            'courseCompleted' => $courseCompleted,
-            'courseQuiz' => $courseQuiz,
-            'completedCount' => $completedCount,
-            'allVideoCount' => $allVideoCount,
+            'course'           => $course,
+            'sections'         => $sections,
+            'selectedVideo'    => $selectedVideo,
+            'completed'        => $completed,
+            'unlockedIds'      => $unlockedIds,
+            'selectedCompleted'=> $selectedCompleted,
+            'courseCompleted'  => $courseCompleted,
+            'courseQuiz'       => $courseQuiz,
+            'completedCount'   => $completedCount,
+            'allVideoCount'    => $allVideoCount,
         ]);
     }
 
@@ -170,7 +172,10 @@ final class CourseFrontController extends AbstractController
         Request $request,
         CourseSectionRepository $sectionRepo,
         QuizRepository $quizRepo,
-        SessionInterface $session
+        QuizAttemptRepository $attemptRepo,
+        LearningProgressRepository $progressRepo,
+        SessionInterface $session,
+        EntityManagerInterface $em,
     ): Response {
         if ($course->getStatus() !== 'PUBLISHED') {
             throw $this->createNotFoundException();
@@ -179,7 +184,6 @@ final class CourseFrontController extends AbstractController
         $quiz = $quizRepo->findOneBy(['course' => $course]);
         if ($quiz === null) {
             $this->addFlash('error', 'This course has no quiz yet.');
-
             return $this->redirectToRoute('course_learn', ['id' => $course->getId()]);
         }
 
@@ -193,8 +197,15 @@ final class CourseFrontController extends AbstractController
             }
         }
 
-        $progressKey = 'course_progress_' . $course->getId();
-        $completed = $session->get($progressKey, []);
+        // Determine completion (DB for logged-in, session for guests)
+        $user = $this->getUser();
+        if ($user) {
+            $progress = $progressRepo->findByUserAndCourse($user, $course);
+            $completedIds = $progress ? $progress->getCompletedVideoIds() : [];
+            $completed = array_fill_keys(array_map('strval', $completedIds), true);
+        } else {
+            $completed = $session->get('course_progress_' . $course->getId(), []);
+        }
 
         $courseCompleted = count($orderedVideos) > 0;
         foreach ($orderedVideos as $video) {
@@ -206,7 +217,6 @@ final class CourseFrontController extends AbstractController
 
         if (!$courseCompleted) {
             $this->addFlash('error', 'Complete all course lessons first to unlock the final quiz.');
-
             return $this->redirectToRoute('course_learn', ['id' => $course->getId()]);
         }
 
@@ -214,6 +224,8 @@ final class CourseFrontController extends AbstractController
         usort($questions, static fn ($a, $b) => $a->getOrderIndex() <=> $b->getOrderIndex());
 
         $result = null;
+        $savedAttempt = null;
+
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('course_quiz_' . $quiz->getId(), (string) $request->request->get('_token'))) {
                 throw $this->createAccessDeniedException('Invalid request token.');
@@ -226,9 +238,7 @@ final class CourseFrontController extends AbstractController
             foreach ($questions as $question) {
                 $totalPoints += (int) $question->getPoints();
                 $selectedChoiceId = (int) ($answers[(string) $question->getId()] ?? 0);
-                if ($selectedChoiceId <= 0) {
-                    continue;
-                }
+                if ($selectedChoiceId <= 0) continue;
 
                 foreach ($question->getQuizChoices() as $choice) {
                     if ($choice->getId() === $selectedChoiceId && $choice->isCorrect()) {
@@ -240,20 +250,49 @@ final class CourseFrontController extends AbstractController
 
             $score = $totalPoints > 0 ? (int) round(($earnedPoints * 100) / $totalPoints) : 0;
             $passing = (int) ($quiz->getPassingScore() ?? 0);
+            $passed = $score >= $passing;
+
             $result = [
-                'score' => $score,
-                'passing' => $passing,
-                'passed' => $score >= $passing,
-                'earnedPoints' => $earnedPoints,
+                'score'       => $score,
+                'passing'     => $passing,
+                'passed'      => $passed,
+                'earnedPoints'=> $earnedPoints,
                 'totalPoints' => $totalPoints,
             ];
+
+            // Persist quiz attempt for logged-in users
+            if ($user) {
+                $attempt = new QuizAttempt();
+                $attempt->setUser($user);
+                $attempt->setQuiz($quiz);
+                $attempt->setCourse($course);
+                $attempt->setScorePercent($score);
+                $attempt->setEarnedPoints($earnedPoints);
+                $attempt->setTotalPoints($totalPoints);
+                $attempt->setPassed($passed);
+                $em->persist($attempt);
+
+                // Mark course completed if passed
+                if ($passed) {
+                    $prog = $progressRepo->findOrCreate($user, $course, $em);
+                    $prog->setStatus('completed');
+                    $prog->setCompletedAt(new \DateTimeImmutable());
+                }
+
+                $em->flush();
+                $savedAttempt = $attempt;
+            }
         }
 
+        // Pass best passing attempt (for certificate link)
+        $bestAttempt = $user && $quiz ? $attemptRepo->findBestPassingAttempt($user, $quiz) : null;
+
         return $this->render('course_front/quiz.html.twig', [
-            'course' => $course,
-            'quiz' => $quiz,
-            'questions' => $questions,
-            'result' => $result,
+            'course'      => $course,
+            'quiz'        => $quiz,
+            'questions'   => $questions,
+            'result'      => $result,
+            'bestAttempt' => $bestAttempt,
         ]);
     }
 
@@ -268,12 +307,13 @@ final class CourseFrontController extends AbstractController
         int $videoId,
         CourseRepository $courseRepo,
         CourseVideoRepository $videoRepo,
-        SessionInterface $session
+        LearningProgressRepository $progressRepo,
+        SessionInterface $session,
+        EntityManagerInterface $em,
     ): JsonResponse {
         $course = $courseRepo->find($courseId);
         $video = $videoRepo->find($videoId);
 
-        // basic safety
         if (!$course || !$video) {
             return new JsonResponse(['ok' => false, 'message' => 'Not found'], 404);
         }
@@ -285,11 +325,79 @@ final class CourseFrontController extends AbstractController
             return new JsonResponse(['ok' => false, 'message' => 'Invalid video'], 400);
         }
 
-        $key = 'course_progress_' . $courseId;
-        $completed = $session->get($key, []);
-        $completed[(string) $videoId] = true;
-        $session->set($key, $completed);
+        $user = $this->getUser();
+
+        if ($user) {
+            // DB-persisted progress
+            $progress = $progressRepo->findOrCreate($user, $course, $em);
+            $progress->addCompletedVideoId($videoId);
+
+            // Recalculate percent
+            $totalVideos = 0;
+            foreach ($course->getCourseSections() as $section) {
+                $totalVideos += $section->getCourseVideos()->count();
+            }
+            $completedCount = count($progress->getCompletedVideoIds());
+            $percent = $totalVideos > 0 ? (int) round(($completedCount * 100) / $totalVideos) : 0;
+            $progress->setProgressPercent($percent);
+
+            if ($completedCount >= $totalVideos && $totalVideos > 0) {
+                // All videos done — mark in-progress; completed only set after quiz pass
+                if ($progress->getStatus() === 'in-progress') {
+                    // keep status as in-progress until quiz is passed
+                }
+            }
+            $em->flush();
+        } else {
+            // Session fallback for guests
+            $key = 'course_progress_' . $courseId;
+            $completed = $session->get($key, []);
+            $completed[(string) $videoId] = true;
+            $session->set($key, $completed);
+        }
 
         return new JsonResponse(['ok' => true]);
+    }
+
+    #[Route('/courses/{id}/certificate', name: 'course_certificate', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function certificate(
+        Course $course,
+        QuizAttemptRepository $attemptRepo,
+        LearningProgressRepository $progressRepo,
+        CertificatePdfService $pdfService,
+    ): Response {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $quiz = null;
+        foreach ($course->getCourseSections() as $section) {
+            // quiz is on the course, not section — handled via quizRepo below
+            break;
+        }
+
+        // Find the course quiz via the quiz repository (relationship)
+        $quizzes = $course->getQuizzes();
+        $quiz = $quizzes->isEmpty() ? null : $quizzes->first();
+
+        if (!$quiz) {
+            $this->addFlash('error', 'This course has no quiz.');
+            return $this->redirectToRoute('course_learn', ['id' => $course->getId()]);
+        }
+
+        $bestAttempt = $attemptRepo->findBestPassingAttempt($user, $quiz);
+        if (!$bestAttempt) {
+            $this->addFlash('error', 'You must pass the quiz to download your certificate.');
+            return $this->redirectToRoute('course_quiz', ['id' => $course->getId()]);
+        }
+
+        $pdf = $pdfService->generateCourseCertificate($user, $course, $bestAttempt);
+        $filename = 'certificate_' . preg_replace('/[^a-zA-Z0-9_-]/', '_', $course->getTitle()) . '.pdf';
+
+        return new Response($pdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }

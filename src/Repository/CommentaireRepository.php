@@ -70,4 +70,13 @@ class CommentaireRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function countBanned(): int
+    {
+        return (int) $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.bannedByAdmin = true')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

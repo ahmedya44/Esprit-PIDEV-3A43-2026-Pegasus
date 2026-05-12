@@ -44,18 +44,29 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/logout$, roles: PUBLIC_ACCESS }
-        - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/$, roles: PUBLIC_ACCESS }
-        - { path: ^/about, roles: PUBLIC_ACCESS }
-        - { path: ^/menu, roles: PUBLIC_ACCESS }
-        - { path: ^/courses, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/artist, roles: ROLE_ARTISTE }
-        - { path: ^/back/login$, roles: PUBLIC_ACCESS }
-        - { path: ^/back/logout$, roles: PUBLIC_ACCESS }
-        - { path: ^/back/connect/google, roles: PUBLIC_ACCESS }
-        - { path: ^/back, roles: ROLE_ADMIN }
+        # ── Back-office auth (must come before the catch-all) ──────────
+        - { path: ^/back/login$,          roles: PUBLIC_ACCESS }
+        - { path: ^/back/logout$,         roles: PUBLIC_ACCESS }
+        - { path: ^/back/connect/google,  roles: PUBLIC_ACCESS }
+        - { path: ^/back,                 roles: ROLE_ADMIN }
+
+        # ── Public front-end pages ──────────────────────────────────────
+        - { path: ^/$,                    roles: PUBLIC_ACCESS }
+
+        # ── Authentication flows ────────────────────────────────────────
+        - { path: ^/login$,               roles: PUBLIC_ACCESS }
+        - { path: ^/logout$,              roles: PUBLIC_ACCESS }
+        - { path: ^/register,             roles: PUBLIC_ACCESS }
+        - { path: ^/reset-password,       roles: PUBLIC_ACCESS }
+        - { path: ^/verify-email,         roles: PUBLIC_ACCESS }
+        - { path: ^/connect/google,       roles: PUBLIC_ACCESS }
+        - { path: ^/passkey/login,        roles: PUBLIC_ACCESS }
+
+        # ── Role-specific ───────────────────────────────────────────────
+        - { path: ^/artist,               roles: ROLE_ARTISTE }
+
+        # ── Everything else requires a logged-in user ───────────────────
+        - { path: ^/,                     roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

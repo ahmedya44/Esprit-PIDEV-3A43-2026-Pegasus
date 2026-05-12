@@ -1,0 +1,73 @@
+{% extends 'front/layout.html.twig' %}
+{% set active_nav = 'profile' %}
+{% block title %}My Role Requests{% endblock %}
+
+{% block body %}
+<section style="background: linear-gradient(180deg,#f2f5fb 0%,#fff 100%); padding: 44px 0 72px;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div style="background:#fff; border:1px solid #e5eaf7; border-radius:16px; box-shadow:0 16px 38px rgba(15,23,42,.08); padding:28px;">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 style="font-family:'Poppins',sans-serif; font-size:1.45rem; font-weight:700; color:#17233a; margin:0;">My Role Requests</h2>
+            <a href="{{ path('role_request_new') }}" class="btn btn-warning btn-sm">New Request</a>
+          </div>
+
+          {% for type, messages in app.flashes %}
+            {% for msg in messages %}
+              <div class="alert alert-{{ type == 'success' ? 'success' : 'warning' }} py-2 mb-3">{{ msg }}</div>
+            {% endfor %}
+          {% endfor %}
+
+          {% if requests is empty %}
+            <p class="text-muted">You haven't submitted any role requests yet.</p>
+          {% else %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Requested Role</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Reviewed</th>
+                    <th>Note</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for r in requests %}
+                    <tr>
+                      <td>
+                        {% if r.requestedRole == 'ROLE_ARTISTE' %}
+                          <span class="badge bg-info text-dark">Artiste</span>
+                        {% elseif r.requestedRole == 'ROLE_SPONSOR' %}
+                          <span class="badge bg-primary">Sponsor</span>
+                        {% else %}
+                          {{ r.requestedRole }}
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if r.status == 'pending' %}
+                          <span class="badge bg-warning text-dark">Pending</span>
+                        {% elseif r.status == 'approved' %}
+                          <span class="badge bg-success">Approved</span>
+                        {% else %}
+                          <span class="badge bg-danger">Rejected</span>
+                        {% endif %}
+                      </td>
+                      <td class="small text-muted">{{ r.createdAt|date('d M Y') }}</td>
+                      <td class="small text-muted">{{ r.reviewedAt ? r.reviewedAt|date('d M Y') : '—' }}</td>
+                      <td class="small text-muted">{{ r.rejectionReason ?? '—' }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+
+          <a href="{{ path('front_profile') }}" class="btn btn-outline-secondary btn-sm mt-2">← Back to Profile</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
