@@ -1,5 +1,7 @@
 package com.pegasus.services;
 
+import com.pegasus.config.EnvLoader;
+import com.pegasus.config.PropertiesLoader;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.vosk.LibVosk;
@@ -10,7 +12,6 @@ import org.vosk.Recognizer;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
-import java.io.InputStream;
 import java.util.Properties;
 import java.util.function.BooleanSupplier;
 
@@ -71,7 +72,7 @@ public class VoiceSearchService {
         if (fromProps != null && !fromProps.startsWith("YOUR_")) {
             return fromProps;
         }
-        String fromEnv = System.getenv("VOSK_MODEL_PATH");
+        String fromEnv = EnvLoader.get("VOSK_MODEL_PATH");
         if (fromEnv == null || fromEnv.isBlank()) {
             return null;
         }
@@ -79,12 +80,8 @@ public class VoiceSearchService {
     }
 
     private String readFromProperties() {
-        Properties properties = new Properties();
-        try (InputStream is = VoiceSearchService.class.getResourceAsStream(CONFIG_PATH)) {
-            if (is == null) {
-                return null;
-            }
-            properties.load(is);
+        try {
+            Properties properties = PropertiesLoader.load(CONFIG_PATH, VoiceSearchService.class);
             String value = properties.getProperty("voice.voskModelPath");
             if (value == null || value.isBlank()) {
                 return null;

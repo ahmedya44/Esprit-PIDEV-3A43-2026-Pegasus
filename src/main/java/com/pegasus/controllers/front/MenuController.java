@@ -383,6 +383,21 @@ public class MenuController {
 
     private boolean looksLikeImageUrl(String value) {
         String lower = value.toLowerCase();
+        try {
+            URI uri = URI.create(value);
+            String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
+            if (host.equals("images.unsplash.com")
+                    || host.endsWith(".unsplash.com")
+                    || host.equals("upload.wikimedia.org")
+                    || host.equals("images.pexels.com")
+                    || host.equals("cdn.pixabay.com")
+                    || host.equals("i.imgur.com")
+                    || host.equals("raw.githubusercontent.com")) {
+                return true;
+            }
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
         int queryIndex = lower.indexOf('?');
         if (queryIndex >= 0) {
             lower = lower.substring(0, queryIndex);

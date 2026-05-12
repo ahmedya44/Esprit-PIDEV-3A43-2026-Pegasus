@@ -2,6 +2,8 @@ package com.pegasus.controllers.back;
 
 
 import com.pegasus.controllers.SceneNavigator;
+import com.pegasus.controllers.EventsRoleRouter;
+import com.pegasus.controllers.front.ForumModuleLauncher;
 import com.pegasus.dao.CategorieDAO;
 import com.pegasus.dao.ProduitDAO;
 import com.pegasus.entities.Categorie;
@@ -398,17 +400,14 @@ public class DashboardArtisteController implements Initializable {
         pageStatsView    .setVisible(false);
         formView         .setVisible(false);
         formCategorieView.setVisible(false);
-        btnMesProduits     .getStyleClass().setAll("navbar-btn");
-        btnStatuts         .getStyleClass().setAll("navbar-btn");
-        btnAjouterCategorie.getStyleClass().setAll("navbar-btn");
-        if (btnStats != null) btnStats.getStyleClass().setAll("navbar-btn");
+        setProductNavActive(null);
     }
 
     @FXML
     public void showMesProduits() {
         hideAll();
         pageProduitsView.setVisible(true);
-        btnMesProduits.getStyleClass().setAll("navbar-btn-active");
+        setProductNavActive(btnMesProduits);
         loadData();
     }
 
@@ -416,7 +415,7 @@ public class DashboardArtisteController implements Initializable {
     public void showStatuts() {
         hideAll();
         pageStatutsView.setVisible(true);
-        btnStatuts.getStyleClass().setAll("navbar-btn-active");
+        setProductNavActive(btnStatuts);
         loadData();
     }
 
@@ -424,7 +423,7 @@ public class DashboardArtisteController implements Initializable {
     public void showStats() {
         hideAll();
         pageStatsView.setVisible(true);
-        if (btnStats != null) btnStats.getStyleClass().setAll("navbar-btn-active");
+        setProductNavActive(btnStats);
         loadStats();
     }
 
@@ -465,10 +464,26 @@ public class DashboardArtisteController implements Initializable {
     public void showFormCategorie() {
         hideAll();
         formCategorieView.setVisible(true);
-        btnAjouterCategorie.getStyleClass().setAll("navbar-btn-active");
+        setProductNavActive(btnAjouterCategorie);
         nomCategorieField .clear();
         descCategorieField.clear();
         erreurNomCategorie.setText("");
+    }
+
+    private void setProductNavActive(Button activeButton) {
+        Button[] buttons = {btnMesProduits, btnStatuts, btnAjouterCategorie, btnStats};
+        for (Button button : buttons) {
+            if (button == null) {
+                continue;
+            }
+            button.getStyleClass().remove("product-subnav-button-active");
+            if (!button.getStyleClass().contains("product-subnav-button")) {
+                button.getStyleClass().add("product-subnav-button");
+            }
+        }
+        if (activeButton != null && !activeButton.getStyleClass().contains("product-subnav-button-active")) {
+            activeButton.getStyleClass().add("product-subnav-button-active");
+        }
     }
 
     // ─────────────────────────────────────────────
@@ -622,6 +637,11 @@ public class DashboardArtisteController implements Initializable {
 
     @FXML
     public void handleBackHome() {
+        goHome();
+    }
+
+    @FXML
+    public void goHome() {
         try {
             SceneNavigator.goTo("/views/front/home-view.fxml");
         } catch (Exception e) {
@@ -633,6 +653,43 @@ public class DashboardArtisteController implements Initializable {
             } catch (Exception ex) {
                 System.err.println(ex.getMessage());
             }
+        }
+    }
+
+    @FXML
+    public void goGallery() {
+        navigateTo("/views/front/menu-view.fxml");
+    }
+
+    @FXML
+    public void goCourses() {
+        navigateTo("/views/front/FrontLayout.fxml");
+    }
+
+    @FXML
+    public void goEvents() {
+        navigateTo(EventsRoleRouter.resolveEventsEntryFxml());
+    }
+
+    @FXML
+    public void goForum() {
+        if (SceneNavigator.getCurrentUser() == null) {
+            navigateTo("/views/front/signin-view.fxml");
+            return;
+        }
+        ForumModuleLauncher.openForumWindow();
+    }
+
+    @FXML
+    public void goProfile() {
+        navigateTo("/views/front/profile-view.fxml");
+    }
+
+    private void navigateTo(String fxmlPath) {
+        try {
+            SceneNavigator.goTo(fxmlPath);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

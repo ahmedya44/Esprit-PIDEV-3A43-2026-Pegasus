@@ -8,9 +8,9 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import com.pegasus.config.EnvLoader;
+import com.pegasus.config.PropertiesLoader;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 public class EmailService {
@@ -188,21 +188,13 @@ public class EmailService {
     }
 
     private MailConfig loadConfig() {
-        Properties properties = new Properties();
-        try (InputStream inputStream = EmailService.class.getResourceAsStream(CONFIG_PATH)) {
-            if (inputStream == null) {
-                throw new IllegalStateException("Missing mail config file: " + CONFIG_PATH);
-            }
-            properties.load(inputStream);
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not read mail config file.", e);
-        }
+        Properties properties = PropertiesLoader.load(CONFIG_PATH, EmailService.class);
 
-        String host = trimToNull(properties.getProperty("mail.smtp.host"));
-        String port = trimToNull(properties.getProperty("mail.smtp.port"));
-        String username = trimToNull(properties.getProperty("mail.smtp.username"));
-        String password = trimToNull(properties.getProperty("mail.smtp.password"));
-        String from = trimToNull(properties.getProperty("mail.smtp.from"));
+        String host = readValue(properties, "mail.smtp.host", "MAIL_SMTP_HOST");
+        String port = readValue(properties, "mail.smtp.port", "MAIL_SMTP_PORT");
+        String username = readValue(properties, "mail.smtp.username", "MAIL_SMTP_USERNAME");
+        String password = readValue(properties, "mail.smtp.password", "MAIL_SMTP_PASSWORD");
+        String from = readValue(properties, "mail.smtp.from", "MAIL_SMTP_FROM");
         boolean startTlsEnabled = Boolean.parseBoolean(properties.getProperty("mail.smtp.starttls.enable", "true"));
         boolean auth = Boolean.parseBoolean(properties.getProperty("mail.smtp.auth", "true"));
 
@@ -221,6 +213,14 @@ public class EmailService {
             return null;
         }
         return value.trim();
+    }
+
+    private String readValue(Properties properties, String propertyKey, String envKey) {
+        String value = trimToNull(properties.getProperty(propertyKey));
+        if (value != null) {
+            return value;
+        }
+        return trimToNull(EnvLoader.get(envKey));
     }
 
     private record MailConfig(

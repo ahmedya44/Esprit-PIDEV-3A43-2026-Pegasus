@@ -4,8 +4,9 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.pegasus.config.EnvLoader;
+import com.pegasus.config.PropertiesLoader;
 
-import java.io.InputStream;
 import java.util.Properties;
 
 public class StripeService {
@@ -31,15 +32,14 @@ public class StripeService {
     }
 
     private static String loadSecretKey() {
-        Properties properties = new Properties();
-        try (InputStream inputStream = StripeService.class.getResourceAsStream(STRIPE_CONFIG_PATH)) {
-            if (inputStream == null) {
-                throw new IllegalStateException("Missing stripe.properties file in src/main/resources.");
-            }
-            properties.load(inputStream);
+        try {
+            Properties properties = PropertiesLoader.load(STRIPE_CONFIG_PATH, StripeService.class);
             String key = properties.getProperty(STRIPE_KEY_PROPERTY);
             if (key == null || key.isBlank()) {
-                throw new IllegalStateException("stripe.secret.key is missing in stripe.properties.");
+                key = EnvLoader.get("STRIPE_SECRET_KEY");
+            }
+            if (key == null || key.isBlank()) {
+                throw new IllegalStateException("stripe.secret.key is missing in stripe.properties or STRIPE_SECRET_KEY in .env.");
             }
             return key.trim();
         } catch (Exception e) {

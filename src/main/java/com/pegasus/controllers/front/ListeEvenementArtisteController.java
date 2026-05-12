@@ -156,20 +156,21 @@ public class ListeEvenementArtisteController extends FrontNavController {
         prix.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #fdcb6e;");
 
         // Action Buttons
-        HBox actions = new HBox(15);
+        FlowPane actions = new FlowPane(8, 8);
         actions.setAlignment(Pos.CENTER_LEFT);
         actions.setPadding(new Insets(10, 0, 0, 0));
+        actions.setPrefWrapLength(280);
 
-        Button viewBtn = createIconButton("Voir", "#6c5ce7");
+        Button viewBtn = createEventActionButton("Voir", "#eef2ff", "#4338ca");
         viewBtn.setOnAction(event -> allerVersDetails(e));
 
-        Button editBtn = createIconButton("Modifier", "#00b894");
+        Button editBtn = createEventActionButton("Modifier", "#dcfce7", "#166534");
         editBtn.setOnAction(event -> allerVersModifier(e));
 
-        Button deleteBtn = createIconButton("Supprimer", "#d63031");
+        Button deleteBtn = createEventActionButton("Supprimer", "#fee2e2", "#991b1b");
         deleteBtn.setOnAction(event -> supprimerEvenement(e));
 
-        Button participantsBtn = createIconButton("Participants", "#0984e3");
+        Button participantsBtn = createEventActionButton("Participants", "#e0f2fe", "#075985");
         participantsBtn.setOnAction(event -> allerVersParticipants(e));
 
         actions.getChildren().addAll(viewBtn, editBtn, deleteBtn, participantsBtn);
@@ -180,11 +181,24 @@ public class ListeEvenementArtisteController extends FrontNavController {
         return card;
     }
 
-    private Button createIconButton(String icon, String color) {
-        Button btn = new Button(icon);
-        btn.setStyle("-fx-background-color: transparent; -fx-text-fill: " + color + "; -fx-font-size: 18px; -fx-cursor: hand; -fx-padding: 5;");
-        btn.setOnMouseEntered(e -> btn.setStyle("-fx-background-color: #f1f2f6; -fx-text-fill: " + color + "; -fx-font-size: 18px; -fx-cursor: hand; -fx-padding: 5; -fx-background-radius: 5;"));
-        btn.setOnMouseExited(e -> btn.setStyle("-fx-background-color: transparent; -fx-text-fill: " + color + "; -fx-font-size: 18px; -fx-cursor: hand; -fx-padding: 5;"));
+    private Button createEventActionButton(String text, String background, String foreground) {
+        Button btn = new Button(text);
+        String baseStyle = "-fx-background-color: " + background + ";"
+                + "-fx-text-fill: " + foreground + ";"
+                + "-fx-font-size: 12px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-cursor: hand;"
+                + "-fx-padding: 8 12;"
+                + "-fx-background-radius: 10;"
+                + "-fx-border-radius: 10;"
+                + "-fx-border-color: transparent;";
+        String hoverStyle = baseStyle
+                + "-fx-effect: dropshadow(gaussian, rgba(15,23,42,0.14), 10, 0.14, 0, 3);";
+        btn.setMinWidth(116);
+        btn.setPrefWidth(132);
+        btn.setStyle(baseStyle);
+        btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
+        btn.setOnMouseExited(e -> btn.setStyle(baseStyle));
         return btn;
     }
 

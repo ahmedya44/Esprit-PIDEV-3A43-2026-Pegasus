@@ -2,10 +2,10 @@ package com.pegasus.services;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.pegasus.config.EnvLoader;
+import com.pegasus.config.PropertiesLoader;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -70,15 +70,7 @@ public class CloudinaryService {
     }
 
     private Properties loadProperties() {
-        Properties properties = new Properties();
-        try (InputStream inputStream = CloudinaryService.class.getResourceAsStream(CONFIG_PATH)) {
-            if (inputStream != null) {
-                properties.load(inputStream);
-            }
-            return properties;
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not read cloudinary.properties.", e);
-        }
+        return PropertiesLoader.load(CONFIG_PATH, CloudinaryService.class);
     }
 
     private String readValue(Properties properties, String propertyKey, String envKey) {
@@ -86,7 +78,7 @@ public class CloudinaryService {
         if (value != null) {
             return value;
         }
-        return trimToNull(System.getenv(envKey));
+        return trimToNull(EnvLoader.get(envKey));
     }
 
     private String trimToNull(String value) {

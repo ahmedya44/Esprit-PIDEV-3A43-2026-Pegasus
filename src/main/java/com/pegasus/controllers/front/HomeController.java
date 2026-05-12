@@ -3,6 +3,7 @@ package com.pegasus.controllers.front;
 import com.pegasus.controllers.SceneNavigator;
 import com.pegasus.controllers.EventsRoleRouter;
 import com.pegasus.dao.ProduitDAO;
+import com.pegasus.config.PropertiesLoader;
 import com.pegasus.entities.Art;
 import com.pegasus.entities.Course;
 import com.pegasus.entities.User;
@@ -1741,18 +1742,14 @@ public class HomeController {
     }
 
     private String readProperty(String propertyKey) {
-        Properties properties = new Properties();
-        try (InputStream inputStream = HomeController.class.getResourceAsStream(CLOUDFLARE_CONFIG_PATH)) {
-            if (inputStream == null) {
-                return null;
-            }
-            properties.load(inputStream);
+        try {
+            Properties properties = PropertiesLoader.load(CLOUDFLARE_CONFIG_PATH, HomeController.class);
             String value = properties.getProperty(propertyKey);
             if (value == null || value.isBlank()) {
                 return null;
             }
             return value.trim();
-        } catch (IOException e) {
+        } catch (Exception e) {
             return null;
         }
     }

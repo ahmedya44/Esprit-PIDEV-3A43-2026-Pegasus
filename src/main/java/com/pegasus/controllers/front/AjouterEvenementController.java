@@ -14,12 +14,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import com.pegasus.entities.Evenement;
+import com.pegasus.config.PropertiesLoader;
 import com.pegasus.services.ServiceEvenement;
 import com.pegasus.controllers.back.AdminLayoutController;
 import com.pegasus.controllers.SceneNavigator;
 
 import java.io.File;
-import java.io.InputStream;
 import java.net.URI;
 import java.time.LocalDate;
 import java.net.http.HttpClient;
@@ -216,12 +216,8 @@ public class AjouterEvenementController {
     }
 
     private String loadGroqApiKey() {
-        Properties properties = new Properties();
-        try (InputStream inputStream = getClass().getResourceAsStream(GROQ_CONFIG_PATH)) {
-            if (inputStream == null) {
-                return null;
-            }
-            properties.load(inputStream);
+        try {
+            Properties properties = PropertiesLoader.load(GROQ_CONFIG_PATH, getClass());
             String value = properties.getProperty("groq.api.key");
             if (value == null || value.trim().isEmpty()) {
                 return null;

@@ -2,12 +2,13 @@ package com.pegasus.services;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.pegasus.config.EnvLoader;
+import com.pegasus.config.PropertiesLoader;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import java.awt.Desktop;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -231,19 +232,11 @@ public class GoogleAuthService {
     }
 
     private OAuthConfig loadConfig() {
-        Properties properties = new Properties();
-        try (InputStream inputStream = GoogleAuthService.class.getResourceAsStream(CONFIG_PATH)) {
-            if (inputStream == null) {
-                throw new IllegalStateException("Missing Google OAuth config file: " + CONFIG_PATH);
-            }
-            properties.load(inputStream);
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not read Google OAuth config file.", e);
-        }
+        Properties properties = PropertiesLoader.load(CONFIG_PATH, GoogleAuthService.class);
 
-        String clientId = trimToNull(properties.getProperty("google.clientId"));
-        String clientSecret = trimToNull(properties.getProperty("google.clientSecret"));
-        String redirectUri = trimToNull(properties.getProperty("google.redirectUri"));
+        String clientId = readValue(properties, "google.clientId", "GOOGLE_CLIENT_ID");
+        String clientSecret = readValue(properties, "google.clientSecret", "GOOGLE_CLIENT_SECRET");
+        String redirectUri = readValue(properties, "google.redirectUri", "GOOGLE_REDIRECT_URI");
 
         if (clientId == null || clientSecret == null || redirectUri == null) {
             throw new IllegalStateException("Google OAuth config is incomplete.");
@@ -260,6 +253,14 @@ public class GoogleAuthService {
         byte[] buffer = new byte[byteCount];
         new SecureRandom().nextBytes(buffer);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(buffer);
+    }
+
+    private String readValue(Properties properties, String propertyKey, String envKey) {
+        String value = trimToNull(properties.getProperty(propertyKey));
+        if (value != null) {
+            return value;
+        }
+        return trimToNull(EnvLoader.get(envKey));
     }
 
     private String createCodeChallenge(String codeVerifier) {
