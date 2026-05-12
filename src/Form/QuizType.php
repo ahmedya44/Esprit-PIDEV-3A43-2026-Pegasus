@@ -2,8 +2,10 @@
 
 namespace App\Form;
 
+use App\Entity\Artiste;
 use App\Entity\Course;
 use App\Entity\Quiz;
+use App\Repository\CourseRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -20,6 +22,18 @@ final class QuizType extends AbstractType
                 'class' => Course::class,
                 'choice_label' => 'title',
                 'placeholder' => 'Select a course',
+                'query_builder' => function (CourseRepository $courseRepository) use ($options) {
+                    $builder = $courseRepository->createQueryBuilder('c')
+                        ->orderBy('c.title', 'ASC');
+
+                    if ($options['artist'] instanceof Artiste) {
+                        $builder
+                            ->andWhere('c.artist = :artist')
+                            ->setParameter('artist', $options['artist']);
+                    }
+
+                    return $builder;
+                },
                 'attr' => ['class' => 'form-select'],
             ])
 
@@ -64,6 +78,8 @@ final class QuizType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Quiz::class,
+            'artist' => null,
         ]);
+        $resolver->setAllowedTypes('artist', ['null', Artiste::class]);
     }
 }

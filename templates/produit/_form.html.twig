@@ -1,0 +1,15 @@
+{{ form_start(form, {attr: {class: 'market-form'}}) }}
+  {% for field in form %}
+    {% if field.vars.name != '_token' %}
+      <div class="form-group mb-3">
+        {{ form_label(field, null, {label_attr: {class: 'form-label font-weight-bold'}}) }}
+        {{ form_widget(field, {attr: {class: 'form-control'}}) }}
+        {{ form_errors(field) }}
+      </div>
+    {% endif %}
+  {% endfor %}
+  {{ form_rest(form) }}
+  <button type="submit" class="btn btn-warning">
+    {{ button_label|default('Save product') }}
+  </button>
+{{ form_end(form) }}

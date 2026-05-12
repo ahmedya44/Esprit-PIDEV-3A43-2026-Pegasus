@@ -110,6 +110,8 @@ final class ArtistCoursesController extends AbstractController
     #[Route('/artist/courses/{id}/builder', name: 'artist_courses_builder', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function builder(Course $course, CourseSectionRepository $sectionRepo): Response
     {
+        $this->denyUnlessCourseOwner($course);
+
         $sections = $sectionRepo->findBy(['course' => $course], ['orderIndex' => 'ASC']);
 
         return $this->render('front/courses/builder.html.twig', [
@@ -121,6 +123,8 @@ final class ArtistCoursesController extends AbstractController
     #[Route('/artist/courses/{id}/sections/new', name: 'artist_course_sections_new', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function newSection(Course $course, Request $request, EntityManagerInterface $em): Response
     {
+        $this->denyUnlessCourseOwner($course);
+
         $section = new CourseSection();
         $section->setCourse($course);
 
@@ -159,6 +163,7 @@ final class ArtistCoursesController extends AbstractController
         if ($courseId === null) {
             return $this->redirectToRoute('artist_dashboard', ['tab' => 'courses']);
         }
+        $this->denyUnlessCourseOwner($course);
 
         if ($this->isCsrfTokenValid('delete_section_' . $section->getId(), (string) $request->request->get('_token'))) {
             $em->remove($section);
@@ -176,6 +181,12 @@ final class ArtistCoursesController extends AbstractController
     #[Route('/artist/sections/{id}/videos/new', name: 'artist_course_videos_new', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
     public function newVideo(CourseSection $section, Request $request, EntityManagerInterface $em): Response
     {
+        $course = $section->getCourse();
+        if (!$course instanceof Course) {
+            throw $this->createNotFoundException();
+        }
+        $this->denyUnlessCourseOwner($course);
+
         $video = new CourseVideo();
         $video->setSection($section);
 
@@ -225,6 +236,7 @@ final class ArtistCoursesController extends AbstractController
         if ($courseId === null) {
             return $this->redirectToRoute('artist_dashboard', ['tab' => 'courses']);
         }
+        $this->denyUnlessCourseOwner($course);
 
         if ($this->isCsrfTokenValid('delete_video_' . $video->getId(), (string) $request->request->get('_token'))) {
             $em->remove($video);
@@ -262,5 +274,13 @@ final class ArtistCoursesController extends AbstractController
 
         $thumbnailFile->move($uploadsDir, $newFilename);
         $course->setThumbnailUrl('uploads/courses/' . $newFilename);
+    }
+
+    private function denyUnlessCourseOwner(Course $course): void
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Artiste || $course->getArtist()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
     }
 }

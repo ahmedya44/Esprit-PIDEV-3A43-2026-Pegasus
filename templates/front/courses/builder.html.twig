@@ -47,7 +47,7 @@
             <ul class="navbar-nav mx-auto">
               
               <li class="nav-item active"><a class="nav-link" href="{{ path('artist_dashboard', {tab:'courses'}) }}">Artist Dashboard</a></li>
-              <li class="nav-item"><a class="nav-link" href="{{ path('app_courses') }}">Courses</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('artist_dashboard', { tab: 'courses' }) }}">Courses</a></li>
             </ul>
           </div>
         </nav>
@@ -90,7 +90,7 @@
             </div>
           </div>
           <div class="d-flex gap-2">
-            <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">← Back</a>
+            <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'courses'}) }}">Back</a>
             <a class="btn-feane" href="{{ path('artist_course_sections_new', {id: course.id}) }}">+ Add Section</a>
           </div>
         </div>
@@ -107,7 +107,7 @@
                 <div class="section-card">
                   <div class="d-flex justify-content-between align-items-start gap-3">
                     <div>
-                      <div class="video-title">Section {{ section.orderIndex }} — {{ section.title }}</div>
+                      <div class="video-title">Section {{ section.orderIndex }} - {{ section.title }}</div>
                       <div class="muted">Videos: {{ section.courseVideos|length }}</div>
                     </div>
 
@@ -131,7 +131,7 @@
                       {% for video in videos %}
                         <div class="video-row">
                           <div>
-                            <div class="video-title">Video {{ video.orderIndex }} — {{ video.title }}</div>
+                            <div class="video-title">Video {{ video.orderIndex }} - {{ video.title }}</div>
                             <div class="muted">
                               {{ video.durationSec }} sec
                               {% if video.isPreview %} • <strong>Preview</strong>{% endif %}

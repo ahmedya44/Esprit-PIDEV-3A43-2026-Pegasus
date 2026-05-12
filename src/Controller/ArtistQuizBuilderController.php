@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Artiste;
 use App\Entity\Quiz;
 use App\Entity\QuizQuestion;
 use App\Form\QuizQuestionType;
@@ -18,6 +19,8 @@ final class ArtistQuizBuilderController extends AbstractController
     #[Route('/artist/quizzes/{id}/builder', name: 'artist_quizzes_builder', methods: ['GET'])]
     public function builder(Quiz $quiz): Response
     {
+        $this->denyUnlessQuizOwner($quiz);
+
         // Questions are ordered by orderIndex (pro)
         $questions = $quiz->getQuizQuestions()->toArray();
         usort($questions, static fn(QuizQuestion $a, QuizQuestion $b) => $a->getOrderIndex() <=> $b->getOrderIndex());
@@ -34,6 +37,8 @@ final class ArtistQuizBuilderController extends AbstractController
         Request $request,
         EntityManagerInterface $em
     ): Response {
+        $this->denyUnlessQuizOwner($quiz);
+
         $question = new QuizQuestion();
         $question->setQuiz($quiz);
 
@@ -72,6 +77,7 @@ final class ArtistQuizBuilderController extends AbstractController
         if (!$quiz) {
             throw $this->createNotFoundException('Quiz not found for this question.');
         }
+        $this->denyUnlessQuizOwner($quiz);
 
         $form = $this->createForm(QuizQuestionType::class, $question);
 
@@ -100,6 +106,7 @@ final class ArtistQuizBuilderController extends AbstractController
         if (!$quiz) {
             throw $this->createNotFoundException();
         }
+        $this->denyUnlessQuizOwner($quiz);
 
         if (!$this->isCsrfTokenValid('delete_question_' . $question->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Invalid CSRF token.');
@@ -111,5 +118,13 @@ final class ArtistQuizBuilderController extends AbstractController
 
         $this->addFlash('success', 'Question deleted.');
         return $this->redirectToRoute('artist_quizzes_builder', ['id' => $quiz->getId()]);
+    }
+
+    private function denyUnlessQuizOwner(Quiz $quiz): void
+    {
+        $user = $this->getUser();
+        if (!$user instanceof Artiste || $quiz->getCourse()?->getArtist()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
     }
 }

@@ -65,8 +65,7 @@
         <a href="{{ path('front_gallery') }}" class="btn btn-outline-dark">Gallery</a>
       </div>
 
-      {# ── Comments ─────────────────────────────────────────────── #}
-      <div class="comment-section">
+      <div class="comment-section" id="comments">
         <h5 class="mb-3"><i class="fa fa-comments-o me-1"></i> Comments ({{ comments|length }})</h5>
 
         {% for flash in app.flashes('success') %}
@@ -78,7 +77,7 @@
         {% else %}
           {% for c in comments %}
             <div class="comment-item">
-              <span class="comment-author">{{ c.user.username }}</span>
+              <span class="comment-author">{{ c.user ? c.user.username : (c.username ?: 'Pegasus user') }}</span>
               <span class="comment-date">{{ c.createdAt|date('d M Y, H:i') }}</span>
               <p class="comment-text mb-0">{{ c.content }}</p>
             </div>
@@ -108,7 +107,6 @@
 {% block extra_scripts %}
 <script>
   (function () {
-    // ── Like button (DB-backed API) ──────────────────────────────
     document.querySelectorAll('.js-like-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var url = btn.getAttribute('data-like-url');
@@ -125,7 +123,6 @@
       });
     });
 
-    // ── Favorite button (existing API, localStorage for state) ───
     function getFavoriteState() {
       try { return JSON.parse(localStorage.getItem('gallery_favorites') || '{}'); } catch (e) { return {}; }
     }

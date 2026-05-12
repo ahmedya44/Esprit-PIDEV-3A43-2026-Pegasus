@@ -27,4 +27,32 @@ class ArtCommentRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param list<int> $artIds
+     *
+     * @return array<int, int>
+     */
+    public function countByArtIds(array $artIds): array
+    {
+        $artIds = array_values(array_unique(array_filter($artIds)));
+        if ($artIds === []) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('c')
+            ->select('IDENTITY(c.art) AS artId, COUNT(c.id) AS commentCount')
+            ->where('IDENTITY(c.art) IN (:artIds)')
+            ->setParameter('artIds', $artIds)
+            ->groupBy('c.art')
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+        foreach ($rows as $row) {
+            $counts[(int) $row['artId']] = (int) $row['commentCount'];
+        }
+
+        return $counts;
+    }
 }

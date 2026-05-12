@@ -92,6 +92,7 @@ $(document).ready(function () {
             { label: 'Gallery', href: '/gallery' },
             { label: 'Forum', href: '/forum' },
             { label: 'Events', href: '/evenements' },
+            { label: 'Products', href: '/produit' },
             { label: 'Courses', href: '/courses' }
         ];
         if (hasArtistDashboard || path.indexOf('/artist') === 0) {

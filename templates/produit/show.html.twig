@@ -1,0 +1,108 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}{{ produit.nom }} - Pegasus{% endblock %}
+
+{% block body %}
+{% set can_shop = app.user and not is_granted('ROLE_ARTISTE') and not is_granted('ROLE_ADMIN') %}
+{% set status_label = {
+  disponible: 'Available',
+  rupture: 'Out of stock',
+  bientot: 'Coming soon',
+  en_attente: 'Pending review',
+  archive: 'Archived'
+}[produit.statut]|default(produit.statut|capitalize) %}
+
+<section class="market-shell">
+  <div class="container">
+    {% include 'produit/_shop_nav.html.twig' with {shop_active: 'products'} %}
+
+    <div class="market-panel">
+      <div class="market-detail">
+        <div class="market-detail__media">
+          {% if produit.imageUrl %}
+            <img src="{{ produit.imageUrl }}" alt="{{ produit.nom }}">
+          {% else %}
+            <img src="{{ asset('front/images/f1.png') }}" alt="{{ produit.nom }}">
+          {% endif %}
+        </div>
+
+        <div class="market-detail__body">
+          <div>
+            {% if produit.categorie %}
+              <span class="market-chip">{{ produit.categorie.nom }}</span>
+            {% endif %}
+            <h1 class="market-title mt-3">{{ produit.nom }}</h1>
+            <p class="market-copy">{{ produit.description }}</p>
+          </div>
+
+          <div class="market-meta-grid">
+            <div class="market-meta">
+              <span>Price</span>
+              <strong>{{ produit.prix|number_format(2, '.', ' ') }} DT</strong>
+            </div>
+            <div class="market-meta">
+              <span>Stock</span>
+              <strong>{{ produit.stock }}</strong>
+            </div>
+            <div class="market-meta">
+              <span>Status</span>
+              <strong>{{ status_label }}</strong>
+            </div>
+          </div>
+
+          {% if produit.statut == 'disponible' and can_shop %}
+            <form method="post" action="{{ path('app_panier_ajouter', {id: produit.id}) }}" class="market-toolbar" style="grid-template-columns: 120px 1fr;">
+              <input type="number" name="quantite" value="1" min="1" max="{{ produit.stock }}" class="form-control" aria-label="Quantity">
+              <button type="submit" class="btn btn-warning">
+                <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                Add to cart
+              </button>
+            </form>
+          {% elseif not app.user %}
+            <div class="alert alert-info mb-0">
+              Sign in to add products to your cart.
+            </div>
+          {% endif %}
+
+          <div class="d-flex flex-wrap gap-2" style="gap: 10px;">
+            <a href="{{ path('app_produit_index') }}" class="btn btn-outline-secondary">
+              <i class="fa fa-arrow-left" aria-hidden="true"></i>
+              Back to products
+            </a>
+            {% if can_shop %}
+              <a href="{{ path('app_panier_index') }}" class="btn btn-warning">
+                <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                View cart
+              </a>
+            {% endif %}
+            {% if is_granted('ROLE_ARTISTE') or is_granted('ROLE_ADMIN') %}
+              <a href="{{ path('app_produit_edit', {id: produit.id}) }}" class="btn btn-dark">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+                Edit
+              </a>
+              {{ include('produit/_delete_form.html.twig') }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if can_shop %}
+  {% include 'produit/_product_advisor.html.twig' with {
+    product_name: produit.nom,
+    product_description: produit.description,
+    intro: 'Ask me about this product and I will help you decide.'
+  } only %}
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+  {% if app.user and not is_granted('ROLE_ARTISTE') and not is_granted('ROLE_ADMIN') %}
+    {% include 'produit/_product_advisor_js.html.twig' with {
+      product_name: produit.nom,
+      product_description: produit.description
+    } only %}
+  {% endif %}
+{% endblock %}

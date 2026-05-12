@@ -66,12 +66,12 @@ class Post
     private ?User $owner = null;
 
     #[ORM\Column(type: Types::STRING, length: 20)]
-    private string $status = self::STATUS_IN_PROGRESS;
+    private string $status = self::STATUS_OPEN;
 
-    #[ORM\Column(type: Types::STRING, length: 10, nullable: true)]
-    private ?string $requestType = null;
+    #[ORM\Column(type: Types::STRING, length: 16, options: ['default' => self::REQUEST_TYPE_CREATE])]
+    private ?string $requestType = self::REQUEST_TYPE_CREATE;
 
-    #[ORM\Column(type: Types::BOOLEAN)]
+    #[ORM\Column(name: 'is_banned', type: Types::BOOLEAN, options: ['default' => false])]
     private bool $bannedByAdmin = false;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]

@@ -1,0 +1,342 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Review Course | {{ course.title }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .review-page {
+    --ink: #071226;
+    --muted: #64748b;
+    --line: #dbeafe;
+    --soft: #f1f7ff;
+    --gold: #f5b82e;
+    --green: #059669;
+    --blue: #0ea5e9;
+    --red: #ef4444;
+  }
+  .review-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 22px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffffff, #edf7ff);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, .08);
+  }
+  .review-eyebrow {
+    color: var(--blue);
+    font-size: .74rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .review-title {
+    color: var(--ink);
+    font-size: clamp(1.7rem, 3vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.08;
+    margin: 0;
+  }
+  .review-subtitle {
+    color: var(--muted);
+    margin: 10px 0 0;
+    max-width: 820px;
+  }
+  .review-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 112px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 900;
+  }
+  .review-status--draft { background: #fff3cf; color: #915f00; }
+  .review-status--published { background: #dff8eb; color: #047857; }
+  .review-status--hidden { background: #e5e7eb; color: #334155; }
+  .review-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  .review-actions form { margin: 0; }
+  .review-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 15px;
+    color: #fff;
+    font-weight: 900;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .review-btn:hover { color: #fff; text-decoration: none; filter: brightness(.96); }
+  .review-btn--back { background: #071226; }
+  .review-btn--confirm { background: var(--green); }
+  .review-btn--draft { background: #2563eb; }
+  .review-btn--hide { background: #475569; }
+  .review-btn--danger { background: var(--red); }
+  .review-btn--public { background: var(--blue); }
+  .review-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, .85fr) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+  }
+  .review-panel {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .06);
+    overflow: hidden;
+  }
+  .review-panel-head {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, #f8fbff, #eef6ff);
+  }
+  .review-panel-head h2 {
+    color: var(--ink);
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin: 0;
+  }
+  .review-panel-body {
+    padding: 20px;
+  }
+  .review-cover {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #0f172a;
+  }
+  .review-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 22px 0;
+  }
+  .review-metric {
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+  }
+  .review-metric span {
+    display: block;
+    color: var(--muted);
+    font-size: .75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  .review-metric strong {
+    display: block;
+    color: var(--ink);
+    font-size: 1.7rem;
+    line-height: 1;
+    margin-top: 8px;
+  }
+  .review-desc {
+    color: #334155;
+    line-height: 1.7;
+    margin: 0;
+  }
+  .review-section {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .review-section + .review-section {
+    margin-top: 12px;
+  }
+  .review-section-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 15px;
+    background: #f8fafc;
+    color: var(--ink);
+    font-weight: 900;
+  }
+  .review-video-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .review-video-list li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding: 12px 15px;
+    border-top: 1px solid #eef2f7;
+    color: #334155;
+  }
+  .review-video-list small {
+    color: var(--muted);
+    font-weight: 800;
+  }
+  .review-empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 28px 16px;
+    margin: 0;
+  }
+  @media (max-width: 1100px) {
+    .review-grid { grid-template-columns: 1fr; }
+    .review-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .review-hero { grid-template-columns: 1fr; }
+    .review-actions { justify-content: flex-start; }
+    .review-metrics { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="review-page">
+  {% set status_key = course.status|default('DRAFT')|lower %}
+  <section class="review-hero">
+    <div>
+      <div class="review-eyebrow">Admin course review</div>
+      <h1 class="review-title">{{ course.title }}</h1>
+      <p class="review-subtitle">
+        Review the complete course content before approving it for the public catalogue.
+      </p>
+    </div>
+    <div class="review-actions">
+      <a class="review-btn review-btn--back" href="{{ path('back_content_courses') }}">
+        <i class="fas fa-arrow-left"></i> Courses
+      </a>
+      {% if course.status == 'PUBLISHED' %}
+        <a class="review-btn review-btn--public" href="{{ path('course_show', { id: course.id }) }}">
+          <i class="fas fa-external-link-alt"></i> Public Page
+        </a>
+      {% endif %}
+      {% if course.status != 'PUBLISHED' %}
+        <form method="post" action="{{ path('back_courses_status', { id: course.id }) }}">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_status_' ~ course.id) }}">
+          <input type="hidden" name="status" value="PUBLISHED">
+          <input type="hidden" name="return_to" value="show">
+          <button class="review-btn review-btn--confirm" type="submit">
+            <i class="fas fa-check"></i> Confirm Course
+          </button>
+        </form>
+      {% endif %}
+      {% if course.status != 'DRAFT' %}
+        <form method="post" action="{{ path('back_courses_status', { id: course.id }) }}">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_status_' ~ course.id) }}">
+          <input type="hidden" name="status" value="DRAFT">
+          <input type="hidden" name="return_to" value="show">
+          <button class="review-btn review-btn--draft" type="submit">
+            <i class="fas fa-pen"></i> Mark Draft
+          </button>
+        </form>
+      {% endif %}
+      {% if course.status != 'HIDDEN' %}
+        <form method="post" action="{{ path('back_courses_status', { id: course.id }) }}">
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_status_' ~ course.id) }}">
+          <input type="hidden" name="status" value="HIDDEN">
+          <input type="hidden" name="return_to" value="show">
+          <button class="review-btn review-btn--hide" type="submit">
+            <i class="fas fa-eye-slash"></i> Hide
+          </button>
+        </form>
+      {% endif %}
+      <form method="post" action="{{ path('back_courses_delete', { id: course.id }) }}" data-confirm-title="Delete course" data-confirm-message="Delete this course and every linked section, video, and quiz?">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_delete_' ~ course.id) }}">
+        <button class="review-btn review-btn--danger" type="submit">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <div class="review-metrics">
+    <div class="review-metric">
+      <span>Status</span>
+      <strong><span class="review-status review-status--{{ status_key }}">{{ course.status ?: 'DRAFT' }}</span></strong>
+    </div>
+    <div class="review-metric"><span>Sections</span><strong>{{ sections|length }}</strong></div>
+    <div class="review-metric"><span>Videos</span><strong>{{ total_videos }}</strong></div>
+    <div class="review-metric"><span>Pass Rate</span><strong>{{ pass_rate }}%</strong></div>
+  </div>
+
+  <div class="review-grid">
+    <section class="review-panel">
+      <div class="review-panel-head"><h2>Course Snapshot</h2></div>
+      <div class="review-panel-body">
+        {% set thumb = course.thumbnailUrl|default('') %}
+        {% if thumb %}
+          {% set thumbSrc = (thumb starts with('http://') or thumb starts with('https://') or thumb starts with('/')) ? thumb : asset(thumb) %}
+          <img class="review-cover" src="{{ thumbSrc }}" alt="{{ course.title|e }}" onerror="this.onerror=null;this.src='{{ asset('front/images/f1.png') }}';">
+        {% else %}
+          <img class="review-cover" src="{{ asset('front/images/f1.png') }}" alt="{{ course.title|e }}">
+        {% endif %}
+
+        <dl class="row mt-4 mb-0">
+          <dt class="col-sm-4 text-muted">Artist</dt>
+          <dd class="col-sm-8">{{ course.artist ? course.artist.username : '-' }}</dd>
+          <dt class="col-sm-4 text-muted">Created</dt>
+          <dd class="col-sm-8">{{ course.createdAt ? course.createdAt|date('M d, Y H:i') : '-' }}</dd>
+          <dt class="col-sm-4 text-muted">Attempts</dt>
+          <dd class="col-sm-8">{{ attempts|length }}</dd>
+          <dt class="col-sm-4 text-muted">Average Score</dt>
+          <dd class="col-sm-8">{{ average_score }}%</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="review-panel">
+      <div class="review-panel-head"><h2>Description & Content</h2></div>
+      <div class="review-panel-body">
+        <p class="review-desc">{{ course.description }}</p>
+
+        <hr>
+
+        {% if sections is empty %}
+          <p class="review-empty">This course has no sections yet.</p>
+        {% else %}
+          {% for section in sections %}
+            <article class="review-section">
+              <div class="review-section-title">
+                <span>Section {{ section.orderIndex }}: {{ section.title }}</span>
+                <span>{{ section.courseVideos|length }} videos</span>
+              </div>
+              {% if section.courseVideos is empty %}
+                <p class="review-empty">No videos in this section.</p>
+              {% else %}
+                <ul class="review-video-list">
+                  {% for video in section.courseVideos %}
+                    <li>
+                      <span>
+                        <strong>{{ video.orderIndex }}. {{ video.title }}</strong>
+                        {% if video.videoUrl %}
+                          <small class="d-block">{{ video.videoUrl }}</small>
+                        {% endif %}
+                      </span>
+                      <small>{{ video.durationSec ? (video.durationSec / 60)|round(0, 'ceil') ~ ' min' : '-' }}</small>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </article>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

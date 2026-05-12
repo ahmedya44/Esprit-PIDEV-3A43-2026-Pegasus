@@ -27,6 +27,8 @@ final class ArtistDashboardController extends AbstractController
         return $this->render('front/dashboard.html.twig', [
             'courses' => $courses,
             'quizzes' => $quizzes,
+            'totalCourses' => count($courses),
+            'totalQuizzes' => count($quizzes),
         ]);
     }
 }

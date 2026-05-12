@@ -7,13 +7,16 @@ namespace App\Controller;
 use App\Entity\Admin;
 use App\Entity\Artiste;
 use App\Entity\Course;
+use App\Entity\NormalUser;
 use App\Entity\Quiz;
 use App\Entity\Sponsor;
 use App\Enum\AccountStatus;
 use App\Repository\AdminRepository;
 use App\Repository\ArtisteRepository;
 use App\Repository\CourseRepository;
+use App\Repository\CourseSectionRepository;
 use App\Repository\NormalUserRepository;
+use App\Repository\QuizAttemptRepository;
 use App\Repository\QuizRepository;
 use App\Repository\SponsorRepository;
 use App\Repository\UserRepository;
@@ -33,9 +36,9 @@ use App\Entity\User;
 final class BackController extends AbstractController
 {
     #[Route('', name: 'dashboard', methods: ['GET'])]
-    public function dashboard(): RedirectResponse
+    public function dashboard(): Response
     {
-        return $this->redirectToRoute('back_page', ['path' => 'index']);
+        return $this->render('back/index.html.twig');
     }
 
     #[Route('/profile', name: 'profile', methods: ['GET'])]
@@ -93,10 +96,22 @@ final class BackController extends AbstractController
 
         return $this->render('back/profile.html.twig', [
             'users_page' => true,
-            'admins' => $adminRepository->findAllForBackOffice($sortBy, $sortDir),
-            'artistes' => $artisteRepository->findAllForBackOffice($sortBy, $sortDir),
-            'sponsors' => $sponsorRepository->findAllForBackOffice($sortBy, $sortDir),
-            'normal_users' => $normalUserRepository->findAllForBackOffice($sortBy, $sortDir),
+            'admins' => array_values(array_filter(
+                $adminRepository->findAllForBackOffice($sortBy, $sortDir),
+                static fn (mixed $user): bool => $user instanceof Admin
+            )),
+            'artistes' => array_values(array_filter(
+                $artisteRepository->findAllForBackOffice($sortBy, $sortDir),
+                static fn (mixed $user): bool => $user instanceof Artiste
+            )),
+            'sponsors' => array_values(array_filter(
+                $sponsorRepository->findAllForBackOffice($sortBy, $sortDir),
+                static fn (mixed $user): bool => $user instanceof Sponsor
+            )),
+            'normal_users' => array_values(array_filter(
+                $normalUserRepository->findAllForBackOffice($sortBy, $sortDir),
+                static fn (mixed $user): bool => $user instanceof NormalUser
+            )),
             'status_options' => AccountStatus::cases(),
             'is_super_admin' => $isSuperAdmin,
             'sort_by' => $sortBy,
@@ -107,20 +122,100 @@ final class BackController extends AbstractController
     #[Route('/content', name: 'content', methods: ['GET'])]
     public function content(
         CourseRepository $courseRepository,
-        QuizRepository $quizRepository
+        QuizRepository $quizRepository,
+        QuizAttemptRepository $quizAttemptRepository
     ): Response {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return $this->redirectToRoute('app_back_login');
+        return $this->renderContentDashboard($courseRepository, $quizRepository, $quizAttemptRepository, 'courses');
+    }
+
+    #[Route('/content/courses', name: 'content_courses', methods: ['GET'])]
+    public function contentCourses(
+        CourseRepository $courseRepository,
+        QuizRepository $quizRepository,
+        QuizAttemptRepository $quizAttemptRepository
+    ): Response {
+        return $this->renderContentDashboard($courseRepository, $quizRepository, $quizAttemptRepository, 'courses');
+    }
+
+    #[Route('/content/quizzes', name: 'content_quizzes', methods: ['GET'])]
+    public function contentQuizzes(
+        CourseRepository $courseRepository,
+        QuizRepository $quizRepository,
+        QuizAttemptRepository $quizAttemptRepository
+    ): Response {
+        return $this->renderContentDashboard($courseRepository, $quizRepository, $quizAttemptRepository, 'quizzes');
+    }
+
+    #[Route('/content/statistique', name: 'content_stats', methods: ['GET'])]
+    public function contentStats(
+        CourseRepository $courseRepository,
+        QuizRepository $quizRepository,
+        QuizAttemptRepository $quizAttemptRepository
+    ): Response {
+        return $this->renderContentDashboard($courseRepository, $quizRepository, $quizAttemptRepository, 'stats');
+    }
+
+    #[Route('/courses/{id}/status', name: 'courses_status', methods: ['POST'])]
+    public function coursesStatus(
+        Course $course,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): RedirectResponse {
+        if (!$this->isCsrfTokenValid('courses_status_' . $course->getId(), (string) $request->request->get('_csrf_token'))) {
+            $this->addFlash('danger', 'Invalid request token.');
+
+            return $this->redirectToRoute('back_content_courses');
         }
 
-        $courses = $courseRepository->findBy([], ['id' => 'DESC']);
-        $quizzes = $quizRepository->findBy([], ['id' => 'DESC']);
+        $status = strtoupper((string) $request->request->get('status', ''));
+        if (!in_array($status, ['DRAFT', 'PUBLISHED', 'HIDDEN'], true)) {
+            $this->addFlash('danger', 'Invalid course status.');
 
-        return $this->render('back/profile.html.twig', [
-            'content_page' => true,
-            'courses' => $courses,
-            'quizzes' => $quizzes,
+            return $this->redirectToRoute('back_content_courses');
+        }
+
+        $course->setStatus($status);
+        $entityManager->flush();
+
+        $this->addFlash('success', sprintf('Course "%s" is now %s.', $course->getTitle(), strtolower($status)));
+
+        if ((string) $request->request->get('return_to') === 'show') {
+            return $this->redirectToRoute('back_courses_show', ['id' => $course->getId()]);
+        }
+
+        return $this->redirectToRoute('back_content_courses');
+    }
+
+    #[Route('/content/courses/{id}', name: 'courses_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function coursesShow(
+        Course $course,
+        CourseSectionRepository $courseSectionRepository,
+        QuizAttemptRepository $quizAttemptRepository
+    ): Response {
+        $sections = $courseSectionRepository->findBy(['course' => $course], ['orderIndex' => 'ASC']);
+        $totalVideos = 0;
+        foreach ($sections as $section) {
+            $totalVideos += $section->getCourseVideos()->count();
+        }
+
+        $attempts = $quizAttemptRepository->findBy(['course' => $course], ['submittedAt' => 'DESC']);
+        $passedAttempts = 0;
+        $scoreSum = 0;
+        foreach ($attempts as $attempt) {
+            if ($attempt->isPassed()) {
+                ++$passedAttempts;
+            }
+            $scoreSum += $attempt->getScorePercent();
+        }
+
+        return $this->render('back/content/course_show.html.twig', [
+            'course' => $course,
+            'sections' => $sections,
+            'total_videos' => $totalVideos,
+            'attempts' => $attempts,
+            'passed_attempts' => $passedAttempts,
+            'pass_rate' => count($attempts) > 0 ? (int) round(($passedAttempts / count($attempts)) * 100) : 0,
+            'average_score' => count($attempts) > 0 ? (int) round($scoreSum / count($attempts)) : 0,
         ]);
     }
 
@@ -134,21 +229,21 @@ final class BackController extends AbstractController
         if (!$this->isCsrfTokenValid('courses_delete_' . $id, (string) $request->request->get('_csrf_token'))) {
             $this->addFlash('danger', 'Invalid request token.');
 
-            return $this->redirectToRoute('back_content');
+            return $this->redirectToRoute('back_content_courses');
         }
 
         $course = $courseRepository->find($id);
         if (!$course instanceof Course) {
             $this->addFlash('danger', 'Course not found.');
 
-            return $this->redirectToRoute('back_content');
+            return $this->redirectToRoute('back_content_courses');
         }
 
         $entityManager->remove($course);
         $entityManager->flush();
         $this->addFlash('success', 'Course deleted successfully.');
 
-        return $this->redirectToRoute('back_content');
+        return $this->redirectToRoute('back_content_courses');
     }
 
     #[Route('/quizzes/{id}/delete', name: 'quizzes_delete', methods: ['POST'])]
@@ -161,21 +256,21 @@ final class BackController extends AbstractController
         if (!$this->isCsrfTokenValid('quizzes_delete_' . $id, (string) $request->request->get('_csrf_token'))) {
             $this->addFlash('danger', 'Invalid request token.');
 
-            return $this->redirectToRoute('back_content');
+            return $this->redirectToRoute('back_content_quizzes');
         }
 
         $quiz = $quizRepository->find($id);
         if (!$quiz instanceof Quiz) {
             $this->addFlash('danger', 'Quiz not found.');
 
-            return $this->redirectToRoute('back_content');
+            return $this->redirectToRoute('back_content_quizzes');
         }
 
         $entityManager->remove($quiz);
         $entityManager->flush();
         $this->addFlash('success', 'Quiz deleted successfully.');
 
-        return $this->redirectToRoute('back_content');
+        return $this->redirectToRoute('back_content_quizzes');
     }
 
     #[Route('/users/{id}/status', name: 'users_change_status', methods: ['POST'])]
@@ -503,6 +598,97 @@ final class BackController extends AbstractController
         } catch (LoaderError) {
             throw $this->createNotFoundException(sprintf('Back template "%s" was not found.', $template));
         }
+    }
+
+    private function renderContentDashboard(
+        CourseRepository $courseRepository,
+        QuizRepository $quizRepository,
+        QuizAttemptRepository $quizAttemptRepository,
+        string $activeTab
+    ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_back_login');
+        }
+
+        $courses = $courseRepository->findBy([], ['id' => 'DESC']);
+        $quizzes = $quizRepository->findBy([], ['id' => 'DESC']);
+        $attempts = $quizAttemptRepository->findBy([], ['submittedAt' => 'DESC']);
+
+        $statusCounts = ['DRAFT' => 0, 'PUBLISHED' => 0, 'HIDDEN' => 0];
+        $totalSections = 0;
+        $totalVideos = 0;
+
+        foreach ($courses as $course) {
+            $status = strtoupper((string) $course->getStatus());
+            if (!array_key_exists($status, $statusCounts)) {
+                $statusCounts[$status] = 0;
+            }
+
+            ++$statusCounts[$status];
+            $totalSections += $course->getCourseSections()->count();
+
+            foreach ($course->getCourseSections() as $section) {
+                $totalVideos += $section->getCourseVideos()->count();
+            }
+        }
+
+        $attemptsByQuiz = [];
+        $attemptsByCourse = [];
+        $passedAttemptsByQuiz = [];
+        $scoreSum = 0;
+        $timeSum = 0;
+        $passedAttempts = 0;
+
+        foreach ($attempts as $attempt) {
+            $quizId = $attempt->getQuiz()?->getId();
+            $courseId = $attempt->getCourse()?->getId();
+
+            if ($quizId !== null) {
+                $attemptsByQuiz[$quizId] = ($attemptsByQuiz[$quizId] ?? 0) + 1;
+                if ($attempt->isPassed()) {
+                    $passedAttemptsByQuiz[$quizId] = ($passedAttemptsByQuiz[$quizId] ?? 0) + 1;
+                }
+            }
+
+            if ($courseId !== null) {
+                $attemptsByCourse[$courseId] = ($attemptsByCourse[$courseId] ?? 0) + 1;
+            }
+
+            if ($attempt->isPassed()) {
+                ++$passedAttempts;
+            }
+
+            $scoreSum += $attempt->getScorePercent();
+            $timeSum += $attempt->getTimeSpentSec();
+        }
+
+        $totalAttempts = count($attempts);
+        $quizPassRates = [];
+
+        foreach ($attemptsByQuiz as $quizId => $attemptCount) {
+            $quizPassRates[$quizId] = $attemptCount > 0
+                ? (int) round((($passedAttemptsByQuiz[$quizId] ?? 0) / $attemptCount) * 100)
+                : 0;
+        }
+
+        return $this->render('back/content/dashboard.html.twig', [
+            'active_tab' => $activeTab,
+            'courses' => $courses,
+            'quizzes' => $quizzes,
+            'recent_attempts' => array_slice($attempts, 0, 8),
+            'status_counts' => $statusCounts,
+            'total_sections' => $totalSections,
+            'total_videos' => $totalVideos,
+            'total_attempts' => $totalAttempts,
+            'passed_attempts' => $passedAttempts,
+            'pass_rate' => $totalAttempts > 0 ? (int) round(($passedAttempts / $totalAttempts) * 100) : 0,
+            'average_score' => $totalAttempts > 0 ? (int) round($scoreSum / $totalAttempts) : 0,
+            'average_time_min' => $totalAttempts > 0 ? (int) round(($timeSum / $totalAttempts) / 60) : 0,
+            'attempts_by_course' => $attemptsByCourse,
+            'attempts_by_quiz' => $attemptsByQuiz,
+            'quiz_pass_rates' => $quizPassRates,
+        ]);
     }
 
     private function requireSuperAdmin(): ?Admin

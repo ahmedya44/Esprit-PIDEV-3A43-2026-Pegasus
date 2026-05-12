@@ -52,7 +52,7 @@ class Commentaire
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\Column(type: Types::BOOLEAN)]
+    #[ORM\Column(name: 'is_banned', type: Types::BOOLEAN, options: ['default' => false])]
     private bool $bannedByAdmin = false;
 
     public function __construct()

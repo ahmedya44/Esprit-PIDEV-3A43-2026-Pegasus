@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Art;
 use App\Form\ArtType;
+use App\Repository\ArtCommentRepository;
 use App\Repository\ArtRepository;
 use App\Service\FreeTranslationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 final class GalleryController extends AbstractController
 {
     #[Route('/gallery', name: 'front_gallery', methods: ['GET'])]
-    public function index(Request $request, ArtRepository $artRepository): Response
+    public function index(Request $request, ArtRepository $artRepository, ArtCommentRepository $commentRepository): Response
     {
         $search = trim((string) $request->query->get('search', ''));
         $sortBy = (string) $request->query->get('sort', 'recent');
@@ -48,10 +49,13 @@ final class GalleryController extends AbstractController
                 break;
         }
 
+        $artIds = array_values(array_filter(array_map(static fn (Art $art): ?int => $art->getId(), $arts)));
+
         return $this->render('front/gallery.html.twig', [
             'arts' => $arts,
             'search' => $search,
             'sortBy' => $sortBy,
+            'commentCounts' => $commentRepository->countByArtIds($artIds),
         ]);
     }
 

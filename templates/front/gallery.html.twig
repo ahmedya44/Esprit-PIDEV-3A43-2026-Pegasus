@@ -109,6 +109,7 @@
     <div class="art-grid">
       {% for art in arts %}
         {% set imageSrc = art.imageUrl ? ((art.imageUrl starts with('http') or art.imageUrl starts with('/')) ? art.imageUrl : asset('images/products/' ~ art.imageUrl)) : '' %}
+        {% set commentCount = commentCounts[art.id]|default(0) %}
         <article class="art-card">
           {% if imageSrc %}
             <a href="{{ path('art_detail', {id: art.id}) }}" onclick="recordView({{ art.id }}); return true;"><img src="{{ imageSrc }}" class="art-media" alt="{{ art.title }}"></a>
@@ -121,6 +122,9 @@
               <span class="gallery-pill-count"><i class="fa fa-heart-o"></i> <span class="js-fav-count" data-art-id="{{ art.id }}">0</span></span>
               <button type="button" class="gallery-icon-btn js-like-btn" data-art-id="{{ art.id }}" aria-label="Like"><i class="fa fa-thumbs-up"></i></button>
               <span class="gallery-pill-count"><i class="fa fa-thumbs-up"></i> <span class="js-like-count" data-art-id="{{ art.id }}">0</span></span>
+              <a href="{{ path('art_detail', {id: art.id}) }}#comments" class="gallery-pill-count" title="View comments">
+                <i class="fa fa-comment-o"></i> {{ commentCount }}
+              </a>
             </div>
             <div class="art-actions">
               <a href="{{ path('art_detail', {id: art.id}) }}" class="btn btn-sm btn-outline-info">Details</a>

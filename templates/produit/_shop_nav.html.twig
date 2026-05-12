@@ -1,0 +1,54 @@
+{% set shop_active = shop_active|default('products') %}
+{% set can_shop = app.user and not is_granted('ROLE_ARTISTE') and not is_granted('ROLE_ADMIN') %}
+{% set can_manage_products = is_granted('ROLE_ARTISTE') %}
+{% set can_admin_market = is_granted('ROLE_ADMIN') %}
+
+<nav class="market-nav" aria-label="Marketplace navigation">
+  <a class="market-nav__brand" href="{{ path('app_produit_index') }}">
+    <i class="fa fa-shopping-bag" aria-hidden="true"></i>
+    <span>Marketplace</span>
+  </a>
+  <div class="market-nav__links">
+    <a class="market-nav__link {{ shop_active == 'products' ? 'is-active' : '' }}" href="{{ path('app_produit_index') }}">
+      <i class="fa fa-th-large" aria-hidden="true"></i>
+      <span>Products</span>
+    </a>
+
+    {% if can_shop %}
+      <a class="market-nav__link {{ shop_active == 'cart' ? 'is-active' : '' }}" href="{{ path('app_panier_index') }}">
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+        <span>Cart</span>
+      </a>
+      <a class="market-nav__link {{ shop_active == 'favorites' ? 'is-active' : '' }}" href="{{ path('app_favoris_index') }}">
+        <i class="fa fa-heart" aria-hidden="true"></i>
+        <span>Favorites</span>
+      </a>
+      <a class="market-nav__link {{ shop_active == 'history' ? 'is-active' : '' }}" href="{{ path('app_commande_historique') }}">
+        <i class="fa fa-history" aria-hidden="true"></i>
+        <span>History</span>
+      </a>
+    {% endif %}
+
+    {% if can_manage_products %}
+      <a class="market-nav__link {{ shop_active == 'mine' ? 'is-active' : '' }}" href="{{ path('app_produit_mes_produits') }}">
+        <i class="fa fa-cubes" aria-hidden="true"></i>
+        <span>My products</span>
+      </a>
+      <a class="market-nav__link {{ shop_active == 'new' ? 'is-active' : '' }}" href="{{ path('app_produit_new') }}">
+        <i class="fa fa-plus" aria-hidden="true"></i>
+        <span>Add product</span>
+      </a>
+    {% endif %}
+
+    {% if can_admin_market %}
+      <a class="market-nav__link" href="{{ path('admin_produit_attente') }}">
+        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+        <span>Review products</span>
+      </a>
+      <a class="market-nav__link" href="{{ path('admin_commandes_index') }}">
+        <i class="fa fa-list-alt" aria-hidden="true"></i>
+        <span>Orders</span>
+      </a>
+    {% endif %}
+  </div>
+</nav>

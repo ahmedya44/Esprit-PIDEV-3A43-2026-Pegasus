@@ -54,6 +54,7 @@ final class ArtDetailController extends AbstractController
             }
             $comment->setArt($art);
             $comment->setUser($user);
+            $comment->setUsername((string) ($user->getUsername() ?: $user->getUserIdentifier()));
             $em->persist($comment);
             $em->flush();
 

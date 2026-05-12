@@ -6,6 +6,41 @@ namespace App\Service;
 
 class AIService
 {
+    /**
+     * @param array{total: int, names: list<string>}|null $catalogContext
+     */
+    public function getProductAdvisorAnswer(string $productName, string $productDescription, string $question, ?array $catalogContext = null): string
+    {
+        $question = trim($question);
+        if ($question === '') {
+            return 'Posez-moi une question sur un produit, une categorie, un prix ou une idee cadeau.';
+        }
+
+        if ($catalogContext !== null) {
+            $total = (int) ($catalogContext['total'] ?? 0);
+            $names = $catalogContext['names'] ?? [];
+            $sample = $names !== [] ? implode(', ', array_slice($names, 0, 6)) : 'aucun produit visible pour le moment';
+
+            return sprintf(
+                'Le catalogue contient %d produit(s). Quelques options: %s. Pour choisir, filtrez par categorie puis comparez le prix, le stock et la description selon votre besoin.',
+                $total,
+                $sample
+            );
+        }
+
+        $name = trim($productName) !== '' ? trim($productName) : 'ce produit';
+        $description = trim(strip_tags($productDescription));
+
+        if (preg_match('/prix|cher|budget|cost|price/i', $question) === 1) {
+            return sprintf('%s peut etre evalue selon votre budget et son usage. Comparez son prix avec des produits similaires et verifiez surtout la qualite, la rarete et le stock disponible.', $name);
+        }
+
+        if (preg_match('/cadeau|gift|offrir/i', $question) === 1) {
+            return sprintf('%s peut faire un bon cadeau si le style correspond au destinataire. Regardez la description%s et privilegiez une piece facile a exposer ou utiliser.', $name, $description !== '' ? ' : '.$description : '');
+        }
+
+        return sprintf('%s semble interessant. %s Vous pouvez verifier la categorie, le stock et l\'etat de disponibilite avant de l\'ajouter au panier.', $name, $description !== '' ? $description : 'La fiche produit donne les informations principales.');
+    }
     // Génération d'images sans API - services gratuits
     public function generateImage(string $title, string $description): ?string
     {

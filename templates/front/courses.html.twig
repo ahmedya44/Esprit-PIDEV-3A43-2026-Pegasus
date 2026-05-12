@@ -13,17 +13,17 @@
   .filters_menu li a { color: #374151; text-decoration: none; padding: 6px 14px; border-radius: 20px; border: 1px solid #dbe5ef; background: #fff; font-size: .875rem; font-weight: 500; transition: all .2s; display: inline-block; }
   .filters_menu li.active a, .filters_menu li a:hover { background: var(--pg-gold, #f9c23c); border-color: var(--pg-gold, #f9c23c); color: #111; font-weight: 700; }
   .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
-  .course-card { border-radius: 16px; overflow: hidden; background: #fff; border: 1px solid #dbe5ef; box-shadow: 0 8px 24px rgba(15,23,42,.09); transition: transform .2s, box-shadow .2s; }
+  .course-card { border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #dbe5ef; box-shadow: 0 8px 24px rgba(15,23,42,.09); transition: transform .2s, box-shadow .2s; }
   .course-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15,23,42,.14); }
   .course-media { background: #f0f4fb; height: 200px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
   .course-media img { width: 140px; height: 140px; object-fit: cover; border-radius: 50%; box-shadow: 0 12px 28px rgba(0,0,0,.18); transition: transform .3s; }
   .course-card:hover .course-media img { transform: scale(1.06); }
-  .course-body { padding: 18px; background: var(--pg-navy-2, #1f2937); border-radius: 24px 0 0 0; min-height: 220px; color: #f1f5f9; display: flex; flex-direction: column; }
-  .course-body h5 { color: #f9fafb; font-weight: 700; margin-bottom: 6px; }
-  .course-body p { font-size: .9rem; line-height: 1.5; color: #cbd5e1; flex: 1; min-height: 60px; }
-  .course-body .badge.bg-dark { background: rgba(255,255,255,.12) !important; color: #e2e8f0; border-radius: 20px !important; padding: 5px 10px; }
-  .course-price { font-size: 1.6rem; font-weight: 800; color: var(--pg-gold, #f9c23c); }
-  .course-cta { width: 46px; height: 46px; border-radius: 50%; background: var(--pg-gold, #f9c23c); color: #111; display:inline-flex; align-items:center; justify-content:center; font-size: 18px; transition: background .2s; flex-shrink: 0; }
+  .course-body { padding: 18px; background: #fff; min-height: 230px; color: #111827; display: flex; flex-direction: column; }
+  .course-body h5 { color: #111827; font-weight: 800; margin-bottom: 6px; }
+  .course-body p { font-size: .9rem; line-height: 1.5; color: #64748b; flex: 1; min-height: 60px; }
+  .course-body .badge.bg-dark { background: #eef2f7 !important; color: #334155; border-radius: 999px !important; padding: 5px 10px; }
+  .course-price { font-size: 1.35rem; font-weight: 900; color: #111827; }
+  .course-cta { min-width: 92px; height: 40px; border-radius: 8px; background: var(--pg-gold, #f9c23c); color: #111; display:inline-flex; align-items:center; justify-content:center; gap: 7px; font-size: 14px; font-weight: 900; transition: background .2s; flex-shrink: 0; padding: 0 13px; }
   .course-cta:hover { background: var(--pg-gold-dark, #e6a800); }
   .course-progress-bar { background: rgba(255,255,255,.15); border-radius: 999px; height: 5px; margin-bottom: 10px; }
   .course-progress-fill { background: var(--pg-gold, #f9c23c); height: 5px; border-radius: 999px; }
@@ -84,7 +84,7 @@
                 {% set prog = progressMap[course.id] %}
                 <div class="mb-2">
                   <div class="d-flex justify-content-between small mb-1" style="color:#f9c23c; font-weight:600;">
-                    <span>{{ prog.status == 'completed' ? '✓ Completed' : 'In progress' }}</span>
+                    <span>{{ prog.status == 'completed' ? 'Completed' : 'In progress' }}</span>
                     <span>{{ prog.progressPercent }}%</span>
                   </div>
                   <div class="course-progress-bar">
@@ -99,7 +99,7 @@
                 {% else %}
                   <h6 class="course-price mb-0" style="opacity:.7;">--</h6>
                 {% endif %}
-                <span class="course-cta" title="View course"><i class="fa fa-eye" aria-hidden="true"></i></span>
+                <span class="course-cta" title="View course"><i class="fa fa-eye" aria-hidden="true"></i> View</span>
               </div>
             </div>
           </a>
@@ -109,7 +109,6 @@
       {% endfor %}
     </div>
 
-    <div class="btn-box mt-4 text-center"><a href="{{ path('app_courses') }}">View More</a></div>
   </div>
 </section>
 {% endblock %}

@@ -21,8 +21,11 @@ class ArtComment
     private ?Art $art = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'user_id', nullable: true, onDelete: 'SET NULL')]
     private ?User $user = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $username = null;
 
     #[ORM\Column(type: 'text')]
     private string $content = '';
@@ -63,6 +66,17 @@ class ArtComment
     public function setUser(?User $user): static
     {
         $this->user = $user;
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(?string $username): static
+    {
+        $this->username = $username;
         return $this;
     }
 

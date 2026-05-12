@@ -9,6 +9,13 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
+# Local tooling/installers
+/composer.phar
+/composer-setup.php
+
+# Runtime uploads
+/public/uploads/
+
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache

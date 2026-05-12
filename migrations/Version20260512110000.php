@@ -11,7 +11,7 @@ final class Version20260512110000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'art_comment: add user_id FK (nullable), drop username column';
+        return 'Ensure art_comment has nullable user ownership';
     }
 
     public function up(Schema $schema): void
@@ -25,7 +25,7 @@ final class Version20260512110000 extends AbstractMigration
         }
 
         if ($table->hasColumn('username')) {
-            $this->addSql('ALTER TABLE art_comment DROP COLUMN username');
+            $this->addSql("ALTER TABLE art_comment MODIFY username VARCHAR(100) DEFAULT NULL");
         }
     }
 
@@ -37,10 +37,6 @@ final class Version20260512110000 extends AbstractMigration
             $this->addSql('ALTER TABLE art_comment DROP FOREIGN KEY FK_art_comment_user');
             $this->addSql('DROP INDEX IDX_art_comment_user ON art_comment');
             $this->addSql('ALTER TABLE art_comment DROP COLUMN user_id');
-        }
-
-        if (!$table->hasColumn('username')) {
-            $this->addSql("ALTER TABLE art_comment ADD username VARCHAR(120) NOT NULL DEFAULT ''");
         }
     }
 }

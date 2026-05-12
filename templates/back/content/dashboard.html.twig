@@ -1,0 +1,524 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Course Dashboard{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .content-dashboard {
+    --dash-ink: #06132b;
+    --dash-muted: #64748b;
+    --dash-line: #dbeafe;
+    --dash-soft: #f1f7ff;
+    --dash-blue: #0ea5e9;
+    --dash-green: #059669;
+    --dash-gold: #f5b82e;
+    --dash-red: #ef4444;
+  }
+  .dash-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 24px;
+    padding: 22px 24px;
+    border: 1px solid var(--dash-line);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ffffff 0%, #eef7ff 100%);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .08);
+  }
+  .dash-eyebrow {
+    color: var(--dash-blue);
+    font-size: .74rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .dash-title {
+    color: var(--dash-ink);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin: 0;
+  }
+  .dash-subtitle {
+    color: var(--dash-muted);
+    margin: 8px 0 0;
+    max-width: 720px;
+  }
+  .dash-user {
+    min-width: 190px;
+    text-align: right;
+    padding: 14px 16px;
+    border: 1px solid #cfe8ff;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .72);
+  }
+  .dash-user strong {
+    display: block;
+    color: var(--dash-ink);
+    font-size: 1.05rem;
+  }
+  .dash-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .dash-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: #eaf1f9;
+    color: #16304f;
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .dash-tab:hover {
+    color: #06132b;
+    text-decoration: none;
+    background: #dfeaf6;
+  }
+  .dash-tab.is-active {
+    background: #071226;
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(7, 18, 38, .18);
+  }
+  .dash-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .dash-metric {
+    border: 1px solid var(--dash-line);
+    border-radius: 8px;
+    background: #fff;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+  }
+  .dash-metric span {
+    display: block;
+    color: var(--dash-muted);
+    font-size: .78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .dash-metric strong {
+    display: block;
+    color: var(--dash-ink);
+    font-size: 2rem;
+    line-height: 1;
+    margin-top: 10px;
+  }
+  .dash-panel {
+    border: 1px solid var(--dash-line);
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, .08);
+  }
+  .dash-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
+    border-bottom: 1px solid var(--dash-line);
+  }
+  .dash-panel-head h2 {
+    color: var(--dash-ink);
+    font-size: 1.35rem;
+    font-weight: 900;
+    margin: 0;
+  }
+  .dash-panel-head p {
+    color: var(--dash-muted);
+    margin: 4px 0 0;
+  }
+  .dash-search {
+    max-width: 320px;
+    border: 1px solid #cfe0f4;
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .dash-table {
+    margin: 0;
+  }
+  .dash-table thead th {
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+  }
+  .dash-table tbody td {
+    vertical-align: middle;
+    color: #1f2937;
+    border-color: #edf2f7;
+  }
+  .dash-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 86px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 900;
+  }
+  .dash-status--draft { background: #fff3cf; color: #915f00; }
+  .dash-status--published { background: #dff8eb; color: #047857; }
+  .dash-status--hidden { background: #e5e7eb; color: #334155; }
+  .dash-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .dash-actions form {
+    margin: 0;
+  }
+  .dash-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: .8rem;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .dash-btn:hover { color: #fff; text-decoration: none; filter: brightness(.96); }
+  .dash-btn--view { background: var(--dash-blue); }
+  .dash-btn--publish { background: var(--dash-green); }
+  .dash-btn--draft { background: #2563eb; }
+  .dash-btn--hide { background: #475569; }
+  .dash-btn--danger { background: var(--dash-red); }
+  .dash-stats-grid {
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 18px;
+  }
+  .dash-chart {
+    padding: 20px;
+  }
+  .dash-bars {
+    display: grid;
+    gap: 14px;
+  }
+  .dash-bar-line {
+    display: grid;
+    grid-template-columns: 110px 1fr 48px;
+    gap: 12px;
+    align-items: center;
+    color: #334155;
+    font-weight: 800;
+  }
+  .dash-bar {
+    height: 12px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+  }
+  .dash-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #0ea5e9, #059669);
+  }
+  .dash-empty {
+    padding: 44px 24px;
+    color: var(--dash-muted);
+    text-align: center;
+  }
+  @media (max-width: 1100px) {
+    .dash-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dash-stats-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    .dash-hero { align-items: flex-start; flex-direction: column; }
+    .dash-user { width: 100%; text-align: left; }
+    .dash-metrics { grid-template-columns: 1fr; }
+    .dash-panel-head { align-items: stretch; flex-direction: column; }
+    .dash-search { max-width: none; width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="content-dashboard">
+  <section class="dash-hero">
+    <div>
+      <div class="dash-eyebrow">Learning workspace</div>
+      <h1 class="dash-title">Course Dashboard</h1>
+      <p class="dash-subtitle">Approve artist course submissions, review quiz quality, and monitor learning performance from one clean backoffice screen.</p>
+    </div>
+    <div class="dash-user">
+      <strong>{{ app.user ? app.user.username : 'Admin' }}</strong>
+      <span class="text-muted">Administrator workspace</span>
+    </div>
+  </section>
+
+  <nav class="dash-tabs" aria-label="Course dashboard sections">
+    <a class="dash-tab {{ active_tab == 'courses' ? 'is-active' : '' }}" href="{{ path('back_content_courses') }}">
+      <i class="fas fa-book-open"></i> Courses
+    </a>
+    <a class="dash-tab {{ active_tab == 'quizzes' ? 'is-active' : '' }}" href="{{ path('back_content_quizzes') }}">
+      <i class="fas fa-question-circle"></i> Quizzes
+    </a>
+    <a class="dash-tab {{ active_tab == 'stats' ? 'is-active' : '' }}" href="{{ path('back_content_stats') }}">
+      <i class="fas fa-chart-line"></i> Statistique
+    </a>
+  </nav>
+
+  <div class="dash-metrics">
+    <div class="dash-metric"><span>Total courses</span><strong>{{ courses|length }}</strong></div>
+    <div class="dash-metric"><span>Draft queue</span><strong>{{ status_counts.DRAFT|default(0) }}</strong></div>
+    <div class="dash-metric"><span>Quizzes</span><strong>{{ quizzes|length }}</strong></div>
+    <div class="dash-metric"><span>Pass rate</span><strong>{{ pass_rate }}%</strong></div>
+  </div>
+
+  {% if active_tab == 'courses' %}
+    <section class="dash-panel">
+      <div class="dash-panel-head">
+        <div>
+          <h2>Courses Table</h2>
+          <p>Draft courses stay here until an admin publishes them.</p>
+        </div>
+        <input class="dash-search js-back-content-search" type="search" placeholder="Search courses...">
+      </div>
+      <div class="table-responsive">
+        <table class="table dash-table align-middle js-back-content-table">
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Artist</th>
+              <th>Status</th>
+              <th>Sections</th>
+              <th>Videos</th>
+              <th>Attempts</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for course in courses %}
+            {% set video_count = 0 %}
+            {% for section in course.courseSections %}
+              {% set video_count = video_count + section.courseVideos|length %}
+            {% endfor %}
+            {% set status_key = course.status|default('DRAFT')|lower %}
+            <tr>
+              <td>
+                <strong>{{ course.title }}</strong>
+                <div class="text-muted small">Created {{ course.createdAt ? course.createdAt|date('M d, Y') : '-' }}</div>
+              </td>
+              <td>{{ course.artist ? course.artist.username : '-' }}</td>
+              <td><span class="dash-status dash-status--{{ status_key }}">{{ course.status ?: 'DRAFT' }}</span></td>
+              <td>{{ course.courseSections|length }}</td>
+              <td>{{ video_count }}</td>
+              <td>{{ attribute(attempts_by_course, course.id)|default(0) }}</td>
+              <td>
+                <div class="dash-actions">
+                  <a class="dash-btn dash-btn--view" href="{{ path('back_courses_show', { id: course.id }) }}">
+                    <i class="fas fa-eye"></i> Review
+                  </a>
+                  {% if course.status != 'PUBLISHED' %}
+                    <form method="post" action="{{ path('back_courses_status', { id: course.id }) }}">
+                      <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_status_' ~ course.id) }}">
+                      <input type="hidden" name="status" value="PUBLISHED">
+                      <button class="dash-btn dash-btn--publish" type="submit"><i class="fas fa-check"></i> Publish</button>
+                    </form>
+                  {% endif %}
+                  {% if course.status != 'DRAFT' %}
+                    <form method="post" action="{{ path('back_courses_status', { id: course.id }) }}">
+                      <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_status_' ~ course.id) }}">
+                      <input type="hidden" name="status" value="DRAFT">
+                      <button class="dash-btn dash-btn--draft" type="submit"><i class="fas fa-pen"></i> Draft</button>
+                    </form>
+                  {% endif %}
+                  {% if course.status != 'HIDDEN' %}
+                    <form method="post" action="{{ path('back_courses_status', { id: course.id }) }}">
+                      <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_status_' ~ course.id) }}">
+                      <input type="hidden" name="status" value="HIDDEN">
+                      <button class="dash-btn dash-btn--hide" type="submit"><i class="fas fa-eye-slash"></i> Hide</button>
+                    </form>
+                  {% endif %}
+                  <form method="post" action="{{ path('back_courses_delete', { id: course.id }) }}" data-confirm-title="Delete course" data-confirm-message="Delete this course and its sections, videos, and quizzes?">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_delete_' ~ course.id) }}">
+                    <button class="dash-btn dash-btn--danger" type="submit"><i class="fas fa-trash"></i> Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7"><div class="dash-empty">No courses found.</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% elseif active_tab == 'quizzes' %}
+    <section class="dash-panel">
+      <div class="dash-panel-head">
+        <div>
+          <h2>Quizzes Table</h2>
+          <p>Review quiz setup, passing scores, attempts, and linked courses.</p>
+        </div>
+        <input class="dash-search js-back-content-search" type="search" placeholder="Search quizzes...">
+      </div>
+      <div class="table-responsive">
+        <table class="table dash-table align-middle js-back-content-table">
+          <thead>
+            <tr>
+              <th>Quiz</th>
+              <th>Course</th>
+              <th>Artist</th>
+              <th>Questions</th>
+              <th>Passing</th>
+              <th>Attempts</th>
+              <th>Pass Rate</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for quiz in quizzes %}
+            <tr>
+              <td><strong>{{ quiz.title }}</strong></td>
+              <td>{{ quiz.course ? quiz.course.title : '-' }}</td>
+              <td>{{ quiz.course and quiz.course.artist ? quiz.course.artist.username : '-' }}</td>
+              <td>{{ quiz.quizQuestions|length }}</td>
+              <td>{{ quiz.passingScore is not null ? quiz.passingScore ~ '%' : '-' }}</td>
+              <td>{{ attribute(attempts_by_quiz, quiz.id)|default(0) }}</td>
+              <td>{{ attribute(quiz_pass_rates, quiz.id)|default(0) }}%</td>
+              <td>
+                <div class="dash-actions">
+                  <a class="dash-btn dash-btn--view" href="{{ path('artist_quizzes_builder', { id: quiz.id }) }}">
+                    <i class="fas fa-tasks"></i> Builder
+                  </a>
+                  <a class="dash-btn dash-btn--draft" href="{{ path('artist_quizzes_edit', { id: quiz.id }) }}">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                  <form method="post" action="{{ path('back_quizzes_delete', { id: quiz.id }) }}" data-confirm-title="Delete quiz" data-confirm-message="Delete this quiz and all of its questions?">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('quizzes_delete_' ~ quiz.id) }}">
+                    <button class="dash-btn dash-btn--danger" type="submit"><i class="fas fa-trash"></i> Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="8"><div class="dash-empty">No quizzes found.</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% else %}
+    <div class="dash-stats-grid">
+      <section class="dash-panel dash-chart">
+        <div class="dash-panel-head" style="margin:-20px -20px 20px;">
+          <div>
+            <h2>Publishing Health</h2>
+            <p>Course catalogue status distribution.</p>
+          </div>
+        </div>
+        {% set total_courses = courses|length > 0 ? courses|length : 1 %}
+        <div class="dash-bars">
+          <div class="dash-bar-line">
+            <span>Published</span>
+            <div class="dash-bar"><span style="width: {{ (status_counts.PUBLISHED|default(0) / total_courses * 100)|round }}%;"></span></div>
+            <strong>{{ status_counts.PUBLISHED|default(0) }}</strong>
+          </div>
+          <div class="dash-bar-line">
+            <span>Draft</span>
+            <div class="dash-bar"><span style="width: {{ (status_counts.DRAFT|default(0) / total_courses * 100)|round }}%;"></span></div>
+            <strong>{{ status_counts.DRAFT|default(0) }}</strong>
+          </div>
+          <div class="dash-bar-line">
+            <span>Hidden</span>
+            <div class="dash-bar"><span style="width: {{ (status_counts.HIDDEN|default(0) / total_courses * 100)|round }}%;"></span></div>
+            <strong>{{ status_counts.HIDDEN|default(0) }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="dash-panel dash-chart">
+        <div class="dash-panel-head" style="margin:-20px -20px 20px;">
+          <div>
+            <h2>Learning Performance</h2>
+            <p>Quiz attempts and learner results.</p>
+          </div>
+        </div>
+        <div class="dash-metrics" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin:0;">
+          <div class="dash-metric"><span>Attempts</span><strong>{{ total_attempts }}</strong></div>
+          <div class="dash-metric"><span>Passed</span><strong>{{ passed_attempts }}</strong></div>
+          <div class="dash-metric"><span>Average score</span><strong>{{ average_score }}%</strong></div>
+          <div class="dash-metric"><span>Avg time</span><strong>{{ average_time_min }}m</strong></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="dash-panel mt-4">
+      <div class="dash-panel-head">
+        <div>
+          <h2>Recent Quiz Attempts</h2>
+          <p>The latest submitted learner results.</p>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table dash-table align-middle">
+          <thead><tr><th>Learner</th><th>Quiz</th><th>Course</th><th>Score</th><th>Status</th><th>Submitted</th></tr></thead>
+          <tbody>
+          {% for attempt in recent_attempts %}
+            <tr>
+              <td>{{ attempt.user ? attempt.user.username : '-' }}</td>
+              <td>{{ attempt.quiz ? attempt.quiz.title : '-' }}</td>
+              <td>{{ attempt.course ? attempt.course.title : '-' }}</td>
+              <td>{{ attempt.scorePercent }}%</td>
+              <td>
+                <span class="dash-status {{ attempt.passed ? 'dash-status--published' : 'dash-status--draft' }}">
+                  {{ attempt.passed ? 'PASSED' : 'FAILED' }}
+                </span>
+              </td>
+              <td>{{ attempt.submittedAt ? attempt.submittedAt|date('M d, Y H:i') : '-' }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6"><div class="dash-empty">No quiz attempts yet.</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    var input = document.querySelector('.js-back-content-search');
+    var table = document.querySelector('.js-back-content-table');
+    if (!input || !table) {
+      return;
+    }
+
+    input.addEventListener('input', function () {
+      var query = input.value.trim().toLowerCase();
+      table.querySelectorAll('tbody tr').forEach(function (row) {
+        row.style.display = row.textContent.toLowerCase().indexOf(query) === -1 ? 'none' : '';
+      });
+    });
+  })();
+</script>
+{% endblock %}

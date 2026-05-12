@@ -1,0 +1,87 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Market Products{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Market Products</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home"><a href="{{ path('back_dashboard') }}"><i class="icon-home"></i></a></li>
+    <li class="separator"><i class="icon-arrow-right"></i></li>
+    <li class="nav-item">Market</li>
+    <li class="separator"><i class="icon-arrow-right"></i></li>
+    <li class="nav-item">Products</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <div>
+      <h4 class="card-title mb-1">Product Validation</h4>
+      <p class="card-category mb-0">Review submitted products and keep the marketplace curated.</p>
+    </div>
+    <a class="btn btn-primary btn-round" href="{{ path('app_produit_index') }}">
+      <i class="fas fa-store me-1"></i> View Shop
+    </a>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for produit in pagination %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  {% if produit.imageUrl %}
+                    <img src="{{ produit.imageUrl }}" alt="{{ produit.nom }}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">
+                  {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="width:56px;height:56px;border-radius:8px;">
+                      <i class="fas fa-image text-muted"></i>
+                    </div>
+                  {% endif %}
+                  <div>
+                    <div class="fw-bold">{{ produit.nom }}</div>
+                    <small class="text-muted">{{ produit.description|default('No description')|striptags|u.truncate(80, '...') }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>{{ produit.categorie ? produit.categorie.nom : 'Uncategorized' }}</td>
+              <td>{{ produit.prix|number_format(2, '.', ' ') }} EUR</td>
+              <td>{{ produit.stock }}</td>
+              <td><span class="badge badge-{{ produit.statut == 'en_attente' ? 'warning' : (produit.statut == 'disponible' ? 'success' : 'secondary') }}">{{ produit.statut }}</span></td>
+              <td class="text-end">
+                {% if produit.statut == 'en_attente' %}
+                  <form action="{{ path('admin_produit_accepter', {id: produit.id}) }}" method="post" class="d-inline">
+                    <button class="btn btn-success btn-sm" type="submit"><i class="fas fa-check"></i></button>
+                  </form>
+                  <form action="{{ path('admin_produit_refuser', {id: produit.id}) }}" method="post" class="d-inline" data-confirm-message="Refuse this product?">
+                    <button class="btn btn-warning btn-sm" type="submit"><i class="fas fa-times"></i></button>
+                  </form>
+                {% endif %}
+                <a class="btn btn-secondary btn-sm" href="{{ path('app_produit_edit', {id: produit.id, from: 'admin'}) }}"><i class="fas fa-edit"></i></a>
+                <a class="btn btn-info btn-sm" href="{{ path('app_produit_show', {id: produit.id}) }}"><i class="fas fa-eye"></i></a>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="text-center text-muted py-5">No products yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+      {{ knp_pagination_render(pagination) }}
+    </div>
+  </div>
+</div>
+{% endblock %}

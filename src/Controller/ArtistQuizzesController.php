@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Artiste;
+use App\Entity\Course;
 use App\Entity\Quiz;
 use App\Form\QuizType;
 use App\Repository\QuizRepository;
@@ -19,16 +21,25 @@ final class ArtistQuizzesController extends AbstractController
         EntityManagerInterface $em,
         QuizRepository $quizRepository
     ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof Artiste) {
+            throw $this->createAccessDeniedException();
+        }
+
         $quiz = new Quiz();
 
         $form = $this->createForm(QuizType::class, $quiz, [
             'attr' => ['novalidate' => 'novalidate'],
+            'artist' => $user,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             // ✅ 1 quiz per course
             $course = $quiz->getCourse();
+            if (!$course instanceof Course || $course->getArtist()?->getId() !== $user->getId()) {
+                throw $this->createAccessDeniedException();
+            }
             if ($course !== null) {
                 $existing = $quizRepository->findOneBy(['course' => $course]);
                 if ($existing !== null) {
@@ -61,14 +72,23 @@ final class ArtistQuizzesController extends AbstractController
         EntityManagerInterface $em,
         QuizRepository $quizRepository
     ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof Artiste || $quiz->getCourse()?->getArtist()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
         $form = $this->createForm(QuizType::class, $quiz, [
             'attr' => ['novalidate' => 'novalidate'],
+            'artist' => $user,
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             // ✅ keep 1 quiz per course rule even on edit
             $course = $quiz->getCourse();
+            if (!$course instanceof Course || $course->getArtist()?->getId() !== $user->getId()) {
+                throw $this->createAccessDeniedException();
+            }
             if ($course !== null) {
                 $existing = $quizRepository->findOneBy(['course' => $course]);
                 if ($existing !== null && $existing->getId() !== $quiz->getId()) {
@@ -97,6 +117,11 @@ final class ArtistQuizzesController extends AbstractController
         Quiz $quiz,
         EntityManagerInterface $em
     ): Response {
+        $user = $this->getUser();
+        if (!$user instanceof Artiste || $quiz->getCourse()?->getArtist()?->getId() !== $user->getId()) {
+            throw $this->createAccessDeniedException();
+        }
+
         if ($this->isCsrfTokenValid('delete_quiz_' . $quiz->getId(), (string) $request->request->get('_token'))) {
             $em->remove($quiz);
             $em->flush();
@@ -105,8 +130,6 @@ final class ArtistQuizzesController extends AbstractController
             $this->addFlash('error', 'Invalid CSRF token.');
         }
 
-        return $this->redirectToRoute('artist_quizzes_builder', [
-            'id' => $quiz->getId(),
-        ]);
+        return $this->redirectToRoute('artist_dashboard', ['tab' => 'quizzes', 'view' => 'manage']);
     }
 }

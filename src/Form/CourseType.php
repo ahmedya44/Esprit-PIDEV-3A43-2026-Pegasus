@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Course;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -35,17 +34,6 @@ final class CourseType extends AbstractType
                 ],
                 'trim' => true,
                 'empty_data' => '',
-            ])
-            ->add('status', ChoiceType::class, [
-                'label' => false,
-                'choices' => [
-                    'DRAFT' => 'DRAFT',
-                    'PUBLISHED' => 'PUBLISHED',
-                    'HIDDEN' => 'HIDDEN',
-                ],
-                'attr' => [
-                    'class' => 'form-select',
-                ],
             ])
             ->add('thumbnailUrl', FileType::class, [
                 'label' => false,

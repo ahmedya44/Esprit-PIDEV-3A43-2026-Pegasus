@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\DiscriminatorColumn(name: 'dtype', type: 'string')]
 #[ORM\DiscriminatorMap([
     'admin' => \App\Entity\Admin::class,
+    'normal_user' => \App\Entity\NormalUser::class,
     'normal' => \App\Entity\NormalUser::class,
     'artiste' => \App\Entity\Artiste::class,
     'sponsor' => \App\Entity\Sponsor::class,

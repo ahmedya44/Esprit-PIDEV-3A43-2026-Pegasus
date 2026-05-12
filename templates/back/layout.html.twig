@@ -151,10 +151,33 @@
             </li>
 
             <li class="nav-item">
-              <a href="{{ path('back_content') }}">
+              <a data-bs-toggle="collapse" href="#learningMenu">
                 <i class="fas fa-graduation-cap"></i>
-                <p>Courses & Quizzes</p>
+                <p>Course Dashboard</p>
+                <span class="caret"></span>
               </a>
+              <div class="collapse" id="learningMenu">
+                <ul class="nav nav-collapse">
+                  <li><a href="{{ path('back_content_courses') }}"><span class="sub-item">Courses</span></a></li>
+                  <li><a href="{{ path('back_content_quizzes') }}"><span class="sub-item">Quizzes</span></a></li>
+                  <li><a href="{{ path('back_content_stats') }}"><span class="sub-item">Statistique</span></a></li>
+                </ul>
+              </div>
+            </li>
+
+            <li class="nav-item">
+              <a data-bs-toggle="collapse" href="#marketMenu">
+                <i class="fas fa-store"></i>
+                <p>Market</p>
+                <span class="caret"></span>
+              </a>
+              <div class="collapse" id="marketMenu">
+                <ul class="nav nav-collapse">
+                  <li><a href="{{ path('admin_produit_attente') }}"><span class="sub-item">Products</span></a></li>
+                  <li><a href="{{ path('admin_commandes_index') }}"><span class="sub-item">Orders</span></a></li>
+                  <li><a href="{{ path('app_categorie_index') }}"><span class="sub-item">Categories</span></a></li>
+                </ul>
+              </div>
             </li>
 
             <li class="nav-item">

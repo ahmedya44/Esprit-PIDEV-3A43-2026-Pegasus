@@ -148,8 +148,11 @@
               <li class="nav-item {% if (active_nav|default('')) == 'events' %}active{% endif %}">
                 <a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a>
               </li>
+              <li class="nav-item {% if (active_nav|default('')) == 'market' %}active{% endif %}">
+                <a class="nav-link" href="{{ path('app_produit_index') }}">Products</a>
+              </li>
               <li class="nav-item {% if (active_nav|default('')) == 'courses' %}active{% endif %}">
-                <a class="nav-link" href="{{ path('app_courses') }}">Courses</a>
+                <a class="nav-link" href="{{ is_granted('ROLE_ARTISTE') ? path('artist_dashboard', { tab: 'courses' }) : path('app_courses') }}">Courses</a>
               </li>
             </ul>
             <div class="user_option">
@@ -158,8 +161,11 @@
                   <i class="fa fa-user-circle" aria-hidden="true" style="font-size:18px;"></i>
                   <span class="profile_name">{{ app.user.username }}</span>
                 </a>
-                <a href="{{ path('front_profile') }}" class="order_online">
-                  Dashboard
+                <a href="{{ is_granted('ROLE_ARTISTE') ? path('artist_dashboard', { tab: 'courses' }) : path('front_profile') }}" class="order_online">
+                  {{ is_granted('ROLE_ARTISTE') ? 'Artist Dashboard' : 'Dashboard' }}
+                </a>
+                <a href="{{ path('app_panier_index') }}" class="cart_link" title="Cart">
+                  <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                 </a>
                 <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">
                   <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
@@ -205,6 +211,7 @@
             <a href="{{ path('front_evenements_index') }}" style="color:rgba(255,255,255,.60);font-size:.85rem;text-decoration:none;">Events</a>
             <a href="{{ path('app_courses') }}" style="color:rgba(255,255,255,.60);font-size:.85rem;text-decoration:none;">Courses</a>
             <a href="{{ path('forum_index') }}" style="color:rgba(255,255,255,.60);font-size:.85rem;text-decoration:none;">Forum</a>
+            <a href="{{ path('app_produit_index') }}" style="color:rgba(255,255,255,.60);font-size:.85rem;text-decoration:none;">Products</a>
           </div>
         </div>
         <div class="col-md-4 text-md-right">
@@ -221,7 +228,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
   <script src="https://unpkg.com/isotope-layout@3.0.4/dist/isotope.pkgd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
-  <script src="{{ asset('front/js/custom.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}?v=products-nav-1"></script>
 
   <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
   <script>
@@ -496,6 +503,26 @@
       document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') closeModal();
       });
+    })();
+  </script>
+  <script>
+    (function () {
+      var nav = document.querySelector('.custom_nav-container .navbar-nav');
+      if (!nav || nav.querySelector('a[href$="/produit"]')) {
+        return;
+      }
+
+      var item = document.createElement('li');
+      item.className = 'nav-item';
+      item.innerHTML = '<a class="nav-link" href="{{ path('app_produit_index') }}">Products</a>';
+
+      var courses = nav.querySelector('a[href$="/courses"]');
+      if (courses && courses.parentNode) {
+        nav.insertBefore(item, courses.parentNode);
+        return;
+      }
+
+      nav.appendChild(item);
     })();
   </script>
   <script>
