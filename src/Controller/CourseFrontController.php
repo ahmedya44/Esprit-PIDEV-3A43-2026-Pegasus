@@ -274,9 +274,7 @@ final class CourseFrontController extends AbstractController
 
                 // Mark course completed if passed
                 if ($passed) {
-                    $prog = $progressRepo->findOrCreate($user, $course, $em);
-                    $prog->setStatus('completed');
-                    $prog->setCompletedAt(new \DateTimeImmutable());
+                    $progressRepo->markCourseCompleted($user, $course);
                 }
 
                 $em->flush();
@@ -328,26 +326,7 @@ final class CourseFrontController extends AbstractController
         $user = $this->getUser();
 
         if ($user) {
-            // DB-persisted progress
-            $progress = $progressRepo->findOrCreate($user, $course, $em);
-            $progress->addCompletedVideoId($videoId);
-
-            // Recalculate percent
-            $totalVideos = 0;
-            foreach ($course->getCourseSections() as $section) {
-                $totalVideos += $section->getCourseVideos()->count();
-            }
-            $completedCount = count($progress->getCompletedVideoIds());
-            $percent = $totalVideos > 0 ? (int) round(($completedCount * 100) / $totalVideos) : 0;
-            $progress->setProgressPercent($percent);
-
-            if ($completedCount >= $totalVideos && $totalVideos > 0) {
-                // All videos done — mark in-progress; completed only set after quiz pass
-                if ($progress->getStatus() === 'in-progress') {
-                    // keep status as in-progress until quiz is passed
-                }
-            }
-            $em->flush();
+            $progressRepo->markVideoCompleted($user, $course, $videoId);
         } else {
             // Session fallback for guests
             $key = 'course_progress_' . $courseId;
