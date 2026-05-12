@@ -13,13 +13,13 @@ final class FrontController extends AbstractController
     #[Route('/', name: 'front_home', methods: ['GET'])]
     public function home(): Response
     {
-        return $this->render('front/index.html.twig');
+        return $this->redirectToRoute('app_produit_index');
     }
 
     #[Route('/menu', name: 'front_menu', methods: ['GET'])]
     public function menu(): Response
     {
-        return $this->render('front/menu.html.twig');
+        return $this->redirectToRoute('app_produit_index');
     }
 
     // Ces anciennes routes ont été retirées car elles rentrent en conflit avec le ProduitController
@@ -35,12 +35,12 @@ final class FrontController extends AbstractController
     #[Route('/about', name: 'front_about', methods: ['GET'])]
     public function about(): Response
     {
-        return $this->render('front/about.html.twig');
+        return $this->redirectToRoute('app_produit_index');
     }
 
     #[Route('/book', name: 'front_book', methods: ['GET'])]
     public function book(): Response
     {
-        return $this->render('front/book.html.twig');
+        return $this->redirectToRoute('app_produit_index');
     }
 }

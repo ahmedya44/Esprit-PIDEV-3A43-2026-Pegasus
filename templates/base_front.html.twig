@@ -15,17 +15,6 @@
   <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
   <link href="{{ asset('front/css/front-enhance.css') }}" rel="stylesheet" />
   {% block stylesheets %}{% endblock %}
-  <style>
-    /* Force navbar links to always be visible and yellow */
-    .custom_nav-container .navbar-nav .nav-link {
-      color: #ffbe33 !important;
-      opacity: 1 !important;
-    }
-    .custom_nav-container .navbar-nav .nav-link:hover,
-    .custom_nav-container .navbar-nav .nav-item.active .nav-link {
-      color: white !important;
-    }
-  </style>
 </head>
 <body>
 
@@ -116,9 +105,9 @@
   </header>
   <!-- end header -->
 
-  <div class="container" style="margin-top: 30px; margin-bottom: 30px;">
+  <main class="page-main">
     {% block body %}{% endblock %}
-  </div>
+  </main>
 
   <!-- footer -->
   <footer class="footer_section">
