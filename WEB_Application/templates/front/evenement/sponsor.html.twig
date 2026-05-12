@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+
+  <title>Pegasus - Sponsoriser {{ evenement.titre }}</title>
+
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+
+  <!-- font awesome style -->
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+
+  <!-- Custom styles for this template -->
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <!-- responsive style -->
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+</head>
+
+<body class="sub_page">
+
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+    <!-- header section strats -->
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="{{ path('front_home') }}">
+            <span>
+              Pegasus
+            </span>
+          </a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto">
+              
+              
+              
+              
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('forum_index') }}">Forum</a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a>
+              </li>
+            </ul>
+            <div class="user_option">
+              {% if app.user %}
+                <a href="{{ path('front_profile') }}" class="user_link profile_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                  <span class="profile_name">{{ app.user.username }}</span>
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="user_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+              <a class="cart_link" href="#">
+                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
+                  <g>
+                    <g>
+                      <path d="M345.6,338.862c-29.184,0-53.248,23.552-53.248,53.248c0,29.184,23.552,53.248,53.248,53.248
+                   c29.184,0,53.248-23.552,53.248-53.248C398.336,362.926,374.784,338.862,345.6,338.862z" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <path d="M439.296,84.91c-1.024,0-2.56-0.512-4.096-0.512H112.64l-5.12-34.304C104.448,27.566,84.992,10.67,61.952,10.67H20.48
+                   C9.216,10.67,0,19.886,0,31.15c0,11.264,9.216,20.48,20.48,20.48h41.472c2.56,0,4.608,2.048,5.12,4.608l31.744,216.064
+                   c4.096,27.136,27.648,47.616,55.296,47.616h212.992c26.624,0,49.664-18.944,55.296-45.056l33.28-166.4
+                   C457.728,97.71,450.56,86.958,439.296,84.91z" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <path d="M215.04,389.55c-1.024-28.16-24.576-50.688-52.736-50.688c-29.696,1.536-52.224,26.112-51.2,55.296
+                   c1.024,28.16,24.064,50.688,52.224,50.688h1.024C193.536,443.31,216.576,418.734,215.04,389.55z" />
+                    </g>
+                  </g>
+                </svg>
+              </a>
+              <form class="form-inline">
+                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+              </form>
+              {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">
+                  Logout
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="auth_btn auth_btn--outline">
+                  Sign In
+                </a>
+                <a href="{{ path('app_register') }}" class="auth_btn auth_btn--filled">
+                  Sign Up
+                </a>
+              {% endif %}
+              <a href="" class="order_online">
+                Order Online
+              </a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <!-- end header section -->
+  </div>
+
+  <!-- sponsorship section -->
+  <section class="food_section glass-section layout_padding">
+    <div class="container">
+      <div class="heading_container heading_center mb-5">
+        <h2 class="neon-text">
+          Sponsoriser l'événement
+        </h2>
+        <h3 class="text-warning mt-2">{{ evenement.titre }}</h3>
+        <p class="text-light opacity-75 mt-3">Soutenez la culture et boostez votre visibilité.</p>
+      </div>
+
+      {% if is_granted('ROLE_SPONSOR') %}
+        {% for label, messages in app.flashes %}
+          {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label == 'warning' ? 'warning' : 'success' }} alert-dismissible fade show text-center mx-auto mb-4" style="max-width: 600px; border-radius: 12px;" role="alert">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endfor %}
+
+        <div class="row justify-content-center mt-5">
+          {% if packs is empty %}
+            <div class="col-12 text-center text-white">
+              <p>Aucun pack de sponsoring n'est disponible pour l'instant.</p>
+            </div>
+          {% else %}
+            {% for pack in packs %}
+              <div class="col-md-4 mb-4">
+                <div class="premium-card h-100 p-4 text-center" style="background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+                  <div class="mb-3">
+                    <i class="fa fa-star fa-3x" style="color: #f59e0b;"></i>
+                  </div>
+                  <h4 style="color: #111827; font-weight: 700;">{{ pack.nomPack }}</h4>
+                  <div class="premium-price my-3" style="color: #f59e0b; font-size: 26px; font-weight: 800;">{{ pack.prix }} DT</div>
+                  <div class="text-left mb-4" style="color: #4b5563; font-size: 14px; min-height: 80px;">
+                    {{ pack.description|nl2br }}
+                  </div>
+                  <div class="btn_box mt-auto">
+                    {% set reservation = reservedPackIds[pack.id] ?? null %}
+                    {% if reservation %}
+                      <div class="mb-3">
+                        {% if reservation.statut == 'en attente' %}
+                          <span class="badge" style="background: #fef3c7; color: #d97706; padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 13px;">
+                            <i class="fa fa-hourglass-half mr-1"></i> En attente d'approbation
+                          </span>
+                        {% else %}
+                          <span class="badge" style="background: #d1fae5; color: #059669; padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 13px;">
+                            <i class="fa fa-check-circle mr-1"></i> Demande acceptée
+                          </span>
+                        {% endif %}
+                      </div>
+                      <form action="{{ path('front_evenements_sponsor_cancel', {'id': evenement.id, 'packId': pack.id}) }}" method="post" style="margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette réservation ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ pack.id) }}">
+                        <button type="submit" class="premium-btn py-2 px-4 shadow-sm w-100" style="background: linear-gradient(135deg, #f87171, #ef4444); border: none; border-radius: 50px; color: white; font-weight: 700; cursor: pointer; transition: transform 0.2s;">
+                          <i class="fa fa-times mr-2"></i> Annuler la réservation
+                        </button>
+                      </form>
+                    {% else %}
+                      <form action="{{ path('front_evenements_sponsor_reserve', {'id': evenement.id, 'packId': pack.id}) }}" method="post" style="margin: 0;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('reserve' ~ pack.id) }}">
+                        <button type="submit" class="premium-btn py-2 px-4 shadow-sm w-100" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; border-radius: 50px; color: white; font-weight: 700; cursor: pointer; transition: transform 0.2s;">
+                          Choisir ce pack
+                        </button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="row justify-content-center">
+          <div class="col-md-8">
+            <div class="premium-card p-5 text-center shadow-lg">
+              <i class="fa fa-handshake-o fa-5x text-warning mb-4"></i>
+              <h2 class="neon-text mb-4">Devenir un sponsor</h2>
+              <p class="text-light opacity-75 mb-4" style="font-size: 1.2rem;">
+                Vous souhaitez associer votre marque à cet événement exceptionnel ? 
+                Rejoignez notre cercle de partenaires et profitez d'une visibilité unique auprès de notre communauté.
+              </p>
+              <div class="btn_box">
+                <a href="{{ path('app_register') }}" class="premium-btn px-5 py-3 shadow-lg">
+                  Passer au statut de sponsor
+                </a>
+              </div>
+              <div class="mt-4">
+                <a href="{{ path('front_evenements_index') }}" class="btn btn-link text-light opacity-50">Retour aux événements</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="text-center mt-5">
+        <a href="{{ path('front_evenements_index') }}" class="btn btn-outline-light px-5" style="border-radius: 45px;">
+          <i class="fa fa-arrow-left mr-2"></i> Retour à la liste
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- end sponsorship section -->
+
+  <!-- footer section -->
+  <footer class="footer_section">
+    <div class="container">
+      <div class="footer-info">
+        <p>&copy; <span id="displayYear"></span> All Rights Reserved By <a href="https://html.design/">Free Html Templates</a></p>
+      </div>
+    </div>
+  </footer>
+  <!-- footer section -->
+
+  <!-- jQery -->
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <!-- bootstrap js -->
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script>
+    document.getElementById('displayYear').innerHTML = new Date().getFullYear();
+  </script>
+
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+</body>
+
+</html>
+
+
+
+

@@ -1,0 +1,332 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block title %}Pegasus | Sign In{% endblock %}
+
+{% block extra_styles %}
+  <style>
+    .auth-shell {
+      background: linear-gradient(180deg, #f2f5fb 0%, #ffffff 100%);
+      padding: 44px 0 72px;
+    }
+    .auth-wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #e5eaf7;
+      border-radius: 18px;
+      box-shadow: 0 20px 44px rgba(15, 23, 42, 0.1);
+      padding: 28px;
+    }
+    .auth-head h1 {
+      font-family: "Poppins", sans-serif;
+      font-size: 1.7rem;
+      margin: 0;
+      color: #17233a;
+      font-weight: 700;
+    }
+    .auth-head p {
+      margin: 8px 0 0;
+      color: #5f6f8a;
+      font-size: 0.95rem;
+    }
+    .auth-form { margin-top: 18px; }
+    .auth-field { margin-bottom: 14px; }
+    .auth-field label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #22324d;
+      margin-bottom: 7px;
+    }
+    .auth-input {
+      width: 100%;
+      border: 1px solid #d7deee;
+      border-radius: 11px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: #fbfcff;
+      color: #1e293b;
+    }
+    .auth-input:focus {
+      outline: none;
+      border-color: #7a92d6;
+      box-shadow: 0 0 0 3px rgba(71, 102, 179, 0.15);
+      background: #ffffff;
+    }
+    .password-shell { position: relative; }
+    .password-shell .auth-input { padding-right: 44px; }
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #6b7d9e;
+      cursor: pointer;
+    }
+    .auth-actions {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .auth-btn {
+      width: 100%;
+      border-radius: 11px;
+      padding: 11px 12px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-btn--primary {
+      background: #223d78;
+      color: #ffffff;
+    }
+    .auth-btn--dark {
+      background: #111b30;
+      color: #ffffff;
+    }
+    .auth-btn--soft {
+      background: #ffffff;
+      border-color: #c8d3ea;
+      color: #1e2d4d;
+    }
+    .auth-link-row {
+      margin-top: 14px;
+      text-align: center;
+      color: #667793;
+      font-size: 0.9rem;
+    }
+    .auth-link-row a { font-weight: 600; }
+    .auth-alert {
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    .auth-alert--danger { background: #ffe5e8; color: #7f1d2a; border: 1px solid #ffc7ce; }
+    .auth-alert--success { background: #e7f9ec; color: #14532d; border: 1px solid #c8f0d6; }
+    .forgot-line {
+      text-align: right;
+      margin-top: 6px;
+      font-size: 0.84rem;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <section class="auth-shell">
+    <div class="container">
+      <div class="auth-wrap">
+        <div class="auth-head">
+          <h1>Sign In</h1>
+          <p>Continue to your Pegasus workspace.</p>
+        </div>
+
+        {% for message in app.flashes('success') %}
+          <div class="auth-alert auth-alert--success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('danger') %}
+          <div class="auth-alert auth-alert--danger">{{ message }}</div>
+        {% endfor %}
+
+        {% if error %}
+          <div class="auth-alert auth-alert--danger">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
+          </div>
+          {% if error.messageKey == 'Your account is pending email verification.' and last_username %}
+            <form method="post" action="{{ path('app_resend_verification') }}" class="auth-form">
+              <input type="hidden" name="email" value="{{ last_username }}">
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('resend_verification') }}">
+              <button type="submit" class="auth-btn auth-btn--soft">Resend verification email</button>
+            </form>
+          {% endif %}
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}" class="auth-form" novalidate>
+          <div class="auth-field">
+            <label for="inputEmail">Email</label>
+            <input class="auth-input" type="email" id="inputEmail" name="email" value="{{ last_username }}" required autofocus>
+          </div>
+
+          <div class="auth-field">
+            <label for="inputPassword">Password</label>
+            <div class="password-shell">
+              <input class="auth-input js-password-input" type="password" id="inputPassword" name="password" required>
+              <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password">
+                <i class="fa fa-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="forgot-line">
+              <a href="{{ path('app_forgot_password_request') }}">Forgot password?</a>
+            </div>
+          </div>
+
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+          <div class="auth-actions">
+            <button type="submit" class="auth-btn auth-btn--primary">Sign In</button>
+            <button type="button" class="auth-btn auth-btn--dark" id="passkeyLoginBtn">
+              <i class="fa fa-id-badge" aria-hidden="true"></i>
+              Sign In with Passkey
+            </button>
+            <button type="button" class="auth-btn auth-btn--soft" id="passkeyPhoneLoginBtn">
+              <i class="fa fa-mobile" aria-hidden="true"></i>
+              Sign In with Passkey (Phone)
+            </button>
+            <a href="{{ path('app_connect_google_start') }}" class="auth-btn auth-btn--soft">
+              <i class="fa fa-google" aria-hidden="true"></i>
+              Continue with Google
+            </a>
+          </div>
+        </form>
+
+        <div class="auth-link-row">
+          Don't have an account? <a href="{{ path('app_register') }}">Sign Up</a>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    function ensurePasskeyCompatibleOrigin() {
+      if (window.location.hostname === '127.0.0.1') {
+        const target = window.location.href.replace('://127.0.0.1', '://localhost');
+        window.location.replace(target);
+        return false;
+      }
+      return true;
+    }
+
+    function base64UrlToArrayBuffer(base64url) {
+      const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+      const pad = '='.repeat((4 - (base64.length % 4)) % 4);
+      const binary = atob(base64 + pad);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    function arrayBufferToBase64Url(buffer) {
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      bytes.forEach((b) => { binary += String.fromCharCode(b); });
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    async function loginWithPasskey(mode) {
+      if (!ensurePasskeyCompatibleOrigin()) {
+        return;
+      }
+
+      const emailInput = document.getElementById('inputEmail');
+      const email = emailInput ? emailInput.value.trim() : '';
+
+      if (!email) {
+        alert('Enter your email first, then click Sign In with Passkey.');
+        return;
+      }
+
+      if (!window.PublicKeyCredential || !navigator.credentials) {
+        alert('Passkeys are not supported on this browser.');
+        return;
+      }
+
+      try {
+        const optionsRes = await fetch('{{ path('app_passkey_login_options') }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, mode: mode || 'device' })
+        });
+        const optionsData = await optionsRes.json();
+        if (!optionsRes.ok) {
+          throw new Error(optionsData.error || 'Could not start passkey login.');
+        }
+
+        const publicKey = optionsData.publicKey;
+        publicKey.challenge = base64UrlToArrayBuffer(publicKey.challenge);
+        if (Array.isArray(publicKey.allowCredentials)) {
+          publicKey.allowCredentials = publicKey.allowCredentials.map((cred) => ({
+            ...cred,
+            id: base64UrlToArrayBuffer(cred.id)
+          }));
+        }
+
+        const requestPayload = { publicKey: publicKey };
+        if (mode === 'phone') {
+          requestPayload.mediation = 'optional';
+        }
+
+        const assertion = await navigator.credentials.get(requestPayload);
+        if (!assertion) {
+          throw new Error('No passkey assertion returned.');
+        }
+
+        const verifyPayload = {
+          id: assertion.id,
+          rawId: arrayBufferToBase64Url(assertion.rawId),
+          type: assertion.type,
+          response: {
+            clientDataJSON: arrayBufferToBase64Url(assertion.response.clientDataJSON),
+            authenticatorData: arrayBufferToBase64Url(assertion.response.authenticatorData),
+            signature: arrayBufferToBase64Url(assertion.response.signature),
+            userHandle: assertion.response.userHandle ? arrayBufferToBase64Url(assertion.response.userHandle) : null
+          }
+        };
+
+        const verifyRes = await fetch('{{ path('app_passkey_login_verify') }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(verifyPayload)
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyRes.ok || !verifyData.ok) {
+          throw new Error(verifyData.error || 'Passkey verification failed.');
+        }
+
+        window.location.href = verifyData.redirect || '{{ path('front_home') }}';
+      } catch (error) {
+        alert(error.message || 'Passkey sign-in failed.');
+      }
+    }
+
+    const passkeyBtn = document.getElementById('passkeyLoginBtn');
+    if (passkeyBtn) {
+      passkeyBtn.addEventListener('click', function () { loginWithPasskey('device'); });
+    }
+
+    const passkeyPhoneBtn = document.getElementById('passkeyPhoneLoginBtn');
+    if (passkeyPhoneBtn) {
+      passkeyPhoneBtn.addEventListener('click', function () { loginWithPasskey('phone'); });
+    }
+
+    document.querySelectorAll('.js-password-toggle').forEach(function (toggleButton) {
+      toggleButton.addEventListener('click', function () {
+        var passwordInput = toggleButton.parentElement.querySelector('.js-password-input');
+        var icon = toggleButton.querySelector('i');
+        if (!passwordInput || !icon) {
+          return;
+        }
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+  </script>
+{% endblock %}

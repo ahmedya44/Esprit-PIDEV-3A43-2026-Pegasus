@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox spacing="24.0"
+      prefHeight="760.0"
+      prefWidth="1180.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.QuizQuestionsController"
+      styleClass="course-builder-root"
+      style="-fx-padding: 28;">
+
+    <VBox prefWidth="340.0" minWidth="300.0" spacing="18.0" styleClass="course-builder-sidebar">
+        <VBox spacing="14.0" styleClass="course-builder-header">
+            <Label fx:id="lblQuizTitle" text="Quiz Builder" styleClass="course-builder-title" />
+            <Label fx:id="lblQuizSubtitle" text="Build question flow and answer choices." styleClass="course-builder-subtitle" />
+            <HBox spacing="10.0">
+                <Label fx:id="lblQuestionCount" text="0 question(s)" styleClass="course-builder-pill" />
+                <Label fx:id="lblChoiceCount" text="0 answer choice(s)" styleClass="course-builder-pill course-builder-pill-dark" />
+            </HBox>
+        </VBox>
+
+        <HBox spacing="10.0">
+            <Button text="+ Add Question" onAction="#openCreateQuestionDialog" styleClass="artist-add-button" />
+            <Button fx:id="btnEditQuestion" text="Edit" onAction="#openEditQuestionDialog" styleClass="warning-button" />
+            <Button fx:id="btnDeleteQuestion" text="Delete" onAction="#deleteSelectedQuestion" styleClass="delete-red-button" />
+        </HBox>
+
+        <Label text="Double-clicking a quiz opens this workspace. Add ordered questions, then define the answer choices and mark the correct one." wrapText="true" styleClass="course-builder-helper" />
+        <ListView fx:id="lvQuestions" VBox.vgrow="ALWAYS" styleClass="section-list-view" />
+    </VBox>
+
+    <VBox spacing="18.0" styleClass="course-builder-card" HBox.hgrow="ALWAYS">
+        <HBox styleClass="course-builder-card-header">
+            <VBox spacing="4.0">
+                <Label fx:id="lblSelectedQuestionTitle" text="Choose a question" styleClass="course-builder-card-title" />
+                <Label fx:id="lblSelectedQuestionMeta" text="Select a question from the left to review its answer choices." styleClass="course-builder-card-subtitle" />
+            </VBox>
+            <Region HBox.hgrow="ALWAYS" />
+            <VBox spacing="6.0" alignment="CENTER_RIGHT">
+                <Label text="Correct Answer" styleClass="dialog-field-label" />
+                <Label fx:id="lblCorrectChoice" text="No correct answer selected." styleClass="course-builder-card-subtitle" />
+            </VBox>
+        </HBox>
+
+        <VBox spacing="16.0" style="-fx-padding: 0 24 24 24;">
+            <Label text="Answer Choices" styleClass="course-builder-subsection-title" />
+            <VBox fx:id="choicesContainer" spacing="12.0" />
+            <Label fx:id="lblEmptyChoices" text="This question does not have any answer choices yet." styleClass="course-builder-empty" visible="false" managed="false" />
+        </VBox>
+    </VBox>
+</HBox>

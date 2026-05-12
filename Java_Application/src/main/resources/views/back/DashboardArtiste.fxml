@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.pegasus.controllers.back.DashboardArtisteController"
+            prefHeight="700.0" prefWidth="1100.0"
+            styleClass="main-bg product-dashboard-root">
+    <stylesheets>
+        <URL value="@/css/style.css" />
+        <URL value="@/css/courses.css" />
+    </stylesheets>
+
+    <!-- NAVBAR -->
+    <top>
+        <VBox styleClass="product-nav-shell">
+            <VBox styleClass="pegasus-navbar">
+                <HBox spacing="18.0" styleClass="pegasus-navbar-inner">
+                    <Label text="Pegasus" styleClass="pegasus-logo-text" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <HBox styleClass="nav-center" HBox.hgrow="ALWAYS">
+                        <Button text="Home" onAction="#goHome" styleClass="pegasus-nav-button" />
+                        <Button text="Gallery" onAction="#goGallery" styleClass="pegasus-nav-button" />
+                        <Button text="Courses" onAction="#goCourses" styleClass="pegasus-nav-button" />
+                        <Button text="Events" onAction="#goEvents" styleClass="pegasus-nav-button" />
+                        <Button text="Products" onAction="#showMesProduits" styleClass="pegasus-nav-button pegasus-nav-button-active" />
+                        <Button text="Forum" onAction="#goForum" styleClass="pegasus-nav-button" />
+                    </HBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <HBox styleClass="nav-actions">
+                        <MenuButton mnemonicParsing="false" styleClass="pegasus-account-menu-button" text="Profile">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#goProfile" text="Profile" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleLogout" text="Log Out" />
+                            </items>
+                        </MenuButton>
+                    </HBox>
+                </HBox>
+            </VBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox styleClass="product-workspace" spacing="18">
+            <HBox alignment="CENTER_LEFT" spacing="16" styleClass="product-page-header">
+                <Label text="Artist Products" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <HBox alignment="CENTER" spacing="8" styleClass="product-subnav-container">
+                    <Button fx:id="btnMesProduits" text="My Products"
+                            styleClass="product-subnav-button product-subnav-button-active" onAction="#showMesProduits"/>
+                    <Button fx:id="btnStatuts" text="Statuses"
+                            styleClass="product-subnav-button" onAction="#showStatuts"/>
+                    <StackPane>
+                        <Button fx:id="btnStats" text="Statistics"
+                                styleClass="product-subnav-button" onAction="#showStats"/>
+                        <Label fx:id="stockBadge" text="Stock"
+                               visible="false"
+                               style="-fx-background-color: #e74c3c;
+                                      -fx-text-fill: white;
+                                      -fx-background-radius: 10;
+                                      -fx-padding: 2 5 2 5;
+                                      -fx-font-size: 10px;
+                                      -fx-font-weight: bold;"
+                               StackPane.alignment="TOP_RIGHT"
+                               translateX="5" translateY="-5"/>
+                    </StackPane>
+                    <Button fx:id="btnAjouterCategorie" text="Category"
+                            styleClass="product-subnav-button" onAction="#showFormCategorie"/>
+                </HBox>
+            </HBox>
+
+            <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS">
+            <!-- ══════════════════════════════════════════ -->
+            <!-- PAGE MES PRODUITS                         -->
+            <!-- ══════════════════════════════════════════ -->
+            <VBox fx:id="pageProduitsView" spacing="20" style="-fx-padding: 0px;">
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <TextField fx:id="searchField"
+                               promptText="Rechercher un produit..."
+                               styleClass="search-field" prefWidth="350"/>
+                    <ComboBox fx:id="filterCategorie"
+                              promptText="Toutes les catégories"
+                              styleClass="combo-box" prefWidth="200"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="+ Ajouter un produit" styleClass="btn-primary"
+                            onAction="#showFormAjouter"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <FlowPane fx:id="produitsGrid" hgap="20" vgap="20"
+                              style="-fx-padding: 10px;"/>
+                </ScrollPane>
+            </VBox>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- PAGE STATUTS                              -->
+            <!-- ══════════════════════════════════════════ -->
+            <VBox fx:id="pageStatutsView" spacing="20"
+                  style="-fx-padding: 0px;" visible="false">
+                <Button text="+ Ajouter un nouveau produit"
+                        style="-fx-text-fill: #1a73e8;
+                               -fx-background-color: transparent;
+                               -fx-font-size: 13px; -fx-cursor: hand;"
+                        onAction="#showFormAjouter"/>
+                <TableView fx:id="statutsTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colStatutNom"
+                                     text="Nom"            prefWidth="160"/>
+                        <TableColumn fx:id="colStatutPrix"
+                                     text="Prix"           prefWidth="90"/>
+                        <TableColumn fx:id="colStatutStock"
+                                     text="Stock"          prefWidth="80"/>
+                        <TableColumn fx:id="colStatutStatut"
+                                     text="Statut"         prefWidth="130"/>
+                        <TableColumn fx:id="colStatutStockEdit"
+                                     text="Modifier stock" prefWidth="230"/>
+                        <TableColumn fx:id="colStatutActions"
+                                     text="Actions"        prefWidth="200"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- PAGE STATISTIQUES                         -->
+            <!-- ══════════════════════════════════════════ -->
+            <VBox fx:id="pageStatsView" visible="false" spacing="20"
+                  style="-fx-padding: 0px;">
+
+                <Label text="📈 Statistiques"
+                       style="-fx-font-size: 22px; -fx-font-weight: bold;
+                              -fx-text-fill: #1a1a2e;"/>
+
+                <!-- KPIs -->
+                <HBox spacing="30">
+                    <VBox alignment="CENTER" spacing="5"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 20px;
+                                 -fx-background-radius: 10px;
+                                 -fx-pref-width: 220px;
+                                 -fx-effect: dropshadow(gaussian,
+                                             rgba(0,0,0,0.1),10,0,0,3);">
+                        <Label text="💰 Total des ventes"
+                               style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
+                        <Label fx:id="totalVentesLabel" text="0.00 EUR"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;
+                                      -fx-text-fill: #27ae60;"/>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="5"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 20px;
+                                 -fx-background-radius: 10px;
+                                 -fx-pref-width: 220px;
+                                 -fx-effect: dropshadow(gaussian,
+                                             rgba(0,0,0,0.1),10,0,0,3);">
+                        <Label text="📦 Total commandes"
+                               style="-fx-font-size: 12px; -fx-text-fill: #999;"/>
+                        <Label fx:id="totalCommandesLabel" text="0"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;
+                                      -fx-text-fill: #1a73e8;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Graphique -->
+                <BarChart fx:id="statsChart" animated="true"
+                          prefHeight="400" VBox.vgrow="ALWAYS">
+                    <xAxis>
+                        <CategoryAxis fx:id="xAxis" label="Produits"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis fx:id="yAxis" label="Quantité"
+                                    lowerBound="0" tickUnit="1"
+                                    autoRanging="true"/>
+                    </yAxis>
+                </BarChart>
+
+            </VBox>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- FORMULAIRE PRODUIT                        -->
+            <!-- ══════════════════════════════════════════ -->
+            <ScrollPane fitToWidth="true" fx:id="formView" visible="false">
+                <VBox spacing="20" style="-fx-padding: 30px;"
+                      alignment="TOP_CENTER">
+                    <Label fx:id="formTitle" text="Ajouter un produit"
+                           styleClass="page-title"/>
+                    <VBox spacing="15" maxWidth="600"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 30px;
+                                 -fx-background-radius: 10px;
+                                 -fx-effect: dropshadow(gaussian,
+                                             rgba(0,0,0,0.1), 10, 0, 0, 3);">
+
+                        <Label text="Nom" styleClass="form-label"/>
+                        <TextField fx:id="nomField" styleClass="form-field"
+                                   promptText="Nom du produit"/>
+                        <Label fx:id="erreurNom" text=""
+                               style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+
+                        <Label text="Description" styleClass="form-label"/>
+                        <TextArea fx:id="descField" styleClass="form-field"
+                                  promptText="Description" prefRowCount="3"/>
+
+                        <Label text="Prix (EUR)" styleClass="form-label"/>
+                        <TextField fx:id="prixField" styleClass="form-field"
+                                   promptText="0.00"/>
+                        <Label fx:id="erreurPrix" text=""
+                               style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+
+                        <Label text="Stock" styleClass="form-label"/>
+                        <TextField fx:id="stockField" styleClass="form-field"
+                                   promptText="0"/>
+                        <Label fx:id="erreurStock" text=""
+                               style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+
+                        <Label text="Image" styleClass="form-label"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="imageField" styleClass="form-field"
+                                       promptText="Aucune image choisie"
+                                       HBox.hgrow="ALWAYS" editable="false"/>
+                            <Button text="Choisir" styleClass="btn-secondary"
+                                    onAction="#handleChoisirImage"/>
+                        </HBox>
+
+                        <Label text="Catégorie" styleClass="form-label"/>
+                        <ComboBox fx:id="categorieCombo" styleClass="combo-box"
+                                  promptText="Choisir une catégorie"
+                                  maxWidth="Infinity"/>
+                        <Label fx:id="erreurCategorie" text=""
+                               style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+
+                        <HBox spacing="15" alignment="CENTER_RIGHT"
+                              style="-fx-padding-top: 10px;">
+                            <Button text="Annuler" styleClass="btn-secondary"
+                                    onAction="#showMesProduits"/>
+                            <Button fx:id="saveBtn" text="Enregistrer"
+                                    styleClass="btn-primary"
+                                    onAction="#handleSaveProduit"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </ScrollPane>
+
+            <!-- ══════════════════════════════════════════ -->
+            <!-- FORMULAIRE CATEGORIE                      -->
+            <!-- ══════════════════════════════════════════ -->
+            <ScrollPane fitToWidth="true" fx:id="formCategorieView"
+                        visible="false">
+                <VBox spacing="20" style="-fx-padding: 30px;"
+                      alignment="TOP_CENTER">
+                    <Label text="Ajouter une catégorie" styleClass="page-title"/>
+                    <VBox spacing="15" maxWidth="600"
+                          style="-fx-background-color: white;
+                                 -fx-padding: 30px;
+                                 -fx-background-radius: 10px;
+                                 -fx-effect: dropshadow(gaussian,
+                                             rgba(0,0,0,0.1), 10, 0, 0, 3);">
+
+                        <Label text="Nom" styleClass="form-label"/>
+                        <TextField fx:id="nomCategorieField"
+                                   styleClass="form-field"
+                                   promptText="Nom de la catégorie"/>
+                        <Label fx:id="erreurNomCategorie" text=""
+                               style="-fx-text-fill: red; -fx-font-size: 12px;"/>
+
+                        <Label text="Description" styleClass="form-label"/>
+                        <TextArea fx:id="descCategorieField"
+                                  styleClass="form-field"
+                                  promptText="Description" prefRowCount="3"/>
+
+                        <HBox spacing="15" alignment="CENTER_RIGHT">
+                            <Button text="Annuler" styleClass="btn-secondary"
+                                    onAction="#showMesProduits"/>
+                            <Button text="Enregistrer" styleClass="btn-primary"
+                                    onAction="#handleSaveCategorie"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </ScrollPane>
+
+            </StackPane>
+        </VBox>
+    </center>
+
+</BorderPane>

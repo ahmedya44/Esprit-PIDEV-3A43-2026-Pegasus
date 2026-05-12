@@ -1,0 +1,36 @@
+{% extends 'front/layout.html.twig' %}
+{% set active_nav = 'profile' %}
+{% block title %}Request Role Change{% endblock %}
+
+{% block body %}
+<section style="background: linear-gradient(180deg,#f2f5fb 0%,#fff 100%); padding: 44px 0 72px;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div style="background:#fff; border:1px solid #e5eaf7; border-radius:16px; box-shadow:0 16px 38px rgba(15,23,42,.08); padding:28px;">
+          <h2 style="font-family:'Poppins',sans-serif; font-size:1.45rem; font-weight:700; color:#17233a; margin-bottom:6px;">Request Role Change</h2>
+          <p class="text-muted small mb-4">Select the role you'd like to apply for. Your request will be reviewed by an administrator.</p>
+
+          {% for type, messages in app.flashes %}
+            {% for msg in messages %}
+              <div class="alert alert-{{ type == 'success' ? 'success' : 'warning' }} py-2 mb-3">{{ msg }}</div>
+            {% endfor %}
+          {% endfor %}
+
+          {{ form_start(form) }}
+            <div class="mb-3">
+              {{ form_label(form.requestedRole) }}
+              {{ form_widget(form.requestedRole) }}
+              {{ form_errors(form.requestedRole) }}
+            </div>
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-warning px-4">Submit Request</button>
+              <a href="{{ path('front_profile') }}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          {{ form_end(form) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,256 @@
+/* ============================================================
+   Pegasus Design System — Java-parity visual theme
+   ============================================================ */
+
+:root {
+  --pg-gold:        #f9c23c;
+  --pg-gold-dark:   #e6a800;
+  --pg-gold-text:   #111827;
+  --pg-navy:        #111827;
+  --pg-navy-2:      #1f2937;
+  --pg-navy-3:      #374151;
+  --pg-teal:        #0f766e;
+  --pg-teal-light:  #2dd4bf;
+  --pg-bg:          #f4f6fb;
+  --pg-card-bg:     #ffffff;
+  --pg-card-border: #dbe5ef;
+  --pg-text:        #111827;
+  --pg-text-muted:  #6b7280;
+  --pg-radius:      16px;
+  --pg-radius-sm:   10px;
+  --pg-shadow:      0 8px 24px rgba(15, 23, 42, 0.10);
+  --pg-shadow-lg:   0 16px 40px rgba(15, 23, 42, 0.14);
+}
+
+/* ---- Global typography ---- */
+body {
+  font-family: 'Poppins', 'Open Sans', sans-serif;
+  background-color: var(--pg-bg);
+  color: var(--pg-text);
+}
+
+h1, h2, h3, h4, h5, h6,
+.navbar-brand {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* ---- Hero area — kill the background image everywhere (navbar has its own bg) ---- */
+.hero_area .bg-box { display: none !important; }
+.hero_area { background: transparent !important; min-height: auto !important; }
+
+/* ---- Navbar ---- */
+.header_section {
+  background: var(--pg-navy) !important;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.30) !important;
+  position: relative;
+  z-index: 100;
+}
+
+.navbar-brand {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.5px;
+}
+
+.navbar-brand span {
+  color: var(--pg-gold) !important;
+  font-size: 26px !important;
+}
+
+/* Nav links */
+.custom_nav-container .navbar-nav .nav-item .nav-link {
+  color: rgba(255, 255, 255, 0.80) !important;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  border-radius: 8px !important;
+  transition: color 0.2s, background 0.2s;
+}
+
+.custom_nav-container .navbar-nav .nav-item:hover .nav-link,
+.custom_nav-container .navbar-nav .nav-item.active .nav-link {
+  color: var(--pg-gold) !important;
+  background: rgba(249, 194, 60, 0.10);
+}
+
+/* Search icon */
+.custom_nav-container .nav_search-btn {
+  color: rgba(255, 255, 255, 0.70) !important;
+}
+.custom_nav-container .nav_search-btn:hover {
+  color: var(--pg-gold) !important;
+}
+
+/* User/profile link */
+.user_option .user_link,
+.user_option .profile_link { color: rgba(255, 255, 255, 0.85) !important; }
+.user_option .user_link:hover,
+.user_option .profile_link:hover,
+.user_option .profile_link:hover .profile_name { color: var(--pg-gold) !important; }
+.user_option .profile_link .profile_name { color: rgba(255, 255, 255, 0.85) !important; }
+
+/* Cart icon */
+.user_option .cart_link svg { fill: rgba(255, 255, 255, 0.80) !important; }
+.user_option .cart_link:hover svg { fill: var(--pg-gold) !important; }
+
+/* Auth buttons — gold primary, rounded pill */
+.user_option .auth_btn {
+  border-radius: 22px !important;
+  font-weight: 600 !important;
+  padding: 7px 18px !important;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.user_option .auth_btn--filled {
+  background: var(--pg-gold) !important;
+  border-color: var(--pg-gold) !important;
+  color: var(--pg-gold-text) !important;
+}
+.user_option .auth_btn--filled:hover {
+  background: var(--pg-gold-dark) !important;
+  border-color: var(--pg-gold-dark) !important;
+  color: var(--pg-gold-text) !important;
+}
+
+.user_option .auth_btn--outline {
+  background: transparent !important;
+  border: 1px solid rgba(249, 194, 60, 0.50) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.user_option .auth_btn--outline:hover {
+  background: rgba(249, 194, 60, 0.15) !important;
+  border-color: var(--pg-gold) !important;
+  color: var(--pg-gold) !important;
+}
+
+.user_option .auth_btn--danger {
+  background: rgba(220, 38, 38, 0.85) !important;
+  border: 1px solid rgba(220, 38, 38, 0.85) !important;
+  color: #fff !important;
+}
+.user_option .auth_btn--danger:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+}
+
+/* Dashboard button */
+.user_option .order_online {
+  background: var(--pg-gold) !important;
+  color: var(--pg-gold-text) !important;
+  border-radius: 22px !important;
+  font-weight: 700 !important;
+  padding: 7px 18px !important;
+}
+.user_option .order_online:hover {
+  background: var(--pg-gold-dark) !important;
+  color: var(--pg-gold-text) !important;
+}
+
+/* ---- Footer ---- */
+.footer_section {
+  background: var(--pg-navy) !important;
+  padding: 28px 0 !important;
+}
+
+.footer_section .footer-info {
+  text-align: center;
+}
+
+.footer_section .footer-info p {
+  color: rgba(255, 255, 255, 0.55) !important;
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.footer_section .footer-info p a {
+  color: var(--pg-gold) !important;
+  font-weight: 600;
+}
+.footer_section .footer-info p a:hover {
+  color: var(--pg-gold-dark) !important;
+}
+
+/* ---- Page-level shell backgrounds ---- */
+.gallery-shell,
+.courses-shell,
+.events-shell,
+.event-shell,
+.quiz-shell,
+.forum-shell,
+.profile-shell,
+.role-request-shell {
+  background: var(--pg-bg) !important;
+}
+
+/* ---- Card system ---- */
+.gallery-card,
+.event-card,
+.course-card,
+.forum-card,
+.art-card {
+  background: var(--pg-card-bg) !important;
+  border: 1px solid var(--pg-card-border) !important;
+  border-radius: var(--pg-radius) !important;
+  box-shadow: var(--pg-shadow) !important;
+}
+
+/* ---- Course cards — fix dark body to match overall light theme ---- */
+.course-body {
+  background: var(--pg-navy-2) !important;
+  border-radius: 20px 0 0 0 !important;
+}
+
+/* ---- Buttons — unified gold primary ---- */
+.btn-feane,
+.btn-gold {
+  background: var(--pg-gold) !important;
+  color: var(--pg-gold-text) !important;
+  border: none !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  padding: 9px 20px !important;
+  transition: background 0.2s;
+}
+.btn-feane:hover,
+.btn-gold:hover {
+  background: var(--pg-gold-dark) !important;
+  color: var(--pg-gold-text) !important;
+}
+
+/* ---- Alert / flash improvements ---- */
+.alert {
+  border-radius: var(--pg-radius-sm) !important;
+  border: none !important;
+  font-weight: 500;
+}
+.alert-success { background: #d1fae5 !important; color: #065f46 !important; }
+.alert-danger  { background: #fee2e2 !important; color: #991b1b !important; }
+.alert-warning { background: #fef9c3 !important; color: #854d0e !important; }
+.alert-info    { background: #e0f2fe !important; color: #0c4a6e !important; }
+
+/* ---- Heading accent colour ---- */
+.heading_container h2 span { color: var(--pg-gold) !important; }
+.heading_container h2 { font-family: 'Poppins', sans-serif !important; font-weight: 800 !important; }
+
+/* ---- Event detail card ---- */
+.event-card.detail,
+.event-card { border-radius: var(--pg-radius) !important; }
+
+/* ---- Badge overrides ---- */
+.badge.bg-warning { background: var(--pg-gold) !important; color: var(--pg-gold-text) !important; }
+
+/* ---- Section title pattern ---- */
+.section-eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pg-teal);
+  margin-bottom: 6px;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

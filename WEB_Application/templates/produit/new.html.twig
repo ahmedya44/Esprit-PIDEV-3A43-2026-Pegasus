@@ -1,0 +1,30 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Add Product - Pegasus{% endblock %}
+
+{% block body %}
+<section class="market-shell">
+  <div class="container">
+    {% include 'produit/_shop_nav.html.twig' with {shop_active: 'new'} %}
+
+    <div class="market-panel">
+      <div class="market-hero">
+        <div>
+          <div class="market-eyebrow">Artist workspace</div>
+          <h1 class="market-title">Add product</h1>
+          <p class="market-copy">Create a marketplace product and submit it for admin review.</p>
+        </div>
+        <a href="{{ path('app_produit_mes_produits') }}" class="btn btn-outline-secondary">My products</a>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="market-table-card p-4">
+            {{ include('produit/_form.html.twig') }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

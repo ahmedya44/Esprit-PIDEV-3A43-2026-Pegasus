@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="18"
+      prefWidth="440"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.front.PaymentController"
+      style="-fx-padding: 30px; -fx-background-color: white;">
+
+    <Label text="Paiement securise"
+           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2d3436;"/>
+
+    <Label fx:id="labelTotal" text="Total : 0,00 EUR"
+           style="-fx-font-size: 17px; -fx-text-fill: #6c5ce7; -fx-font-weight: bold;"/>
+
+    <Separator/>
+
+    <VBox spacing="5">
+        <Label text="Nom sur la carte" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="cardName" promptText="EX: JEAN DUPONT"
+                   style="-fx-pref-height: 38px;"/>
+    </VBox>
+
+    <VBox spacing="5">
+        <Label text="Numero de carte" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="cardNumber" promptText="4242 4242 4242 4242"
+                   style="-fx-pref-height: 38px;"/>
+    </VBox>
+
+    <HBox spacing="15">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Date d'expiration" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="cardExpiry" promptText="MM/AA"
+                       style="-fx-pref-height: 38px;"/>
+        </VBox>
+        <VBox spacing="5" prefWidth="120">
+            <Label text="CVV" style="-fx-font-weight: bold;"/>
+            <TextField fx:id="cardCvv" promptText="123"
+                       style="-fx-pref-height: 38px;"/>
+        </VBox>
+    </HBox>
+
+    <Separator/>
+
+    <Label fx:id="statusLabel" text="" wrapText="true"
+           style="-fx-font-size: 13px;"/>
+
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button text="Annuler" onAction="#handleAnnuler"
+                style="-fx-background-color: #ccc; -fx-text-fill: #2d3436;
+                       -fx-pref-height: 38px; -fx-pref-width: 110px;"/>
+        <Button fx:id="btnPayer" text="Payer maintenant"
+                onAction="#handlePayer" defaultButton="true"
+                style="-fx-background-color: #1a73e8; -fx-text-fill: white;
+                       -fx-font-weight: bold; -fx-pref-height: 38px; -fx-pref-width: 180px;"/>
+    </HBox>
+
+    <Label text="Paiement securise par Stripe - Mode test"
+           style="-fx-font-size: 11px; -fx-text-fill: #aaa;"/>
+</VBox>

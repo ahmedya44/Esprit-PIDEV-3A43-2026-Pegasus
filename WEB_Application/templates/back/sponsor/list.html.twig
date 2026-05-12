@@ -1,0 +1,55 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Sponsors - {{ evenement.titre }}{% endblock %}
+
+{% block body %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Sponsors: {{ evenement.titre }}</h1>
+      <p class="text-muted mb-0">All sponsorship reservations linked to this event.</p>
+    </div>
+    <a href="{{ path('app_admin_sponsor_index') }}" class="btn btn-outline-secondary">Back</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Sponsor</th>
+            <th>Pack</th>
+            <th>Pack Price</th>
+            <th>Reservation Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for reservation in reservations %}
+          <tr>
+            <td>#{{ reservation.id }}</td>
+            <td>
+              <div class="fw-semibold">{{ reservation.user.email }}</div>
+              <div class="small text-muted">Type: {{ reservation.user.type }}</div>
+            </td>
+            <td><span class="badge bg-primary">{{ reservation.sponsoringPack.nomPack }}</span></td>
+            <td>{{ reservation.sponsoringPack.prix }} DT</td>
+            <td>{{ reservation.dateReservation|date('Y-m-d H:i') }}</td>
+            <td>
+              {% if reservation.statut == 'acceptée' %}
+                <span class="badge bg-success">Accepted</span>
+              {% elseif reservation.statut == 'refusée' %}
+                <span class="badge bg-danger">Rejected</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No sponsors for this event.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

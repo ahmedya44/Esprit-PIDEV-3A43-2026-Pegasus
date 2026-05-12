@@ -1,0 +1,204 @@
+<style>
+  .event-form-card {
+    background:#fff;
+    border:1px solid #e5eaf7;
+    border-radius:16px;
+    box-shadow:0 16px 38px rgba(15,23,42,.08);
+    padding:20px;
+  }
+  .event-form-group { margin-bottom:14px; }
+  .event-form-group label {
+    display:block;
+    font-size:.9rem;
+    font-weight:600;
+    color:#22324d;
+    margin-bottom:7px;
+  }
+  .event-form-group .form-control {
+    border:1px solid #d7deee;
+    border-radius:11px;
+    padding:10px 12px;
+    background:#fbfcff;
+    color:#1e293b;
+  }
+  .event-form-group .form-control:focus {
+    border-color:#7a92d6;
+    box-shadow:0 0 0 3px rgba(71,102,179,.15);
+    background:#fff;
+  }
+  .event-form-group ul {
+    list-style:none;
+    padding-left:0;
+    margin-top:5px;
+    color:#b9102a;
+    font-weight:600;
+    font-size:.85rem;
+  }
+  .event-ai-btn {
+    border-radius:0 11px 11px 0;
+    border:1px solid #f3c34b;
+    background:#f4b844;
+    color:#1f2430;
+    font-weight:600;
+  }
+  .event-ai-loading { font-size:.85rem; color:#2f4d8d; margin-top:6px; }
+  .event-actions { margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; }
+  .event-btn {
+    border-radius:10px;
+    padding:9px 13px;
+    font-weight:600;
+    border:1px solid transparent;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    text-decoration:none!important;
+  }
+  .event-btn--primary { background:#223d78; color:#fff!important; }
+  .event-btn--soft { background:#fff; border-color:#ccd6ec; color:#253451!important; }
+  @keyframes pulse-opacity {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+  .pulse-effect { animation: pulse-opacity 1.5s infinite ease-in-out; }
+</style>
+
+<div class="event-form-card">
+  {{ form_start(form) }}
+    <div class="row">
+      <div class="col-md-6">
+        <div class="event-form-group">
+          {{ form_label(form.titre, 'Event Title') }}
+          <div class="input-group">
+            {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Jazz Night'}}) }}
+            <div class="input-group-append">
+              <button type="button" id="btn-generate-ai" class="btn event-ai-btn"><i class="fa fa-magic"></i> AI</button>
+            </div>
+          </div>
+          <small id="ai-loading" class="event-ai-loading d-none"><i class="fa fa-spinner fa-spin"></i> Generating description...</small>
+          {{ form_errors(form.titre) }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="event-form-group">
+          {{ form_label(form.lieu, 'Location') }}
+          {{ form_widget(form.lieu, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Main Hall'}}) }}
+          {{ form_errors(form.lieu) }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="event-form-group">
+          {{ form_label(form.date, 'Date') }}
+          {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(form.date) }}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="event-form-group">
+          {{ form_label(form.heure, 'Time') }}
+          {{ form_widget(form.heure, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(form.heure) }}
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="event-form-group">
+          {{ form_label(form.description, 'Description') }}
+          {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Event details...'}}) }}
+          {{ form_errors(form.description) }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="event-form-group">
+          {{ form_label(form.prix, 'Price (DT)') }}
+          {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(form.prix) }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="event-form-group">
+          {{ form_label(form.capacite_max, 'Capacity') }}
+          {{ form_widget(form.capacite_max, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(form.capacite_max) }}
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="event-form-group">
+          {{ form_label(form.image, 'Event Image') }}
+          {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+          {{ form_errors(form.image) }}
+        </div>
+      </div>
+    </div>
+    <div class="event-actions">
+      <button type="submit" class="event-btn event-btn--primary">{{ button_label|default('Save') }}</button>
+      <a href="{{ path('front_evenements_index') }}" class="event-btn event-btn--soft">Cancel</a>
+    </div>
+  {{ form_end(form) }}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const btnGenerate = document.getElementById('btn-generate-ai');
+  const loadingInfo = document.getElementById('ai-loading');
+  const titleInput = document.querySelector('input[name*="[titre]"]');
+  const descInput = document.querySelector('textarea[name*="[description]"]');
+
+  function typeWriter(text, element, speed = 20) {
+    element.value = "";
+    let i = 0;
+    function type() {
+      if (i < text.length) {
+        element.value += text.charAt(i);
+        i++;
+        setTimeout(type, speed);
+        element.scrollTop = element.scrollHeight;
+      }
+    }
+    type();
+  }
+
+  if (btnGenerate) {
+    btnGenerate.addEventListener('click', async function() {
+      const title = titleInput.value;
+      if (!title || title.trim().length < 3) {
+        alert('Please enter a meaningful title (min 3 characters).');
+        return;
+      }
+
+      btnGenerate.disabled = true;
+      btnGenerate.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+      loadingInfo.classList.remove('d-none');
+      descInput.placeholder = 'AI is generating...';
+      descInput.classList.add('pulse-effect');
+
+      try {
+        const response = await fetch('{{ path("ai_generate_description") }}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify({ title: title })
+        });
+
+        const data = await response.json();
+
+        if (data.description) {
+          typeWriter(data.description, descInput);
+        } else if (data.error) {
+          alert('Error: ' + data.error);
+        }
+      } catch (error) {
+        console.error('AI Generation Error:', error);
+        alert('An error occurred during generation.');
+      } finally {
+        btnGenerate.disabled = false;
+        btnGenerate.innerHTML = '<i class="fa fa-magic"></i> AI';
+        loadingInfo.classList.add('d-none');
+        descInput.classList.remove('pulse-effect');
+        descInput.placeholder = 'Event details...';
+      }
+    });
+  }
+});
+</script>

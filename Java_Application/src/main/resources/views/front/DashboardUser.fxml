@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+
+<BorderPane prefHeight="700.0" prefWidth="1100.0"
+            styleClass="main-bg product-dashboard-root"
+            xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pegasus.controllers.front.DashboardUserController">
+    <stylesheets>
+        <URL value="@/css/style.css" />
+        <URL value="@/css/courses.css" />
+    </stylesheets>
+
+    <top>
+        <VBox styleClass="product-nav-shell">
+            <VBox styleClass="pegasus-navbar">
+                <HBox spacing="18.0" styleClass="pegasus-navbar-inner">
+                    <Label text="Pegasus" styleClass="pegasus-logo-text" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <HBox styleClass="nav-center" HBox.hgrow="ALWAYS">
+                        <Button text="Home" onAction="#goHome" styleClass="pegasus-nav-button" />
+                        <Button text="Gallery" onAction="#goGallery" styleClass="pegasus-nav-button" />
+                        <Button text="Courses" onAction="#goCourses" styleClass="pegasus-nav-button" />
+                        <Button text="Events" onAction="#goEvents" styleClass="pegasus-nav-button" />
+                        <Button fx:id="navProductsButton" text="Products" onAction="#showCatalogue" styleClass="pegasus-nav-button" />
+                        <Button text="Forum" onAction="#goForum" styleClass="pegasus-nav-button" />
+                    </HBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <HBox styleClass="nav-actions">
+                        <Button fx:id="navBackofficeButton" managed="false" visible="false" text="Backoffice" onAction="#goBackoffice" styleClass="pegasus-nav-button" />
+                        <MenuButton fx:id="navAccountMenu" mnemonicParsing="false" styleClass="pegasus-account-menu-button" text="Profile">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#goProfile" text="Profile" />
+                                <MenuItem mnemonicParsing="false" onAction="#handleLogout" text="Log Out" />
+                            </items>
+                        </MenuButton>
+                    </HBox>
+                </HBox>
+            </VBox>
+        </VBox>
+    </top>
+
+    <center>
+        <StackPane>
+        <VBox fx:id="productWorkspace" styleClass="product-workspace" spacing="18">
+            <HBox alignment="CENTER_LEFT" spacing="16" styleClass="product-page-header">
+                <Label fx:id="productPageTitle" styleClass="page-title" text="Products"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <HBox alignment="CENTER" spacing="8" styleClass="product-subnav-container">
+                    <Button fx:id="btnAccueil" onAction="#showCatalogue"
+                            styleClass="product-subnav-button" text="Catalog"/>
+                    <Button fx:id="btnLikes" onAction="#showLikes"
+                            styleClass="product-subnav-button" text="Likes"/>
+                    <Button fx:id="btnHistorique" onAction="#showHistorique"
+                            styleClass="product-subnav-button" text="Orders"/>
+                    <Button fx:id="btnPanier" onAction="#showPanier"
+                            styleClass="product-subnav-button" text="Cart"/>
+                </HBox>
+            </HBox>
+
+        <StackPane fx:id="contentPane" VBox.vgrow="ALWAYS">
+            <VBox fx:id="pageCatalogueView" spacing="20" style="-fx-padding: 0px;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <TextField fx:id="searchField" prefWidth="350"
+                               promptText="Search for a product..."
+                               styleClass="search-field"/>
+                    <ComboBox fx:id="filterCategorie" prefWidth="220"
+                              promptText="All categories"
+                              styleClass="combo-box"/>
+                    <Button onAction="#filterProduits"
+                            styleClass="btn-primary" text="Search"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <FlowPane fx:id="catalogueGrid" hgap="20" vgap="20"
+                              style="-fx-padding: 10px;"/>
+                </ScrollPane>
+            </VBox>
+
+            <VBox fx:id="pageDetailView" spacing="0" visible="false">
+                <HBox spacing="40"
+                      style="-fx-padding: 40px;
+                             -fx-background-color: white;
+                             -fx-background-radius: 10px;
+                             -fx-margin: 30px;
+                             -fx-effect: dropshadow(gaussian,
+                                         rgba(0,0,0,0.1), 10, 0, 0, 3);"
+                      VBox.vgrow="ALWAYS">
+                    <Pane prefHeight="300" prefWidth="450"
+                          style="-fx-background-color: #f0f0f0;
+                                 -fx-background-radius: 10px;">
+                        <Label layoutX="185" layoutY="130"
+                               style="-fx-font-size: 28px; -fx-text-fill: #636e72;"
+                               text="Image"/>
+                    </Pane>
+
+                    <VBox alignment="TOP_LEFT" spacing="15" HBox.hgrow="ALWAYS">
+                        <Label fx:id="detailNom"
+                               style="-fx-font-size: 28px;
+                                      -fx-font-weight: bold;
+                                      -fx-text-fill: #2d3436;"
+                               text="Product name"/>
+                        <Label fx:id="detailDesc"
+                               style="-fx-font-size: 14px;
+                                      -fx-text-fill: #636e72;"
+                               text="Description"/>
+                        <Label fx:id="detailPrix"
+                               style="-fx-font-size: 24px;"
+                               styleClass="product-card-price"
+                               text="0 EUR"/>
+                        <Label fx:id="detailStock"
+                               style="-fx-font-size: 14px;
+                                      -fx-text-fill: #2d3436;"
+                               text="Stock: 0"/>
+                        <Label fx:id="detailStatut"
+                               style="-fx-font-size: 14px;
+                                      -fx-text-fill: #27ae60;
+                                      -fx-font-weight: bold;"
+                               text="Status: Available"/>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <TextField fx:id="quantiteField" prefWidth="80"
+                                       styleClass="form-field" text="1"/>
+                            <Button onAction="#handleAjouterAuPanier"
+                                    style="-fx-font-size: 15px;"
+                                    styleClass="btn-primary"
+                                    text="Add to cart"/>
+                        </HBox>
+                        <HBox spacing="20">
+                            <Button onAction="#showCatalogue"
+                                    style="-fx-text-fill: #1a73e8;"
+                                    styleClass="navbar-btn-active"
+                                    text="Back to catalog"/>
+                            <Button onAction="#showPanier"
+                                    style="-fx-text-fill: #1a73e8;"
+                                    styleClass="navbar-btn-active"
+                                    text="View cart"/>
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <VBox fx:id="pageHistoriqueView" spacing="20"
+                  style="-fx-padding: 0px;" visible="false">
+                <HBox alignment="CENTER_LEFT" spacing="14.0" styleClass="orders-summary-strip">
+                    <Label fx:id="orderCountLabel" text="0 orders" styleClass="orders-summary-value" />
+                    <Label text="in your purchase history" styleClass="orders-summary-copy" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label text="Total spent" styleClass="orders-summary-copy" />
+                    <Label fx:id="orderTotalLabel" text="0.00 EUR" styleClass="orders-summary-total" />
+                </HBox>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="orders-scroll">
+                    <content>
+                        <VBox fx:id="orderCardsBox" spacing="12.0" />
+                    </content>
+                </ScrollPane>
+            </VBox>
+
+            <VBox fx:id="pageLikesView" visible="false" spacing="20"
+                  style="-fx-padding: 0px;">
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+                    <FlowPane fx:id="likesGrid" hgap="20" vgap="20"
+                              style="-fx-padding: 10px;"/>
+                </ScrollPane>
+            </VBox>
+        </StackPane>
+        </VBox>
+
+        <StackPane fx:id="cartOverlay" managed="false" visible="false" styleClass="cart-modal-overlay">
+            <VBox maxWidth="760.0" spacing="18.0" styleClass="cart-modal-panel">
+                <HBox alignment="CENTER_LEFT" spacing="12.0">
+                    <VBox spacing="3.0">
+                        <Label text="Your Cart" styleClass="cart-modal-title" />
+                        <Label text="Review your items before checkout." styleClass="cart-modal-subtitle" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button onAction="#hidePanierModal" text="X" styleClass="cart-modal-close-button" />
+                </HBox>
+
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="330.0" styleClass="cart-items-scroll">
+                    <content>
+                        <VBox fx:id="cartItemsBox" spacing="10.0" />
+                    </content>
+                </ScrollPane>
+
+                <HBox alignment="CENTER_LEFT" spacing="16.0" styleClass="cart-summary-row">
+                    <Label fx:id="cartCountLabel" text="0 item(s)" styleClass="cart-summary-copy" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label text="Total" styleClass="cart-summary-copy" />
+                    <Label fx:id="cartTotalLabel" text="0.00 EUR" styleClass="cart-total-label" />
+                </HBox>
+
+                <HBox alignment="CENTER_RIGHT" spacing="10.0">
+                    <Button onAction="#handleViderPanier" text="Clear cart" styleClass="cart-danger-button" />
+                    <Button onAction="#hidePanierModal" text="Continue shopping" styleClass="cart-secondary-button" />
+                    <Button onAction="#handlePasserCommande" text="Checkout" styleClass="cart-primary-button" />
+                </HBox>
+            </VBox>
+        </StackPane>
+        </StackPane>
+    </center>
+</BorderPane>

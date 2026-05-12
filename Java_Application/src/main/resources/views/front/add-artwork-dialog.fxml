@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.front.AddArtworkController" 
+      spacing="20" alignment="CENTER" styleClass="dialog-root" prefWidth="500" prefHeight="600">
+    
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+    
+    <!-- Header -->
+    <Label text="Ajouter une nouvelle oeuvre" styleClass="dialog-title"/>
+    
+    <!-- Form Content -->
+    <VBox spacing="15" styleClass="form-container">
+        
+        <!-- Title Field -->
+        <VBox spacing="5">
+            <Label text="Titre de l'oeuvre *" styleClass="form-label"/>
+            <TextField fx:id="titleField" styleClass="form-input" promptText="Entrez le titre de l'oeuvre..."/>
+            <Label fx:id="titleError" styleClass="error-label" text="" visible="false"/>
+        </VBox>
+        
+        <!-- Description Field -->
+        <VBox spacing="5">
+            <Label text="Description *" styleClass="form-label"/>
+            <TextArea fx:id="descriptionArea" styleClass="form-textarea" promptText="Décrivez votre oeuvre..." 
+                      prefRowCount="4" wrapText="true"/>
+            <Label fx:id="descriptionError" styleClass="error-label" text="" visible="false"/>
+            <Label fx:id="charCount" styleClass="char-count" text="0 / 500 caractères"/>
+        </VBox>
+        
+        <!-- Image URL Field -->
+        <VBox spacing="5">
+            <Label text="URL de l'image *" styleClass="form-label"/>
+            <TextField fx:id="imageUrlField" styleClass="form-input" promptText="https://example.com/image.jpg"/>
+            <Label fx:id="imageError" styleClass="error-label" text="" visible="false"/>
+            <Button text="Prévisualiser l'image" styleClass="preview-button" onAction="#handlePreviewImage"/>
+        </VBox>
+        
+        <!-- Image Preview -->
+        <VBox spacing="5" fx:id="previewContainer" visible="false">
+            <Label text="Aperçu de l'image :" styleClass="form-label"/>
+            <ImageView fx:id="imagePreview" fitHeight="150" fitWidth="300" preserveRatio="true" styleClass="preview-image"/>
+        </VBox>
+        
+    </VBox>
+    
+    <!-- Action Buttons -->
+    <HBox spacing="15" alignment="CENTER">
+        <Button text="Annuler" styleClass="cancel-button" onAction="#handleCancel"/>
+        <Button text="Publier" styleClass="publish-button" onAction="#handlePublish"/>
+    </HBox>
+    
+</VBox>

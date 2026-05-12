@@ -1,0 +1,643 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Property App\\Entity\\Art\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Art.php
+
+		-
+			message: '#^Property App\\Entity\\ArtFavoris\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/ArtFavoris.php
+
+		-
+			message: '#^Property App\\Entity\\ArtView\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/ArtView.php
+
+		-
+			message: '#^Property App\\Entity\\Artiste\:\:\$verified \(bool\|null\) is never assigned null so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Artiste.php
+
+		-
+			message: '#^Property App\\Entity\\Commentaire\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Commentaire.php
+
+		-
+			message: '#^Property App\\Entity\\Course\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Course.php
+
+		-
+			message: '#^Property App\\Entity\\Course\:\:\$status \(string\|null\) is never assigned null so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Course.php
+
+		-
+			message: '#^Property App\\Entity\\CourseSection\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/CourseSection.php
+
+		-
+			message: '#^Property App\\Entity\\CourseVideo\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/CourseVideo.php
+
+		-
+			message: '#^Property App\\Entity\\Evenement\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Evenement.php
+
+		-
+			message: '#^Property App\\Entity\\Favorite\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Favorite.php
+
+		-
+			message: '#^Property App\\Entity\\Participation\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Participation.php
+
+		-
+			message: '#^Property App\\Entity\\PasskeyCredential\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/PasskeyCredential.php
+
+		-
+			message: '#^Property App\\Entity\\Post\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Post.php
+
+		-
+			message: '#^Property App\\Entity\\PostRating\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/PostRating.php
+
+		-
+			message: '#^Property App\\Entity\\Quiz\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Quiz.php
+
+		-
+			message: '#^Property App\\Entity\\QuizChoice\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/QuizChoice.php
+
+		-
+			message: '#^Property App\\Entity\\QuizQuestion\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/QuizQuestion.php
+
+		-
+			message: '#^Property App\\Entity\\ReservationPack\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/ReservationPack.php
+
+		-
+			message: '#^Property App\\Entity\\ReservationPack\:\:\$statut \(string\|null\) is never assigned null so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/ReservationPack.php
+
+		-
+			message: '#^PHPDoc type Doctrine\\Common\\Collections\\Collection of property App\\Entity\\SonataClassificationCategory\:\:\$children is not covariant with PHPDoc type Doctrine\\Common\\Collections\\Collection\<int, Sonata\\ClassificationBundle\\Model\\CategoryInterface\> of overridden property Sonata\\ClassificationBundle\\Model\\Category\:\:\$children\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Entity/SonataClassificationCategory.php
+
+		-
+			message: '#^Property App\\Entity\\SonataClassificationCategory\:\:\$children with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/SonataClassificationCategory.php
+
+		-
+			message: '#^Property App\\Entity\\Sponsor\:\:\$verified \(bool\|null\) is never assigned null so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/Sponsor.php
+
+		-
+			message: '#^Property App\\Entity\\SponsoringPack\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/SponsoringPack.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$id \(int\|null\) is never assigned int so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Method App\\Repository\\ArtFavorisRepository\:\:findByUser\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ArtFavorisRepository.php
+
+		-
+			message: '#^Method App\\Repository\\ArtViewRepository\:\:findByArt\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ArtViewRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EvenementRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EvenementRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EvenementRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EvenementRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EvenementRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EvenementRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EvenementRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/EvenementRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ParticipationRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ParticipationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ParticipationRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ParticipationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ParticipationRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ParticipationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ParticipationRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ParticipationRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ReservationPackRepository has PHPDoc tag @method for method findBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ReservationPackRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ReservationPackRepository has PHPDoc tag @method for method findBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ReservationPackRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ReservationPackRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#1 \$criteria with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ReservationPackRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ReservationPackRepository has PHPDoc tag @method for method findOneBy\(\) parameter \#2 \$orderBy with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ReservationPackRepository.php
+
+		-
+			message: '#^Method App\\Service\\AIService\:\:analyzeImage\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/AIService.php
+
+		-
+			message: '#^Method App\\Service\\AIService\:\:extractKeywords\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/AIService.php
+
+		-
+			message: '#^Method App\\Service\\AIService\:\:generateWithLoremPicsum\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Service/AIService.php
+
+		-
+			message: '#^Method App\\Service\\AIService\:\:generateWithPicsum\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Service/AIService.php
+
+		-
+			message: '#^Method App\\Service\\AIService\:\:generateWithPlaceIMG\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Service/AIService.php
+
+		-
+			message: '#^Method App\\Service\\AIService\:\:getCategoryFromKeywords\(\) has parameter \$keywords with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/AIService.php
+
+		-
+			message: '#^Method App\\Service\\AIService\:\:simulateImageAnalysis\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/AIService.php
+
+		-
+			message: '#^Property App\\Service\\AIService\:\:\$client is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/AIService.php
+
+		-
+			message: '#^Dead catch \- Symfony\\Contracts\\HttpClient\\Exception\\ExceptionInterface is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Service/AiAutocompleteService.php
+
+		-
+			message: '#^Offset 1 on array\{list\<string\>, list\<string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Service/AiAutocompleteService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:buildResponse\(\) has parameter \$entities with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:calculateConfidence\(\) has parameter \$entities with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:extractEntities\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:generateAdviceResponse\(\) has parameter \$entities with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:generateComparisonResponse\(\) has parameter \$entities with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:generateDefinitionResponse\(\) has parameter \$entities with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:generateGeneralResponse\(\) has parameter \$entities with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:generateHistoryResponse\(\) has parameter \$entities with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:generateResponse\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:generateTechniqueResponse\(\) has parameter \$entities with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\ArtChatbotService\:\:getSuggestedQuestions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Property App\\Service\\ArtChatbotService\:\:\$knowledgeBase type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Property App\\Service\\ArtChatbotService\:\:\$responsePatterns is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Property App\\Service\\ArtChatbotService\:\:\$responsePatterns type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ArtChatbotService.php
+
+		-
+			message: '#^Dead catch \- Symfony\\Contracts\\HttpClient\\Exception\\ExceptionInterface is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Service/BadWordsDetectorService.php
+
+		-
+			message: '#^Method App\\Service\\ClientAIService\:\:analyzeImage\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ClientAIService.php
+
+		-
+			message: '#^Method App\\Service\\ClientAIService\:\:extractKeywords\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ClientAIService.php
+
+		-
+			message: '#^Method App\\Service\\ClientAIService\:\:generateWithLoremPicsum\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Service/ClientAIService.php
+
+		-
+			message: '#^Method App\\Service\\ClientAIService\:\:generateWithPicsum\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Service/ClientAIService.php
+
+		-
+			message: '#^Method App\\Service\\ClientAIService\:\:generateWithPlaceIMG\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Service/ClientAIService.php
+
+		-
+			message: '#^Method App\\Service\\ClientAIService\:\:getCategoryFromKeywords\(\) has parameter \$keywords with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ClientAIService.php
+
+		-
+			message: '#^Method App\\Service\\ClientAIService\:\:simulateImageAnalysis\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ClientAIService.php
+
+		-
+			message: '#^Property App\\Service\\ClientAIService\:\:\$client is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/ClientAIService.php
+
+		-
+			message: '#^Method App\\Service\\CourseCategoryClassifier\:\:buildAvailableFilters\(\) has parameter \$courses with no value type specified in iterable type iterable\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/CourseCategoryClassifier.php
+
+		-
+			message: '#^Method App\\Service\\CourseCategoryClassifier\:\:buildAvailableFilters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/CourseCategoryClassifier.php
+
+		-
+			message: '#^Method App\\Service\\CourseCategoryClassifier\:\:detectSlugs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/CourseCategoryClassifier.php
+
+		-
+			message: '#^Method App\\Service\\CourseCategoryClassifier\:\:getAllCategories\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/CourseCategoryClassifier.php
+
+		-
+			message: '#^Property App\\Service\\CourseCategoryClassifier\:\:\$categories type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/CourseCategoryClassifier.php
+
+		-
+			message: '#^Method App\\Service\\FreeTranslationService\:\:translateArray\(\) has parameter \$texts with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/FreeTranslationService.php
+
+		-
+			message: '#^Method App\\Service\\FreeTranslationService\:\:translateArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/FreeTranslationService.php
+
+		-
+			message: '#^Variable \$result in empty\(\) always exists and is not falsy\.$#'
+			identifier: empty.variable
+			count: 1
+			path: src/Service/FreeTranslationService.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<GPH\\Model\\Gif\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Call to function is_object\(\) with GPH\\Model\\GifImagesFixedWidthSmall will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Call to function is_object\(\) with GPH\\Model\\GifImagesOriginal will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Call to function is_object\(\) with GPH\\Model\\GifImagesPreviewGif will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Call to function method_exists\(\) with GPH\\Model\\GifImagesFixedWidthSmall and ''getUrl'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Call to function method_exists\(\) with GPH\\Model\\GifImagesOriginal and ''getUrl'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Call to function method_exists\(\) with GPH\\Model\\GifImagesPreviewGif and ''getUrl'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Dead catch \- GPH\\ApiException is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Dead catch \- Symfony\\Contracts\\HttpClient\\Exception\\ExceptionInterface is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Instanceof between GPH\\Model\\Gif and GPH\\Model\\Gif will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: src/Service/GiphyService.php
+
+		-
+			message: '#^Method App\\Service\\InspirationService\:\:getAllInspirations\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/InspirationService.php
+
+		-
+			message: '#^Property App\\Service\\InspirationService\:\:\$inspirations type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/InspirationService.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\MLArtChatbotService\:\:calculateSimilarity\(\) has parameter \$vector1 with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\MLArtChatbotService\:\:findBestMatch\(\) has parameter \$inputVector with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\MLArtChatbotService\:\:findBestMatch\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\MLArtChatbotService\:\:generateResponse\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\MLArtChatbotService\:\:getLearningStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\MLArtChatbotService\:\:reconstructVector\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\MLArtChatbotService\:\:textToVector\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\MLArtChatbotService\:\:tokenize\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Property App\\Service\\MLArtChatbotService\:\:\$trainingData type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Property App\\Service\\MLArtChatbotService\:\:\$vocabulary type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Property App\\Service\\MLArtChatbotService\:\:\$weights type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/MLArtChatbotService.php
+
+		-
+			message: '#^Method App\\Service\\StockedImageService\:\:getAvailableKeywords\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/StockedImageService.php
+
+		-
+			message: '#^Property App\\Service\\StockedImageService\:\:\$stockedImages type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/StockedImageService.php
+
+		-
+			message: '#^Dead catch \- Symfony\\Contracts\\HttpClient\\Exception\\ExceptionInterface is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: src/Service/TranslationApiService.php

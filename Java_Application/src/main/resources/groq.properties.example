@@ -1,0 +1,2 @@
+# Template only. Copy values into groq.properties locally.
+groq.api.key=YOUR_GROQ_API_KEY_HERE

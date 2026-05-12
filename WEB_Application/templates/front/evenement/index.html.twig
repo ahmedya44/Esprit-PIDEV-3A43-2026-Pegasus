@@ -1,0 +1,120 @@
+﻿{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'events' %}
+{% block title %}Pegasus | Events{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .events-shell { padding: 44px 0 72px; }
+  .events-top { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:14px; margin-bottom:20px; }
+  .events-title h1 { font-size:2rem; margin:0; color:var(--pg-text,#111827); font-weight:800; }
+  .events-title p { margin:6px 0 0; color:var(--pg-text-muted,#6b7280); }
+  .events-btn { border-radius:20px; padding:9px 18px; font-weight:700; border:1px solid transparent; display:inline-flex; align-items:center; gap:8px; font-size:.875rem; transition:background .2s; }
+  .events-btn--primary { background:var(--pg-gold,#f9c23c); color:#111; }
+  .events-btn--primary:hover { background:var(--pg-gold-dark,#e6a800); color:#111; }
+  .events-search { background:#fff; border:1px solid #dbe5ef; border-radius:999px; padding:8px 18px; box-shadow:0 4px 14px rgba(15,23,42,.06); display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+  .events-search i { color:var(--pg-gold,#f9c23c); }
+  .events-search input { border:none; outline:none; width:100%; background:transparent; font-size:.9rem; }
+  .event-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:18px; }
+  .event-card { background:#fff; border:1px solid #dbe5ef; border-radius:16px; overflow:hidden; box-shadow:0 8px 22px rgba(15,23,42,.08); display:flex; flex-direction:column; transition:transform .2s, box-shadow .2s; }
+  .event-card:hover { transform:translateY(-4px); box-shadow:0 16px 36px rgba(15,23,42,.13); }
+  .event-media { width:100%; height:210px; object-fit:cover; }
+  .event-body { padding:16px; display:flex; flex-direction:column; gap:8px; flex:1; }
+  .event-name { margin:0; font-weight:700; color:var(--pg-text,#111827); font-size:1.05rem; }
+  .event-desc { margin:0; color:var(--pg-text-muted,#6b7280); font-size:.875rem; line-height:1.5; }
+  .event-meta { font-size:.85rem; color:#4b5563; display:flex; gap:10px; flex-wrap:wrap; }
+  .event-meta i { color:var(--pg-gold,#f9c23c); }
+  .event-actions { margin-top:auto; display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding-top:8px; border-top:1px solid #f1f5f9; }
+  .event-price { font-weight:800; color:var(--pg-navy,#111827); margin-right:auto; font-size:1.05rem; }
+  .status-pill { border-radius:999px; font-size:.72rem; padding:3px 10px; font-weight:600; border:1px solid #f9c23c; color:#92660a; background:#fef9c3; }
+  .event-action-btn { border-radius:999px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #dbe5ef; background:#f8faff; color:#374151; transition:all .18s; text-decoration:none; }
+  .event-action-btn:hover, .event-action-btn:focus { background:var(--pg-gold,#f9c23c); border-color:var(--pg-gold,#f9c23c); color:#111; }
+  .event-action-btn--danger:hover { background:#fee2e2; border-color:#fca5a5; color:#991b1b; }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="events-shell">
+  <div class="container">
+    {% for label, messages in app.flashes %}
+      {% for message in messages %}
+        <div class="alert alert-{{ label == 'error' ? 'danger' : label }} mb-3">{{ message }}</div>
+      {% endfor %}
+    {% endfor %}
+
+    <div class="events-top">
+      <div class="events-title">
+        <h1>Events</h1>
+        <p>Explore and manage community events.</p>
+      </div>
+      {% if is_granted('ROLE_ARTISTE') %}
+        <a href="{{ path('front_evenements_new') }}" class="events-btn events-btn--primary"><i class="fa fa-plus"></i> Add Event</a>
+      {% endif %}
+    </div>
+
+    <div class="events-search">
+      <i class="fa fa-search" style="color:#4867ac"></i>
+      <input type="text" id="eventSearch" placeholder="Search by title or description...">
+    </div>
+
+    <div class="event-grid" id="eventGrid">
+      {% set currentUserId = app.user ? app.user.id : null %}
+      {% for evenement in evenements %}
+        <article class="event-card">
+          {% if evenement.image %}
+            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" class="event-media" alt="{{ evenement.titre }}">
+          {% else %}
+            <img src="{{ asset('front/images/about-img.png') }}" class="event-media" alt="{{ evenement.titre }}">
+          {% endif %}
+          <div class="event-body">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+              <h3 class="event-name">{{ evenement.titre }}</h3>
+              {% if evenement.statut == 'en attente' %}<span class="status-pill">Pending</span>{% endif %}
+            </div>
+            <p class="event-desc">{{ evenement.description }}</p>
+            <div class="event-meta">
+              <span><i class="fa fa-calendar"></i> {{ evenement.date ? evenement.date|date('d/m/Y') : '' }}</span>
+              <span><i class="fa fa-map-marker"></i> {{ evenement.lieu }}</span>
+            </div>
+            <div class="event-actions">
+              <span class="event-price">{{ evenement.prix }} DT</span>
+              <a href="{{ path('front_evenements_show', {'id': evenement.id}) }}" class="event-action-btn" title="View"><i class="fa fa-eye"></i></a>
+              {% set isOwner = currentUserId is not null and evenement.artiste and evenement.artiste.id == currentUserId %}
+              {% if isOwner %}
+                <a href="{{ path('front_evenements_edit', {'id': evenement.id}) }}" class="event-action-btn" title="Edit"><i class="fa fa-edit"></i></a>
+                <form method="post" action="{{ path('front_evenements_delete', {'id': evenement.id}) }}" onsubmit="return confirm('Supprimer cet événement ?');" style="display:inline-block;margin:0;">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evenement.id) }}">
+                  <button class="event-action-btn event-action-btn--danger" title="Delete"><i class="fa fa-trash"></i></button>
+                </form>
+                <a href="{{ path('front_evenements_participants', {'id': evenement.id}) }}" class="event-action-btn" title="Participants"><i class="fa fa-users"></i></a>
+              {% endif %}
+            </div>
+          </div>
+        </article>
+      {% else %}
+        <div class="alert alert-light border text-center">No events available right now.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('eventSearch');
+    if (!searchInput) return;
+    searchInput.addEventListener('input', function() {
+      let filter = this.value.toLowerCase();
+      let cards = document.querySelectorAll('#eventGrid > article');
+      cards.forEach(card => {
+        let title = card.querySelector('.event-name');
+        let text = card.querySelector('.event-desc');
+        let titleText = title ? title.innerText.toLowerCase() : '';
+        let bodyText = text ? text.innerText.toLowerCase() : '';
+        card.style.display = (titleText.includes(filter) || bodyText.includes(filter)) ? '' : 'none';
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Order Confirmed - Pegasus{% endblock %}
+
+{% block body %}
+<section class="market-shell">
+  <div class="container">
+    {% include 'produit/_shop_nav.html.twig' with {shop_active: 'history'} %}
+
+    <div class="market-panel">
+      <div class="market-empty">
+        <i class="fa fa-check-circle" aria-hidden="true"></i>
+        <h1 class="market-title">Order confirmed</h1>
+        <p>
+          Thank you. Order <strong>#{{ commande.id }}</strong> has been saved with a total of
+          <strong>{{ commande.total|number_format(2, '.', ' ') }} DT</strong>.
+        </p>
+        <p><span class="market-chip">{{ commande.statut|capitalize }}</span></p>
+        <div class="d-flex justify-content-center flex-wrap" style="gap: 10px;">
+          <a href="{{ path('app_commande_historique') }}" class="btn btn-outline-secondary">View history</a>
+          <a href="{{ path('app_produit_index') }}" class="btn btn-warning">Continue shopping</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Create Event{% endblock %}
+
+{% block body %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Create Event</h1>
+      <p class="text-muted mb-0">Add a new event to the back-office catalog.</p>
+    </div>
+    <a href="{{ path('app_evenement_index') }}" class="btn btn-outline-secondary">Back to list</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      {{ include('back/evenement/_form.html.twig') }}
+    </div>
+  </div>
+{% endblock %}

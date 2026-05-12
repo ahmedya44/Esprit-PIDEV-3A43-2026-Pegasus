@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.front.MenuController" styleClass="app-root gallery-root" spacing="0">
+    <stylesheets>
+        <URL value="@/css/style.css" />
+    </stylesheets>
+    <children>
+        <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="14" maxWidth="Infinity">
+            <children>
+                <Label text="Pegasus" styleClass="brand-label" />
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox styleClass="nav-center" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Button text="Home" styleClass="secondary-button" onAction="#goHome" />
+                        <Button text="Gallery" styleClass="gold-button" onAction="#handleOpenGallery" />
+                        <Button text="Courses" styleClass="secondary-button" onAction="#onGoToCourses" />
+                        <Button text="Events" styleClass="secondary-button" onAction="#onGoToEventsFront" />
+                        <Button text="Products" styleClass="secondary-button" onAction="#onGoToProduit" />
+                        <Button text="Forum" styleClass="secondary-button" onAction="#onGoToForum" />
+                    </children>
+                </HBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox styleClass="nav-actions">
+                    <children>
+                        <Button fx:id="navBackofficeButton" managed="false" text="Backoffice" visible="false" styleClass="secondary-button" onAction="#onGoToBackoffice" />
+                        <Button fx:id="navCoursesDashboardButton" managed="false" text="Courses Dashboard" visible="false" styleClass="secondary-button" onAction="#onGoToCoursesDashboard" />
+                        <Button fx:id="navAuthButton" mnemonicParsing="false" onAction="#onAuthAction" styleClass="gold-button" text="Sign In" />
+                        <MenuButton fx:id="navAccountMenu" managed="false" mnemonicParsing="false" styleClass="account-menu-button" text="👤" visible="false">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#onGoToProfile" text="Profile" />
+                                <MenuItem mnemonicParsing="false" onAction="#onAuthAction" text="Log Out" />
+                            </items>
+                        </MenuButton>
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+
+        <VBox styleClass="gallery-workspace" spacing="18" VBox.vgrow="ALWAYS">
+            <HBox alignment="CENTER_LEFT" spacing="16" styleClass="gallery-page-header">
+                <VBox spacing="4">
+                    <Label text="Gallery" styleClass="gallery-title" />
+                    <Label text="Explore published artworks, reactions, artist context and recommendations." styleClass="gallery-subtitle" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Add Artwork" onAction="#handleAddArtwork" styleClass="gallery-add-button" />
+            </HBox>
+
+            <VBox spacing="12" styleClass="gallery-toolbar">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="searchField" promptText="Search artworks..." prefWidth="360" styleClass="gallery-search-field" />
+                    <Button text="Search" onAction="#handleSearch" styleClass="gallery-primary-button" />
+                    <Button text="Clear" onAction="#handleClearSearch" styleClass="gallery-ghost-button" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="Quotes" onAction="#handleQuotes" styleClass="gallery-tool-button" />
+                    <Button text="Artists" onAction="#handleArtists" styleClass="gallery-tool-button" />
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ToggleButton fx:id="toggleRecent" text="Newest" onAction="#handleSortRecent" styleClass="gallery-chip-button" />
+                    <ToggleButton fx:id="toggleOlder" text="Oldest" onAction="#handleSortOlder" styleClass="gallery-chip-button" />
+                    <ToggleButton fx:id="toggleLiked" text="Most liked" onAction="#handleSortLiked" styleClass="gallery-chip-button" />
+                    <Button text="Reset" onAction="#handleResetSort" styleClass="gallery-ghost-button" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label fx:id="galleryCountLabel" text="Loading artworks..." styleClass="gallery-count-label" />
+                </HBox>
+            </VBox>
+
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="gallery-scroll">
+                <content>
+                    <VBox spacing="12">
+                        <Label fx:id="galleryStatusLabel" text="" styleClass="gallery-status-label" />
+                        <TilePane fx:id="galleryGrid" prefColumns="4" hgap="18" vgap="18" styleClass="gallery-grid">
+                            <padding>
+                                <Insets top="6" right="4" bottom="24" left="4" />
+                            </padding>
+                        </TilePane>
+                    </VBox>
+                </content>
+            </ScrollPane>
+        </VBox>
+    </children>
+</VBox>

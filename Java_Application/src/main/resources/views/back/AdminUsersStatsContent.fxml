@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.AdminUsersStatsController">
+
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <Label text="Users Statistics" styleClass="admin-panel-title" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Refresh Stats" onAction="#refreshStats" styleClass="admin-secondary-button" />
+    </HBox>
+    <Label fx:id="statusLabel" text="Loading user stats..." styleClass="admin-page-subtitle" />
+
+    <HBox spacing="12.0">
+        <VBox spacing="6.0" styleClass="admin-panel" HBox.hgrow="ALWAYS">
+            <Label text="Total Users" styleClass="admin-page-subtitle" />
+            <Label fx:id="totalUsersLabel" text="0" styleClass="admin-panel-title" />
+        </VBox>
+        <VBox spacing="6.0" styleClass="admin-panel" HBox.hgrow="ALWAYS">
+            <Label text="Active Users" styleClass="admin-page-subtitle" />
+            <Label fx:id="activeUsersLabel" text="0" styleClass="admin-panel-title" />
+        </VBox>
+        <VBox spacing="6.0" styleClass="admin-panel" HBox.hgrow="ALWAYS">
+            <Label text="Pending Verification" styleClass="admin-page-subtitle" />
+            <Label fx:id="pendingUsersLabel" text="0" styleClass="admin-panel-title" />
+        </VBox>
+        <VBox spacing="6.0" styleClass="admin-panel" HBox.hgrow="ALWAYS">
+            <Label text="Suspended/Banned" styleClass="admin-page-subtitle" />
+            <Label fx:id="suspendedUsersLabel" text="0" styleClass="admin-panel-title" />
+        </VBox>
+    </HBox>
+
+    <HBox spacing="12.0" VBox.vgrow="ALWAYS">
+        <VBox spacing="8.0" styleClass="admin-panel" HBox.hgrow="ALWAYS">
+            <Label text="Users By Role" styleClass="admin-panel-title" />
+            <PieChart fx:id="rolesPieChart" title="" styleClass="admin-chart" prefHeight="320.0" />
+        </VBox>
+        <VBox spacing="8.0" styleClass="admin-panel" HBox.hgrow="ALWAYS">
+            <Label text="Users By Status" styleClass="admin-panel-title" />
+            <PieChart fx:id="statusPieChart" title="" styleClass="admin-chart" prefHeight="320.0" />
+        </VBox>
+    </HBox>
+
+    <VBox spacing="8.0" styleClass="admin-panel" VBox.vgrow="ALWAYS">
+        <Label text="New Users (Last 7 Days)" styleClass="admin-panel-title" />
+        <BarChart fx:id="registrationsChart" styleClass="admin-chart" prefHeight="320.0" legendVisible="false">
+            <xAxis>
+                <CategoryAxis label="Day" />
+            </xAxis>
+            <yAxis>
+                <NumberAxis label="Users" lowerBound="0.0" tickUnit="1.0" />
+            </yAxis>
+        </BarChart>
+    </VBox>
+</VBox>

@@ -1,0 +1,119 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'courses' %}
+{% block title %}Pegasus | Courses{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ asset('front/css/image-bot.css') }}">
+<style>
+  .courses-shell { padding: 44px 0 72px; }
+  .courses-head h1 { font-size: 2rem; margin: 0; color: var(--pg-text, #111827); font-weight: 800; }
+  .courses-head p { margin: 6px 0 0; color: var(--pg-text-muted, #6b7280); }
+  .filters_menu { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .filters_menu li a { color: #374151; text-decoration: none; padding: 6px 14px; border-radius: 20px; border: 1px solid #dbe5ef; background: #fff; font-size: .875rem; font-weight: 500; transition: all .2s; display: inline-block; }
+  .filters_menu li.active a, .filters_menu li a:hover { background: var(--pg-gold, #f9c23c); border-color: var(--pg-gold, #f9c23c); color: #111; font-weight: 700; }
+  .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+  .course-card { border-radius: 8px; overflow: hidden; background: #fff; border: 1px solid #dbe5ef; box-shadow: 0 8px 24px rgba(15,23,42,.09); transition: transform .2s, box-shadow .2s; }
+  .course-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15,23,42,.14); }
+  .course-media { background: #f0f4fb; height: 200px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .course-media img { width: 140px; height: 140px; object-fit: cover; border-radius: 50%; box-shadow: 0 12px 28px rgba(0,0,0,.18); transition: transform .3s; }
+  .course-card:hover .course-media img { transform: scale(1.06); }
+  .course-body { padding: 18px; background: #fff; min-height: 230px; color: #111827; display: flex; flex-direction: column; }
+  .course-body h5 { color: #111827; font-weight: 800; margin-bottom: 6px; }
+  .course-body p { font-size: .9rem; line-height: 1.5; color: #64748b; flex: 1; min-height: 60px; }
+  .course-body .badge.bg-dark { background: #eef2f7 !important; color: #334155; border-radius: 999px !important; padding: 5px 10px; }
+  .course-price { font-size: 1.35rem; font-weight: 900; color: #111827; }
+  .course-cta { min-width: 92px; height: 40px; border-radius: 8px; background: var(--pg-gold, #f9c23c); color: #111; display:inline-flex; align-items:center; justify-content:center; gap: 7px; font-size: 14px; font-weight: 900; transition: background .2s; flex-shrink: 0; padding: 0 13px; }
+  .course-cta:hover { background: var(--pg-gold-dark, #e6a800); }
+  .course-progress-bar { background: rgba(255,255,255,.15); border-radius: 999px; height: 5px; margin-bottom: 10px; }
+  .course-progress-fill { background: var(--pg-gold, #f9c23c); height: 5px; border-radius: 999px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="courses-shell">
+  <div class="container">
+    <div class="courses-head text-center mb-4">
+      <h1>Our Courses</h1>
+      <p>Learn new skills with structured lessons and videos.</p>
+    </div>
+
+    <ul class="filters_menu mb-4">
+      <li class="{{ activeCat is empty ? 'active' : '' }}"><a href="{{ path('app_courses') }}">All</a></li>
+      {% for f in filters %}
+        <li class="{{ activeCat == f.slug ? 'active' : '' }}"><a href="{{ path('app_courses', {cat: f.slug}) }}">{{ f.label }}</a></li>
+      {% endfor %}
+    </ul>
+
+    <div class="course-grid">
+      {% for course in courses %}
+        <div class="course-card">
+          <a href="{{ path('course_show', { id: course.id }) }}" class="text-decoration-none text-reset" style="display:block;">
+            <div class="course-media">
+              {% set thumbnail = course.thumbnailUrl|default('') %}
+              {% if thumbnail %}
+                {% set thumbnailSrc = (thumbnail starts with('http://') or thumbnail starts with('https://') or thumbnail starts with('/')) ? thumbnail : asset(thumbnail) %}
+                <img src="{{ thumbnailSrc }}" alt="{{ course.title|e }}" loading="lazy" onerror="this.onerror=null;this.src='{{ asset('front/images/f1.png') }}';">
+              {% else %}
+                <img src="{{ asset('front/images/f1.png') }}" alt="{{ course.title|e }}">
+              {% endif %}
+            </div>
+
+            <div class="course-body">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <h5 class="mb-1">{{ course.title }}</h5>
+                {% if course.status is defined and course.status %}
+                  <span class="badge bg-warning text-dark" style="height:fit-content;">{{ course.status }}</span>
+                {% endif %}
+              </div>
+
+              {% set slugs = classifier.detectSlugs(course) %}
+              <div class="mb-2">
+                {% for slug in slugs %}
+                  <span class="badge bg-dark" style="border-radius:999px;padding:6px 10px;font-weight:700;">{{ slug|capitalize }}</span>
+                {% endfor %}
+              </div>
+
+              {% if course.description is defined and course.description %}
+                <p class="mb-3">{{ course.description|striptags|u.truncate(120, '...') }}</p>
+              {% else %}
+                <p class="mb-3 text-muted">No description yet.</p>
+              {% endif %}
+
+              {% if app.user and progressMap[course.id] is defined %}
+                {% set prog = progressMap[course.id] %}
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between small mb-1" style="color:#f9c23c; font-weight:600;">
+                    <span>{{ prog.status == 'completed' ? 'Completed' : 'In progress' }}</span>
+                    <span>{{ prog.progressPercent }}%</span>
+                  </div>
+                  <div class="course-progress-bar">
+                    <div class="course-progress-fill" style="width:{{ prog.progressPercent }}%;"></div>
+                  </div>
+                </div>
+              {% endif %}
+
+              <div class="d-flex align-items-center justify-content-between mt-auto">
+                {% if course.price is defined and course.price is not null %}
+                  <h6 class="course-price mb-0">{{ course.price }} DT</h6>
+                {% else %}
+                  <h6 class="course-price mb-0" style="opacity:.7;">--</h6>
+                {% endif %}
+                <span class="course-cta" title="View course"><i class="fa fa-eye" aria-hidden="true"></i> View</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% else %}
+        <div class="alert alert-info text-center mb-0">No published courses available right now.</div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+  {% include 'front/_image_chat_widget.html.twig' %}
+  <script src="{{ asset('front/js/image-bot.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.BackSponsoringPackController">
+    <HBox spacing="12.0" alignment="CENTER_LEFT" styleClass="admin-toolbar">
+        <VBox spacing="4.0">
+            <Label text="Sponsoring Packs" styleClass="admin-workspace-title" />
+            <Label text="Create and manage sponsorship tiers for events." styleClass="admin-workspace-subtitle" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Exporter PDF" onAction="#exporterPDF" styleClass="admin-primary-button" />
+        <ComboBox fx:id="eventFilterCombo" promptText="Tous les événements" prefWidth="210.0" styleClass="admin-combo" />
+        <TextField fx:id="searchField" promptText="Rechercher par nom..." prefWidth="280.0" styleClass="admin-search-field" />
+    </HBox>
+
+    <TableView fx:id="packsTable" VBox.vgrow="ALWAYS" prefHeight="560.0" styleClass="admin-table">
+        <columns>
+            <TableColumn text="Nom du Pack" prefWidth="200">
+                <cellValueFactory><PropertyValueFactory property="nom_pack" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colDescription" text="Description" prefWidth="400">
+                <cellValueFactory><PropertyValueFactory property="description" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Prix" prefWidth="120">
+                <cellValueFactory><PropertyValueFactory property="prix" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colEvenement" text="Événement" prefWidth="200">
+                <cellValueFactory><PropertyValueFactory property="id_evenement" /></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="200" />
+        </columns>
+    </TableView>
+</VBox>

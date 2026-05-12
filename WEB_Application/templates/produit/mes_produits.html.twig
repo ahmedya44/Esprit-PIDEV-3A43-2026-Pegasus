@@ -1,0 +1,82 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}My Products - Pegasus{% endblock %}
+
+{% block body %}
+<section class="market-shell">
+  <div class="container">
+    {% include 'produit/_shop_nav.html.twig' with {shop_active: 'mine'} %}
+
+    <div class="market-panel">
+      <div class="market-hero">
+        <div>
+          <div class="market-eyebrow">Artist workspace</div>
+          <h1 class="market-title">My products</h1>
+          <p class="market-copy">Track product status, stock, and marketplace readiness.</p>
+        </div>
+        <a href="{{ path('app_produit_new') }}" class="btn btn-warning">
+          <i class="fa fa-plus" aria-hidden="true"></i>
+          Add product
+        </a>
+      </div>
+
+      <div class="market-table-card">
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for produit in pagination %}
+                <tr>
+                  <td>
+                    {% if produit.imageUrl %}
+                      <img src="{{ produit.imageUrl }}" alt="{{ produit.nom }}" style="width: 54px; height: 54px; object-fit: cover; border-radius: 8px;">
+                    {% else %}
+                      <img src="{{ asset('front/images/f1.png') }}" alt="{{ produit.nom }}" style="width: 54px; height: 54px; object-fit: cover; border-radius: 8px;">
+                    {% endif %}
+                  </td>
+                  <td><strong>{{ produit.nom }}</strong></td>
+                  <td>{{ produit.prix|number_format(2, '.', ' ') }} DT</td>
+                  <td>{{ produit.stock }}</td>
+                  <td><span class="market-chip">{{ produit.statut|replace({'_': ' '})|title }}</span></td>
+                  <td>
+                    <div class="market-actions">
+                      <a href="{{ path('app_produit_edit', {id: produit.id, from: 'artiste'}) }}" class="market-icon-btn is-primary" title="Edit">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                      </a>
+                      {{ include('produit/_delete_form.html.twig') }}
+                    </div>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="6">
+                    <div class="market-empty">
+                      <i class="fa fa-cube" aria-hidden="true"></i>
+                      <h3>No products yet</h3>
+                      <p>Create your first product and submit it for review.</p>
+                      <a href="{{ path('app_produit_new') }}" class="btn btn-warning">Add product</a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(pagination) }}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

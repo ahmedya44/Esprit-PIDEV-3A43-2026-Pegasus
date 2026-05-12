@@ -1,0 +1,48 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Participants Management{% endblock %}
+
+{% block body %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Participants Management</h1>
+      <p class="text-muted mb-0">Select an event to view registered participants.</p>
+    </div>
+    <a href="{{ path('app_participant_stats') }}" class="btn btn-outline-primary">View Stats</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body table-responsive">
+      <table class="table table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Location</th>
+            <th>Participants</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for evenement in evenements %}
+          <tr>
+            <td>#{{ evenement.id }}</td>
+            <td class="fw-semibold">{{ evenement.titre }}</td>
+            <td>{{ evenement.date ? evenement.date|date('Y-m-d') : '-' }}</td>
+            <td>{{ evenement.lieu }}</td>
+            <td><span class="badge bg-primary">{{ evenement.participations|length }}</span></td>
+            <td class="text-end">
+              <a href="{{ path('app_participant_list', {'id': evenement.id}) }}" class="btn btn-sm btn-primary">
+                <i class="fa fa-users me-1"></i>View List
+              </a>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No events found.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

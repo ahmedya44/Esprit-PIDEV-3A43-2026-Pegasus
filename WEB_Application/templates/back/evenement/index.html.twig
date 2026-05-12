@@ -1,0 +1,157 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Events Management{% endblock %}
+
+{% block body %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Events Management</h1>
+      <p class="text-muted mb-0">Review, approve, and maintain all events.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{{ path('app_evenement_export_pdf') }}" class="btn btn-outline-danger">
+        <i class="fa fa-file-pdf me-1"></i>Export PDF
+      </a>
+      <a href="{{ path('app_evenement_new') }}" class="btn btn-primary">
+        <i class="fa fa-plus me-1"></i>Add Event
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="row g-2 mb-3">
+        <div class="col-md-8">
+          <input type="text" id="searchEventAdmin" class="form-control" placeholder="Search by title, location, or price...">
+        </div>
+        <div class="col-md-4">
+          <select id="sortEventAdmin" class="form-select">
+            <option value="">Sort by...</option>
+            <option value="title_asc">Title (A-Z)</option>
+            <option value="title_desc">Title (Z-A)</option>
+            <option value="date_desc">Date (Newest)</option>
+            <option value="date_asc">Date (Oldest)</option>
+            <option value="price_asc">Price (Low-High)</option>
+            <option value="price_desc">Price (High-Low)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Image</th>
+              <th>Title</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Location</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for evenement in evenements %}
+            <tr>
+              <td>#{{ evenement.id }}</td>
+              <td>
+                {% if evenement.image %}
+                  <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.titre }}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
+                {% else %}
+                  <span class="text-muted small">No image</span>
+                {% endif %}
+              </td>
+              <td class="fw-semibold">{{ evenement.titre }}</td>
+              <td>{{ evenement.date ? evenement.date|date('Y-m-d') : '-' }}</td>
+              <td>{{ evenement.heure ? evenement.heure|date('H:i') : '-' }}</td>
+              <td>{{ evenement.lieu }}</td>
+              <td>{{ evenement.prix }}</td>
+              <td>
+                {% if evenement.statut == 'en attente' %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% else %}
+                  <span class="badge bg-success">Accepted</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex align-items-center gap-1 flex-wrap justify-content-end">
+                  {% if evenement.statut == 'en attente' %}
+                    <form action="{{ path('app_evenement_accept', {'id': evenement.id}) }}" method="post" data-confirm-title="Accept event" data-confirm-message="Accept this event request?">
+                      <input type="hidden" name="_token" value="{{ csrf_token('accept' ~ evenement.id) }}">
+                      <button type="submit" class="btn btn-sm btn-success" title="Accept"><i class="fa fa-check"></i></button>
+                    </form>
+                    <form action="{{ path('app_evenement_reject', {'id': evenement.id}) }}" method="post" data-confirm-title="Reject event" data-confirm-message="Reject and delete this event?">
+                      <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ evenement.id) }}">
+                      <button type="submit" class="btn btn-sm btn-danger" title="Reject"><i class="fa fa-times"></i></button>
+                    </form>
+                  {% endif %}
+                  <a href="{{ path('app_participant_list', {'id': evenement.id}) }}" class="btn btn-sm btn-outline-warning" title="Participants"><i class="fa fa-users"></i></a>
+                  <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="btn btn-sm btn-outline-primary" title="View"><i class="fa fa-eye"></i></a>
+                  <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" class="btn btn-sm btn-outline-info" title="Edit"><i class="fa fa-edit"></i></a>
+                  {{ include('back/evenement/_delete_form.html.twig') }}
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="9" class="text-center text-muted py-4">No events found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchEventAdmin');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('.table tbody tr');
+        rows.forEach(row => {
+          if (row.cells.length > 2) {
+            let textContext = row.innerText.toLowerCase();
+            row.style.display = textContext.includes(filter) ? '' : 'none';
+          }
+        });
+      });
+    }
+
+    const sortSelect = document.getElementById('sortEventAdmin');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function() {
+        let tbody = document.querySelector('.table tbody');
+        let rows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.cells.length > 2);
+        let sortValue = this.value;
+
+        if (!sortValue) return;
+
+        rows.sort(function(a, b) {
+          let valA, valB;
+
+          if (sortValue.startsWith('title')) {
+            valA = a.cells[2].innerText.trim().toLowerCase();
+            valB = b.cells[2].innerText.trim().toLowerCase();
+            return sortValue.endsWith('asc') ? valA.localeCompare(valB) : valB.localeCompare(valA);
+          } else if (sortValue.startsWith('date')) {
+            valA = new Date(a.cells[3].innerText.trim());
+            valB = new Date(b.cells[3].innerText.trim());
+            return sortValue.endsWith('asc') ? valA - valB : valB - valA;
+          } else if (sortValue.startsWith('price')) {
+            valA = parseFloat(a.cells[6].innerText.replace(/[^\d.]/g, '')) || 0;
+            valB = parseFloat(b.cells[6].innerText.replace(/[^\d.]/g, '')) || 0;
+            return sortValue.endsWith('asc') ? valA - valB : valB - valA;
+          }
+          return 0;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+      });
+    }
+  });
+</script>
+{% endblock %}

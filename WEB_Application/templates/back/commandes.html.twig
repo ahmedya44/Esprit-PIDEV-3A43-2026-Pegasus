@@ -1,0 +1,55 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Market Orders{% endblock %}
+
+{% block body %}
+<div class="page-header">
+  <h3 class="fw-bold mb-3">Market Orders</h3>
+  <ul class="breadcrumbs mb-3">
+    <li class="nav-home"><a href="{{ path('back_dashboard') }}"><i class="icon-home"></i></a></li>
+    <li class="separator"><i class="icon-arrow-right"></i></li>
+    <li class="nav-item">Market</li>
+    <li class="separator"><i class="icon-arrow-right"></i></li>
+    <li class="nav-item">Orders</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title mb-1">Orders</h4>
+    <p class="card-category mb-0">Track marketplace purchases and order totals.</p>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Items</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for commande in pagination %}
+            <tr>
+              <td class="fw-bold">#{{ commande.id }}</td>
+              <td>{{ commande.dateCommande ? commande.dateCommande|date('Y-m-d H:i') : '-' }}</td>
+              <td><span class="badge badge-success">{{ commande.statut }}</span></td>
+              <td>{{ commande.total|number_format(2, '.', ' ') }} EUR</td>
+              <td>{{ commande.ligneCommandes|length }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-5">No orders yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+      {{ knp_pagination_render(pagination) }}
+    </div>
+  </div>
+</div>
+{% endblock %}

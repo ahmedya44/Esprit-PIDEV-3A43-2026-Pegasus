@@ -1,0 +1,125 @@
+{% extends 'back/layout.html.twig' %}
+{% block title %}Forum Statistics — Admin{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px; margin-bottom:24px; }
+  .kpi-box { background:#fff; border:1px solid #e5eaf5; border-radius:14px; padding:16px 14px; text-align:center; box-shadow:0 4px 10px rgba(15,23,42,.06); }
+  .kpi-val { font-size:2.2rem; font-weight:900; color:#111827; line-height:1; }
+  .kpi-label { font-size:.75rem; color:#6b7280; text-transform:uppercase; letter-spacing:.07em; margin-top:4px; }
+  .kpi-val.gold { color:#d97706; }
+  .kpi-val.teal { color:#0f766e; }
+  .kpi-val.red { color:#dc2626; }
+  .stat-card { background:#fff; border:1px solid #e5eaf5; border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.07); padding:18px; margin-bottom:18px; }
+  .stat-card-title { font-size:.95rem; font-weight:700; color:#111827; margin-bottom:14px; }
+  .status-bar { display:flex; border-radius:8px; overflow:hidden; height:18px; margin-bottom:10px; }
+  .bar-seg { transition:width .4s; }
+  .top-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid #f0f2f7; }
+  .top-row:last-child { border-bottom:none; }
+  .top-rank { width:24px; height:24px; border-radius:50%; background:#f9c23c; color:#111; font-weight:800; font-size:.78rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .top-title { flex:1; font-size:.88rem; font-weight:600; color:#111827; }
+  .top-meta { font-size:.8rem; color:#6b7280; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-inner">
+  <div class="page-header mb-4">
+    <h4 class="page-title">Forum Statistics</h4>
+    <ul class="breadcrumbs">
+      <li class="nav-home"><a href="{{ path('back_dashboard') }}"><i class="fas fa-home"></i></a></li>
+      <li class="separator"><i class="fas fa-chevron-right"></i></li>
+      <li class="nav-item"><a href="{{ path('admin_forum_index') }}">Forum</a></li>
+      <li class="separator"><i class="fas fa-chevron-right"></i></li>
+      <li class="nav-item active">Stats</li>
+    </ul>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-box"><div class="kpi-val">{{ totalPosts }}</div><div class="kpi-label">Total posts</div></div>
+    <div class="kpi-box"><div class="kpi-val teal">{{ countsByStatus.OPEN|default(0) }}</div><div class="kpi-label">Open</div></div>
+    <div class="kpi-box"><div class="kpi-val gold">{{ countsByStatus.IN_PROGRESS|default(0) }}</div><div class="kpi-label">Pending</div></div>
+    <div class="kpi-box"><div class="kpi-val red">{{ countsByStatus.DENIED|default(0) }}</div><div class="kpi-label">Denied</div></div>
+    <div class="kpi-box"><div class="kpi-val">{{ countsByStatus.CLOSED|default(0) }}</div><div class="kpi-label">Closed</div></div>
+    <div class="kpi-box"><div class="kpi-val">{{ totalComments }}</div><div class="kpi-label">Comments</div></div>
+    <div class="kpi-box"><div class="kpi-val red">{{ bannedPosts }}</div><div class="kpi-label">Banned posts</div></div>
+    <div class="kpi-box"><div class="kpi-val red">{{ bannedComments }}</div><div class="kpi-label">Banned comments</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="stat-card">
+        <div class="stat-card-title"><i class="fa fa-pie-chart mr-2" style="color:#f9c23c;"></i>Post Status Distribution</div>
+        {% set total = totalPosts > 0 ? totalPosts : 1 %}
+        <div class="status-bar">
+          <div class="bar-seg" style="width:{{ (countsByStatus.OPEN|default(0)/total*100)|round(1) }}%;background:#0f766e;" title="Open"></div>
+          <div class="bar-seg" style="width:{{ (countsByStatus.IN_PROGRESS|default(0)/total*100)|round(1) }}%;background:#f59e0b;" title="Pending"></div>
+          <div class="bar-seg" style="width:{{ (countsByStatus.CLOSED|default(0)/total*100)|round(1) }}%;background:#6b7280;" title="Closed"></div>
+          <div class="bar-seg" style="width:{{ (countsByStatus.DENIED|default(0)/total*100)|round(1) }}%;background:#dc2626;" title="Denied"></div>
+        </div>
+        <div style="font-size:.8rem;" class="d-flex flex-column gap-1">
+          <div class="d-flex justify-content-between"><span><span style="display:inline-block;width:10px;height:10px;background:#0f766e;border-radius:2px;margin-right:4px;"></span>Open</span><strong>{{ countsByStatus.OPEN|default(0) }}</strong></div>
+          <div class="d-flex justify-content-between"><span><span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-right:4px;"></span>Pending</span><strong>{{ countsByStatus.IN_PROGRESS|default(0) }}</strong></div>
+          <div class="d-flex justify-content-between"><span><span style="display:inline-block;width:10px;height:10px;background:#6b7280;border-radius:2px;margin-right:4px;"></span>Closed</span><strong>{{ countsByStatus.CLOSED|default(0) }}</strong></div>
+          <div class="d-flex justify-content-between"><span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:4px;"></span>Denied</span><strong>{{ countsByStatus.DENIED|default(0) }}</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="stat-card">
+        <div class="stat-card-title"><i class="fa fa-shield mr-2" style="color:#dc2626;"></i>Moderation</div>
+        <div style="font-size:.88rem;" class="d-flex flex-column gap-2">
+          <div class="d-flex justify-content-between align-items-center"><span><i class="fa fa-ban mr-2 text-danger"></i>Banned posts</span><strong class="text-danger">{{ bannedPosts }}</strong></div>
+          <div class="d-flex justify-content-between align-items-center"><span><i class="fa fa-ban mr-2 text-danger"></i>Banned comments</span><strong class="text-danger">{{ bannedComments }}</strong></div>
+          <div class="d-flex justify-content-between align-items-center"><span><i class="fa fa-clock-o mr-2 text-warning"></i>Pending review</span><strong class="text-warning">{{ countsByStatus.IN_PROGRESS|default(0) }}</strong></div>
+          <div class="d-flex justify-content-between align-items-center"><span><i class="fa fa-times-circle mr-2 text-danger"></i>Denied posts</span><strong class="text-danger">{{ countsByStatus.DENIED|default(0) }}</strong></div>
+        </div>
+        <div class="mt-3">
+          <a href="{{ path('admin_forum_requests') }}" class="btn btn-warning btn-sm w-100">Review Pending Requests</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="stat-card">
+        <div class="stat-card-title"><i class="fa fa-comment-o mr-2" style="color:#0f766e;"></i>Top by Comments</div>
+        {% for row in topCommented %}
+          <div class="top-row">
+            <div class="top-rank">{{ loop.index }}</div>
+            <div class="top-title"><a href="{{ path('forum_show', {id: row.post.id}) }}" target="_blank" style="color:inherit;text-decoration:none;">{{ row.post.title }}</a></div>
+            <div class="top-meta"><i class="fa fa-comment-o"></i> {{ row.nbComments }}</div>
+          </div>
+        {% else %}
+          <p class="text-muted">No data.</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="stat-card">
+        <div class="stat-card-title"><i class="fa fa-star mr-2" style="color:#f9c23c;"></i>Top by Rating</div>
+        {% set ratedPosts = [] %}
+        {% for row in topCommented %}
+          {% set rs = ratingSummaries[row.post.id] ?? {avg: 0, count: 0} %}
+          {% if rs.count > 0 %}
+            {% set ratedPosts = ratedPosts|merge([{post: row.post, avg: rs.avg, count: rs.count}]) %}
+          {% endif %}
+        {% endfor %}
+        {% if ratedPosts|length > 0 %}
+          {% for item in ratedPosts %}
+            <div class="top-row">
+              <div class="top-rank">{{ loop.index }}</div>
+              <div class="top-title"><a href="{{ path('forum_show', {id: item.post.id}) }}" target="_blank" style="color:inherit;text-decoration:none;">{{ item.post.title }}</a></div>
+              <div class="top-meta"><i class="fa fa-star" style="color:#f9c23c;"></i> {{ item.avg|number_format(1,'.','') }} ({{ item.count }})</div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted">No rated posts yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

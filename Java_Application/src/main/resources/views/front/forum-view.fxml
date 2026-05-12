@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.front.ForumPageController" styleClass="app-root gallery-root">
+    <stylesheets>
+        <URL value="@/css/style.css" />
+        <URL value="@/com/pegasus/forumdesktop/app.css" />
+    </stylesheets>
+    <children>
+        <VBox spacing="0">
+            <children>
+                <HBox styleClass="top-nav" alignment="CENTER_LEFT" spacing="14" maxWidth="Infinity">
+                    <children>
+                        <Label text="Pegasus" styleClass="brand-label" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <HBox styleClass="nav-center" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Button text="Home" styleClass="secondary-button" onAction="#goHome" />
+                                <Button text="Gallery" styleClass="secondary-button" onAction="#goGallery" />
+                                <Button text="Courses" styleClass="secondary-button" onAction="#goCourses" />
+                                <Button text="Events" styleClass="secondary-button" onAction="#goEvents" />
+                                <Button text="Products" styleClass="secondary-button" onAction="#goProducts" />
+                                <Button text="Forum" styleClass="secondary-button active-link" onAction="#backToForumLanding" />
+                            </children>
+                        </HBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <HBox styleClass="nav-actions">
+                            <children>
+                                <Button fx:id="navBackofficeButton" managed="false" text="Backoffice" visible="false" styleClass="secondary-button" onAction="#goBackoffice" />
+                                <Button fx:id="navProfileButton" managed="false" visible="false" text="Profile" styleClass="secondary-button" onAction="#goProfile" />
+                                <Button fx:id="navAuthButton" mnemonicParsing="false" onAction="#handleAuth" styleClass="gold-button" text="Sign In" />
+                                <MenuButton fx:id="navAccountMenu" managed="false" mnemonicParsing="false" styleClass="account-menu-button" text="Account" visible="false">
+                                    <items>
+                                        <MenuItem mnemonicParsing="false" onAction="#goProfile" text="Profile" />
+                                        <MenuItem mnemonicParsing="false" onAction="#handleAuth" text="Log Out" />
+                                    </items>
+                                </MenuButton>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <VBox fx:id="forumLandingPane" styleClass="forum-landing-pane" spacing="18" VBox.vgrow="ALWAYS">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="forum-landing-header">
+                            <children>
+                                <VBox spacing="6">
+                                    <children>
+                                        <Label text="Forum Hub" styleClass="forum-landing-title" />
+                                        <Label text="Discover all forum conversations before entering the workspace." styleClass="forum-landing-subtitle" />
+                                    </children>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Label fx:id="forumStatsLabel" text="Loading..." styleClass="forum-stats-pill" />
+                            </children>
+                        </HBox>
+                        <HBox styleClass="forum-subnav-container" alignment="CENTER_LEFT" spacing="8">
+                            <children>
+                                <Button fx:id="forumsTabButton" text="Forums" styleClass="forum-subnav-button" onAction="#showForumsTab" />
+                                <Button fx:id="myForumsTabButton" text="My Forums" styleClass="forum-subnav-button" onAction="#showMyForumsTab" />
+                                <Button fx:id="createPostTabButton" text="Create Post" styleClass="forum-subnav-button" onAction="#showCreatePostTab" />
+                            </children>
+                        </HBox>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <children>
+                                <TextField fx:id="forumSearchField" promptText="Search forums..." onAction="#onForumQueryChanged" HBox.hgrow="ALWAYS" />
+                                <ComboBox fx:id="forumSortBox" promptText="Sort by" onAction="#onForumQueryChanged" />
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="forum-cards-scroll">
+                            <content>
+                                <VBox fx:id="forumCardsPane" spacing="10" styleClass="forum-cards-pane" />
+                            </content>
+                        </ScrollPane>
+                        <StackPane managed="false" visible="false" fx:id="createPostPane" VBox.vgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="12" styleClass="forum-create-pane">
+                                    <children>
+                                        <Label text="Create a Forum Post" styleClass="forum-create-title" />
+                                        <TextField fx:id="createPostTitleField" promptText="Post title" />
+                                        <HBox spacing="8">
+                                            <children>
+                                                <Button text="Suggest Title" styleClass="secondary-button" onAction="#suggestCreatePostTitle" />
+                                            </children>
+                                        </HBox>
+                                        <TextArea fx:id="createPostContentField" promptText="Write your content..." wrapText="true" prefRowCount="8" />
+                                        <HBox spacing="8">
+                                            <children>
+                                                <Button text="Suggest Content" styleClass="secondary-button" onAction="#suggestCreatePostContent" />
+                                            </children>
+                                        </HBox>
+                                        <ComboBox fx:id="createPostStatusBox" promptText="Status" managed="false" visible="false" />
+                                        <HBox spacing="8">
+                                            <children>
+                                                <TextField fx:id="createPostImageField" promptText="Image filename" editable="false" HBox.hgrow="ALWAYS" />
+                                                <Button text="Upload Image" styleClass="secondary-button" onAction="#chooseCreatePostImage" />
+                                                <Button text="Clear" styleClass="secondary-button" onAction="#clearCreatePostImage" />
+                                            </children>
+                                        </HBox>
+                                        <Label text="Blacklisted emails" styleClass="forum-landing-subtitle" />
+                                        <FlowPane fx:id="createBlacklistChipsPane" hgap="8" vgap="8" styleClass="forum-email-chip-wrap" />
+                                        <TextField fx:id="createBlacklistEmailsField" promptText="Type email and press Enter" onAction="#onAddCreateBlacklistEmail" />
+                                        <HBox spacing="10">
+                                            <children>
+                                                <Button text="Create Post" styleClass="gold-button" onAction="#createForumPost" />
+                                                <Button text="Cancel" styleClass="secondary-button" onAction="#cancelCreatePost" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </StackPane>
+                        <StackPane managed="false" visible="false" fx:id="editPostPane" VBox.vgrow="ALWAYS">
+                            <children>
+                                <VBox spacing="12" styleClass="forum-create-pane">
+                                    <children>
+                                        <Label text="Edit Forum Post" styleClass="forum-create-title" />
+                                        <TextField fx:id="editPostTitleField" promptText="Post title" />
+                                        <TextArea fx:id="editPostContentField" promptText="Write your content..." wrapText="true" prefRowCount="8" />
+                                        <ComboBox fx:id="editPostStatusBox" promptText="Status" managed="false" visible="false" />
+                                        <HBox spacing="8">
+                                            <children>
+                                                <TextField fx:id="editPostImageField" promptText="Image filename" editable="false" HBox.hgrow="ALWAYS" />
+                                                <Button text="Upload Image" styleClass="secondary-button" onAction="#chooseEditPostImage" />
+                                                <Button text="Clear" styleClass="secondary-button" onAction="#clearEditPostImage" />
+                                            </children>
+                                        </HBox>
+                                        <Label text="Blacklisted emails" styleClass="forum-landing-subtitle" />
+                                        <FlowPane fx:id="editBlacklistChipsPane" hgap="8" vgap="8" styleClass="forum-email-chip-wrap" />
+                                        <TextField fx:id="editBlacklistInputField" promptText="Type email and press Enter" onAction="#onAddEditBlacklistEmail" />
+                                        <HBox spacing="10">
+                                            <children>
+                                                <Button text="Save Changes" styleClass="gold-button" onAction="#saveEditedPost" />
+                                                <Button text="Cancel" styleClass="secondary-button" onAction="#cancelEditPost" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </StackPane>
+                    </children>
+                </VBox>
+
+                <StackPane fx:id="forumHost" managed="false" visible="false" VBox.vgrow="ALWAYS" />
+            </children>
+        </VBox>
+
+        <StackPane fx:id="commentsOverlay" managed="false" visible="false" styleClass="signin-modal-overlay,forum-popup-overlay">
+            <children>
+                <VBox fx:id="commentsPopupCard" styleClass="signin-panel,forum-popup-card" spacing="12">
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label fx:id="commentsPopupTitle" text="Comments" styleClass="forum-create-title" />
+                                <Region HBox.hgrow="ALWAYS" />
+                                <Button text="X" styleClass="signin-modal-close-button" onAction="#closeCommentsPopup" />
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="forum-comments-scroll" VBox.vgrow="ALWAYS">
+                            <content>
+                                <VBox fx:id="commentsPopupList" spacing="8" styleClass="forum-comments-list" />
+                            </content>
+                        </ScrollPane>
+                        <TextArea fx:id="commentsPopupInput" promptText="Write a comment..." wrapText="true" prefRowCount="3" styleClass="forum-comment-input" />
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <children>
+                                <TextField fx:id="commentsGifSearchField" promptText="Search GIFs..." HBox.hgrow="ALWAYS" styleClass="forum-comment-input" />
+                                <Button text="Search GIF" styleClass="secondary-button" onAction="#searchCommentsGifs" />
+                            </children>
+                        </HBox>
+                        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" minHeight="132" prefHeight="132" maxHeight="132" styleClass="forum-gif-results-scroll">
+                            <content>
+                                <HBox fx:id="commentsGifResultsBox" spacing="8" styleClass="forum-gif-results-row" />
+                            </content>
+                        </ScrollPane>
+                        <HBox fx:id="commentsSelectedGifBox" spacing="8" alignment="CENTER_LEFT" managed="false" visible="false">
+                            <children>
+                                <Label text="Selected GIF:" styleClass="forum-landing-subtitle" />
+                                <ImageView fx:id="commentsSelectedGifPreview" fitWidth="120" fitHeight="90" preserveRatio="true" styleClass="forum-comment-gif" />
+                                <Button text="Clear GIF" styleClass="secondary-button" onAction="#clearSelectedGifFromComposer" />
+                            </children>
+                        </HBox>
+                        <HBox spacing="8" alignment="CENTER_LEFT">
+                            <children>
+                                <Button fx:id="commentsSubmitButton" text="Add Comment" styleClass="gold-button" onAction="#addCommentFromPopup" />
+                                <Button fx:id="commentsCancelUpdateButton" text="Cancel Update" managed="false" visible="false" styleClass="secondary-button" onAction="#cancelCommentUpdate" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </StackPane>
+    </children>
+</StackPane>

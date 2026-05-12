@@ -1,0 +1,88 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Favorites - Pegasus{% endblock %}
+
+{% block body %}
+<section class="market-shell">
+  <div class="container">
+    {% include 'produit/_shop_nav.html.twig' with {shop_active: 'favorites'} %}
+
+    <div class="market-panel">
+      <div class="market-hero">
+        <div>
+          <div class="market-eyebrow">Saved products</div>
+          <h1 class="market-title">Favorites</h1>
+          <p class="market-copy">Keep products here while you compare them or build your next cart.</p>
+        </div>
+        <a href="{{ path('app_produit_index') }}" class="btn btn-outline-secondary">Back to marketplace</a>
+      </div>
+
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+      {% endfor %}
+
+      {% if produits|length > 0 %}
+        <div class="market-table-card">
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for produit in produits %}
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div style="width: 64px; height: 64px; border-radius: 8px; background:#f8fafc; margin-right: 12px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                          {% if produit.imageUrl %}
+                            <img src="{{ produit.imageUrl }}" alt="{{ produit.nom }}" style="width:100%;height:100%;object-fit:cover;">
+                          {% else %}
+                            <img src="{{ asset('front/images/f1.png') }}" alt="{{ produit.nom }}" style="width:100%;height:100%;object-fit:cover;">
+                          {% endif %}
+                        </div>
+                        <div>
+                          <strong>{{ produit.nom }}</strong>
+                          <div class="text-muted small">{{ produit.categorie ? produit.categorie.nom : 'Uncategorized' }}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><strong>{{ produit.prix|number_format(2, '.', ' ') }} DT</strong></td>
+                    <td class="text-center">
+                      <div class="market-actions justify-content-center">
+                        <a href="{{ path('app_produit_show', {id: produit.id}) }}" class="market-icon-btn is-primary" title="View">
+                          <i class="fa fa-eye" aria-hidden="true"></i>
+                        </a>
+                        <form action="{{ path('app_panier_ajouter', {id: produit.id}) }}" method="post">
+                          <button type="submit" class="market-icon-btn" title="Add to cart">
+                            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                          </button>
+                        </form>
+                        <form action="{{ path('app_favoris_supprimer', {id: produit.id}) }}" method="post" onsubmit="return confirm('Remove this product from favorites?');">
+                          <button type="submit" class="market-icon-btn" title="Remove">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% else %}
+        <div class="market-empty">
+          <i class="fa fa-heart-o" aria-hidden="true"></i>
+          <h3>No favorites yet</h3>
+          <p>Save products from the marketplace and they will appear here.</p>
+          <a href="{{ path('app_produit_index') }}" class="btn btn-warning">Discover products</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

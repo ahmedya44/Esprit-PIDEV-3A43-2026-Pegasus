@@ -1,0 +1,68 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Order History - Pegasus{% endblock %}
+
+{% block body %}
+<section class="market-shell">
+  <div class="container">
+    {% include 'produit/_shop_nav.html.twig' with {shop_active: 'history'} %}
+
+    <div class="market-panel">
+      <div class="market-hero">
+        <div>
+          <div class="market-eyebrow">Purchases</div>
+          <h1 class="market-title">Order history</h1>
+          <p class="market-copy">Track your confirmed marketplace orders.</p>
+        </div>
+        <a href="{{ path('app_produit_index') }}" class="btn btn-outline-secondary">Shop more</a>
+      </div>
+
+      <div class="market-table-card">
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th class="text-center">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for commande in pagination %}
+                <tr>
+                  <td><strong>#{{ commande.id }}</strong></td>
+                  <td>{{ commande.dateCommande ? commande.dateCommande|date('d/m/Y H:i') : '-' }}</td>
+                  <td><strong>{{ commande.total|number_format(2, '.', ' ') }} DT</strong></td>
+                  <td><span class="market-chip">{{ commande.statut|capitalize }}</span></td>
+                  <td class="text-center">
+                    <a href="{{ path('app_commande_confirmation', {id: commande.id}) }}" class="market-icon-btn is-primary" title="View order">
+                      <i class="fa fa-eye" aria-hidden="true"></i>
+                    </a>
+                  </td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="5">
+                    <div class="market-empty">
+                      <i class="fa fa-list-alt" aria-hidden="true"></i>
+                      <h3>No orders yet</h3>
+                      <p>Your confirmed purchases will appear here.</p>
+                      <a href="{{ path('app_produit_index') }}" class="btn btn-warning">Browse products</a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(pagination) }}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

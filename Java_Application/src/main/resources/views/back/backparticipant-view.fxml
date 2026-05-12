@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.BackParticipantController"
+      spacing="20" styleClass="admin-content-container">
+
+    <stylesheets>
+        <URL value="@/css/admin.css" />
+        <URL value="@css/style-back.css"/>
+    </stylesheets>
+
+    <!-- Toolbar -->
+    <HBox alignment="CENTER_LEFT" spacing="15" styleClass="admin-toolbar">
+        <VBox spacing="4.0">
+            <Label text="Participants" styleClass="admin-workspace-title" />
+            <Label text="Manage event registrations and attendees." styleClass="admin-workspace-subtitle" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <TextField fx:id="searchEventField" promptText="Rechercher par nom..." styleClass="admin-search-field" prefWidth="300" />
+        <Button text="Exporter PDF" onAction="#exporterPDF" styleClass="admin-primary-button" />
+    </HBox>
+
+    <SplitPane dividerPositions="0.35" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-padding: 0;">
+        <items>
+            <!-- Events List -->
+            <VBox spacing="15" styleClass="admin-workspace-shell">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="1. Liste des Événements" styleClass="admin-section-title" />
+                </HBox>
+                <TableView fx:id="eventsTable" VBox.vgrow="ALWAYS" styleClass="admin-table">
+                    <columns>
+                        <TableColumn fx:id="colEventTitre" text="Événement" prefWidth="250" />
+                        <TableColumn fx:id="colEventDate" text="Date" prefWidth="120" />
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- Participants List -->
+            <VBox spacing="15" styleClass="admin-workspace-shell">
+                <HBox alignment="CENTER_LEFT" spacing="20" styleClass="admin-card-header">
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="2. Participants Inscrits" styleClass="admin-section-title" />
+                        <Label fx:id="selectedEventLabel" text="Sélectionnez un événement à gauche" styleClass="admin-muted-label" />
+                    </VBox>
+                </HBox>
+
+                <TableView fx:id="participantsTable" VBox.vgrow="ALWAYS" styleClass="admin-table">
+                    <columns>
+                        <TableColumn fx:id="colUserNom" text="Nom" prefWidth="150" />
+                        <TableColumn fx:id="colUserPrenom" text="Prénom" prefWidth="150" />
+                        <TableColumn fx:id="colUserEmail" text="Email" prefWidth="250" />
+                        <TableColumn fx:id="colUserTel" text="Téléphone" prefWidth="150" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </items>
+    </SplitPane>
+</VBox>

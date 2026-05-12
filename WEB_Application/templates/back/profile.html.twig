@@ -1,0 +1,449 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}
+  {% if users_page|default(false) %}
+    Backoffice Users
+  {% elseif content_page|default(false) %}
+    Backoffice Content
+  {% else %}
+    Backoffice Profile
+  {% endif %}
+{% endblock %}
+
+{% block body %}
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'success') }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endfor %}
+
+  {% if users_page|default(false) %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <h1 class="h3 mb-1">Users Management</h1>
+        <p class="text-muted mb-0">Review all account types and apply governance actions.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="{{ path('app_admin_index') }}">Admins CRUD</a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_participant_stats') }}">Participant Stats</a>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label" for="usersSearch">Search users</label>
+      <input id="usersSearch" type="text" class="form-control js-users-search" placeholder="Type username, email, role, status...">
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-muted small">Admins</div>
+            <div class="h4 mb-0">{{ admins|length }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-muted small">Artists</div>
+            <div class="h4 mb-0">{{ artistes|length }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-muted small">Sponsors</div>
+            <div class="h4 mb-0">{{ sponsors|length }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="text-muted small">Normal Users</div>
+            <div class="h4 mb-0">{{ normal_users|length }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% set statusBadge = {
+      'active': 'bg-success',
+      'pending': 'bg-warning text-dark',
+      'suspended': 'bg-danger',
+      'banned': 'bg-dark'
+    } %}
+
+    <div class="card mb-4">
+      <div class="card-header"><h2 class="h5 mb-0">Admins</h2></div>
+      <div class="card-body table-responsive">
+        <table class="table table-striped align-middle js-users-table mb-0">
+          <thead><tr><th>ID</th><th>User</th><th>Roles</th><th>Status</th><th>Super Admin</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody>
+          {% for u in admins %}
+            {% set statusValue = u.status.value ?? 'unknown' %}
+            <tr>
+              <td>#{{ u.id }}</td>
+              <td><div class="fw-semibold">{{ u.username }}</div><div class="small text-muted">{{ u.email }}</div></td>
+              <td>{{ u.roles ? u.roles|join(', ') : '-' }}</td>
+              <td><span class="badge {{ statusBadge[statusValue]|default('bg-secondary') }}">{{ statusValue|title }}</span></td>
+              <td>{{ u.superAdmin ? 'Yes' : 'No' }}</td>
+              <td>{{ u.createdAt ? u.createdAt|date('Y-m-d H:i') : '-' }}</td>
+              <td>
+                {% if is_super_admin|default(false) %}
+                  <form method="post" action="{{ path('back_users_change_status', {'id': u.id}) }}" class="mb-2">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_change_status_' ~ u.id) }}">
+                    <div class="input-group input-group-sm">
+                      <select class="form-select" name="status">
+                        {% for status in status_options %}
+                          <option value="{{ status.value }}" {{ statusValue == status.value ? 'selected' : '' }}>{{ status.value|title }}</option>
+                        {% endfor %}
+                      </select>
+                      <button class="btn btn-outline-primary" type="submit">Apply</button>
+                    </div>
+                  </form>
+                  <form method="post" action="{{ path('back_users_make_super_admin', {'id': u.id}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_make_super_admin_' ~ u.id) }}">
+                    <button class="btn btn-sm btn-outline-dark" type="submit">Make Super Admin</button>
+                  </form>
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7" class="text-center">No admins found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><h2 class="h5 mb-0">Artists</h2></div>
+      <div class="card-body table-responsive">
+        <table class="table table-striped align-middle js-users-table mb-0">
+          <thead><tr><th>ID</th><th>User</th><th>Roles</th><th>Verified</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+          {% for u in artistes %}
+            {% set statusValue = u.status.value ?? 'unknown' %}
+            <tr>
+              <td>#{{ u.id }}</td>
+              <td><div class="fw-semibold">{{ u.username }}</div><div class="small text-muted">{{ u.email }}</div></td>
+              <td>{{ u.roles ? u.roles|join(', ') : '-' }}</td>
+              <td>{{ u.verified ? 'Yes' : 'No' }}</td>
+              <td><span class="badge {{ statusBadge[statusValue]|default('bg-secondary') }}">{{ statusValue|title }}</span></td>
+              <td>
+                {% if is_super_admin|default(false) %}
+                  <form method="post" action="{{ path('back_users_change_status', {'id': u.id}) }}" class="mb-2">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_change_status_' ~ u.id) }}">
+                    <div class="input-group input-group-sm">
+                      <select class="form-select" name="status">
+                        {% for status in status_options %}
+                          <option value="{{ status.value }}" {{ statusValue == status.value ? 'selected' : '' }}>{{ status.value|title }}</option>
+                        {% endfor %}
+                      </select>
+                      <button class="btn btn-outline-primary" type="submit">Apply</button>
+                    </div>
+                  </form>
+                  <form method="post" action="{{ path('back_users_change_artiste_verified', {'id': u.id}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_change_artiste_verified_' ~ u.id) }}">
+                    <div class="input-group input-group-sm">
+                      <select class="form-select" name="verified">
+                        <option value="1" {{ u.verified ? 'selected' : '' }}>Verified</option>
+                        <option value="0" {{ not u.verified ? 'selected' : '' }}>Not Verified</option>
+                      </select>
+                      <button class="btn btn-outline-success" type="submit">Apply</button>
+                    </div>
+                  </form>
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="text-center">No artists found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><h2 class="h5 mb-0">Sponsors</h2></div>
+      <div class="card-body table-responsive">
+        <table class="table table-striped align-middle js-users-table mb-0">
+          <thead><tr><th>ID</th><th>User</th><th>Company</th><th>Website</th><th>Verified</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+          {% for u in sponsors %}
+            {% set statusValue = u.status.value ?? 'unknown' %}
+            <tr>
+              <td>#{{ u.id }}</td>
+              <td><div class="fw-semibold">{{ u.username }}</div><div class="small text-muted">{{ u.email }}</div></td>
+              <td>{{ u.companyName ?: '-' }}</td>
+              <td>{{ u.website ?: '-' }}</td>
+              <td>{{ u.verified ? 'Yes' : 'No' }}</td>
+              <td><span class="badge {{ statusBadge[statusValue]|default('bg-secondary') }}">{{ statusValue|title }}</span></td>
+              <td>
+                {% if is_super_admin|default(false) %}
+                  <form method="post" action="{{ path('back_users_change_status', {'id': u.id}) }}" class="mb-2">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_change_status_' ~ u.id) }}">
+                    <div class="input-group input-group-sm">
+                      <select class="form-select" name="status">
+                        {% for status in status_options %}
+                          <option value="{{ status.value }}" {{ statusValue == status.value ? 'selected' : '' }}>{{ status.value|title }}</option>
+                        {% endfor %}
+                      </select>
+                      <button class="btn btn-outline-primary" type="submit">Apply</button>
+                    </div>
+                  </form>
+                  <form method="post" action="{{ path('back_users_change_sponsor_verified', {'id': u.id}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_change_sponsor_verified_' ~ u.id) }}">
+                    <div class="input-group input-group-sm">
+                      <select class="form-select" name="verified">
+                        <option value="1" {{ u.verified ? 'selected' : '' }}>Verified</option>
+                        <option value="0" {{ not u.verified ? 'selected' : '' }}>Not Verified</option>
+                      </select>
+                      <button class="btn btn-outline-success" type="submit">Apply</button>
+                    </div>
+                  </form>
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7" class="text-center">No sponsors found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 class="h5 mb-0">Normal Users</h2></div>
+      <div class="card-body table-responsive">
+        <table class="table table-striped align-middle js-users-table mb-0">
+          <thead><tr><th>ID</th><th>User</th><th>Birth Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+          {% for u in normal_users %}
+            {% if u is not null %}
+              {% set statusValue = u.status.value ?? 'unknown' %}
+              <tr>
+                <td>#{{ u.id }}</td>
+                <td><div class="fw-semibold">{{ u.username }}</div><div class="small text-muted">{{ u.email }}</div></td>
+                <td>{{ u.birthDate ? u.birthDate|date('Y-m-d') : '-' }}</td>
+                <td><span class="badge {{ statusBadge[statusValue]|default('bg-secondary') }}">{{ statusValue|title }}</span></td>
+                <td>
+                  {% if is_super_admin|default(false) %}
+                    <form method="post" action="{{ path('back_users_change_status', {'id': u.id}) }}">
+                      <input type="hidden" name="_csrf_token" value="{{ csrf_token('users_change_status_' ~ u.id) }}">
+                      <div class="input-group input-group-sm">
+                        <select class="form-select" name="status">
+                          {% for status in status_options %}
+                            <option value="{{ status.value }}" {{ statusValue == status.value ? 'selected' : '' }}>{{ status.value|title }}</option>
+                          {% endfor %}
+                        </select>
+                        <button class="btn btn-outline-primary" type="submit">Apply</button>
+                      </div>
+                    </form>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+            {% endif %}
+          {% else %}
+            <tr><td colspan="5" class="text-center">No normal users found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {% elseif content_page|default(false) %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <h1 class="h3 mb-1">Content Management</h1>
+        <p class="text-muted mb-0">Manage courses and quizzes.</p>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label" for="usersSearch">Search courses and quizzes</label>
+      <input id="usersSearch" type="text" class="form-control js-users-search" placeholder="Type course/quiz info...">
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header"><h2 class="h5 mb-0">Courses</h2></div>
+      <div class="card-body table-responsive">
+        <table class="table table-striped align-middle js-users-table mb-0">
+          <thead><tr><th>ID</th><th>Title</th><th>Artist</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody>
+          {% for c in courses %}
+            <tr>
+              <td>{{ c.id }}</td><td>{{ c.title }}</td><td>{{ c.artist ? c.artist.username : '-' }}</td><td>{{ c.status ?: '-' }}</td><td>{{ c.createdAt ? c.createdAt|date('Y-m-d H:i:s') : '-' }}</td>
+              <td>
+                <form method="post" action="{{ path('back_courses_delete', {'id': c.id}) }}">
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('courses_delete_' ~ c.id) }}">
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="text-center">No courses found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 class="h5 mb-0">Quizzes</h2></div>
+      <div class="card-body table-responsive">
+        <table class="table table-striped align-middle js-users-table mb-0">
+          <thead><tr><th>ID</th><th>Title</th><th>Course</th><th>Artist</th><th>Passing</th><th>Attempts</th><th>Time (min)</th><th>Actions</th></tr></thead>
+          <tbody>
+          {% for q in quizzes %}
+            <tr>
+              <td>{{ q.id }}</td><td>{{ q.title }}</td><td>{{ q.course ? q.course.title : '-' }}</td><td>{{ q.course and q.course.artist ? q.course.artist.username : '-' }}</td><td>{{ q.passingScore is not null ? q.passingScore ~ '%' : '-' }}</td><td>{{ q.attemptLimit is not null ? q.attemptLimit : '-' }}</td><td>{{ q.timeLimitMin is not null ? q.timeLimitMin : '-' }}</td>
+              <td>
+                <form method="post" action="{{ path('back_quizzes_delete', {'id': q.id}) }}">
+                  <input type="hidden" name="_csrf_token" value="{{ csrf_token('quizzes_delete_' ~ q.id) }}">
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="8" class="text-center">No quizzes found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {% elseif edit_mode %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <h1 class="h3 mb-1">Edit Profile</h1>
+        <p class="text-muted mb-0">Update account details and password.</p>
+      </div>
+      <a class="btn btn-outline-secondary" href="{{ path('back_profile') }}">Back to Profile</a>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <form method="post" action="{{ path('back_profile_update') }}" novalidate>
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('back_profile_update') }}">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" value="{{ profile_user.username }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-control" name="phone" value="{{ profile_user.phone }}">
+          </div>
+          {% if profile_user.birthDate is defined %}
+            <div class="mb-3">
+              <label class="form-label">Birth Date</label>
+              <input type="date" class="form-control" name="birthDate" value="{{ profile_user.birthDate ? profile_user.birthDate|date('Y-m-d') : '' }}">
+            </div>
+          {% endif %}
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 class="h5 mb-0">Change Password</h2></div>
+      <div class="card-body">
+        <form method="post" action="{{ path('back_profile_change_password') }}" novalidate>
+          <input type="hidden" name="_csrf_token" value="{{ csrf_token('back_profile_change_password') }}">
+          <div class="mb-3">
+            <label class="form-label">Current Password</label>
+            <div class="input-group">
+              <input type="password" class="form-control js-password-input" name="currentPassword" required>
+              <button type="button" class="btn btn-outline-secondary js-password-toggle"><i class="fa fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">New Password</label>
+            <div class="input-group">
+              <input type="password" class="form-control js-password-input" name="newPassword" required>
+              <button type="button" class="btn btn-outline-secondary js-password-toggle"><i class="fa fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Confirm New Password</label>
+            <div class="input-group">
+              <input type="password" class="form-control js-password-input" name="confirmPassword" required>
+              <button type="button" class="btn btn-outline-secondary js-password-toggle"><i class="fa fa-eye"></i></button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-dark">Change Password</button>
+        </form>
+      </div>
+    </div>
+
+  {% else %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <h1 class="h3 mb-1">My Profile</h1>
+        <p class="text-muted mb-0">View account details and security information.</p>
+      </div>
+      <a class="btn btn-primary" href="{{ path('back_profile_edit') }}">Edit Profile</a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="row mb-3"><div class="col-md-3 fw-bold">Username</div><div class="col-md-9">{{ profile_user.username }}</div></div>
+        <div class="row mb-3"><div class="col-md-3 fw-bold">Email</div><div class="col-md-9">{{ profile_user.email }}</div></div>
+        <div class="row mb-3"><div class="col-md-3 fw-bold">Phone</div><div class="col-md-9">{{ profile_user.phone ?: 'Not set' }}</div></div>
+        <div class="row mb-3"><div class="col-md-3 fw-bold">Status</div><div class="col-md-9">{{ profile_user.status.value }}</div></div>
+        <div class="row mb-3"><div class="col-md-3 fw-bold">Roles</div><div class="col-md-9">{{ profile_user.roles|join(', ') }}</div></div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    document.querySelectorAll('.js-password-toggle').forEach(function (toggleButton) {
+      toggleButton.addEventListener('click', function () {
+        var input = toggleButton.parentElement.querySelector('.js-password-input');
+        var icon = toggleButton.querySelector('i');
+        if (!input || !icon) {
+          return;
+        }
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+
+    var searchInput = document.querySelector('.js-users-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        var query = searchInput.value.toLowerCase().trim();
+        document.querySelectorAll('.js-users-table tbody tr').forEach(function (row) {
+          if (row.querySelector('td[colspan]')) {
+            return;
+          }
+          var text = row.textContent.toLowerCase();
+          row.style.display = text.indexOf(query) !== -1 ? '' : 'none';
+        });
+      });
+    }
+  </script>
+{% endblock %}

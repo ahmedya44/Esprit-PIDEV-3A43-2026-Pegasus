@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.BackSponsorController">
+    <HBox spacing="12.0" alignment="CENTER_LEFT" styleClass="admin-toolbar">
+        <VBox spacing="4.0">
+            <Label text="Sponsors" styleClass="admin-workspace-title" />
+            <Label text="Global sponsorship list across events and packs." styleClass="admin-workspace-subtitle" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Exporter PDF" onAction="#exporterPDFGlobal" styleClass="admin-primary-button" />
+        <ComboBox fx:id="eventFilterCombo" promptText="All events" prefWidth="210.0" styleClass="admin-combo" />
+        <TextField fx:id="searchField" promptText="Search sponsors..." prefWidth="260.0" styleClass="admin-search-field" />
+    </HBox>
+
+    <VBox spacing="12.0" VBox.vgrow="ALWAYS" styleClass="admin-workspace-shell">
+        <TableView fx:id="sponsorsTable" VBox.vgrow="ALWAYS" prefHeight="620.0" styleClass="admin-table admin-data-table">
+            <columns>
+                <TableColumn fx:id="colSponsor" text="Sponsor" prefWidth="190" />
+                <TableColumn fx:id="colEmail" text="Email" prefWidth="250" />
+                <TableColumn fx:id="colTel" text="Phone" prefWidth="130" />
+                <TableColumn fx:id="colPack" text="Pack" prefWidth="150" />
+                <TableColumn fx:id="colPrix" text="Price" prefWidth="110" />
+                <TableColumn fx:id="colEvenement" text="Event" prefWidth="230" />
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>

@@ -1,0 +1,25 @@
+<div class="ai-chatbot-wrap" id="aiChatbotWrap">
+  <div class="ai-chat-window" id="aiChatWindow" aria-hidden="true">
+    <div class="ai-chat-header">
+      <span><i class="fa fa-comments" aria-hidden="true"></i> Product advisor</span>
+      <button type="button" class="ai-chat-close" id="aiChatClose" aria-label="Close advisor">&times;</button>
+    </div>
+    <div class="ai-chat-messages" id="aiChatMessages">
+      <div class="ai-msg assistant">{{ intro|default('Ask me about this product.') }}</div>
+    </div>
+    <div class="ai-suggestions" id="aiSuggestions">
+      <button type="button" class="ai-suggest-btn" data-question="Help me choose a product">Help me choose</button>
+      <button type="button" class="ai-suggest-btn" data-question="Is it worth the price?">Worth the price?</button>
+      <button type="button" class="ai-suggest-btn" data-question="Is this good for beginners?">Beginner friendly?</button>
+    </div>
+    <div class="ai-chat-input-wrap">
+      <input type="text" class="ai-chat-input" id="aiChatInput" placeholder="Ask a question..." autocomplete="off">
+      <button type="button" class="ai-chat-send" id="aiChatSend" aria-label="Send question">
+        <i class="fa fa-paper-plane" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+  <button type="button" class="ai-chatbot-btn pulse" id="aiChatbotBtn" aria-label="Open product advisor">
+    <i class="fa fa-comment" aria-hidden="true"></i>
+  </button>
+</div>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="22.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.AdminHomeController">
+
+    <HBox spacing="26.0" styleClass="admin-hero">
+        <VBox spacing="14.0" HBox.hgrow="ALWAYS">
+            <Label text="PEGASUS CONTROL CENTER" styleClass="admin-eyebrow" />
+            <Label text="One admin app for every gestion." wrapText="true" styleClass="admin-hero-title" />
+            <Label text="Monitor content, events, learning, marketplace and community operations from a single backoffice shell." wrapText="true" styleClass="admin-hero-copy" />
+        </VBox>
+        <VBox spacing="8.0" styleClass="admin-health-card">
+            <Label text="Workspace Health" styleClass="admin-health-title" />
+            <Label fx:id="healthLabel" text="Loading live data..." styleClass="admin-health-value" />
+            <Label text="Front-office artist tools remain separate from this admin app." wrapText="true" styleClass="admin-hero-copy" />
+        </VBox>
+    </HBox>
+
+    <FlowPane hgap="16.0" vgap="16.0">
+        <VBox prefWidth="170.0" styleClass="admin-metric-card">
+            <Label text="USERS" styleClass="admin-metric-label" />
+            <Label fx:id="usersCountLabel" text="0" styleClass="admin-metric-value" />
+        </VBox>
+        <VBox prefWidth="170.0" styleClass="admin-metric-card">
+            <Label text="EVENTS" styleClass="admin-metric-label" />
+            <Label fx:id="eventsCountLabel" text="0" styleClass="admin-metric-value" />
+        </VBox>
+        <VBox prefWidth="170.0" styleClass="admin-metric-card">
+            <Label text="COURSES" styleClass="admin-metric-label" />
+            <Label fx:id="coursesCountLabel" text="0" styleClass="admin-metric-value" />
+        </VBox>
+        <VBox prefWidth="170.0" styleClass="admin-metric-card">
+            <Label text="ARTWORKS" styleClass="admin-metric-label" />
+            <Label fx:id="artworksCountLabel" text="0" styleClass="admin-metric-value" />
+        </VBox>
+        <VBox prefWidth="170.0" styleClass="admin-metric-card">
+            <Label text="PRODUCTS" styleClass="admin-metric-label" />
+            <Label fx:id="productsCountLabel" text="0" styleClass="admin-metric-value" />
+        </VBox>
+        <VBox prefWidth="170.0" styleClass="admin-metric-card">
+            <Label text="PENDING ART" styleClass="admin-metric-label" />
+            <Label fx:id="pendingArtworksLabel" text="0" styleClass="admin-metric-value" />
+        </VBox>
+    </FlowPane>
+
+    <HBox spacing="16.0">
+        <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="admin-panel">
+            <Label text="Admin Flow" styleClass="admin-panel-title" />
+            <Label text="Use the left navigation to move between focused dashboards without returning to the front office. Every module opens inside the same shell, so the admin experience feels like one product." wrapText="true" styleClass="admin-panel-copy" />
+        </VBox>
+        <VBox spacing="10.0" HBox.hgrow="ALWAYS" styleClass="admin-panel">
+            <Label text="Front Office Boundary" styleClass="admin-panel-title" />
+            <Label text="The public home, gallery, events, courses and marketplace stay clean. Admin entry now happens at login, and artist course management remains in the Courses workspace." wrapText="true" styleClass="admin-panel-copy" />
+        </VBox>
+    </HBox>
+    <Region prefHeight="10.0" />
+</VBox>

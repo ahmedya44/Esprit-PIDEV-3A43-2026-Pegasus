@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+  <title>Quiz Builder</title>
+
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    .page-shell { padding: 60px 0; }
+
+    .glass-card{
+      background: rgba(255,255,255,.92);
+      border-radius: 22px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.10);
+      border: 1px solid rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+
+    .glass-head{
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap: wrap;
+    }
+
+    .glass-head h3{
+      margin:0;
+      font-weight:900;
+      letter-spacing:.3px;
+    }
+
+    .chip {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:.35rem .7rem;
+      border-radius:999px;
+      background: rgba(0,0,0,.06);
+      font-size:.9rem;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .chip strong { font-weight:900; }
+
+    .btn-feane{
+      background:#f5b301;
+      border:none;
+      color:#111;
+      font-weight:800;
+      border-radius:14px;
+      padding:10px 18px;
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      box-shadow: 0 10px 18px rgba(245,179,1,.18);
+    }
+    .btn-feane:hover{ filter:brightness(.98); }
+
+    .btn-soft{
+      background:#1d1d1d;
+      border:none;
+      color:#fff;
+      font-weight:700;
+      border-radius:14px;
+      padding:10px 18px;
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+    }
+    .btn-soft:hover{ filter:brightness(1.05); color:#fff; }
+
+    .q-item{
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,.75);
+      display:flex;
+      justify-content:space-between;
+      gap: 16px;
+      align-items:flex-start;
+      margin-bottom: 10px;
+    }
+    .q-title{
+      font-weight:900;
+      margin-bottom: 4px;
+    }
+    .q-meta{
+      color: rgba(0,0,0,.55);
+      font-size: 13px;
+    }
+
+    .mini-btn{
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .empty-box{
+      border: 1px dashed rgba(0,0,0,.18);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,.6);
+      color: rgba(0,0,0,.55);
+    }
+  </style>
+</head>
+
+<body class="sub_page">
+
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Pegasus</span></a>
+
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+            <span class=""></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto">
+              
+              <li class="nav-item active"><a class="nav-link" href="{{ path('artist_dashboard', {tab:'quizzes'}) }}">Artist Dashboard</a></li>
+              <li class="nav-item"><a class="nav-link" href="{{ path('artist_dashboard', { tab: 'courses' }) }}">Courses</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <section class="page-shell">
+    <div class="container">
+
+      <div class="heading_container heading_center mb-4">
+        <h2>Quiz Builder</h2>
+        <p class="text-muted mb-0">
+          Manage questions & answers for: <strong>{{ quiz.title }}</strong>
+        </p>
+      </div>
+
+      {# Flash messages #}
+      {% for type, messages in app.flashes %}
+        {% for message in messages %}
+          <div class="alert alert-{{ type == 'error' ? 'danger' : type }} mb-3">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endfor %}
+
+      <div class="glass-card mb-4">
+        <div class="glass-head">
+          <h3>Quiz Info</h3>
+
+          <div class="d-flex gap-2">
+            <a class="btn-soft" href="{{ path('artist_dashboard', {tab:'quizzes'}) }}">← Back</a>
+            <a class="btn-feane" href="{{ path('artist_quiz_questions_new', {id: quiz.id}) }}">
+              + Add Question
+            </a>
+          </div>
+        </div>
+
+        <div class="p-4">
+          <div class="mb-2">
+            <span class="chip"><strong>Course:</strong> {{ quiz.course ? quiz.course.title : '—' }}</span>
+            <span class="chip"><strong>Passing:</strong> {{ quiz.passingScore }}%</span>
+            <span class="chip"><strong>Attempts:</strong> {{ quiz.attemptLimit }}</span>
+            <span class="chip"><strong>Time:</strong> {{ quiz.timeLimitMin }} min</span>
+          </div>
+
+          <div class="text-muted">
+            Rules: each question needs <strong>at least 2 choices</strong> and <strong>1 correct choice</strong>.
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="glass-head">
+          <h3>Questions ({{ questions|length }})</h3>
+        </div>
+
+        <div class="p-4">
+          {% if questions is empty %}
+            <div class="empty-box">
+              No questions yet. Click <strong>“Add Question”</strong> to start building your quiz.
+            </div>
+          {% else %}
+            {% for q in questions %}
+              <div class="q-item">
+                <div>
+                  <div class="q-title">
+                    #{{ q.orderIndex }} — {{ q.questionText }}
+                  </div>
+                  <div class="q-meta">
+                    Points: {{ q.points }} • Choices: {{ q.quizChoices|length }}
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <a class="btn btn-primary mini-btn" href="{{ path('artist_quiz_questions_edit', {id: q.id}) }}">
+                    Edit
+                  </a>
+
+                  <form method="post"
+                        action="{{ path('artist_quiz_questions_delete', {id: q.id}) }}"
+                        onsubmit="return confirm('Delete this question?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_question_' ~ q.id) }}">
+                    <button class="btn btn-danger mini-btn" type="submit">Delete</button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+</body>
+</html>
+
+

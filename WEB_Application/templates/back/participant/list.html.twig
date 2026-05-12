@@ -1,0 +1,102 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Participants - {{ evenement.titre }}{% endblock %}
+
+{% block body %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Participants: {{ evenement.titre }}</h1>
+      <p class="text-muted mb-0">Manage and inspect registration details.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{{ path('app_participant_export_pdf', {'id': evenement.id}) }}" class="btn btn-outline-danger"><i class="fa fa-file-pdf me-1"></i>Export PDF</a>
+      <a href="{{ path('app_participant_index') }}" class="btn btn-outline-secondary">Back</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="row g-2 mb-3">
+        <div class="col-md-8">
+          <input type="text" id="searchParticipant" class="form-control" placeholder="Search by email...">
+        </div>
+        <div class="col-md-4">
+          <select id="sortParticipant" class="form-select">
+            <option value="">Sort by...</option>
+            <option value="email_asc">Email (A-Z)</option>
+            <option value="email_desc">Email (Z-A)</option>
+            <option value="date_desc">Date (Newest)</option>
+            <option value="date_asc">Date (Oldest)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr><th>ID</th><th>Email</th><th>Type</th><th>Registered At</th></tr>
+          </thead>
+          <tbody>
+          {% for participation in evenement.participations %}
+            <tr>
+              <td>#{{ participation.id }}</td>
+              <td>{{ participation.user.email }}</td>
+              <td><span class="badge bg-info text-dark">{{ participation.user.type|default('Utilisateur')|capitalize }}</span></td>
+              <td>{{ participation.createdAt|date('Y-m-d H:i') }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-4">No participants for this event.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchParticipant');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('.table tbody tr');
+        rows.forEach(row => {
+          if (row.cells.length > 2) {
+            let textContext = row.innerText.toLowerCase();
+            row.style.display = textContext.includes(filter) ? '' : 'none';
+          }
+        });
+      });
+    }
+
+    const sortSelect = document.getElementById('sortParticipant');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function() {
+        let tbody = document.querySelector('.table tbody');
+        let rows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.cells.length > 2);
+        let sortValue = this.value;
+        if (!sortValue) return;
+
+        rows.sort(function(a, b) {
+          let valA, valB;
+          if (sortValue.startsWith('email')) {
+            valA = a.cells[1].innerText.trim().toLowerCase();
+            valB = b.cells[1].innerText.trim().toLowerCase();
+            return sortValue.endsWith('asc') ? valA.localeCompare(valB) : valB.localeCompare(valA);
+          }
+          if (sortValue.startsWith('date')) {
+            valA = new Date(a.cells[3].innerText.trim());
+            valB = new Date(b.cells[3].innerText.trim());
+            return sortValue.endsWith('asc') ? valA - valB : valB - valA;
+          }
+          return 0;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+      });
+    }
+  });
+</script>
+{% endblock %}

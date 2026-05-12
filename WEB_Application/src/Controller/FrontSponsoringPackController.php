@@ -1,0 +1,160 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\SponsoringPack;
+use App\Entity\ReservationPack;
+use App\Form\SponsoringPackType;
+use App\Repository\SponsoringPackRepository;
+use App\Repository\ReservationPackRepository;
+use App\Repository\EvenementRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+
+#[Route('/front/sponsoring-pack')]
+#[IsGranted('ROLE_ARTISTE')]
+class FrontSponsoringPackController extends AbstractController
+{
+    #[Route('/', name: 'front_sponsoring_pack_index', methods: ['GET'])]
+    public function index(SponsoringPackRepository $repo): Response
+    {
+        return $this->render('front/sponsoring_pack/index.html.twig', [
+            'packs' => $repo->findAll(),
+        ]);
+    }
+
+    #[Route('/new', name: 'front_sponsoring_pack_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $em): Response
+    {
+        $pack = new SponsoringPack();
+        $form = $this->createForm(SponsoringPackType::class, $pack);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($pack);
+            $em->flush();
+            $this->addFlash('success', 'Pack de sponsoring créé avec succès !');
+            return $this->redirectToRoute('front_sponsoring_pack_index');
+        }
+
+        return $this->render('front/sponsoring_pack/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'front_sponsoring_pack_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, SponsoringPack $pack, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(SponsoringPackType::class, $pack);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Pack modifié avec succès !');
+            return $this->redirectToRoute('front_sponsoring_pack_index');
+        }
+
+        return $this->render('front/sponsoring_pack/edit.html.twig', [
+            'pack' => $pack,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/{id}/delete', name: 'front_sponsoring_pack_delete', methods: ['POST'])]
+    public function delete(Request $request, SponsoringPack $pack, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$pack->getId(), (string) $request->request->get('_token'))) {
+            $em->remove($pack);
+            $em->flush();
+            $this->addFlash('success', 'Pack supprimé.');
+        }
+        return $this->redirectToRoute('front_sponsoring_pack_index');
+    }
+
+    #[Route('/reservations', name: 'front_sponsoring_reservations', methods: ['GET'])]
+    public function reservations(ReservationPackRepository $reservationRepo, EvenementRepository $eventRepo): Response
+    {
+        $user = $this->getUser();
+        // Get events created by this artist
+        $events = $eventRepo->findBy(['artiste' => $user]);
+        
+        // Get all reservations for these events
+        $reservations = [];
+        if (!empty($events)) {
+            $reservations = $reservationRepo->findBy(['evenement' => $events], ['dateReservation' => 'DESC']);
+        }
+
+        return $this->render('front/sponsoring_pack/reservations.html.twig', [
+            'reservations' => $reservations,
+        ]);
+    }
+
+    #[Route('/reservations/{id}/accept', name: 'front_sponsoring_reservations_accept', methods: ['POST'])]
+    public function acceptReservation(Request $request, ReservationPack $reservation, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('accept'.$reservation->getId(), (string) $request->request->get('_token'))) {
+            // Verify this artist owns the event
+            $evenement = $reservation->getEvenement();
+            if (!$evenement || $evenement->getArtiste() !== $this->getUser()) {
+                throw $this->createAccessDeniedException();
+            }
+
+            $reservation->setStatut('acceptée');
+            $em->flush();
+            $this->addFlash('success', 'La réservation a été acceptée.');
+        }
+
+        return $this->redirectToRoute('front_sponsoring_reservations');
+    }
+
+    #[Route('/reservations/{id}/reject', name: 'front_sponsoring_reservations_reject', methods: ['POST'])]
+    public function rejectReservation(Request $request, ReservationPack $reservation, EntityManagerInterface $em, MailerInterface $mailer): Response
+    {
+        if ($this->isCsrfTokenValid('reject'.$reservation->getId(), (string) $request->request->get('_token'))) {
+            // Verify this artist owns the event
+            $evenement = $reservation->getEvenement();
+            if (!$evenement || $evenement->getArtiste() !== $this->getUser()) {
+                throw $this->createAccessDeniedException();
+            }
+
+            $sponsorEmail = (string) ($reservation->getUser()?->getEmail() ?? '');
+            $eventName = (string) ($evenement->getTitre() ?? '');
+            $packName = (string) ($reservation->getSponsoringPack()?->getNomPack() ?? '');
+
+            // Either set status to 'rejetée' or just remove it
+            $em->remove($reservation);
+            $em->flush();
+
+            if ($sponsorEmail) {
+                $email = (new Email())
+                    ->from('contact@feane.com')
+                    ->to($sponsorEmail)
+                    ->subject('Réponse à votre demande de Sponsoring - ' . $eventName)
+                    ->html('
+                        <h2>Demande de réservation refusée</h2>
+                        <p>Bonjour,</p>
+                        <p>Nous vous informons que l\'artiste a malheureusement refusé votre demande de parrainage pour le pack <strong>' . $packName . '</strong> concernant l\'événement <strong>' . $eventName . '</strong>.</p>
+                        <p>N\'hésitez pas à consulter nos autres événements !</p>
+                        <br>
+                        <p>L\'équipe Feane</p>
+                    ');
+
+                try {
+                    $mailer->send($email);
+                } catch (\Exception $e) {
+                    // Log error if needed
+                }
+            }
+
+            $this->addFlash('success', 'La réservation a été rejetée et supprimée.');
+        }
+
+        return $this->redirectToRoute('front_sponsoring_reservations');
+    }
+}

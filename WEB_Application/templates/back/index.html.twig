@@ -1,0 +1,167 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Pegasus Backoffice{% endblock %}
+
+{% block body %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4" style="gap: 16px;">
+    <div>
+      <h1 class="h3 mb-1">Pegasus Backoffice</h1>
+      <p class="text-muted mb-0">Manage users, learning, marketplace, events, gallery, and community operations.</p>
+    </div>
+    <div class="d-flex flex-wrap" style="gap: 10px;">
+      <a class="btn btn-primary" href="{{ path('back_users') }}">
+        <i class="fas fa-users me-1"></i> Users
+      </a>
+      <a class="btn btn-outline-primary" href="{{ path('front_home') }}">
+        <i class="fas fa-external-link-alt me-1"></i> Front office
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    {% set modules = [
+      {
+        title: 'User Dashboard',
+        label: 'Accounts, roles, verification',
+        icon: 'fas fa-users',
+        route: 'back_users',
+        color: 'primary'
+      },
+      {
+        title: 'Products',
+        label: 'Product review and catalog categories',
+        icon: 'fas fa-store',
+        route: 'admin_produit_attente',
+        color: 'warning'
+      },
+      {
+        title: 'Orders',
+        label: 'Marketplace purchases and totals',
+        icon: 'fas fa-receipt',
+        route: 'admin_commandes_index',
+        color: 'success'
+      },
+      {
+        title: 'Courses & Quizzes',
+        label: 'Educational content management',
+        icon: 'fas fa-graduation-cap',
+        route: 'back_content_courses',
+        color: 'info'
+      },
+      {
+        title: 'Forum',
+        label: 'Posts, comments, requests, moderation',
+        icon: 'fas fa-comments',
+        route: 'admin_forum_posts_index',
+        color: 'secondary'
+      },
+      {
+        title: 'Gallery',
+        label: 'Artwork review and publishing',
+        icon: 'fas fa-images',
+        route: 'back_art_index',
+        color: 'danger'
+      },
+      {
+        title: 'Events',
+        label: 'Events, participants, sponsors',
+        icon: 'fas fa-calendar-alt',
+        route: 'app_evenement_index',
+        color: 'primary'
+      },
+      {
+        title: 'Role Requests',
+        label: 'Artist and sponsor upgrade requests',
+        icon: 'fas fa-user-tag',
+        route: 'admin_role_requests_index',
+        color: 'dark'
+      }
+    ] %}
+
+    {% for module in modules %}
+      <div class="col-12 col-md-6 col-xl-3 mb-4">
+        <a href="{{ path(module.route) }}" class="card card-stats card-round h-100 text-decoration-none">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-icon">
+                <div class="icon-big text-center icon-{{ module.color }} bubble-shadow-small">
+                  <i class="{{ module.icon }}"></i>
+                </div>
+              </div>
+              <div class="col col-stats ms-3 ms-sm-0">
+                <div class="numbers">
+                  <p class="card-category">{{ module.label }}</p>
+                  <h4 class="card-title">{{ module.title }}</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="row">
+    <div class="col-12 col-xl-8 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title mb-0">Management Map</div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <h6 class="fw-bold mb-2">Community</h6>
+              <div class="list-group list-group-flush">
+                <a class="list-group-item px-0" href="{{ path('admin_forum_posts_index') }}">Forum posts</a>
+                <a class="list-group-item px-0" href="{{ path('admin_forum_comments_index') }}">Forum comments</a>
+                <a class="list-group-item px-0" href="{{ path('admin_forum_stats_index') }}">Forum statistics</a>
+                <a class="list-group-item px-0" href="{{ path('back_art_index') }}">Gallery artworks</a>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <h6 class="fw-bold mb-2">Business</h6>
+              <div class="list-group list-group-flush">
+                <a class="list-group-item px-0" href="{{ path('admin_produit_attente') }}">Products</a>
+                <a class="list-group-item px-0" href="{{ path('admin_commandes_index') }}">Orders</a>
+                <a class="list-group-item px-0" href="{{ path('app_categorie_index') }}">Product categories</a>
+                <a class="list-group-item px-0" href="{{ path('app_admin_sponsor_index') }}">Event sponsors</a>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3 mb-md-0">
+              <h6 class="fw-bold mb-2">Learning</h6>
+              <div class="list-group list-group-flush">
+                <a class="list-group-item px-0" href="{{ path('back_content_courses') }}">Courses and quizzes</a>
+                <a class="list-group-item px-0" href="{{ path('app_courses') }}">Public courses</a>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="fw-bold mb-2">Operations</h6>
+              <div class="list-group list-group-flush">
+                <a class="list-group-item px-0" href="{{ path('app_evenement_index') }}">Events</a>
+                <a class="list-group-item px-0" href="{{ path('app_participant_index') }}">Participants</a>
+                <a class="list-group-item px-0" href="{{ path('admin_role_requests_index') }}">Role requests</a>
+                <a class="list-group-item px-0" href="{{ path('back_profile') }}">Admin profile</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <div class="card-title mb-0">Project Structure</div>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-3">The active backoffice now uses the `/back` namespace and the shared `back/layout.html.twig` shell.</p>
+          <ul class="mb-0 ps-3">
+            <li>Front office: `/`, `/gallery`, `/forum`, `/courses`, `/produit`</li>
+            <li>Back office: `/back` and `/back/...`</li>
+            <li>Legacy `/admin/dashboard` redirects here</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,97 @@
+<script>
+  (function () {
+    var productName = {{ product_name|default('')|json_encode|raw }};
+    var productDescription = {{ product_description|default('')|json_encode|raw }};
+    var advisorUrl = {{ path('app_ai_product_advisor')|json_encode|raw }};
+    var btn = document.getElementById('aiChatbotBtn');
+    var windowEl = document.getElementById('aiChatWindow');
+    var messagesEl = document.getElementById('aiChatMessages');
+    var suggestionsEl = document.getElementById('aiSuggestions');
+    var inputEl = document.getElementById('aiChatInput');
+    var sendBtn = document.getElementById('aiChatSend');
+    var closeBtn = document.getElementById('aiChatClose');
+
+    if (!btn || !windowEl || !messagesEl || !inputEl || !sendBtn) {
+      return;
+    }
+
+    function scrollToBottom() {
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function addMessage(text, role) {
+      var div = document.createElement('div');
+      div.className = 'ai-msg ' + role;
+      div.textContent = text;
+      messagesEl.appendChild(div);
+      scrollToBottom();
+    }
+
+    function setLoading(loading) {
+      sendBtn.disabled = loading;
+      sendBtn.setAttribute('aria-busy', loading ? 'true' : 'false');
+    }
+
+    function sendQuestion(question) {
+      question = (question || inputEl.value || '').trim();
+      if (!question) return;
+
+      addMessage(question, 'user');
+      inputEl.value = '';
+      if (suggestionsEl) suggestionsEl.style.display = 'none';
+      setLoading(true);
+
+      fetch(advisorUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+        body: JSON.stringify({
+          productName: productName || '',
+          productDescription: productDescription || '',
+          question: question
+        })
+      })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          addMessage(data && data.answer ? data.answer : 'The advisor is unavailable right now. Please try again.', 'assistant');
+        })
+        .catch(function () {
+          addMessage('The advisor is unavailable right now. Please try again.', 'assistant');
+        })
+        .finally(function () {
+          setLoading(false);
+          scrollToBottom();
+        });
+    }
+
+    btn.addEventListener('click', function () {
+      windowEl.classList.add('open');
+      windowEl.setAttribute('aria-hidden', 'false');
+      btn.classList.remove('pulse');
+      inputEl.focus();
+    });
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        windowEl.classList.remove('open');
+        windowEl.setAttribute('aria-hidden', 'true');
+        btn.classList.add('pulse');
+      });
+    }
+
+    sendBtn.addEventListener('click', function () { sendQuestion(); });
+    inputEl.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendQuestion();
+      }
+    });
+
+    if (suggestionsEl) {
+      suggestionsEl.querySelectorAll('.ai-suggest-btn').forEach(function (suggestion) {
+        suggestion.addEventListener('click', function () {
+          sendQuestion(suggestion.getAttribute('data-question') || '');
+        });
+      });
+    }
+  })();
+</script>

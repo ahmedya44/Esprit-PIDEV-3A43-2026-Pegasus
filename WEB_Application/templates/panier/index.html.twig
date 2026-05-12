@@ -1,0 +1,95 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Cart - Pegasus{% endblock %}
+
+{% block body %}
+<section class="market-shell">
+  <div class="container">
+    {% include 'produit/_shop_nav.html.twig' with {shop_active: 'cart'} %}
+
+    <div class="market-panel">
+      <div class="market-hero">
+        <div>
+          <div class="market-eyebrow">Checkout</div>
+          <h1 class="market-title">Cart</h1>
+          <p class="market-copy">Review your selected products before confirming the order.</p>
+        </div>
+        <a href="{{ path('app_produit_index') }}" class="btn btn-outline-secondary">Continue shopping</a>
+      </div>
+
+      {% if panier and lignes|length > 0 %}
+        <div class="row">
+          <div class="col-lg-8 mb-4 mb-lg-0">
+            <div class="market-table-card">
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Unit price</th>
+                      <th>Qty</th>
+                      <th>Subtotal</th>
+                      <th class="text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for ligne in lignes %}
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            {% if ligne.produit.imageUrl %}
+                              <img src="{{ ligne.produit.imageUrl }}" alt="{{ ligne.produit.nom }}" style="width: 58px; height: 58px; object-fit: cover; border-radius: 8px; margin-right: 12px;">
+                            {% endif %}
+                            <strong>{{ ligne.produit.nom }}</strong>
+                          </div>
+                        </td>
+                        <td>{{ ligne.prixUnitaire|number_format(2, '.', ' ') }} DT</td>
+                        <td>{{ ligne.quantite }}</td>
+                        <td><strong>{{ (ligne.prixUnitaire * ligne.quantite)|number_format(2, '.', ' ') }} DT</strong></td>
+                        <td class="text-center">
+                          <form method="post" action="{{ path('app_panier_supprimer', {id: ligne.id}) }}">
+                            <button type="submit" class="market-icon-btn" title="Remove">
+                              <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                          </form>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="market-table-card p-4">
+              <h2 class="h5 font-weight-bold mb-3">Order summary</h2>
+              <div class="d-flex justify-content-between mb-3">
+                <span>Total</span>
+                <strong class="product-price">{{ panier.total|number_format(2, '.', ' ') }} DT</strong>
+              </div>
+              <form action="{{ path('app_commande_confirmer') }}" method="post" class="mb-2">
+                <input type="hidden" name="panier_id" value="{{ panier.id }}">
+                <button type="submit" class="btn btn-warning w-100">
+                  <i class="fa fa-check-circle" aria-hidden="true"></i>
+                  Confirm order
+                </button>
+              </form>
+              <form method="post" action="{{ path('app_panier_vider') }}">
+                <button type="submit" class="btn btn-outline-danger w-100">Clear cart</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="market-empty">
+          <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+          <h3>Your cart is empty</h3>
+          <p>Add products from the marketplace to start an order.</p>
+          <a href="{{ path('app_produit_index') }}" class="btn btn-warning">Browse products</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

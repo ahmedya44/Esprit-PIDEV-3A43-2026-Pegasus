@@ -1,0 +1,9 @@
+{{ form_start(form) }}
+  <div class="row g-3">
+    {{ form_widget(form) }}
+  </div>
+  <div class="mt-4 d-flex gap-2">
+    <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
+    <a class="btn btn-outline-secondary" href="{{ path('app_admin_index') }}">Cancel</a>
+  </div>
+{{ form_end(form) }}

@@ -1,0 +1,172 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'gallery' %}
+{% block title %}{{ art.title }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .detail-shell { padding: 44px 0 72px; }
+  .detail-card { background: #fff; border: 1px solid #dbe5ef; border-radius: 20px; box-shadow: 0 12px 32px rgba(15,23,42,.10); padding: 24px; }
+  .detail-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .detail-title { font-size: 1.65rem; font-weight: 800; color: var(--pg-text,#111827); margin: 0; }
+  .detail-back { border-radius: 20px; border: 1px solid #dbe5ef; color: #374151; background: #fff; padding: 7px 16px; font-weight: 600; font-size: .875rem; text-decoration: none; transition: background .18s; }
+  .detail-back:hover { background: #f4f6fb; }
+  .detail-image { border-radius: 16px; border: 1px solid #dbe5ef; background: #f8faff; max-height: 500px; width: 100%; object-fit: contain; }
+  .detail-meta { color: var(--pg-text-muted,#6b7280); font-size: 0.9rem; margin: 10px 0 12px; }
+  .detail-text { color: #374151; line-height: 1.65; }
+  .meta-list { list-style: none; padding: 0; margin: 0 0 16px; color: #4b5563; }
+  .meta-list li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
+  .meta-list li:last-child { border-bottom: none; }
+  .gallery-pill-count { font-size: .78rem; border-radius: 999px; padding: 3px 10px; background: #fef9c3; border: 1px solid #f9c23c; color: #92660a; font-weight: 600; }
+  .gallery-icon-btn { width: 34px; height: 34px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #dbe5ef; color: #6b7280; background: #f8faff; cursor: pointer; transition: all .18s; }
+  .gallery-icon-btn:hover { background: var(--pg-gold,#f9c23c); border-color: var(--pg-gold,#f9c23c); color: #111; }
+  .gallery-icon-btn.is-active { background: var(--pg-gold,#f9c23c); border-color: var(--pg-gold,#f9c23c); color: #111; }
+  .comment-section { margin-top: 32px; border-top: 1px solid #f1f5f9; padding-top: 24px; }
+  .comment-item { background: #f8faff; border: 1px solid #dbe5ef; border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; }
+  .comment-author { font-weight: 700; color: var(--pg-text,#111827); font-size: 0.9rem; }
+  .comment-date { font-size: 0.76rem; color: #9ca3af; margin-left: 8px; }
+  .comment-text { color: #374151; margin-top: 6px; line-height: 1.55; font-size: .9rem; }
+  .comment-form-box { background: #f8faff; border: 1px solid #dbe5ef; border-radius: 14px; padding: 18px; margin-top: 20px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="detail-shell">
+  <div class="container">
+    <div class="detail-card">
+      <div class="detail-top">
+        <h1 class="detail-title">{{ art.title }}</h1>
+        <a href="{{ path('front_gallery') }}" class="btn btn-sm btn-outline-secondary detail-back">Back to Gallery</a>
+      </div>
+
+      {% set imageSrc = art.imageUrl ? ((art.imageUrl starts with('http') or art.imageUrl starts with('/')) ? art.imageUrl : asset('images/products/' ~ art.imageUrl)) : '' %}
+      {% if imageSrc %}
+        <div class="mb-3"><img src="{{ imageSrc }}" alt="{{ art.title }}" class="detail-image"></div>
+      {% endif %}
+
+      <div class="detail-meta"><i class="fa fa-eye"></i> {{ totalViews }} views</div>
+      <div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
+        <button type="button" class="gallery-icon-btn js-favorite-btn" data-art-id="{{ art.id }}" data-art-title="{{ art.title|e('html_attr') }}" aria-label="Favorite" title="Favorite"><i class="fa fa-heart"></i></button>
+        <span class="gallery-pill-count"><i class="fa fa-heart-o"></i> <span class="js-fav-count" data-art-id="{{ art.id }}">0</span></span>
+        <button type="button" class="gallery-icon-btn js-like-btn {{ userLiked ? 'is-active' : '' }}" data-art-id="{{ art.id }}" data-like-url="{{ path('api_art_like', {id: art.id}) }}" aria-label="Like" title="{{ userLiked ? 'Liked' : 'Like' }}"><i class="fa fa-thumbs-up"></i></button>
+        <span class="gallery-pill-count"><i class="fa fa-thumbs-up"></i> <span class="js-like-count" data-art-id="{{ art.id }}">{{ likeCount }}</span></span>
+      </div>
+
+      <p class="detail-text">{{ art.description }}</p>
+
+      <ul class="meta-list">
+        <li><strong>Status:</strong> {{ art.status }}</li>
+        <li><strong>Created:</strong> {{ art.createdAt ? art.createdAt|date('Y-m-d H:i') : '-' }}</li>
+        <li><strong>ID:</strong> #{{ art.id }}</li>
+      </ul>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ path('front_gallery_edit', {'id': art.id}) }}" class="btn btn-warning">Edit</a>
+        <a href="{{ path('front_gallery') }}" class="btn btn-outline-dark">Gallery</a>
+      </div>
+
+      <div class="comment-section" id="comments">
+        <h5 class="mb-3"><i class="fa fa-comments-o me-1"></i> Comments ({{ comments|length }})</h5>
+
+        {% for flash in app.flashes('success') %}
+          <div class="alert alert-success py-2">{{ flash }}</div>
+        {% endfor %}
+
+        {% if comments is empty %}
+          <p class="text-muted small">No comments yet. Be the first!</p>
+        {% else %}
+          {% for c in comments %}
+            <div class="comment-item">
+              <span class="comment-author">{{ c.user ? c.user.username : (c.username ?: 'Pegasus user') }}</span>
+              <span class="comment-date">{{ c.createdAt|date('d M Y, H:i') }}</span>
+              <p class="comment-text mb-0">{{ c.content }}</p>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        {% if app.user %}
+        <div class="comment-form-box">
+          <h6 class="mb-3">Leave a comment as <strong>{{ app.user.username }}</strong></h6>
+          {{ form_start(commentForm, {attr: {novalidate: 'novalidate'}}) }}
+            <div class="mb-2">
+              {{ form_widget(commentForm.content) }}
+              {{ form_errors(commentForm.content) }}
+            </div>
+            <button type="submit" class="btn btn-warning btn-sm px-4">Post Comment</button>
+          {{ form_end(commentForm) }}
+        </div>
+        {% else %}
+        <p class="text-muted small mt-3"><a href="{{ path('app_login') }}">Log in</a> to leave a comment.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    document.querySelectorAll('.js-like-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var url = btn.getAttribute('data-like-url');
+        fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (!data) return;
+            btn.classList.toggle('is-active', data.liked);
+            btn.setAttribute('title', data.liked ? 'Liked' : 'Like');
+            var countEl = document.querySelector('.js-like-count[data-art-id="' + btn.getAttribute('data-art-id') + '"]');
+            if (countEl) countEl.textContent = data.count;
+          })
+          .catch(function () {});
+      });
+    });
+
+    function getFavoriteState() {
+      try { return JSON.parse(localStorage.getItem('gallery_favorites') || '{}'); } catch (e) { return {}; }
+    }
+    function setFavoriteState(state) { localStorage.setItem('gallery_favorites', JSON.stringify(state)); }
+
+    function renderFavorites() {
+      var fav = getFavoriteState();
+      document.querySelectorAll('.js-fav-count').forEach(function (el) {
+        var id = String(el.getAttribute('data-art-id'));
+        el.textContent = fav[id] ? '1' : '0';
+      });
+      document.querySelectorAll('.js-favorite-btn').forEach(function (btn) {
+        var id = String(btn.getAttribute('data-art-id'));
+        btn.classList.toggle('is-active', !!fav[id]);
+        btn.setAttribute('title', fav[id] ? 'Favorited' : 'Favorite');
+      });
+    }
+
+    document.querySelectorAll('.js-favorite-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = String(btn.getAttribute('data-art-id') || '');
+        var title = String(btn.getAttribute('data-art-title') || '');
+        var fav = getFavoriteState();
+        var willAdd = !fav[id];
+        var url = willAdd ? '/api/favorites/add' : '/api/favorites/remove';
+        var payload = willAdd ? { art_id: parseInt(id, 10), art_title: title } : { art_id: parseInt(id, 10) };
+
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (!data || data.success !== true) return;
+            fav[id] = willAdd;
+            setFavoriteState(fav);
+            renderFavorites();
+          })
+          .catch(function () {});
+      });
+    });
+
+    renderFavorites();
+  })();
+</script>
+{% endblock %}

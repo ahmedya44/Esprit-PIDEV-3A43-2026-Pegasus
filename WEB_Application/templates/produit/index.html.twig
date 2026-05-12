@@ -1,0 +1,155 @@
+{% extends 'base_front.html.twig' %}
+
+{% block title %}Marketplace - Pegasus{% endblock %}
+
+{% block body %}
+{% set can_shop = app.user and not is_granted('ROLE_ARTISTE') and not is_granted('ROLE_ADMIN') %}
+
+<section class="market-shell">
+  <div class="container">
+    {% include 'produit/_shop_nav.html.twig' with {shop_active: 'products'} %}
+
+    <div class="market-panel">
+      <div class="market-hero">
+        <div>
+          <div class="market-eyebrow">Creative commerce</div>
+          <h1 class="market-title">Marketplace</h1>
+          <p class="market-copy">
+            Browse artist products, digital packs, prints, and creative tools from the Pegasus community.
+          </p>
+        </div>
+
+        {% if is_granted('ROLE_ARTISTE') %}
+          <a href="{{ path('app_produit_new') }}" class="btn btn-warning">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            Add product
+          </a>
+        {% endif %}
+      </div>
+
+      <form method="get" action="{{ path('app_produit_index') }}" class="market-toolbar" data-live-search-form="1" data-live-delay="450">
+        <input
+          type="search"
+          name="search"
+          value="{{ search }}"
+          class="form-control"
+          placeholder="Search products..."
+          data-live-search-input="1"
+        >
+        <select name="categorie" class="form-control" data-live-search-filter="1">
+          <option value="">All categories</option>
+          {% for categorie in categories %}
+            <option value="{{ categorie.id }}" {% if categorieId == categorie.id ~ '' %}selected{% endif %}>{{ categorie.nom }}</option>
+          {% endfor %}
+        </select>
+        <select name="tri" class="form-control" data-live-search-filter="1">
+          <option value="">Sort by</option>
+          <option value="prix_asc" {% if tri == 'prix_asc' %}selected{% endif %}>Price: low to high</option>
+          <option value="prix_desc" {% if tri == 'prix_desc' %}selected{% endif %}>Price: high to low</option>
+          <option value="nom_asc" {% if tri == 'nom_asc' %}selected{% endif %}>Name: A to Z</option>
+          <option value="nom_desc" {% if tri == 'nom_desc' %}selected{% endif %}>Name: Z to A</option>
+        </select>
+        <button type="submit" class="btn btn-warning" aria-label="Search products">
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </button>
+      </form>
+
+      {% if search or categorieId or tri %}
+        <div class="mb-3">
+          <a href="{{ path('app_produit_index') }}" class="btn btn-sm btn-outline-secondary">Clear filters</a>
+        </div>
+      {% endif %}
+
+      <div class="market-grid">
+        {% for produit in pagination %}
+          <article class="product-card">
+            <a href="{{ path('app_produit_show', {id: produit.id}) }}" class="product-card__media">
+              {% if produit.imageUrl %}
+                <img src="{{ produit.imageUrl }}" alt="{{ produit.nom }}" loading="lazy">
+              {% else %}
+                <img src="{{ asset('front/images/f1.png') }}" alt="{{ produit.nom }}" loading="lazy">
+              {% endif %}
+            </a>
+
+            <div class="product-card__body">
+              {% if produit.categorie %}
+                <span class="market-chip">{{ produit.categorie.nom }}</span>
+              {% endif %}
+              <h2 class="product-card__title mt-3">{{ produit.nom }}</h2>
+              <p class="product-card__text">
+                {{ produit.description|striptags|u.truncate(115, '...') }}
+              </p>
+
+              <div class="product-card__footer">
+                <div class="product-price">{{ produit.prix|number_format(2, '.', ' ') }} DT</div>
+                <div class="market-actions">
+                  <a href="{{ path('app_produit_show', {id: produit.id}) }}" class="market-icon-btn is-primary" title="View product">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                  </a>
+                  {% if can_shop %}
+                    <button
+                      type="button"
+                      class="market-icon-btn btn-favorite"
+                      data-id="{{ produit.id }}"
+                      title="Add to favorites"
+                    >
+                      <i class="fa {{ produit.id in app.session.get('favoris', []) ? 'fa-heart' : 'fa-heart-o' }}" aria-hidden="true"></i>
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </article>
+        {% else %}
+          <div class="market-empty">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <h3>No products found</h3>
+            <p>Try another keyword or clear the filters.</p>
+            <a href="{{ path('app_produit_index') }}" class="btn btn-warning">View all products</a>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex justify-content-center mt-4">
+        {{ knp_pagination_render(pagination) }}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if can_shop %}
+  {% include 'produit/_product_advisor.html.twig' with {
+    product_name: '',
+    product_description: '',
+    intro: 'Ask me about the marketplace and I will help you choose.'
+  } only %}
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+  {% if app.user and not is_granted('ROLE_ARTISTE') and not is_granted('ROLE_ADMIN') %}
+    {% include 'produit/_product_advisor_js.html.twig' with {
+      product_name: '',
+      product_description: ''
+    } only %}
+
+    <script>
+      document.querySelectorAll('.btn-favorite').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var icon = btn.querySelector('i');
+          fetch('/favoris/toggle/' + btn.dataset.id, {
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest'}
+          })
+            .then(function (response) { return response.ok ? response.json() : null; })
+            .then(function (data) {
+              if (!data || !icon) return;
+              icon.classList.toggle('fa-heart', !!data.isFavorite);
+              icon.classList.toggle('fa-heart-o', !data.isFavorite);
+            })
+            .catch(function () {});
+        });
+      });
+    </script>
+  {% endif %}
+{% endblock %}

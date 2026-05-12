@@ -1,0 +1,340 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'gallery' %}
+{% block title %}Gallery{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .gallery-shell { padding: 44px 0 72px; }
+  .gallery-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 14px; margin-bottom: 20px; }
+  .gallery-title h1 { font-size: 2rem; margin: 0; color: var(--pg-text,#111827); font-weight: 800; }
+  .gallery-title p { margin: 6px 0 0; color: var(--pg-text-muted,#6b7280); }
+  .gallery-btn { border-radius: 20px; padding: 9px 18px; font-weight: 700; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; transition: background .2s, color .2s; }
+  .gallery-btn--primary { background: var(--pg-gold,#f9c23c); color: #111; border-color: var(--pg-gold,#f9c23c); }
+  .gallery-btn--primary:hover { background: var(--pg-gold-dark,#e6a800); color: #111; }
+  .gallery-btn--soft { background: #fff; border-color: #dbe5ef; color: #374151; }
+  .gallery-btn--soft:hover { background: #f4f6fb; color: #111; }
+  .gallery-card { background: #fff; border: 1px solid #dbe5ef; border-radius: 16px; box-shadow: 0 8px 24px rgba(15,23,42,.08); padding: 18px; }
+  .gallery-widget { border: 1px solid #dbe5ef; border-radius: 14px; background: #fff; box-shadow: 0 4px 14px rgba(15,23,42,.05); padding: 16px; margin-bottom: 16px; }
+  .gallery-widget-title { font-weight: 700; margin-bottom: 10px; color: var(--pg-text,#111827); font-size: .95rem; display: flex; align-items: center; gap: 8px; }
+  .gallery-widget-title::before { content:''; display:inline-block; width:3px; height:16px; background:var(--pg-gold,#f9c23c); border-radius:2px; }
+  .gallery-inspiration { font-style: italic; color: #4b5563; min-height: 28px; line-height: 1.5; }
+  .gallery-chat-messages { max-height: 260px; overflow-y: auto; border: 1px solid #dbe5ef; border-radius: 10px; padding: 10px; background: #f8faff; margin-bottom: 10px; }
+  .gallery-chat-msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 10px; line-height: 1.45; }
+  .gallery-chat-msg.bot { background: #f1f5f9; color: #1e293b; }
+  .gallery-chat-msg.user { background: var(--pg-navy,#111827); color: #fff; text-align: right; }
+  .gallery-orange-outline { border: 1px solid var(--pg-gold,#f9c23c) !important; color: #92660a !important; background: transparent !important; border-radius: 20px !important; font-weight: 600; padding: 5px 14px !important; }
+  .gallery-orange-outline:hover { background: var(--pg-gold,#f9c23c) !important; color: #111 !important; }
+  .search-row { margin-bottom: 18px; }
+  .search-row .form-control { border-radius: 20px; border-color: #dbe5ef; padding: 8px 16px; }
+  .search-row .btn { border-radius: 20px; }
+  .art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+  .art-card { background: #fff; border: 1px solid #dbe5ef; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 22px rgba(15,23,42,.08); display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s; }
+  .art-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(15,23,42,.13); }
+  .art-media { width: 100%; height: 210px; object-fit: cover; }
+  .art-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
+  .art-title { margin: 0 0 6px; font-weight: 700; color: var(--pg-text,#111827); font-size: 1rem; }
+  .art-text { margin: 0 0 12px; color: var(--pg-text-muted,#6b7280); font-size: 0.875rem; line-height: 1.5; }
+  .gallery-pill-count { font-size: .78rem; border-radius: 999px; padding: 3px 10px; background: #fef9c3; border: 1px solid #f9c23c; color: #92660a; font-weight: 600; }
+  .gallery-icon-btn { width: 34px; height: 34px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #dbe5ef; color: #6b7280; background: #f8faff; cursor: pointer; transition: all .18s; }
+  .gallery-icon-btn:hover { background: var(--pg-gold,#f9c23c); border-color: var(--pg-gold,#f9c23c); color: #111; }
+  .gallery-icon-btn.is-active { background: var(--pg-gold,#f9c23c); border-color: var(--pg-gold,#f9c23c); color: #111; }
+  .art-actions { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .flash { border-radius: 10px; padding: 10px 14px; font-size: 0.9rem; margin-bottom: 12px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="gallery-shell">
+  <div class="container">
+    <div class="gallery-top">
+      <div class="gallery-title">
+        <h1>Gallery</h1>
+        <p>Browse and share artworks.</p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ path('favorites_page') }}" class="gallery-btn gallery-btn--soft">My Favorites</a>
+        <a href="{{ path('front_gallery_new') }}" class="gallery-btn gallery-btn--primary">Add Artwork</a>
+      </div>
+    </div>
+
+    {% for type, messages in app.flashes %}
+      {% for message in messages %}
+        <div class="flash alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
+      {% endfor %}
+    {% endfor %}
+
+    <div class="gallery-widget">
+      <div class="gallery-widget-title">Citation du jour</div>
+      <div class="gallery-inspiration" id="daily-inspiration">Loading...</div>
+      <div class="mt-2 d-flex gap-2">
+        <button type="button" class="btn btn-sm gallery-orange-outline" id="share-inspiration-btn">Share</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline" id="refresh-inspiration-btn">Another one</button>
+      </div>
+    </div>
+
+    <div class="gallery-widget">
+      <div class="gallery-widget-title">Assistant Artistique Pegasus (Machine Learning)</div>
+      <div class="gallery-chat-messages" id="ml-chat-messages">
+        <div class="gallery-chat-msg bot">Bonjour. Posez-moi une question sur l'art.</div>
+      </div>
+      <div class="input-group mb-2">
+        <input type="text" class="form-control" id="ml-chat-input" placeholder="Ask about art...">
+        <button type="button" class="btn gallery-orange-outline" id="ml-chat-send-btn">Send</button>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Qui est Picasso ?">Picasso</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Qu'est-ce que le cubisme ?">Cubisme</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Comment debuter en peinture ?">Peinture</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Qui est Van Gogh ?">Van Gogh</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Qu'est-ce que l'impressionnisme ?">Impressionnisme</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Qu'est-ce que le surrealisme ?">Surrealisme</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Qu'est-ce que l'art abstrait ?">Art abstrait</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Comment travailler la perspective ?">Perspective</button>
+        <button type="button" class="btn btn-sm gallery-orange-outline js-ml-suggest" data-question="Qu'est-ce que la composition en art ?">Composition</button>
+      </div>
+    </div>
+
+    <form method="get" class="row g-2 search-row">
+      <div class="col-md-8"><input type="text" name="search" class="form-control" placeholder="Search artworks..." value="{{ search }}"></div>
+      <div class="col-md-2">
+        <select name="sort" class="form-control">
+          <option value="recent" {% if sortBy == 'recent' %}selected{% endif %}>Recent</option>
+          <option value="oldest" {% if sortBy == 'oldest' %}selected{% endif %}>Oldest</option>
+        </select>
+      </div>
+      <div class="col-md-2"><button type="submit" class="btn btn-dark w-100">Search</button></div>
+    </form>
+
+    <div class="art-grid">
+      {% for art in arts %}
+        {% set imageSrc = art.imageUrl ? ((art.imageUrl starts with('http') or art.imageUrl starts with('/')) ? art.imageUrl : asset('images/products/' ~ art.imageUrl)) : '' %}
+        {% set commentCount = commentCounts[art.id]|default(0) %}
+        <article class="art-card">
+          {% if imageSrc %}
+            <a href="{{ path('art_detail', {id: art.id}) }}" onclick="recordView({{ art.id }}); return true;"><img src="{{ imageSrc }}" class="art-media" alt="{{ art.title }}"></a>
+          {% endif %}
+          <div class="art-body">
+            <h3 class="art-title">{{ art.title }}</h3>
+            <p class="art-text">{{ art.description|slice(0, 120) }}{% if art.description|length > 120 %}...{% endif %}</p>
+            <div class="mb-2 d-flex gap-2 align-items-center flex-wrap">
+              <button type="button" class="gallery-icon-btn js-favorite-btn" data-art-id="{{ art.id }}" data-art-title="{{ art.title|e('html_attr') }}" aria-label="Favorite"><i class="fa fa-heart"></i></button>
+              <span class="gallery-pill-count"><i class="fa fa-heart-o"></i> <span class="js-fav-count" data-art-id="{{ art.id }}">0</span></span>
+              <button type="button" class="gallery-icon-btn js-like-btn" data-art-id="{{ art.id }}" aria-label="Like"><i class="fa fa-thumbs-up"></i></button>
+              <span class="gallery-pill-count"><i class="fa fa-thumbs-up"></i> <span class="js-like-count" data-art-id="{{ art.id }}">0</span></span>
+              <a href="{{ path('art_detail', {id: art.id}) }}#comments" class="gallery-pill-count" title="View comments">
+                <i class="fa fa-comment-o"></i> {{ commentCount }}
+              </a>
+            </div>
+            <div class="art-actions">
+              <a href="{{ path('art_detail', {id: art.id}) }}" class="btn btn-sm btn-outline-info">Details</a>
+              <a href="{{ path('front_gallery_edit', {id: art.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <form method="post" action="{{ path('front_gallery_delete', {id: art.id}) }}" class="d-inline" onsubmit="return confirm('Delete this artwork?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ art.id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </div>
+          </div>
+        </article>
+      {% else %}
+        <div class="gallery-card text-center text-muted">No artworks found.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function recordView(artId) {
+    fetch('/art/' + artId + '/view', { method: 'POST' }).catch(function () {});
+  }
+
+  (function () {
+    var inspirationEl = document.getElementById('daily-inspiration');
+    var refreshBtn = document.getElementById('refresh-inspiration-btn');
+    var shareBtn = document.getElementById('share-inspiration-btn');
+
+    function loadDailyInspiration(isRandom) {
+      if (!inspirationEl) return;
+      inspirationEl.textContent = 'Loading...';
+      var url = isRandom ? '/api/random-inspiration' : '/api/daily-inspiration';
+      fetch(url)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.inspiration) {
+            inspirationEl.textContent = 'No inspiration available right now.';
+            return;
+          }
+          inspirationEl.textContent = data.inspiration;
+        })
+        .catch(function () {
+          inspirationEl.textContent = 'Unable to load inspiration.';
+        });
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', function () { loadDailyInspiration(true); });
+    }
+    if (shareBtn) {
+      shareBtn.addEventListener('click', function () {
+        var text = inspirationEl ? inspirationEl.textContent : '';
+        if (!text) return;
+        navigator.clipboard.writeText(text).catch(function () {});
+      });
+    }
+    loadDailyInspiration(false);
+  })();
+
+  (function () {
+    var messagesEl = document.getElementById('ml-chat-messages');
+    var inputEl = document.getElementById('ml-chat-input');
+    var sendBtn = document.getElementById('ml-chat-send-btn');
+
+    function addMessage(text, type) {
+      if (!messagesEl) return;
+      var item = document.createElement('div');
+      item.className = 'gallery-chat-msg ' + type;
+      item.textContent = text;
+      messagesEl.appendChild(item);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function ask(question) {
+      if (!question) return;
+      addMessage(question, 'user');
+      fetch('/api/ml-chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question })
+      })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.response) {
+            addMessage('Service unavailable right now.', 'bot');
+            return;
+          }
+          addMessage(data.response, 'bot');
+        })
+        .catch(function () {
+          addMessage('Network error. Please retry.', 'bot');
+        });
+    }
+
+    if (sendBtn && inputEl) {
+      sendBtn.addEventListener('click', function () {
+        var q = inputEl.value.trim();
+        if (!q) return;
+        inputEl.value = '';
+        ask(q);
+      });
+      inputEl.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          sendBtn.click();
+        }
+      });
+    }
+
+    document.querySelectorAll('.js-ml-suggest').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        ask(btn.getAttribute('data-question') || '');
+      });
+    });
+  })();
+
+  (function () {
+    function getLikeState() {
+      try {
+        return JSON.parse(localStorage.getItem('gallery_likes') || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function setLikeState(state) {
+      localStorage.setItem('gallery_likes', JSON.stringify(state));
+    }
+
+    function getFavoriteState() {
+      try {
+        return JSON.parse(localStorage.getItem('gallery_favorites') || '{}');
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function setFavoriteState(state) {
+      localStorage.setItem('gallery_favorites', JSON.stringify(state));
+    }
+
+    function renderLikes() {
+      var likes = getLikeState();
+      document.querySelectorAll('.js-like-count').forEach(function (el) {
+        var id = String(el.getAttribute('data-art-id'));
+        el.textContent = likes[id] ? '1' : '0';
+      });
+      document.querySelectorAll('.js-like-btn').forEach(function (btn) {
+        var id = String(btn.getAttribute('data-art-id'));
+        var active = !!likes[id];
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('title', active ? 'Liked' : 'Like');
+      });
+    }
+
+    function renderFavorites() {
+      var fav = getFavoriteState();
+      document.querySelectorAll('.js-fav-count').forEach(function (el) {
+        var id = String(el.getAttribute('data-art-id'));
+        el.textContent = fav[id] ? '1' : '0';
+      });
+      document.querySelectorAll('.js-favorite-btn').forEach(function (btn) {
+        var id = String(btn.getAttribute('data-art-id'));
+        var active = !!fav[id];
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('title', active ? 'Favorited' : 'Favorite');
+      });
+    }
+
+    document.querySelectorAll('.js-like-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = String(btn.getAttribute('data-art-id'));
+        var likes = getLikeState();
+        likes[id] = !likes[id];
+        setLikeState(likes);
+        renderLikes();
+      });
+    });
+
+    document.querySelectorAll('.js-favorite-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = String(btn.getAttribute('data-art-id'));
+        var title = String(btn.getAttribute('data-art-title') || '');
+        var fav = getFavoriteState();
+        var willAdd = !fav[id];
+        var url = willAdd ? '/api/favorites/add' : '/api/favorites/remove';
+        var payload = willAdd ? { art_id: parseInt(id, 10), art_title: title } : { art_id: parseInt(id, 10) };
+
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (!data || data.success !== true) {
+              return;
+            }
+            fav[id] = willAdd;
+            setFavoriteState(fav);
+            renderFavorites();
+          })
+          .catch(function () {});
+      });
+    });
+
+    renderLikes();
+    renderFavorites();
+  })();
+</script>
+{% endblock %}

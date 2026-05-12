@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #1a1a2e; }
+
+  .page {
+    width: 100%;
+    min-height: 570px;
+    padding: 40px 60px;
+    border: 18px solid #f4b844;
+    border-radius: 0;
+    position: relative;
+  }
+
+  .inner-border {
+    border: 3px solid #c9943a;
+    padding: 30px 50px;
+    min-height: 490px;
+    display: block;
+  }
+
+  .header {
+    text-align: center;
+    border-bottom: 2px solid #f4b844;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+
+  .platform-name {
+    font-size: 28px;
+    font-weight: bold;
+    color: #b97800;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+  }
+
+  .sub-header {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #888;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  .cert-title {
+    text-align: center;
+    margin: 20px 0 10px;
+  }
+
+  .cert-title h2 {
+    font-size: 22px;
+    font-weight: normal;
+    color: #555;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .cert-title h1 {
+    font-size: 38px;
+    font-weight: bold;
+    color: #b97800;
+    margin-top: 4px;
+  }
+
+  .awarded-to {
+    text-align: center;
+    margin: 20px 0 6px;
+    font-size: 13px;
+    color: #666;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .recipient-name {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    color: #17233a;
+    border-bottom: 2px solid #f4b844;
+    display: inline-block;
+    padding: 0 40px 6px;
+    margin: 0 auto;
+  }
+
+  .recipient-wrap { text-align: center; }
+
+  .course-info {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 13px;
+    color: #555;
+  }
+
+  .course-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #17233a;
+    margin: 6px 0;
+  }
+
+  .meta-row {
+    display: table;
+    width: 100%;
+    margin-top: 28px;
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+  }
+
+  .meta-cell {
+    display: table-cell;
+    width: 33%;
+    text-align: center;
+    vertical-align: top;
+  }
+
+  .meta-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #999;
+    margin-bottom: 4px;
+  }
+
+  .meta-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #17233a;
+  }
+
+  .seal {
+    position: absolute;
+    bottom: 50px;
+    right: 80px;
+    width: 80px;
+    height: 80px;
+    border: 4px solid #f4b844;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 9px;
+    font-weight: bold;
+    color: #b97800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.3;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="inner-border">
+    <div class="header">
+      <div class="platform-name">Pegasus</div>
+      <div class="sub-header">Art &amp; Learning Platform</div>
+    </div>
+
+    <div class="cert-title">
+      <h2>This is to certify that</h2>
+    </div>
+
+    <div class="recipient-wrap">
+      <div class="recipient-name">{{ user.username }}</div>
+    </div>
+
+    <div class="course-info">
+      <p>has successfully completed the course</p>
+      <p class="course-name">{{ course.title }}</p>
+      <p>with a score of <strong>{{ attempt.scorePercent }}%</strong>
+        ({{ attempt.earnedPoints }} / {{ attempt.totalPoints }} points)</p>
+    </div>
+
+    <div class="meta-row">
+      <div class="meta-cell">
+        <div class="meta-label">Completion Date</div>
+        <div class="meta-value">{{ attempt.submittedAt|date('d M Y') }}</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-label">Score</div>
+        <div class="meta-value">{{ attempt.scorePercent }}%</div>
+      </div>
+      <div class="meta-cell">
+        <div class="meta-label">Status</div>
+        <div class="meta-value" style="color:#22c55e;">Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="seal">Pegasus<br>Certified</div>
+</div>
+</body>
+</html>

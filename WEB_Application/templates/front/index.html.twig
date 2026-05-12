@@ -1,0 +1,210 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block title %}Pegasus | Home{% endblock %}
+{% block body_class %}home_page{% endblock %}
+
+{% block extra_styles %}
+  <style>
+    .home-shell {
+      padding: 44px 0 72px;
+    }
+
+    .home-hero {
+      background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+      color: #f9fafb;
+      border-radius: 24px;
+      padding: 48px 40px;
+      box-shadow: 0 24px 52px rgba(15, 23, 42, 0.30);
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .home-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(249,194,60,.18) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .home-kicker {
+      display: inline-block;
+      margin-bottom: 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f9c23c;
+      background: rgba(249,194,60,.12);
+      border: 1px solid rgba(249,194,60,.3);
+      border-radius: 999px;
+      padding: 4px 12px;
+    }
+
+    .home-hero h1 {
+      font-size: clamp(2rem, 4vw, 3.1rem);
+      font-weight: 800;
+      margin-bottom: 14px;
+      line-height: 1.12;
+      color: #f9fafb;
+    }
+
+    .home-hero p {
+      margin: 0;
+      max-width: 600px;
+      color: #9ca3af;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .home-cta {
+      margin-top: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .home-btn {
+      border-radius: 22px;
+      padding: 10px 22px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .9rem;
+    }
+
+    .home-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.20);
+    }
+
+    .home-btn--primary {
+      background: #f9c23c;
+      color: #111;
+    }
+    .home-btn--primary:hover { background: #e6a800; color: #111; }
+
+    .home-btn--ghost {
+      border-color: rgba(255,255,255,.20);
+      color: rgba(255,255,255,.80);
+      background: rgba(255,255,255,.07);
+    }
+    .home-btn--ghost:hover { background: rgba(255,255,255,.12); color: #f9c23c; border-color: rgba(249,194,60,.4); }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 18px;
+      margin-top: 4px;
+    }
+
+    .home-card {
+      background: #ffffff;
+      border: 1px solid #dbe5ef;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.07);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      height: 100%;
+      color: #111827;
+      text-decoration: none;
+      display: block;
+    }
+
+    .home-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.13);
+      color: #111827;
+    }
+
+    .home-card-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: #fef9c3;
+      border: 1px solid #f9c23c;
+      display: flex; align-items: center; justify-content: center;
+      color: #92660a;
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+
+    .home-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+
+    .home-card p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 0.875rem;
+      line-height: 1.55;
+    }
+
+    .home-foot {
+      margin-top: 12px;
+      color: #f9c23c;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <section class="home-shell">
+    <div class="container">
+      <div class="home-hero">
+        <span class="home-kicker">Pegasus Creative Platform</span>
+        <h1>Build, share, and grow your art journey in one place</h1>
+        <p>
+          Explore exhibitions, participate in events, join community discussions, and publish your creative work with the same structured flow as your Java desktop experience.
+        </p>
+        <div class="home-cta">
+          <a class="home-btn home-btn--primary" href="{{ path('front_gallery') }}">Open Gallery</a>
+          <a class="home-btn home-btn--ghost" href="{{ path('front_evenements_index') }}">Browse Events</a>
+          <a class="home-btn home-btn--ghost" href="{{ path('forum_index') }}">Visit Forum</a>
+        </div>
+      </div>
+
+      <div class="home-grid">
+        <a class="home-card" href="{{ path('front_gallery') }}">
+          <div class="home-card-icon"><i class="fa fa-image"></i></div>
+          <h3>Gallery</h3>
+          <p>Discover creations, view artwork details, and interact with favorites.</p>
+          <div class="home-foot">Explore artworks <i class="fa fa-arrow-right"></i></div>
+        </a>
+
+        <a class="home-card" href="{{ path('front_evenements_index') }}">
+          <div class="home-card-icon"><i class="fa fa-calendar"></i></div>
+          <h3>Events</h3>
+          <p>Track upcoming artistic events and participate with the community.</p>
+          <div class="home-foot">Browse events <i class="fa fa-arrow-right"></i></div>
+        </a>
+
+        <a class="home-card" href="{{ path('forum_index') }}">
+          <div class="home-card-icon"><i class="fa fa-comments"></i></div>
+          <h3>Forum</h3>
+          <p>Join topic discussions, post updates, and collaborate with others.</p>
+          <div class="home-foot">Open forum <i class="fa fa-arrow-right"></i></div>
+        </a>
+
+        <a class="home-card" href="{{ path('app_courses') }}">
+          <div class="home-card-icon"><i class="fa fa-graduation-cap"></i></div>
+          <h3>Courses</h3>
+          <p>Learn new skills with structured lessons, videos, and quizzes.</p>
+          <div class="home-foot">Start learning <i class="fa fa-arrow-right"></i></div>
+        </a>
+      </div>
+    </div>
+  </section>
+{% endblock %}

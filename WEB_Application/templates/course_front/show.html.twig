@@ -1,0 +1,272 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'courses' %}
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .course-show-shell {
+    padding: 52px 0 84px;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(249, 194, 60, .16), transparent 28%),
+      linear-gradient(180deg, #f5f8fc 0%, #ffffff 100%);
+  }
+  .course-kicker {
+    color: #d99b00;
+    font-size: .78rem;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .course-title {
+    color: #111827;
+    font-size: clamp(2rem, 4vw, 3.3rem);
+    font-weight: 900;
+    line-height: 1.04;
+    margin: 0;
+  }
+  .course-lead {
+    color: #64748b;
+    font-size: 1.05rem;
+    margin: 14px auto 0;
+    max-width: 680px;
+  }
+  .course-card {
+    margin-top: 34px;
+    background: #fff;
+    border: 1px solid #dbe5ef;
+    border-radius: 8px;
+    box-shadow: 0 24px 54px rgba(15, 23, 42, .12);
+    overflow: hidden;
+  }
+  .course-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 28px;
+    border-bottom: 1px solid #edf2f7;
+  }
+  .course-card-head h3 {
+    color: #06132b;
+    font-size: 1.35rem;
+    font-weight: 900;
+    margin: 0;
+  }
+  .course-body {
+    padding: 30px;
+    background: linear-gradient(135deg, #111c2d 0%, #1e2b3d 100%);
+  }
+  .course-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, .8fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: stretch;
+  }
+  .course-media {
+    position: relative;
+    min-height: 330px;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0f172a;
+  }
+  .course-media img {
+    width: 100%;
+    height: 100%;
+    min-height: 330px;
+    object-fit: cover;
+    display: block;
+    filter: saturate(.9) contrast(1.05);
+  }
+  .course-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 45%, rgba(7, 18, 38, .76) 100%);
+  }
+  .course-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .course-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .course-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .92);
+    color: #142033;
+    font-size: .82rem;
+    font-weight: 900;
+  }
+  .course-info h4,
+  .course-info h5 {
+    color: #fff;
+    font-weight: 900;
+  }
+  .course-description {
+    color: #cbd5e1;
+    font-size: 1rem;
+    line-height: 1.75;
+    max-width: 780px;
+  }
+  .course-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0 28px;
+  }
+  .course-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 46px;
+    border-radius: 999px;
+    padding: 12px 20px;
+    border: 0;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+  }
+  .course-btn:hover {
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .course-btn--primary {
+    background: #f9c23c;
+    color: #101828;
+    box-shadow: 0 12px 24px rgba(249, 194, 60, .24);
+  }
+  .course-btn--primary:hover { color: #101828; }
+  .course-btn--secondary {
+    background: rgba(255, 255, 255, .1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .18);
+  }
+  .course-btn--secondary:hover {
+    color: #fff;
+    opacity: .9;
+  }
+  .course-content-list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .course-content-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .07);
+    color: #dbeafe;
+  }
+  .course-content-list i {
+    color: #f9c23c;
+    margin-top: 3px;
+  }
+  .course-empty {
+    color: #cbd5e1;
+    padding: 14px 16px;
+    border: 1px dashed rgba(255, 255, 255, .2);
+    border-radius: 8px;
+    margin: 0;
+  }
+  @media (max-width: 992px) {
+    .course-grid { grid-template-columns: 1fr; }
+    .course-media,
+    .course-media img { min-height: 260px; }
+  }
+  @media (max-width: 640px) {
+    .course-show-shell { padding: 36px 0 58px; }
+    .course-card-head { align-items: flex-start; flex-direction: column; padding: 20px; }
+    .course-body { padding: 20px; }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="course-show-shell">
+  <div class="container">
+    <div class="heading_container heading_center">
+      <div class="course-kicker">Course overview</div>
+      <h1 class="course-title">{{ course.title }}</h1>
+      <p class="course-lead">Discover the structure, lessons, and outcomes before you start learning.</p>
+    </div>
+
+    <article class="course-card">
+      <header class="course-card-head">
+        <h3>What you will learn</h3>
+        <a class="course-btn course-btn--secondary" href="{{ path('app_courses') }}">
+          <i class="fa fa-arrow-left" aria-hidden="true"></i>
+          Back to Courses
+        </a>
+      </header>
+
+      <div class="course-body">
+        <div class="course-grid">
+          <div class="course-media">
+            {% set thumb = course.thumbnailUrl|default('') %}
+            {% if thumb %}
+              {% set thumbSrc = (thumb starts with('http://') or thumb starts with('https://') or thumb starts with('/')) ? thumb : asset(thumb) %}
+              <img src="{{ thumbSrc }}" alt="{{ course.title|e }}" onerror="this.onerror=null;this.src='{{ asset('front/images/f1.png') }}';">
+            {% else %}
+              <img src="{{ asset('front/images/f1.png') }}" alt="{{ course.title|e }}">
+            {% endif %}
+          </div>
+
+          <div class="course-info">
+            <div class="course-chips">
+              <span class="course-chip"><i class="fa fa-layer-group" aria-hidden="true"></i>{{ sections|length }} sections</span>
+              <span class="course-chip"><i class="fa fa-play-circle" aria-hidden="true"></i>{{ totalVideos }} videos</span>
+              <span class="course-chip"><i class="fa fa-certificate" aria-hidden="true"></i>Certificate ready</span>
+            </div>
+
+            <h4 class="mb-2">About this course</h4>
+            <p class="course-description">{{ course.description }}</p>
+
+            <div class="course-actions">
+              <a class="course-btn course-btn--primary" href="{{ path('course_learn', {id: course.id}) }}">
+                <i class="fa fa-play" aria-hidden="true"></i>
+                Start Course
+              </a>
+              <a class="course-btn course-btn--secondary" href="{{ path('app_courses') }}">Cancel</a>
+            </div>
+
+            <h5 class="mb-3">Content</h5>
+            {% if sections is empty %}
+              <p class="course-empty">This course has no sections yet.</p>
+            {% else %}
+              <ul class="course-content-list">
+                {% for section in sections %}
+                  <li>
+                    <i class="fa fa-check-circle" aria-hidden="true"></i>
+                    <span>
+                      <strong>Section {{ section.orderIndex }}:</strong>
+                      {{ section.title }}
+                      <small class="d-block text-white-50">{{ section.courseVideos|length }} videos</small>
+                    </span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+{% endblock %}

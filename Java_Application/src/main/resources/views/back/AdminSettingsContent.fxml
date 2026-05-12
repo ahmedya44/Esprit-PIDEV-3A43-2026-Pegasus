@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.AdminSettingsController">
+    <VBox spacing="14.0" styleClass="admin-placeholder-card">
+        <Label text="Admin Session" styleClass="admin-panel-title" />
+        <Label text="Current signed-in administrator identity." wrapText="true" styleClass="admin-panel-copy" />
+        <GridPane hgap="18.0" vgap="12.0">
+            <Label text="Name" styleClass="admin-metric-label" GridPane.rowIndex="0" GridPane.columnIndex="0" />
+            <Label fx:id="adminNameLabel" text="-" styleClass="admin-user-name" GridPane.rowIndex="0" GridPane.columnIndex="1" />
+            <Label text="Email" styleClass="admin-metric-label" GridPane.rowIndex="1" GridPane.columnIndex="0" />
+            <Label fx:id="adminEmailLabel" text="-" styleClass="admin-user-name" GridPane.rowIndex="1" GridPane.columnIndex="1" />
+            <Label text="Status" styleClass="admin-metric-label" GridPane.rowIndex="2" GridPane.columnIndex="0" />
+            <Label fx:id="adminStatusLabel" text="-" styleClass="admin-user-name" GridPane.rowIndex="2" GridPane.columnIndex="1" />
+        </GridPane>
+    </VBox>
+</VBox>

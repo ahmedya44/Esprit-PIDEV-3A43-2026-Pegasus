@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+  <title>Add Section</title>
+
+  <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+  <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+  <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+
+  <style>
+    .form-shell { padding: 60px 0; }
+    .glass-card{ background: rgba(255,255,255,.92); border-radius: 22px; box-shadow: 0 12px 35px rgba(0,0,0,.10); border: 1px solid rgba(0,0,0,.06); overflow: hidden; }
+    .glass-head{ padding: 18px 22px; border-bottom: 1px solid rgba(0,0,0,.08); display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .glass-body{ padding: 22px; }
+    .btn-feane{ background:#ffbe33; border: none; color:#111; font-weight:900; border-radius: 14px; padding: 10px 16px; }
+    .btn-soft{ background:#2b2f33; border:none; color:#fff; font-weight:800; border-radius:14px; padding:10px 16px; }
+    .field-title{ font-weight:900; margin-bottom: 8px; }
+    .form-control{ border-radius: 14px !important; padding: 12px 14px; }
+  </style>
+</head>
+
+<body class="sub_page">
+
+  <div class="hero_area">
+    <div class="bg-box">
+      <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+    </div>
+    <header class="header_section">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg custom_nav-container ">
+          <a class="navbar-brand" href="{{ path('front_home') }}"><span>Pegasus</span></a>
+        </nav>
+      </div>
+    </header>
+  </div>
+
+  <section class="food_section layout_padding form-shell">
+    <div class="container">
+
+      <div class="glass-card">
+        <div class="glass-head">
+          <h3 class="h5 mb-0">Add Section - {{ course.title }}</h3>
+          <a class="btn-soft" href="{{ path('artist_courses_builder', {id: course.id}) }}">Back</a>
+        </div>
+
+        <div class="glass-body">
+          {{ form_start(form) }}
+
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="field-title">Section Title</div>
+              {{ form_row(form.title) }}
+            </div>
+
+            <div class="col-lg-4">
+              <div class="field-title">Order</div>
+              {{ form_row(form.orderIndex) }}
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button class="btn-feane" type="submit">Save</button>
+            <a class="btn-soft" href="{{ path('artist_courses_builder', {id: course.id}) }}">Cancel</a>
+          </div>
+
+          {{ form_end(form) }}
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+  <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+</body>
+</html>
+

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Basic -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- Site Metas -->
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link rel="shortcut icon" href="{{ asset('front/images/favicon.png') }}" type="">
+
+    <title>Pegasus - Participants pour {{ evenement.titre }}</title>
+
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="{{ asset('front/css/bootstrap.css') }}" />
+
+    <!-- font awesome style -->
+    <link href="{{ asset('front/css/font-awesome.min.css') }}" rel="stylesheet" />
+
+    <!-- Custom styles for this template -->
+    <link href="{{ asset('front/css/style.css') }}" rel="stylesheet" />
+    <!-- responsive style -->
+    <link href="{{ asset('front/css/responsive.css') }}" rel="stylesheet" />
+</head>
+
+<body class="sub_page">
+
+    <div class="hero_area">
+        <div class="bg-box">
+            <img src="{{ asset('front/images/hero-bg.jpg') }}" alt="">
+        </div>
+        <!-- header section strats -->
+        <header class="header_section">
+            <div class="container">
+                <nav class="navbar navbar-expand-lg custom_nav-container ">
+                    <a class="navbar-brand" href="{{ path('front_home') }}">
+                        <span>
+                            Pegasus
+                        </span>
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class=""> </span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mx-auto">
+              
+              
+              
+              
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('front_gallery') }}">Gallery</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ path('forum_index') }}">Forum</a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="{{ path('front_evenements_index') }}">Events</a>
+              </li>
+            </ul>
+            <div class="user_option">
+              {% if app.user %}
+                <a href="{{ path('front_profile') }}" class="user_link profile_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                  <span class="profile_name">{{ app.user.username }}</span>
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="user_link">
+                  <i class="fa fa-user" aria-hidden="true"></i>
+                </a>
+              {% endif %}
+              <a class="cart_link" href="#">
+                <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 456.029 456.029" style="enable-background:new 0 0 456.029 456.029;" xml:space="preserve">
+                  <g>
+                    <g>
+                      <path d="M345.6,338.862c-29.184,0-53.248,23.552-53.248,53.248c0,29.184,23.552,53.248,53.248,53.248
+                   c29.184,0,53.248-23.552,53.248-53.248C398.336,362.926,374.784,338.862,345.6,338.862z" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <path d="M439.296,84.91c-1.024,0-2.56-0.512-4.096-0.512H112.64l-5.12-34.304C104.448,27.566,84.992,10.67,61.952,10.67H20.48
+                   C9.216,10.67,0,19.886,0,31.15c0,11.264,9.216,20.48,20.48,20.48h41.472c2.56,0,4.608,2.048,5.12,4.608l31.744,216.064
+                   c4.096,27.136,27.648,47.616,55.296,47.616h212.992c26.624,0,49.664-18.944,55.296-45.056l33.28-166.4
+                   C457.728,97.71,450.56,86.958,439.296,84.91z" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <path d="M215.04,389.55c-1.024-28.16-24.576-50.688-52.736-50.688c-29.696,1.536-52.224,26.112-51.2,55.296
+                   c1.024,28.16,24.064,50.688,52.224,50.688h1.024C193.536,443.31,216.576,418.734,215.04,389.55z" />
+                    </g>
+                  </g>
+                </svg>
+              </a>
+              <form class="form-inline">
+                <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                </button>
+              </form>
+              {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="auth_btn auth_btn--danger">
+                  Logout
+                </a>
+              {% else %}
+                <a href="{{ path('app_login') }}" class="auth_btn auth_btn--outline">
+                  Sign In
+                </a>
+                <a href="{{ path('app_register') }}" class="auth_btn auth_btn--filled">
+                  Sign Up
+                </a>
+              {% endif %}
+              <a href="" class="order_online">
+                Order Online
+              </a>
+            </div>
+          </div>
+        </nav>
+            </div>
+        </header>
+        <!-- end header section -->
+    </div>
+
+    <!-- participants section -->
+    <section class="food_section glass-section layout_padding">
+        <div class="container">
+            <div class="heading_container heading_center mb-5">
+                <h2 class="neon-text">
+                    Liste des Participants
+                </h2>
+                <h3 class="text-warning mt-2">{{ evenement.titre }}</h3>
+                <p class="text-light opacity-75 mt-3">Gerez les inscriptions pour cet evenement.</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-10">
+                    <div class="premium-card p-4 shadow-sm">
+                        <div class="table-responsive">
+                            <table class="table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-warning text-uppercase" style="font-size: 12px; letter-spacing: 1px;">Email</th>
+                                        <th class="text-warning text-uppercase" style="font-size: 12px; letter-spacing: 1px;">Date d'inscription</th>
+                                        <th class="text-warning text-uppercase" style="font-size: 12px; letter-spacing: 1px;">Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% set participantsList = participations ?? [] %}
+                                    {% for participation in participantsList %}
+                                    <tr>
+                                        <td class="align-middle">
+                                            <div class="d-flex align-items-center">
+                                                <div class="mr-3" style="width: 40px; height: 40px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fa fa-user text-primary"></i>
+                                                </div>
+                                                <span class="font-weight-600">{{ participation.user.email }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="align-middle text-muted">
+                                            {{ participation.createdAt|date('d/m/Y H:i') }}
+                                        </td>
+                                        <td class="align-middle">
+                                            <span class="badge badge-pill badge-light p-2 px-3" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                                {% if 'ROLE_ARTISTE' in participation.user.roles %}
+                                                    Artiste
+                                                {% elseif 'ROLE_SPONSOR' in participation.user.roles %}
+                                                    Sponsor
+                                                {% elseif 'ROLE_ADMIN' in participation.user.roles %}
+                                                    Admin
+                                                {% else %}
+                                                    Utilisateur
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-5">
+                                            <i class="fa fa-users fa-3x text-light opacity-25 mb-3 d-block"></i>
+                                            <p class="text-muted">Aucun participant inscrit pour le moment.</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="{{ path('front_evenements_index') }}" class="btn btn-outline-secondary px-5" style="border-radius: 45px;">
+                    <i class="fa fa-arrow-left mr-2"></i> Retour à la liste
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- end participants section -->
+
+    <!-- footer section -->
+    <footer class="footer_section">
+        <div class="container">
+            <div class="footer-info">
+                <p>&copy; <span id="displayYear"></span> All Rights Reserved By <a href="https://html.design/">Free Html Templates</a></p>
+            </div>
+        </div>
+    </footer>
+    <!-- footer section -->
+
+    <!-- jQery -->
+    <script src="{{ asset('front/js/jquery-3.4.1.min.js') }}"></script>
+    <!-- bootstrap js -->
+    <script src="{{ asset('front/js/bootstrap.js') }}"></script>
+    <script>
+        document.getElementById('displayYear').innerHTML = new Date().getFullYear();
+    </script>
+
+    <style>
+        .custom-table {
+            border-collapse: separate;
+            border-spacing: 0 15px;
+        }
+        .custom-table thead th {
+            border: none;
+        }
+        .custom-table tbody tr {
+            background: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+        }
+        .custom-table tbody tr:hover {
+            transform: translateY(-2px);
+        }
+        .custom-table tbody td {
+            border: none;
+            padding: 1.5rem 1rem;
+        }
+        .custom-table tbody td:first-child {
+            border-top-left-radius: 15px;
+            border-bottom-left-radius: 15px;
+        }
+        .custom-table tbody td:last-child {
+            border-top-right-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+        .premium-btn {
+            background-color: #ffbe33;
+            color: #ffffff;
+            border-radius: 45px;
+            padding: 10px 45px;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-decoration: none !important;
+        }
+        .premium-btn:hover {
+            background-color: #e69c00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 190, 51, 0.4);
+            color: #ffffff;
+        }
+    </style>
+
+  <script src="{{ asset('front/js/custom.js') }}"></script>
+</body>
+
+</html>
+
+
+
+

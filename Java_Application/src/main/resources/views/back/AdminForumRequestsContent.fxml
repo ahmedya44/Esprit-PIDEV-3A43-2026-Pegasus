@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="18.0"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pegasus.controllers.back.AdminForumRequestsController">
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <Label text="Forum Post Requests" styleClass="admin-panel-title" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="Refresh" onAction="#refreshRequests" styleClass="admin-secondary-button" />
+    </HBox>
+    <Label fx:id="statusLabel" text="Loading requests..." styleClass="admin-page-subtitle" />
+    <HBox alignment="CENTER_LEFT" spacing="8.0">
+        <TextField fx:id="searchField" promptText="Search request title/content/author..." onAction="#refreshRequests" HBox.hgrow="ALWAYS" />
+        <ComboBox fx:id="requestTypeFilterBox" promptText="Type" onAction="#refreshRequests" />
+        <ComboBox fx:id="sortBox" promptText="Sort by" onAction="#refreshRequests" />
+    </HBox>
+    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="forum-cards-scroll">
+        <content>
+            <VBox fx:id="requestsContainer" spacing="12.0" />
+        </content>
+    </ScrollPane>
+</VBox>

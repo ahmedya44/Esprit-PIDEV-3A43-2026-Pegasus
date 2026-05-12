@@ -1,0 +1,134 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = 'gallery' %}
+
+{% block title %}Add Artwork{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .translate-status {
+    font-size: .9rem;
+    color: #6b7280;
+    min-height: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="forum-shell">
+  <div class="container">
+    <div class="forum-card" style="max-width: 900px; margin: 0 auto;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Add Artwork</h1>
+        <a href="{{ path('front_gallery') }}" class="btn btn-sm btn-outline-secondary">Back</a>
+      </div>
+
+      {{ form_start(form) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.description) }}
+        <div class="mb-3 d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="translate-art-btn">
+            Translate (FR -> EN)
+          </button>
+          <span id="translate-art-status" class="translate-status"></span>
+        </div>
+        {{ form_row(form.imageFile) }}
+        {% do form.isAiGenerated.setRendered() %}
+        {% do form.aiGeneratedImage.setRendered() %}
+        <div style="display:none;">
+          {{ form_widget(form.titleEn) }}
+          {{ form_widget(form.descriptionEn) }}
+        </div>
+        <div class="d-flex gap-2 justify-content-end">
+          <a href="{{ path('front_gallery') }}" class="btn btn-outline-dark">Cancel</a>
+          <button type="submit" class="btn btn-warning">Save</button>
+        </div>
+      {{ form_end(form) }}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (function () {
+    var translateBtn = document.getElementById('translate-art-btn');
+    var statusEl = document.getElementById('translate-art-status');
+    var titleFr = document.getElementById('art_title') || document.querySelector('input[name$="[title]"]');
+    var descFr = document.getElementById('art_description') || document.querySelector('textarea[name$="[description]"]');
+    var titleEn = document.getElementById('title-en') || document.querySelector('input[name$="[titleEn]"]');
+    var descEn = document.getElementById('description-en') || document.querySelector('textarea[name$="[descriptionEn]"]');
+
+    if (!translateBtn || !titleFr || !descFr || !titleEn || !descEn) {
+      return;
+    }
+
+    function setStatus(text, isError) {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.style.color = isError ? '#dc2626' : '#6b7280';
+    }
+
+    function translateText(text, sourceLang, targetLang) {
+      return fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          sourceLang: sourceLang,
+          targetLang: targetLang
+        })
+      })
+        .then(function (response) { return response.ok ? response.json() : null; })
+        .then(function (data) {
+          if (!data || data.error || !data.translatedText) {
+            throw new Error('translation_failed');
+          }
+          return data.translatedText;
+        });
+    }
+
+    translateBtn.addEventListener('click', function () {
+      var titleValue = String(titleFr.value || '').trim();
+      var descValue = String(descFr.value || '').trim();
+      if (!titleValue && !descValue) {
+        setStatus('Add title or description first.', true);
+        return;
+      }
+
+      translateBtn.disabled = true;
+      setStatus('Translating...', false);
+
+      var originalTitle = titleValue;
+      var originalDesc = descValue;
+
+      Promise.all([
+        titleValue ? translateText(titleValue, 'fr', 'en') : Promise.resolve(''),
+        descValue ? translateText(descValue, 'fr', 'en') : Promise.resolve('')
+      ])
+        .then(function (results) {
+          var translatedTitle = results[0] || '';
+          var translatedDesc = results[1] || '';
+
+          if (translatedTitle) {
+            titleEn.value = translatedTitle;
+            titleFr.value = translatedTitle;
+          }
+          if (translatedDesc) {
+            descEn.value = translatedDesc;
+            descFr.value = translatedDesc;
+          }
+
+          var changed = (translatedTitle && translatedTitle !== originalTitle) || (translatedDesc && translatedDesc !== originalDesc);
+          setStatus(changed ? 'Translation applied to fields.' : 'No visible change (text may already be English).', false);
+        })
+        .catch(function () {
+          setStatus('Translation failed. Please retry.', true);
+        })
+        .finally(function () {
+          translateBtn.disabled = false;
+        });
+    });
+  })();
+</script>
+{% endblock %}

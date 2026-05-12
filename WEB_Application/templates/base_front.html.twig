@@ -1,0 +1,14 @@
+{% extends 'front/layout.html.twig' %}
+
+{% set active_nav = active_nav|default('market') %}
+
+{% block body_class %}sub_page market_page{% endblock %}
+
+{% block extra_styles %}
+  <link href="{{ asset('front/css/front-enhance.css') }}" rel="stylesheet" />
+  {% block stylesheets %}{% endblock %}
+{% endblock %}
+
+{% block extra_scripts %}
+  {% block javascripts %}{% endblock %}
+{% endblock %}

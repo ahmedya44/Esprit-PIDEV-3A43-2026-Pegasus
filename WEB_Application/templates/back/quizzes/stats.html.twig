@@ -1,0 +1,25 @@
+{% extends 'back/layout.html.twig' %}
+
+{% block title %}Quiz Statistics{% endblock %}
+
+{% block body %}
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1">Quiz Statistics</h1>
+      <p class="text-muted mb-0">Overview of completion and performance.</p>
+    </div>
+    <a href="{{ path('admin_quizzes_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Total Quizzes</div><div class="h4 mb-0">{{ totalQuizzes|default(0) }}</div></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Total Attempts</div><div class="h4 mb-0">{{ totalAttempts|default(0) }}</div></div></div></div>
+    <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Average Score</div><div class="h4 mb-0">{{ averageScore|default(0)|number_format(1) }}%</div></div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-body text-muted">
+      Detailed charts can be displayed here when statistics datasets are available.
+    </div>
+  </div>
+{% endblock %}

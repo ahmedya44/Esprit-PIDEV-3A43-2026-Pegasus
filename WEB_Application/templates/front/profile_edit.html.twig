@@ -1,0 +1,144 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block title %}Pegasus | Edit Profile{% endblock %}
+{% set active_nav = 'home' %}
+
+{% block extra_styles %}
+  <style>
+    .edit-shell { background: linear-gradient(180deg, #f2f5fb 0%, #ffffff 100%); padding: 44px 0 72px; }
+    .edit-card { background: #fff; border: 1px solid #e5eaf7; border-radius: 16px; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08); padding: 22px; }
+    .edit-head h1 { font-family: "Poppins", sans-serif; font-size: 1.65rem; margin: 0; color: #17233a; font-weight: 700; }
+    .edit-head p { margin: 8px 0 0; color: #5f6f8a; font-size: 0.93rem; }
+    .flash { border-radius: 10px; padding: 10px 12px; font-size: 0.9rem; margin-top: 10px; }
+    .flash-success { background: #e7f9ec; color: #14532d; border: 1px solid #c8f0d6; }
+    .flash-danger { background: #ffe5e8; color: #7f1d2a; border: 1px solid #ffc7ce; }
+    .form-block { margin-top: 16px; }
+    .form-block label { font-size: 0.9rem; font-weight: 600; color: #22324d; margin-bottom: 6px; }
+    .form-control { border: 1px solid #d7deee; border-radius: 11px; padding: 10px 12px; background: #fbfcff; }
+    .form-control:focus { border-color: #7a92d6; box-shadow: 0 0 0 3px rgba(71, 102, 179, 0.15); background: #fff; }
+    .password-field { position: relative; }
+    .password-field .form-control { padding-right: 44px; }
+    .password-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: transparent; color: #6b7d9e; cursor: pointer; }
+    .ebtn { border-radius: 10px; padding: 9px 13px; font-weight: 600; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 8px; }
+    .ebtn--primary { background: #223d78; color: #fff; }
+    .ebtn--soft { background: #fff; border-color: #ccd6ec; color: #253451; }
+    .ebtn--dark { background: #152340; color: #fff; }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <section class="edit-shell">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-9">
+          <div class="edit-card">
+            <div class="edit-head">
+              <h1>Modify Profile</h1>
+              <p>Update your details and account security settings.</p>
+            </div>
+
+            {% for message in app.flashes('success') %}<div class="flash flash-success">{{ message }}</div>{% endfor %}
+            {% for message in app.flashes('danger') %}<div class="flash flash-danger">{{ message }}</div>{% endfor %}
+
+            <form method="post" action="{{ path('front_profile_update') }}" class="form-block" novalidate>
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_update') }}">
+
+              <div class="row">
+                <div class="col-md-6 form-group">
+                  <label>Username</label>
+                  <input type="text" name="username" class="form-control" value="{{ profile_user.username }}" required>
+                </div>
+                <div class="col-md-6 form-group">
+                  <label>Phone</label>
+                  <input type="text" name="phone" class="form-control" value="{{ profile_user.phone }}">
+                </div>
+              </div>
+
+              {% if role_key in ['admin', 'normal', 'artiste'] %}
+                <div class="form-group">
+                  <label>Birth Date</label>
+                  <input type="date" name="birthDate" class="form-control" value="{{ profile_user.birthDate ? profile_user.birthDate|date('Y-m-d') : '' }}">
+                </div>
+              {% endif %}
+
+              {% if role_key == 'artiste' %}
+                <div class="form-group"><label>Bio</label><textarea name="bio" class="form-control" rows="3">{{ profile_user.bio }}</textarea></div>
+                <div class="form-group"><label>Styles</label><input type="text" name="styles" class="form-control" value="{{ profile_user.styles }}"></div>
+                <div class="form-group"><label>Facebook</label><input type="url" name="facebook" class="form-control" value="{{ profile_user.facebook }}"></div>
+                <div class="form-group"><label>Instagram</label><input type="url" name="instagram" class="form-control" value="{{ profile_user.instagram }}"></div>
+                <div class="form-group"><label>Portfolio URL</label><input type="url" name="portfolioUrl" class="form-control" value="{{ profile_user.portfolioUrl }}"></div>
+              {% endif %}
+
+              {% if role_key == 'sponsor' %}
+                <div class="form-group"><label>Company Name</label><input type="text" name="companyName" class="form-control" value="{{ profile_user.companyName }}" required></div>
+                <div class="form-group"><label>Website</label><input type="url" name="website" class="form-control" value="{{ profile_user.website }}"></div>
+                <div class="form-group"><label>Address</label><input type="text" name="address" class="form-control" value="{{ profile_user.address }}"></div>
+                <div class="form-group"><label>Description</label><textarea name="description" class="form-control" rows="3">{{ profile_user.description }}</textarea></div>
+              {% endif %}
+
+              <div style="display:flex; gap:10px; margin-top:8px; flex-wrap:wrap;">
+                <button type="submit" class="ebtn ebtn--primary">Save Changes</button>
+                <a href="{{ path('front_profile') }}" class="ebtn ebtn--soft">Cancel</a>
+              </div>
+            </form>
+
+            <hr style="margin: 24px 0;">
+
+            <h2 style="font-family:'Poppins',sans-serif; font-size:1.15rem; color:#1f2f4d;">Change Password</h2>
+            <form method="post" action="{{ path('front_profile_change_password') }}" class="form-block" novalidate>
+              <input type="hidden" name="_csrf_token" value="{{ csrf_token('change_password') }}">
+
+              <div class="form-group">
+                <label>Current Password</label>
+                <div class="password-field">
+                  <input type="password" name="currentPassword" class="form-control js-password-input" required>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>New Password</label>
+                <div class="password-field">
+                  <input type="password" name="newPassword" class="form-control js-password-input" required>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <div class="password-field">
+                  <input type="password" name="confirmPassword" class="form-control js-password-input" required>
+                  <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                </div>
+              </div>
+
+              <button type="submit" class="ebtn ebtn--dark">Change Password</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    document.querySelectorAll('.js-password-toggle').forEach(function (toggleButton) {
+      toggleButton.addEventListener('click', function () {
+        var passwordInput = toggleButton.parentElement.querySelector('.js-password-input');
+        var icon = toggleButton.querySelector('i');
+        if (!passwordInput || !icon) return;
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+  </script>
+{% endblock %}

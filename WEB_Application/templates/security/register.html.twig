@@ -1,0 +1,288 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block title %}Pegasus | Sign Up {{ selected_role_label is defined ? '(' ~ selected_role_label ~ ')' : '' }}{% endblock %}
+
+{% block extra_styles %}
+  <style>
+    .auth-shell {
+      background: linear-gradient(180deg, #f2f5fb 0%, #ffffff 100%);
+      padding: 44px 0 72px;
+    }
+    .auth-wrap {
+      max-width: 620px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #e5eaf7;
+      border-radius: 18px;
+      box-shadow: 0 20px 44px rgba(15, 23, 42, 0.1);
+      padding: 28px;
+    }
+    .auth-head h1 {
+      font-family: "Poppins", sans-serif;
+      font-size: 1.7rem;
+      margin: 0;
+      color: #17233a;
+      font-weight: 700;
+    }
+    .auth-head p {
+      margin: 8px 0 0;
+      color: #5f6f8a;
+      font-size: 0.95rem;
+    }
+    .auth-form { margin-top: 18px; }
+    .auth-field { margin-bottom: 14px; }
+    .auth-field label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #22324d;
+      margin-bottom: 7px;
+    }
+    .auth-input, .auth-form .form-control {
+      width: 100%;
+      border: 1px solid #d7deee;
+      border-radius: 11px;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: #fbfcff;
+      color: #1e293b;
+      box-sizing: border-box;
+    }
+    .auth-input:focus, .auth-form .form-control:focus {
+      outline: none;
+      border-color: #7a92d6;
+      box-shadow: 0 0 0 3px rgba(71, 102, 179, 0.15);
+      background: #ffffff;
+    }
+    .password-shell { position: relative; }
+    .password-shell .auth-input, .password-shell .form-control { padding-right: 44px; }
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #6b7d9e;
+      cursor: pointer;
+    }
+    .auth-btn {
+      width: 100%;
+      border-radius: 11px;
+      padding: 11px 12px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-btn--primary { background: #223d78; color: #ffffff; }
+    .auth-btn--soft { background: #ffffff; border-color: #c8d3ea; color: #1e2d4d; margin-top: 10px; }
+    .auth-link-row {
+      margin-top: 14px;
+      text-align: center;
+      color: #667793;
+      font-size: 0.9rem;
+    }
+    .auth-link-row a { font-weight: 600; }
+    .auth-alert {
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      background: #ffe5e8;
+      color: #7f1d2a;
+      border: 1px solid #ffc7ce;
+    }
+    .form-error {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: #a1162f;
+    }
+    .required-star { color: #b9102a; }
+    .muted-note {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: #6f809e;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <section class="auth-shell">
+    <div class="container">
+      <div class="auth-wrap">
+        <div class="auth-head">
+          <h1>Create {{ selected_role_label is defined ? selected_role_label : 'User' }} Account</h1>
+          <p>Set up your Pegasus profile and continue to verification.</p>
+        </div>
+
+        {% if selected_role is defined %}
+          <div class="auth-link-row" style="text-align:left;margin-top:10px;">
+            <a href="{{ path('app_register') }}">Change account type</a>
+          </div>
+        {% endif %}
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'auth-form'}}) }}
+          {% if form_errors(form) %}
+            <div class="auth-alert">{{ form_errors(form) }}</div>
+          {% endif %}
+
+          <div class="auth-field">
+            <label for="{{ form.email.vars.id }}">Email<span class="required-star">*</span></label>
+            {{ form_widget(form.email, {'attr': {'class': 'auth-input', 'placeholder': 'Enter your email'}}) }}
+            {% if form_errors(form.email) %}<div class="form-error">{{ form_errors(form.email) }}</div>{% endif %}
+          </div>
+
+          <div class="auth-field">
+            <label for="{{ form.username.vars.id }}">Username<span class="required-star">*</span></label>
+            {{ form_widget(form.username, {'attr': {'class': 'auth-input', 'placeholder': 'Choose a username'}}) }}
+            {% if form_errors(form.username) %}<div class="form-error">{{ form_errors(form.username) }}</div>{% endif %}
+          </div>
+
+          <div class="auth-field">
+            <label for="{{ form.plainPassword.first.vars.id }}">Password<span class="required-star">*</span></label>
+            <div class="password-shell">
+              {{ form_widget(form.plainPassword.first, {'attr': {'class': 'auth-input js-password-input', 'placeholder': 'Enter a password'}}) }}
+              <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password"><i class="fa fa-eye" aria-hidden="true"></i></button>
+            </div>
+            {% if form_errors(form.plainPassword.first) %}<div class="form-error">{{ form_errors(form.plainPassword.first) }}</div>{% endif %}
+            <div class="muted-note">Password must be at least 6 characters.</div>
+          </div>
+
+          <div class="auth-field">
+            <label for="{{ form.plainPassword.second.vars.id }}">Confirm password<span class="required-star">*</span></label>
+            <div class="password-shell">
+              {{ form_widget(form.plainPassword.second, {'attr': {'class': 'auth-input js-password-input', 'placeholder': 'Confirm your password'}}) }}
+              <button type="button" class="password-toggle js-password-toggle" aria-label="Show or hide password"><i class="fa fa-eye" aria-hidden="true"></i></button>
+            </div>
+            {% if form_errors(form.plainPassword.second) %}<div class="form-error">{{ form_errors(form.plainPassword.second) }}</div>{% endif %}
+            {% if form_errors(form.plainPassword) %}<div class="form-error">{{ form_errors(form.plainPassword) }}</div>{% endif %}
+          </div>
+
+          <div class="auth-field">
+            {{ form_label(form.phone, 'Phone (optional)') }}
+            {{ form_widget(form.phone, {'attr': {'class': 'auth-input', 'placeholder': 'Enter your phone number'}}) }}
+            {% if form_errors(form.phone) %}<div class="form-error">{{ form_errors(form.phone) }}</div>{% endif %}
+          </div>
+
+          {% if form.birthDate is defined %}
+            <div class="auth-field">
+              {{ form_label(form.birthDate, 'Birth date (optional)') }}
+              {{ form_widget(form.birthDate, {'attr': {'class': 'auth-input'}}) }}
+              {% if form_errors(form.birthDate) %}<div class="form-error">{{ form_errors(form.birthDate) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.companyName is defined %}
+            <div class="auth-field">
+              <label for="{{ form.companyName.vars.id }}">Company name<span class="required-star">*</span></label>
+              {{ form_widget(form.companyName, {'attr': {'class': 'auth-input', 'placeholder': 'Enter your company name'}}) }}
+              {% if form_errors(form.companyName) %}<div class="form-error">{{ form_errors(form.companyName) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.website is defined %}
+            <div class="auth-field">
+              {{ form_label(form.website, 'Website (optional)') }}
+              {{ form_widget(form.website, {'attr': {'class': 'auth-input', 'placeholder': 'https://example.com'}}) }}
+              {% if form_errors(form.website) %}<div class="form-error">{{ form_errors(form.website) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.address is defined %}
+            <div class="auth-field">
+              {{ form_label(form.address, 'Address (optional)') }}
+              {{ form_widget(form.address, {'attr': {'class': 'auth-input', 'placeholder': 'Enter your address'}}) }}
+              {% if form_errors(form.address) %}<div class="form-error">{{ form_errors(form.address) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.description is defined %}
+            <div class="auth-field">
+              {{ form_label(form.description, 'Description (optional)') }}
+              {{ form_widget(form.description, {'attr': {'class': 'auth-input', 'placeholder': 'Tell us about your brand'}}) }}
+              {% if form_errors(form.description) %}<div class="form-error">{{ form_errors(form.description) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.bio is defined %}
+            <div class="auth-field">
+              {{ form_label(form.bio, 'Bio (optional)') }}
+              {{ form_widget(form.bio, {'attr': {'class': 'auth-input', 'placeholder': 'Tell us about yourself'}}) }}
+              {% if form_errors(form.bio) %}<div class="form-error">{{ form_errors(form.bio) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.styles is defined %}
+            <div class="auth-field">
+              {{ form_label(form.styles, 'Styles (optional)') }}
+              {{ form_widget(form.styles, {'attr': {'class': 'auth-input', 'placeholder': 'e.g. Pop, Jazz, Electro'}}) }}
+              {% if form_errors(form.styles) %}<div class="form-error">{{ form_errors(form.styles) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.facebook is defined %}
+            <div class="auth-field">
+              {{ form_label(form.facebook, 'Facebook URL (optional)') }}
+              {{ form_widget(form.facebook, {'attr': {'class': 'auth-input', 'placeholder': 'https://facebook.com/your-page'}}) }}
+              {% if form_errors(form.facebook) %}<div class="form-error">{{ form_errors(form.facebook) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.instagram is defined %}
+            <div class="auth-field">
+              {{ form_label(form.instagram, 'Instagram URL (optional)') }}
+              {{ form_widget(form.instagram, {'attr': {'class': 'auth-input', 'placeholder': 'https://instagram.com/your-account'}}) }}
+              {% if form_errors(form.instagram) %}<div class="form-error">{{ form_errors(form.instagram) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          {% if form.portfolioUrl is defined %}
+            <div class="auth-field">
+              {{ form_label(form.portfolioUrl, 'Portfolio URL (optional)') }}
+              {{ form_widget(form.portfolioUrl, {'attr': {'class': 'auth-input', 'placeholder': 'https://your-portfolio.com'}}) }}
+              {% if form_errors(form.portfolioUrl) %}<div class="form-error">{{ form_errors(form.portfolioUrl) }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          <button type="submit" class="auth-btn auth-btn--primary">Sign Up</button>
+        {{ form_end(form) }}
+
+        <a href="{{ path('app_connect_google_start') }}" class="auth-btn auth-btn--soft">
+          <i class="fa fa-google" aria-hidden="true"></i>
+          Sign Up with Google
+        </a>
+
+        <div class="auth-link-row">Already have an account? <a href="{{ path('app_login') }}">Sign In</a></div>
+        <div class="auth-link-row" style="font-size:0.8rem;">After account creation, you can add Face ID/Passkey from your profile page.</div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    document.querySelectorAll('.js-password-toggle').forEach(function (toggleButton) {
+      toggleButton.addEventListener('click', function () {
+        var passwordInput = toggleButton.parentElement.querySelector('.js-password-input');
+        var icon = toggleButton.querySelector('i');
+        if (!passwordInput || !icon) {
+          return;
+        }
+
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'back/layout.html.twig' %}
+{% block title %}Forum Requests — Admin{% endblock %}
+
+{% block extra_styles %}
+<style>
+  .req-card { background:#fff; border:1px solid #e5eaf5; border-radius:14px; box-shadow:0 4px 14px rgba(15,23,42,.07); padding:18px; margin-bottom:16px; }
+  .req-title { font-size:1.05rem; font-weight:700; color:#111827; margin:0 0 4px; }
+  .req-meta { font-size:.82rem; color:#6b7280; }
+  .badge-create { background:#d1fae5; color:#065f46; border-radius:999px; padding:3px 10px; font-size:.75rem; font-weight:700; }
+  .badge-edit { background:#dbeafe; color:#1e40af; border-radius:999px; padding:3px 10px; font-size:.75rem; font-weight:700; }
+  .btn-accept { background:#059669; color:#fff; border:none; border-radius:20px; padding:7px 18px; font-weight:700; font-size:.85rem; cursor:pointer; }
+  .btn-accept:hover { background:#047857; }
+  .btn-deny { background:#dc2626; color:#fff; border:none; border-radius:20px; padding:7px 18px; font-weight:700; font-size:.85rem; cursor:pointer; }
+  .btn-deny:hover { background:#b91c1c; }
+  .filter-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:999px; font-size:.83rem; font-weight:600; text-decoration:none; border:1px solid #dbe5ef; color:#374151; background:#fff; transition:background .15s; }
+  .filter-pill.active, .filter-pill:hover { background:#f9c23c; border-color:#f9c23c; color:#111; text-decoration:none; }
+  .post-content-preview { color:#374151; font-size:.88rem; line-height:1.5; margin-top:8px; }
+  .post-image-preview { border-radius:10px; max-height:160px; object-fit:cover; border:1px solid #dbe5ef; margin-top:8px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-inner">
+  <div class="page-header mb-4">
+    <h4 class="page-title">Forum Post Requests</h4>
+    <ul class="breadcrumbs">
+      <li class="nav-home"><a href="{{ path('back_dashboard') }}"><i class="fas fa-home"></i></a></li>
+      <li class="separator"><i class="fas fa-chevron-right"></i></li>
+      <li class="nav-item"><a href="{{ path('admin_forum_index') }}">Forum</a></li>
+      <li class="separator"><i class="fas fa-chevron-right"></i></li>
+      <li class="nav-item active">Requests</li>
+    </ul>
+  </div>
+
+  {% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible">{{ message }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>
+  {% endfor %}
+  {% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible">{{ message }}<button type="button" class="close" data-dismiss="alert">&times;</button></div>
+  {% endfor %}
+
+  <div class="d-flex gap-2 flex-wrap mb-4">
+    <a href="{{ path('admin_forum_requests') }}" class="filter-pill {{ requestType == '' ? 'active' : '' }}">All <span class="badge badge-secondary ml-1">{{ counts.all }}</span></a>
+    <a href="{{ path('admin_forum_requests', {type: 'CREATE'}) }}" class="filter-pill {{ requestType == 'CREATE' ? 'active' : '' }}"><i class="fa fa-plus-circle"></i> New Posts <span class="badge badge-secondary ml-1">{{ counts.create }}</span></a>
+    <a href="{{ path('admin_forum_requests', {type: 'EDIT'}) }}" class="filter-pill {{ requestType == 'EDIT' ? 'active' : '' }}"><i class="fa fa-pencil"></i> Edits <span class="badge badge-secondary ml-1">{{ counts.edit }}</span></a>
+  </div>
+
+  {% if posts|length == 0 %}
+    <div class="card"><div class="card-body text-center text-muted py-5"><i class="fa fa-check-circle fa-3x mb-3 d-block" style="color:#059669;"></i>No pending requests. All clear!</div></div>
+  {% else %}
+    {% for post in posts %}
+      <div class="req-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="flex-grow-1">
+            <p class="req-title">{{ post.title }}</p>
+            <div class="req-meta">
+              By <strong>{{ post.authorName }}</strong> ({{ post.authorEmail }})
+              &nbsp;&middot;&nbsp;
+              Submitted {{ post.createdAt|date('d M Y, H:i') }}
+              {% if post.updatedAt %}
+                &nbsp;&middot;&nbsp;Edited {{ post.updatedAt|date('d M Y, H:i') }}
+              {% endif %}
+            </div>
+          </div>
+          <div class="ml-3 flex-shrink-0">
+            {% if post.requestType == 'CREATE' %}
+              <span class="badge-create"><i class="fa fa-plus mr-1"></i>New Post</span>
+            {% elseif post.requestType == 'EDIT' %}
+              <span class="badge-edit"><i class="fa fa-pencil mr-1"></i>Edit Request</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% set cleanContent = post.content|striptags|replace({'&nbsp;': ' '})|trim %}
+        {% if cleanContent %}
+          <div class="post-content-preview">{{ cleanContent|slice(0, 300) }}{% if cleanContent|length > 300 %}...{% endif %}</div>
+        {% endif %}
+
+        {% if post.imageName %}
+          <img src="{{ vich_uploader_asset(post, 'imageFile') }}" alt="{{ post.title }}" class="post-image-preview">
+        {% endif %}
+
+        <div class="d-flex gap-2 mt-3 flex-wrap align-items-center">
+          <form method="post" action="{{ path('admin_forum_request_accept', {id: post.id}) }}" style="margin:0;">
+            <input type="hidden" name="_token" value="{{ csrf_token('forum_request_' ~ post.id) }}">
+            <button type="submit" class="btn-accept"><i class="fa fa-check mr-1"></i>Approve &amp; Publish</button>
+          </form>
+          <form method="post" action="{{ path('admin_forum_request_deny', {id: post.id}) }}" style="margin:0;" onsubmit="return confirm('Deny this post request?')">
+            <input type="hidden" name="_token" value="{{ csrf_token('forum_request_' ~ post.id) }}">
+            <button type="submit" class="btn-deny"><i class="fa fa-times mr-1"></i>Deny</button>
+          </form>
+          <a href="{{ path('forum_show', {id: post.id}) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Preview <i class="fa fa-external-link ml-1"></i></a>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+{% endblock %}

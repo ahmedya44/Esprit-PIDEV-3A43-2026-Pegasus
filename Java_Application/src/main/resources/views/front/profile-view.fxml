@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" spacing="28.0" styleClass="app-root" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.pegasus.controllers.front.HomeController">
+    <children>
+        <HBox alignment="CENTER_LEFT" spacing="28.0" styleClass="top-nav">
+            <children>
+                <Label styleClass="brand-label" text="Pegasus" />
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox styleClass="nav-center" HBox.hgrow="ALWAYS">
+                    <children>
+                        <Button mnemonicParsing="false" onAction="#onGoToHome" styleClass="secondary-button" text="Home" />
+                        <Button mnemonicParsing="false" onAction="#onGoToGallery" styleClass="secondary-button" text="Gallery" />
+                        <Button mnemonicParsing="false" onAction="#onGoToCourses" styleClass="secondary-button" text="Courses" />
+                        <Button mnemonicParsing="false" onAction="#onGoToEvents" styleClass="secondary-button" text="Events" />
+                        <Button mnemonicParsing="false" onAction="#onGoToProduit" styleClass="secondary-button" text="Products" />
+                        <Button mnemonicParsing="false" onAction="#onGoToForum" styleClass="secondary-button" text="Forum" />
+                    </children>
+                </HBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox styleClass="nav-actions">
+                    <children>
+                        <Button fx:id="navCoursesDashboardButton" managed="false" mnemonicParsing="false" onAction="#onGoToCoursesDashboard" styleClass="secondary-button" text="Courses Dashboard" visible="false" />
+                        <Label styleClass="nav-link active-link" text="Profile" />
+                        <Button fx:id="navAuthButton" mnemonicParsing="false" onAction="#onGoToSignIn" styleClass="gold-button" text="Sign In" />
+                        <MenuButton fx:id="navAccountMenu" managed="false" mnemonicParsing="false" styleClass="account-menu-button" text="👤" visible="false">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#onGoToProfile" text="Profile" />
+                                <MenuItem mnemonicParsing="false" onAction="#onLogout" text="Log Out" />
+                            </items>
+                        </MenuButton>
+                    </children>
+                </HBox>
+            </children>
+        </HBox>
+
+        <VBox alignment="TOP_CENTER" spacing="16.0">
+            <padding>
+                <Insets bottom="40.0" left="20.0" right="20.0" top="40.0" />
+            </padding>
+            <children>
+                <Label styleClass="hero-title" text="Your Profile" />
+                <Label fx:id="userStatusLabel" styleClass="subtitle" text="You are not connected." />
+
+                <VBox fx:id="profileBox" alignment="CENTER" managed="false" spacing="8.0" styleClass="section-card" visible="false">
+                    <children>
+                        <StackPane alignment="TOP_RIGHT" maxWidth="96.0" prefWidth="96.0">
+                            <children>
+                                <ImageView fx:id="profileImageView" fitHeight="96.0" fitWidth="96.0" managed="false" pickOnBounds="true" preserveRatio="true" styleClass="profile-image" visible="false" />
+                                <Button fx:id="expandProfileButton" managed="false" mnemonicParsing="false" onAction="#onExpandProfileImage" styleClass="expand-avatar-button" text="Zoom" visible="false" />
+                            </children>
+                        </StackPane>
+                        <Label fx:id="profileImageHintLabel" styleClass="subtitle" text="No profile picture" />
+                    </children>
+                </VBox>
+
+                <HBox alignment="CENTER" spacing="12.0">
+                    <children>
+                        <Button fx:id="editProfileButton" managed="false" mnemonicParsing="false" onAction="#onGoToEditProfile" prefWidth="170.0" styleClass="secondary-button" text="Edit Profile" visible="false" />
+                        <Button fx:id="roleRequestButton" managed="false" mnemonicParsing="false" onAction="#onGoToRoleRequest" prefWidth="220.0" styleClass="secondary-button" text="Request Role Change" visible="false" />
+                        <Button fx:id="roleRequestHistoryButton" managed="false" mnemonicParsing="false" onAction="#onGoToRoleRequestHistory" prefWidth="220.0" styleClass="secondary-button" text="Role Request History" visible="false" />
+                        <Button fx:id="logoutButton" managed="false" mnemonicParsing="false" onAction="#onLogout" prefWidth="170.0" styleClass="ghost-button" text="Log Out" visible="false" />
+                    </children>
+                </HBox>
+
+                <VBox fx:id="adminUsersBox" alignment="CENTER" managed="false" spacing="12.0" styleClass="section-card" visible="false">
+                    <children>
+                        <Label styleClass="section-title" text="All Users (Admin)" />
+                        <HBox alignment="CENTER" spacing="10.0">
+                            <children>
+                                <TextField fx:id="searchField" onAction="#onSearchUsers" prefWidth="240.0" promptText="Search user..." styleClass="input-field" />
+                                <Button fx:id="voiceSearchButton" mnemonicParsing="false" onAction="#onVoiceSearchUsers" styleClass="secondary-button" text="Voice Search" />
+                                <ComboBox fx:id="sortByCombo" onAction="#onSortUsers" prefWidth="150.0" />
+                                <ComboBox fx:id="sortOrderCombo" onAction="#onSortUsers" prefWidth="150.0" />
+                                <Button mnemonicParsing="false" onAction="#onResetUsersFilter" styleClass="secondary-button" text="Reset" />
+                            </children>
+                        </HBox>
+
+                        <TableView fx:id="usersTable" prefHeight="360.0" prefWidth="940.0" styleClass="users-table">
+                            <columns>
+                                <TableColumn fx:id="colUsername" prefWidth="220.0" text="Username" />
+                                <TableColumn fx:id="colEmail" prefWidth="430.0" text="Email" />
+                                <TableColumn fx:id="colRole" prefWidth="130.0" text="Role" />
+                                <TableColumn fx:id="colStatus" prefWidth="140.0" text="Status" />
+                            </columns>
+                        </TableView>
+
+                        <HBox alignment="CENTER" spacing="10.0">
+                            <children>
+                                <Label styleClass="form-label" text="New Status" />
+                                <ComboBox fx:id="statusUpdateCombo" prefWidth="180.0" />
+                                <Button fx:id="applyStatusButton" mnemonicParsing="false" onAction="#onChangeSelectedUserStatus" styleClass="gold-button" text="Change Status" />
+                                <Button mnemonicParsing="false" onAction="#onExportUsersPdf" styleClass="secondary-button" text="Export PDF" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </children>
+</VBox>

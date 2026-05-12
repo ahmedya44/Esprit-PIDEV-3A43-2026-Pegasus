@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #fff; color: #17233a; }
+
+  .ticket {
+    width: 100%;
+    border: 3px solid #f4b844;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .ticket-header {
+    background: #1f2937;
+    color: #f4b844;
+    padding: 14px 20px;
+    display: table;
+    width: 100%;
+  }
+
+  .ticket-header-left {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .ticket-header-right {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right;
+  }
+
+  .platform { font-size: 22px; font-weight: bold; letter-spacing: 4px; text-transform: uppercase; }
+  .platform-sub { font-size: 9px; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin-top: 2px; }
+  .event-label { font-size: 9px; letter-spacing: 2px; color: #aaa; text-transform: uppercase; }
+  .event-name { font-size: 16px; font-weight: bold; color: #f4b844; max-width: 240px; }
+
+  .ticket-body {
+    padding: 18px 20px;
+    display: table;
+    width: 100%;
+  }
+
+  .info-col {
+    display: table-cell;
+    width: 65%;
+    vertical-align: top;
+    padding-right: 16px;
+    border-right: 2px dashed #e5eaf7;
+  }
+
+  .code-col {
+    display: table-cell;
+    width: 35%;
+    vertical-align: middle;
+    text-align: center;
+    padding-left: 16px;
+  }
+
+  .info-row { margin-bottom: 10px; }
+  .info-label { font-size: 8px; text-transform: uppercase; letter-spacing: 2px; color: #999; }
+  .info-value { font-size: 13px; font-weight: bold; color: #17233a; margin-top: 2px; }
+
+  .conf-code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: #17233a;
+    background: #f4f7fd;
+    border: 2px solid #e5eaf7;
+    border-radius: 8px;
+    padding: 12px 8px;
+    margin: 8px auto;
+    text-align: center;
+  }
+
+  .conf-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #999; }
+
+  .ticket-footer {
+    background: #f4b844;
+    color: #1f2937;
+    text-align: center;
+    padding: 8px 20px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="ticket">
+  <div class="ticket-header">
+    <div class="ticket-header-left">
+      <div class="platform">Pegasus</div>
+      <div class="platform-sub">Event Ticket</div>
+    </div>
+    <div class="ticket-header-right">
+      <div class="event-label">Event</div>
+      <div class="event-name">{{ event.titre }}</div>
+    </div>
+  </div>
+
+  <div class="ticket-body">
+    <div class="info-col">
+      <div class="info-row">
+        <div class="info-label">Participant</div>
+        <div class="info-value">{{ user.username }}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Email</div>
+        <div class="info-value" style="font-size:11px;">{{ user.email }}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Date</div>
+        <div class="info-value">{{ event.date ? event.date|date('d M Y') : '—' }}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Time</div>
+        <div class="info-value">{{ event.heure ? event.heure|date('H:i') : '—' }}</div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Location</div>
+        <div class="info-value">{{ event.lieu }}</div>
+      </div>
+      {% if event.prix %}
+      <div class="info-row">
+        <div class="info-label">Price paid</div>
+        <div class="info-value">{{ event.prix }} DT</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="code-col">
+      <div class="conf-label">Confirmation Code</div>
+      <div class="conf-code">{{ code }}</div>
+      <div style="font-size:10px; color:#888; margin-top:6px;">Present this code at the venue</div>
+    </div>
+  </div>
+
+  <div class="ticket-footer">Valid for one entry &bull; Pegasus Art Platform</div>
+</div>
+</body>
+</html>
