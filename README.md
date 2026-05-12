@@ -28,6 +28,9 @@ Support and promotion for artistic initiatives and collaborations.
 ### 👤 User Management
 Secure authentication system and user profile management.
 
+### 💬 Community Forum
+A moderated space where users can share thoughts and interact. comments are reviewed and approved by admins, ensuring a safe and respectful community.
+
 ---
 
 ## Tech Stack
