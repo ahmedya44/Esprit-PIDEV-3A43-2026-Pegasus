@@ -14,9 +14,12 @@ public class MyConnection {
 
     public static Connection getConnection() {
         try {
+            // fail fast if DB is unreachable to avoid blocking the JavaFX thread
+            DriverManager.setLoginTimeout(5); // seconds
             return DriverManager.getConnection(URL, USER, PASSWORD);
         } catch (SQLException e) {
             System.out.println("DB ERROR: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
@@ -24,8 +27,9 @@ public class MyConnection {
     private static String buildDefaultUrl() {
         String host = EnvLoader.getOrDefault("PEGASUS_DB_HOST", "localhost");
         String port = EnvLoader.getOrDefault("PEGASUS_DB_PORT", "3306");
-        String database = EnvLoader.getOrDefault("PEGASUS_DB_NAME", "pegasus");
+        String database = EnvLoader.getOrDefault("PEGASUS_DB_NAME", "pegasus_new");
         return "jdbc:mysql://" + host + ":" + port + "/" + database
-                + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+            + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+            + "&connectTimeout=5000&socketTimeout=5000";
     }
 }

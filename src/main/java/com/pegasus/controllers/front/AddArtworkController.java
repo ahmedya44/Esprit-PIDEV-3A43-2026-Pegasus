@@ -2,6 +2,7 @@ package com.pegasus.controllers.front;
 
 import com.pegasus.entities.Art;
 import com.pegasus.services.ServiceArt;
+import com.pegasus.utils.ArtValidator;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -44,8 +45,8 @@ public class AddArtworkController {
     private ServiceArt serviceArt = new ServiceArt();
     private Stage dialogStage;
     
-    private static final int MAX_TITLE_LENGTH = 100;
-    private static final int MAX_DESCRIPTION_LENGTH = 500;
+    private static final int MAX_TITLE_LENGTH = ArtValidator.MAX_TITLE_LENGTH;
+    private static final int MAX_DESCRIPTION_LENGTH = ArtValidator.MAX_DESCRIPTION_LENGTH;
     
     @FXML
     public void initialize() {
@@ -165,82 +166,42 @@ public class AddArtworkController {
     }
     
     private boolean validateTitle() {
-        String title = titleField.getText().trim();
-        
-        if (title.isEmpty()) {
-            showError(titleError, "Le titre est obligatoire");
+        String error = ArtValidator.validateTitle(titleField.getText());
+        if (error != null) {
+            showError(titleError, error);
             return false;
         }
-        
-        if (title.length() > MAX_TITLE_LENGTH) {
-            showError(titleError, "Le titre ne doit pas dépasser " + MAX_TITLE_LENGTH + " caractères");
-            return false;
-        }
-        
-        if (title.length() < 3) {
-            showError(titleError, "Le titre doit contenir au moins 3 caractères");
-            return false;
-        }
-        
         hideError(titleError);
         return true;
     }
-    
+
     private boolean validateDescription() {
-        String description = descriptionArea.getText().trim();
-        
-        if (description.isEmpty()) {
-            showError(descriptionError, "La description est obligatoire");
+        String error = ArtValidator.validateDescription(descriptionArea.getText());
+        if (error != null) {
+            showError(descriptionError, error);
             return false;
         }
-        
-        if (description.length() > MAX_DESCRIPTION_LENGTH) {
-            showError(descriptionError, "La description ne doit pas dépasser " + MAX_DESCRIPTION_LENGTH + " caractères");
-            return false;
-        }
-        
-        if (description.length() < 10) {
-            showError(descriptionError, "La description doit contenir au moins 10 caractères");
-            return false;
-        }
-        
         hideError(descriptionError);
         return true;
     }
-    
+
     private boolean validateImageUrl() {
-        String imageUrl = imageUrlField.getText().trim();
-        
-        if (imageUrl.isEmpty()) {
-            showError(imageError, "L'URL de l'image est obligatoire");
+        String error = ArtValidator.validateImageUrl(imageUrlField.getText());
+        if (error != null) {
+            showError(imageError, error);
             return false;
         }
-        
-        // Basic URL validation
-        if (!isValidUrl(imageUrl)) {
-            showError(imageError, "Veuillez entrer une URL valide (ex: https://example.com/image.jpg)");
-            return false;
-        }
-        
         hideError(imageError);
         return true;
     }
-    
-    private boolean isValidUrl(String url) {
-        try {
-            new URL(url);
-            return url.startsWith("http://") || url.startsWith("https://");
-        } catch (Exception e) {
-            return false;
-        }
-    }
-    
+
     private Art createArtworkFromForm() {
         Art artwork = new Art();
         artwork.setTitle(titleField.getText().trim());
         artwork.setDescription(descriptionArea.getText().trim());
         artwork.setImageUrl(imageUrlField.getText().trim());
-        artwork.setStatus("published"); // PUBLIÉ directement pour affichage immédiat
+        artwork.setArtist("Artiste inconnu");
+        artwork.setStatus("published");
         artwork.setCreatedAt(LocalDateTime.now());
         return artwork;
     }

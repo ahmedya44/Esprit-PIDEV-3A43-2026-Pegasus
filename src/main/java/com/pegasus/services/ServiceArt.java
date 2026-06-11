@@ -2,6 +2,7 @@ package com.pegasus.services;
 
 import com.pegasus.entities.Art;
 import com.pegasus.tools.dbConnection;
+import com.pegasus.utils.ArtValidator;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -33,6 +34,12 @@ public class ServiceArt {
     }
     
     public boolean createArt(Art art) {
+        String validationError = ArtValidator.validateArt(art);
+        if (validationError != null) {
+            System.err.println("Artwork validation failed: " + validationError);
+            return false;
+        }
+
         String sql = "INSERT INTO art (title, description, image_url, status, created_at, artist) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = dbConnection.getConnection()) {

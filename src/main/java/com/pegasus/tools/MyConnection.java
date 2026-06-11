@@ -38,7 +38,7 @@ public class MyConnection {
     private static String buildDefaultUrl() {
         String host = EnvLoader.getOrDefault("PEGASUS_DB_HOST", "localhost");
         String port = EnvLoader.getOrDefault("PEGASUS_DB_PORT", "3306");
-        String database = EnvLoader.getOrDefault("PEGASUS_DB_NAME", "pegasus");
+        String database = EnvLoader.getOrDefault("PEGASUS_DB_NAME", "pegasus_new");
         return "jdbc:mysql://" + host + ":" + port + "/" + database
                 + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     }

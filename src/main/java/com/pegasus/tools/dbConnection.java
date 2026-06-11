@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public final class dbConnection {
-    private static final String DB_NAME = EnvLoader.getOrDefault("PEGASUS_DB_NAME", "pegasus");
+    private static final String DB_NAME = EnvLoader.getOrDefault("PEGASUS_DB_NAME", "pegasus_new");
     private static final String DB_HOST = EnvLoader.getOrDefault("PEGASUS_DB_HOST", "127.0.0.1");
     private static final String DB_PORT = EnvLoader.getOrDefault("PEGASUS_DB_PORT", "3306");
     private static final String DB_USER = EnvLoader.getOrDefault("PEGASUS_DB_USER", "root");

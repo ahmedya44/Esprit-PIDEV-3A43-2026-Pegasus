@@ -3,6 +3,7 @@ package com.pegasus.controllers.front;
 import com.pegasus.controllers.SceneNavigator;
 import com.pegasus.controllers.EventsRoleRouter;
 import com.pegasus.entities.Art;
+import com.pegasus.entities.ArtRecommendation;
 import com.pegasus.entities.User;
 import com.pegasus.services.RecommendationService;
 import com.pegasus.services.ServiceArt;
@@ -12,6 +13,10 @@ import com.pegasus.services.ServiceArtLike;
 import com.pegasus.services.QuotesService;
 import com.pegasus.services.ArtistsService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import java.io.IOException;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -42,6 +47,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import com.pegasus.utils.ArtValidator;
 
 public class MenuController {
     
@@ -505,29 +511,86 @@ public class MenuController {
     private void showSuggestionsDialog(Art art) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Suggestions pour : " + art.getTitle());
-        dialog.setHeaderText("Oeuvres similaires ou recommandees");
-        VBox content = new VBox(10);
+        dialog.setHeaderText("Oeuvres recommandees selon l'artiste, le theme et les likes");
+        VBox content = new VBox(12);
         content.setPadding(new Insets(20));
-        
+        content.setPrefWidth(520);
+
         try {
-            List<Art> recommendations = recommendationService.getSimilarArtworks(art.getId(), 4);
+            List<ArtRecommendation> recommendations = recommendationService.getRecommendations(art.getId(), 4);
             if (recommendations == null || recommendations.isEmpty()) {
                 content.getChildren().add(new Label("Aucune suggestion disponible pour le moment."));
             } else {
-                for (Art rec : recommendations) {
-                    Label recLabel = new Label("- " + rec.getTitle() + " - " + rec.getArtist());
-                    recLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #333;");
-                    content.getChildren().add(recLabel);
+                for (ArtRecommendation recommendation : recommendations) {
+                    content.getChildren().add(createRecommendationRow(recommendation));
                 }
             }
         } catch (Exception e) {
             content.getChildren().add(new Label("Erreur lors du chargement des suggestions."));
             System.err.println("Erreur suggestions: " + e.getMessage());
         }
-        
+
         dialog.getDialogPane().setContent(content);
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         dialog.showAndWait();
+    }
+
+    private HBox createRecommendationRow(ArtRecommendation recommendation) {
+        Art rec = recommendation.getArtwork();
+
+        ImageView thumbnail = new ImageView();
+        thumbnail.setFitWidth(56);
+        thumbnail.setFitHeight(56);
+        thumbnail.setPreserveRatio(true);
+        if (rec.getImageUrl() != null && !rec.getImageUrl().isBlank()) {
+            Image image = new Image(rec.getImageUrl(), true);
+            if (!image.isError()) {
+                thumbnail.setImage(image);
+            }
+        }
+
+        Label titleLabel = new Label(rec.getTitle());
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1f2937;");
+
+        String artist = rec.getArtist() == null || rec.getArtist().isBlank() ? "Artiste inconnu" : rec.getArtist();
+        Label metaLabel = new Label(artist + " • " + rec.getLikes() + " likes");
+        metaLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #6b7280;");
+
+        Label reasonLabel = new Label(recommendation.getReason()
+                + (recommendation.getMatchPercent() > 0 ? " (" + recommendation.getMatchPercent() + "%)" : ""));
+        reasonLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #2563eb; -fx-font-style: italic;");
+
+        VBox textBox = new VBox(4, titleLabel, metaLabel, reasonLabel);
+
+        Button openButton = new Button("Voir");
+        openButton.getStyleClass().add("secondary-button");
+        openButton.setOnAction(e -> openArtDetail(rec));
+
+        HBox row = new HBox(12, thumbnail, textBox, openButton);
+        row.setAlignment(Pos.CENTER_LEFT);
+        row.setStyle("-fx-background-color: #f8fafc; -fx-background-radius: 10; -fx-padding: 10;");
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+        return row;
+    }
+
+    private void openArtDetail(Art art) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/front/art-detail-view.fxml"));
+            Parent root = loader.load();
+            ArtDetailController controller = loader.getController();
+            controller.setArt(art);
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Details - " + art.getTitle());
+            stage.show();
+        } catch (IOException e) {
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Erreur");
+            errorAlert.setHeaderText("Impossible d'ouvrir l'oeuvre");
+            errorAlert.setContentText(e.getMessage());
+            errorAlert.showAndWait();
+        }
     }
     
     private void showEditDialog(Art art) {
@@ -863,7 +926,13 @@ public class MenuController {
                 return;
             }
             String commentText = commentArea.getText().trim();
-            if (commentText.isEmpty()) {
+            String validationError = ArtValidator.validateComment(commentText);
+            if (validationError != null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Controle de saisie");
+                alert.setHeaderText(null);
+                alert.setContentText(validationError);
+                alert.showAndWait();
                 return;
             }
             if (commentService.addComment(art.getId(), username, commentText)) {
@@ -1021,7 +1090,7 @@ public class MenuController {
         editDialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButton) {
                 String newContent = editArea.getText().trim();
-                return newContent.isEmpty() ? null : newContent;
+                return ArtValidator.validateComment(newContent) == null ? newContent : null;
             }
             return null;
         });
@@ -1103,7 +1172,7 @@ public class MenuController {
                     return null;
                 }
                 String reply = replyArea.getText().trim();
-                if (!reply.isEmpty()) {
+                if (ArtValidator.validateComment(reply) == null) {
                     return "@" + parentComment.getUsername() + ": " + reply;
                 }
             }
@@ -1164,14 +1233,23 @@ public class MenuController {
         submitButton.setOnAction(e -> {
             String username = usernameField.getText().trim();
             String commentText = commentArea.getText().trim();
-            
-            if (!username.isEmpty() && !commentText.isEmpty()) {
-                if (commentService.addComment(art.getId(), username, commentText)) {
-                    usernameField.clear();
-                    commentArea.clear();
-                    List<ServiceArtComment.Comment> updatedComments = commentService.getCommentsByArtId(art.getId());
-                    displayComments(updatedComments, commentsContainer, art);
-                }
+            String usernameError = username.isEmpty() ? "Le nom est obligatoire." : null;
+            String commentError = ArtValidator.validateComment(commentText);
+
+            if (usernameError != null || commentError != null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Controle de saisie");
+                alert.setHeaderText(null);
+                alert.setContentText(usernameError != null ? usernameError : commentError);
+                alert.showAndWait();
+                return;
+            }
+
+            if (commentService.addComment(art.getId(), username, commentText)) {
+                usernameField.clear();
+                commentArea.clear();
+                List<ServiceArtComment.Comment> updatedComments = commentService.getCommentsByArtId(art.getId());
+                displayComments(updatedComments, commentsContainer, art);
             }
         });
         
@@ -1928,7 +2006,7 @@ public class MenuController {
         
         // Champ pour l'URL de l'image
         TextField imageField = new TextField();
-        imageField.setPromptText("URL de l'image (optionnel)");
+        imageField.setPromptText("https://example.com/image.jpg");
         imageField.setStyle("-fx-background-color: #f7fafc; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-padding: 10px;");
         
         // Champ pour l'artiste
@@ -1937,10 +2015,10 @@ public class MenuController {
         artistField.setStyle("-fx-background-color: #f7fafc; -fx-border-color: #cbd5e0; -fx-border-radius: 8; -fx-padding: 10px;");
         
         content.getChildren().addAll(
-            new Label("Titre:"), titleField,
-            new Label("Description:"), descriptionArea,
-            new Label("URL de l'image:"), imageField,
-            new Label("Artiste:"), artistField
+            new Label("Titre *"), titleField,
+            new Label("Description *"), descriptionArea,
+            new Label("URL de l'image *"), imageField,
+            new Label("Artiste *"), artistField
         );
         
         addDialog.getDialogPane().setContent(content);
@@ -1948,35 +2026,55 @@ public class MenuController {
         ButtonType addButtonType = new ButtonType("Ajouter", ButtonBar.ButtonData.OK_DONE);
         ButtonType cancelButtonType = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
         addDialog.getDialogPane().getButtonTypes().addAll(addButtonType, cancelButtonType);
-        
+
+        Button addButton = (Button) addDialog.getDialogPane().lookupButton(addButtonType);
+        addButton.setDisable(true);
+
+        Runnable refreshValidation = () -> {
+            boolean valid = ArtValidator.validateTitle(titleField.getText()) == null
+                    && ArtValidator.validateDescription(descriptionArea.getText()) == null
+                    && ArtValidator.validateImageUrl(imageField.getText()) == null
+                    && ArtValidator.validateArtist(artistField.getText()) == null;
+            addButton.setDisable(!valid);
+        };
+        titleField.textProperty().addListener((obs, oldVal, newVal) -> refreshValidation.run());
+        descriptionArea.textProperty().addListener((obs, oldVal, newVal) -> refreshValidation.run());
+        imageField.textProperty().addListener((obs, oldVal, newVal) -> refreshValidation.run());
+        artistField.textProperty().addListener((obs, oldVal, newVal) -> refreshValidation.run());
+
         addDialog.setResultConverter(dialogButton -> {
-            if (dialogButton == addButtonType) {
-                String title = titleField.getText().trim();
-                String description = descriptionArea.getText().trim();
-                String imageUrl = imageField.getText().trim();
-                String artist = artistField.getText().trim();
-                
-                if (!title.isEmpty() && !description.isEmpty()) {
-                    // CrÃƒÆ’Ã‚Â©er une nouvelle Ãƒâ€¦Ã¢â‚¬Å“uvre avec statut "pending"
-                    Art newArt = new Art();
-                    newArt.setTitle(title);
-                    newArt.setDescription(description);
-                    newArt.setImageUrl(imageUrl.isEmpty() ? null : imageUrl);
-                    newArt.setArtist(artist.isEmpty() ? "Artiste inconnu" : artist); // Nom de l'artiste
-                    newArt.setStatus("pending"); // En attente de validation admin
-                    newArt.setCreatedAt(java.time.LocalDateTime.now());
-                    
-                    // Afficher la confirmation
-                    showConfirmationDialog(newArt);
-                    return null; // Ne pas retourner l'Ãƒâ€¦Ã¢â‚¬Å“uvre directement
-                }
+            if (dialogButton != addButtonType) {
+                return null;
             }
+
+            String validationError = ArtValidator.validateArtwork(
+                    titleField.getText(),
+                    descriptionArea.getText(),
+                    imageField.getText(),
+                    artistField.getText()
+            );
+            if (validationError != null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Controle de saisie");
+                alert.setHeaderText("Formulaire incomplet ou invalide");
+                alert.setContentText(validationError);
+                alert.showAndWait();
+                return null;
+            }
+
+            Art newArt = new Art();
+            newArt.setTitle(titleField.getText().trim());
+            newArt.setDescription(descriptionArea.getText().trim());
+            newArt.setImageUrl(imageField.getText().trim());
+            newArt.setArtist(artistField.getText().trim());
+            newArt.setStatus("pending");
+            newArt.setCreatedAt(java.time.LocalDateTime.now());
+            showConfirmationDialog(newArt);
             return null;
         });
-        
+
         addDialog.showAndWait();
     }
-    
     private void showConfirmationDialog(Art art) {
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmationAlert.setTitle("Confirmation de publication");

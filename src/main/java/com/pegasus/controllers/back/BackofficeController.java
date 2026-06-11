@@ -4,6 +4,7 @@ import com.pegasus.controllers.SceneNavigator;
 import com.pegasus.entities.Art;
 import com.pegasus.services.ServiceArt;
 import com.pegasus.tools.dbConnection;
+import com.pegasus.utils.ArtValidator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 
 public class BackofficeController {
 
@@ -35,6 +37,10 @@ public class BackofficeController {
     @FXML
     private TableColumn<Art, Void> colActions;
     @FXML
+    private ComboBox<String> searchCriteriaFilter;
+    @FXML
+    private TextField searchField;
+    @FXML
     private ComboBox<String> statusFilter;
     @FXML
     private Label statusLabel;
@@ -46,6 +52,14 @@ public class BackofficeController {
     public void initialize() {
         serviceArt = new ServiceArt();
         artworksList = FXCollections.observableArrayList();
+
+        searchCriteriaFilter.getItems().addAll("Titre", "Description");
+        searchCriteriaFilter.setValue("Titre");
+        searchCriteriaFilter.setOnAction(e -> filterArtworks());
+
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, oldValue, newValue) -> filterArtworks());
+        }
 
         statusFilter.getItems().addAll("Tous", "En attente", "Publie", "Rejete");
         statusFilter.setValue("Tous");
@@ -179,7 +193,6 @@ public class BackofficeController {
             List<Art> artworks = serviceArt.getAllArts();
             artworksList.setAll(artworks);
             artworksTable.refresh();
-            statusLabel.setText("Total: " + artworks.size() + " oeuvre(s)");
             filterArtworks();
         } catch (SQLException e) {
             statusLabel.setText("Erreur de connexion: " + e.getMessage());
@@ -188,21 +201,31 @@ public class BackofficeController {
         }
     }
 
-    private void filterArtworks() {
-        String filter = statusFilter.getValue();
-        if (filter == null || "Tous".equals(filter)) {
-            artworksTable.setItems(artworksList);
-            return;
+    @FXML
+    public void clearSearch() {
+        if (searchField != null) {
+            searchField.clear();
         }
+        filterArtworks();
+    }
 
-        String statusKey = switch (filter) {
-            case "En attente" -> "pending";
-            case "Publie" -> "published";
-            case "Rejete" -> "rejected";
-            default -> "";
-        };
+    private void filterArtworks() {
+        String query = normalize(searchField == null ? null : searchField.getText());
+        String criteria = searchCriteriaFilter == null ? "Titre" : searchCriteriaFilter.getValue();
+        String statusFilterValue = statusFilter.getValue();
+
+        final String statusKey = resolveStatusKey(statusFilterValue);
 
         ObservableList<Art> filtered = artworksList.filtered(art -> {
+            boolean matchesSearch = query.isEmpty() || matchesSearchCriteria(art, criteria, query);
+            if (!matchesSearch) {
+                return false;
+            }
+
+            if (statusKey.isEmpty()) {
+                return true;
+            }
+
             String status = art.getStatus() == null ? "" : art.getStatus().trim().toLowerCase();
             if ("published".equals(statusKey)) {
                 return status.equals("published") || status.equals("active") || status.equals("approved");
@@ -211,9 +234,39 @@ public class BackofficeController {
         });
 
         artworksTable.setItems(filtered);
+        statusLabel.setText(filtered.size() + " / " + artworksList.size() + " oeuvre(s)");
+    }
+
+    private String resolveStatusKey(String statusFilterValue) {
+        if (statusFilterValue == null || "Tous".equals(statusFilterValue)) {
+            return "";
+        }
+        return switch (statusFilterValue) {
+            case "En attente" -> "pending";
+            case "Publie" -> "published";
+            case "Rejete" -> "rejected";
+            default -> "";
+        };
+    }
+
+    private boolean matchesSearchCriteria(Art art, String criteria, String query) {
+        String fieldValue = "Description".equals(criteria)
+                ? art.getDescription()
+                : art.getTitle();
+        return normalize(fieldValue).contains(query);
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
     }
 
     private void publishArt(Art art) {
+        String validationError = ArtValidator.validateArt(art);
+        if (validationError != null) {
+            showAlert("Controle de saisie", "Impossible de publier cette oeuvre : " + validationError);
+            return;
+        }
+
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Publier l'oeuvre");
         confirm.setHeaderText("Voulez-vous publier cette oeuvre ?");

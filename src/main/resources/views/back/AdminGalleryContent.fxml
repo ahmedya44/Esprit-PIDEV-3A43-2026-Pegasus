@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -15,6 +16,10 @@
       fx:controller="com.pegasus.controllers.back.BackofficeController">
     <HBox alignment="CENTER_LEFT" spacing="12.0" styleClass="admin-toolbar">
         <Label text="Artwork Review Queue" styleClass="admin-panel-title" />
+        <Label text="Search by" styleClass="admin-muted-label" />
+        <ComboBox fx:id="searchCriteriaFilter" prefWidth="140.0" styleClass="admin-combo" />
+        <TextField fx:id="searchField" promptText="Enter keyword..." prefWidth="220.0" styleClass="admin-search-field" />
+        <Button text="Clear" onAction="#clearSearch" styleClass="admin-secondary-button" />
         <Region HBox.hgrow="ALWAYS" />
         <Label text="Status" styleClass="admin-muted-label" />
         <ComboBox fx:id="statusFilter" prefWidth="170.0" styleClass="admin-combo" />

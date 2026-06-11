@@ -4,6 +4,7 @@ import com.pegasus.controllers.SceneNavigator;
 import com.pegasus.entities.Art;
 import com.pegasus.services.ServiceArt;
 import com.pegasus.tools.dbConnection;
+import com.pegasus.utils.ArtValidator;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -120,6 +121,13 @@ public class BackofficeSimpleController {
 
     private void updateStatus(Art art, String newStatus) {
         try {
+            if ("published".equals(newStatus)) {
+                String validationError = ArtValidator.validateArt(art);
+                if (validationError != null) {
+                    statusLabel.setText("Publication impossible : " + validationError);
+                    return;
+                }
+            }
             art.setStatus(newStatus);
             if (serviceArt.updateArt(art)) {
                 refreshTable();

@@ -2,12 +2,17 @@ package com.pegasus.controllers.front;
 
 import com.pegasus.controllers.SceneNavigator;
 import com.pegasus.entities.Art;
+import com.pegasus.entities.ArtRecommendation;
 import com.pegasus.services.QuotesService;
 import com.pegasus.services.RecommendationService;
 import com.pegasus.services.ServiceArt;
 import com.pegasus.services.ServiceArtLike;
 import com.pegasus.services.SpotifyService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -16,6 +21,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -111,29 +117,73 @@ public class ArtDetailController {
         if (recommendationsTilePane == null || currentArt == null) return;
         recommendationsTilePane.getChildren().clear();
         try {
-            List<Art> recommendations = recommendationService.getSimilarArtworks(currentArt.getId(), 8);
+            List<ArtRecommendation> recommendations = recommendationService.getRecommendations(currentArt.getId(), 8);
             if (recommendations == null || recommendations.isEmpty()) {
                 recommendationsTilePane.getChildren().add(new Label("Aucune recommandation disponible"));
                 return;
             }
-            for (Art art : recommendations) {
-                if (art.getId() == currentArt.getId()) continue;
-                recommendationsTilePane.getChildren().add(createRecommendationCard(art));
+            for (ArtRecommendation recommendation : recommendations) {
+                if (recommendation.getArtwork().getId() == currentArt.getId()) continue;
+                recommendationsTilePane.getChildren().add(createRecommendationCard(recommendation));
             }
         } catch (Exception e) {
             recommendationsTilePane.getChildren().add(new Label("Erreur lors du chargement des recommandations"));
         }
     }
 
-    private VBox createRecommendationCard(Art art) {
+    private VBox createRecommendationCard(ArtRecommendation recommendation) {
+        Art art = recommendation.getArtwork();
         VBox card = new VBox(8);
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12;");
-        card.getChildren().addAll(
-                new Label(art.getTitle()),
-                new Label(art.getArtist() == null ? "Artiste inconnu" : art.getArtist()),
-                new Label(art.getLikes() + " likes")
-        );
+        card.setAlignment(Pos.TOP_LEFT);
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 12; -fx-cursor: hand;");
+        card.setPrefWidth(180);
+
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(150);
+        imageView.setFitHeight(90);
+        imageView.setPreserveRatio(true);
+        if (art.getImageUrl() != null && !art.getImageUrl().isBlank()) {
+            Image image = new Image(art.getImageUrl(), true);
+            if (!image.isError()) {
+                imageView.setImage(image);
+            }
+        }
+
+        Label titleLabel = new Label(art.getTitle());
+        titleLabel.setStyle("-fx-font-weight: bold; -fx-wrap-text: true;");
+
+        Label artistLabel = new Label(art.getArtist() == null ? "Artiste inconnu" : art.getArtist());
+        artistLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 11px;");
+
+        String reasonText = recommendation.getReason();
+        if (recommendation.getMatchPercent() > 0) {
+            reasonText += " (" + recommendation.getMatchPercent() + "%)";
+        }
+        Label reasonLabel = new Label(reasonText);
+        reasonLabel.setStyle("-fx-text-fill: #2563eb; -fx-font-size: 10px; -fx-wrap-text: true;");
+
+        Label likesLabel = new Label(art.getLikes() + " likes");
+        likesLabel.setStyle("-fx-text-fill: #374151; -fx-font-size: 11px;");
+
+        card.getChildren().addAll(imageView, titleLabel, artistLabel, reasonLabel, likesLabel);
+        card.setOnMouseClicked(e -> openRecommendationDetail(art));
         return card;
+    }
+
+    private void openRecommendationDetail(Art art) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/front/art-detail-view.fxml"));
+            Parent root = loader.load();
+            ArtDetailController controller = loader.getController();
+            controller.setArt(art);
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Details - " + art.getTitle());
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible d'ouvrir cette oeuvre.", Alert.AlertType.ERROR);
+        }
     }
 
     @FXML

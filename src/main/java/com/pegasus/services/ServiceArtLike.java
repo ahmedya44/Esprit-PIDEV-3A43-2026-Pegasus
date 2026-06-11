@@ -219,6 +219,34 @@ public class ServiceArtLike {
         }
     }
     
+    public java.util.Map<Integer, Integer> getCoLikedArtCounts(int artId) {
+        java.util.Map<Integer, Integer> counts = new java.util.HashMap<>();
+        String sql = """
+            SELECT al2.art_id, COUNT(*) AS co_count
+            FROM art_like al1
+            JOIN art_like al2 ON al1.session_id = al2.session_id AND al1.art_id <> al2.art_id
+            WHERE al1.art_id = ?
+            GROUP BY al2.art_id
+            ORDER BY co_count DESC
+            """;
+
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, artId);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                counts.put(rs.getInt("art_id"), rs.getInt("co_count"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error getting co-liked arts: " + e.getMessage());
+        }
+
+        return counts;
+    }
+
     public List<Integer> getMostLikedArts(int limit) {
         List<Integer> artIds = new ArrayList<>();
         String sql = "SELECT art_id, COUNT(*) as like_count FROM art_like " +

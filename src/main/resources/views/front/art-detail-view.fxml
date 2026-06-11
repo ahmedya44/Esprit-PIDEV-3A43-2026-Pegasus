@@ -69,7 +69,7 @@
 
         <VBox spacing="10" styleClass="section-card" VBox.vgrow="ALWAYS">
             <children>
-                <Label text="Similar artworks" styleClass="workspace-title" />
+                <Label text="Oeuvres recommandees" styleClass="workspace-title" />
                 <ScrollPane prefHeight="210" fitToWidth="true" styleClass="gallery-scroll">
                     <content><TilePane fx:id="recommendationsTilePane" hgap="15" vgap="15" prefColumns="4" alignment="TOP_CENTER" /></content>
                 </ScrollPane>

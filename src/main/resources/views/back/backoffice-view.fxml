@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -26,7 +27,11 @@
 
       <HBox alignment="CENTER_LEFT" spacing="10" styleClass="section-card">
          <children>
-            <Label text="Filtrer par statut" styleClass="subtitle" />
+            <Label text="Rechercher par" styleClass="subtitle" />
+            <ComboBox fx:id="searchCriteriaFilter" prefWidth="140" />
+            <TextField fx:id="searchField" promptText="Saisir un mot-cle..." prefWidth="220" />
+            <Button text="Effacer" styleClass="chip-button" onAction="#clearSearch" />
+            <Label text="Statut" styleClass="subtitle" />
             <ComboBox fx:id="statusFilter" prefWidth="170" />
             <Button fx:id="refreshButton" text="Actualiser" styleClass="secondary-button" onAction="#refreshTable" />
          </children>
