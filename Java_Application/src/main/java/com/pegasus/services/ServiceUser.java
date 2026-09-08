@@ -458,12 +458,18 @@ public class ServiceUser implements IService<User> {
         String raw = rawPassword.trim();
         String stored = storedPassword.trim();
         if (isBcryptHash(stored)) {
-            try {
-                return BCrypt.checkpw(raw, stored);
-            } catch (Exception e) {
-                return false;
-            }
+    try {
+        String normalized = stored;
+
+        if (normalized.startsWith("$2y$")) {
+            normalized = "$2a$" + normalized.substring(4);
         }
+
+        return BCrypt.checkpw(raw, normalized);
+    } catch (Exception e) {
+        return false;
+    }
+}
         // Legacy plain-text fallback (for existing old rows created before hashing).
         return raw.equals(stored);
     }

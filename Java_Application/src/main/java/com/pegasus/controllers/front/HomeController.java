@@ -509,7 +509,8 @@ public class HomeController {
         String source = resolvePreviewImageSource(imageSource);
         if (source != null) {
             try {
-                ImageView imageView = new ImageView(new Image(source, HOME_CARD_WIDTH, HOME_IMAGE_HEIGHT, false, true, true));
+                Image image = new Image(source, HOME_CARD_WIDTH, HOME_IMAGE_HEIGHT, false, true, false);
+ImageView imageView = new ImageView(image);
                 imageView.setFitWidth(HOME_CARD_WIDTH);
                 imageView.setFitHeight(HOME_IMAGE_HEIGHT);
                 imageView.setPreserveRatio(false);

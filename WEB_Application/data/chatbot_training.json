@@ -1296,6 +1296,221 @@
             "category": "definition"
         },
         {
+            "input": "qu'est ce que l'art",
+            "output": "L'art est une expression humaine de la cr\u00e9ativit\u00e9 \u00e0 travers diverses formes visuelles, sonores ou conceptuelles.",
+            "category": "definition"
+        },
+        {
+            "input": "definition de l'art",
+            "output": "L'art est une expression humaine de la cr\u00e9ativit\u00e9 \u00e0 travers diverses formes visuelles, sonores ou conceptuelles.",
+            "category": "definition"
+        },
+        {
+            "input": "qui est picasso",
+            "output": "Pablo Picasso (1881-1973) est le cofondateur du cubisme, artiste prolifique du 20\u00e8me si\u00e8cle avec des \u0153uvres comme Guernica et Les Demoiselles d'Avignon.",
+            "category": "artist"
+        },
+        {
+            "input": "picasso",
+            "output": "Pablo Picasso (1881-1973) est le cofondateur du cubisme, artiste prolifique du 20\u00e8me si\u00e8cle avec des \u0153uvres comme Guernica et Les Demoiselles d'Avignon.",
+            "category": "artist"
+        },
+        {
+            "input": "qu'est ce que l'impressionnisme",
+            "output": "L'impressionnisme est un style du 19\u00e8me si\u00e8cle avec des coups de pinceau visibles et des jeux de lumi\u00e8re. Artistes c\u00e9l\u00e8bres : Monet, Renoir, Degas.",
+            "category": "style"
+        },
+        {
+            "input": "impressionnisme",
+            "output": "L'impressionnisme est un style du 19\u00e8me si\u00e8cle avec des coups de pinceau visibles et des jeux de lumi\u00e8re. Artistes c\u00e9l\u00e8bres : Monet, Renoir, Degas.",
+            "category": "style"
+        },
+        {
+            "input": "comment peindre \u00e0 l'huile",
+            "output": "La peinture \u00e0 l'huile utilise des pigments m\u00e9lang\u00e9s \u00e0 l'huile, avec un s\u00e9chage lent mais tr\u00e8s durable. Technique utilis\u00e9e depuis le Moyen \u00c2ge.",
+            "category": "technique"
+        },
+        {
+            "input": "peinture \u00e0 l'huile",
+            "output": "La peinture \u00e0 l'huile utilise des pigments m\u00e9lang\u00e9s \u00e0 l'huile, avec un s\u00e9chage lent mais tr\u00e8s durable. Technique utilis\u00e9e depuis le Moyen \u00c2ge.",
+            "category": "technique"
+        },
+        {
+            "input": "qu'est ce que la composition",
+            "output": "La composition est l'organisation des \u00e9l\u00e9ments visuels dans une \u0153uvre pour cr\u00e9er un ensemble harmonieux et \u00e9quilibr\u00e9.",
+            "category": "concept"
+        },
+        {
+            "input": "composition",
+            "output": "La composition est l'organisation des \u00e9l\u00e9ments visuels dans une \u0153uvre pour cr\u00e9er un ensemble harmonieux et \u00e9quilibr\u00e9.",
+            "category": "concept"
+        },
+        {
+            "input": "qui est van gogh",
+            "output": "Vincent van Gogh (1853-1890) est un post-impressionniste connu pour ses coups de pinceau \u00e9motionnels comme Les Tournesols et La Nuit \u00e9toil\u00e9e.",
+            "category": "artist"
+        },
+        {
+            "input": "van gogh",
+            "output": "Vincent van Gogh (1853-1890) est un post-impressionniste connu pour ses coups de pinceau \u00e9motionnels comme Les Tournesols et La Nuit \u00e9toil\u00e9e.",
+            "category": "artist"
+        },
+        {
+            "input": "qu'est ce que le cubisme",
+            "output": "Le cubisme d\u00e9compose les sujets en formes g\u00e9om\u00e9triques, cr\u00e9\u00e9 par Picasso et Braque au d\u00e9but du 20\u00e8me si\u00e8cle.",
+            "category": "style"
+        },
+        {
+            "input": "cubisme",
+            "output": "Le cubisme d\u00e9compose les sujets en formes g\u00e9om\u00e9triques, cr\u00e9\u00e9 par Picasso et Braque au d\u00e9but du 20\u00e8me si\u00e8cle.",
+            "category": "style"
+        },
+        {
+            "input": "qu'est ce que la perspective",
+            "output": "La perspective est une technique donnant illusion de profondeur sur une surface 2D, invent\u00e9e \u00e0 la Renaissance par Brunelleschi.",
+            "category": "concept"
+        },
+        {
+            "input": "perspective",
+            "output": "La perspective est une technique donnant illusion de profondeur sur une surface 2D, invent\u00e9e \u00e0 la Renaissance par Brunelleschi.",
+            "category": "concept"
+        },
+        {
+            "input": "qui est monet",
+            "output": "Claude Monet (1840-1926) est le fondateur de l'impressionnisme, ma\u00eetre des jeux de lumi\u00e8re avec Les Nymph\u00e9as et Impression, soleil levant.",
+            "category": "artist"
+        },
+        {
+            "input": "monet",
+            "output": "Claude Monet (1840-1926) est le fondateur de l'impressionnisme, ma\u00eetre des jeux de lumi\u00e8re avec Les Nymph\u00e9as et Impression, soleil levant.",
+            "category": "artist"
+        },
+        {
+            "input": "qu'est ce que la couleur",
+            "output": "La couleur est un \u00e9l\u00e9ment fondamental de l'art utilis\u00e9 pour exprimer des \u00e9motions, cr\u00e9er l'harmonie et le contraste visuel.",
+            "category": "concept"
+        },
+        {
+            "input": "couleur",
+            "output": "La couleur est un \u00e9l\u00e9ment fondamental de l'art utilis\u00e9 pour exprimer des \u00e9motions, cr\u00e9er l'harmonie et le contraste visuel.",
+            "category": "concept"
+        },
+        {
+            "input": "qui est l\u00e9onard de vinci",
+            "output": "L\u00e9onard de Vinci (1452-1519) est le g\u00e9nie de la Renaissance, peintre, inventeur et scientifique. \u0152uvres : Mona Lisa, La C\u00e8ne.",
+            "category": "artist"
+        },
+        {
+            "input": "l\u00e9onard de vinci",
+            "output": "L\u00e9onard de Vinci (1452-1519) est le g\u00e9nie de la Renaissance, peintre, inventeur et scientifique. \u0152uvres : Mona Lisa, La C\u00e8ne.",
+            "category": "artist"
+        },
+        {
+            "input": "qu'est ce que le surr\u00e9alisme",
+            "output": "Le surr\u00e9alisme est un mouvement explorant l'inconscient et le r\u00eave, avec des images surr\u00e9alistes. Salvador Dal\u00ed en est le ma\u00eetre.",
+            "category": "style"
+        },
+        {
+            "input": "surr\u00e9alisme",
+            "output": "Le surr\u00e9alisme est un mouvement explorant l'inconscient et le r\u00eave, avec des images surr\u00e9alistes. Salvador Dal\u00ed en est le ma\u00eetre.",
+            "category": "style"
+        },
+        {
+            "input": "qu'est ce que l'aquarelle",
+            "output": "L'aquarelle est une peinture sur papier avec des couleurs dilu\u00e9es \u00e0 l'eau, transparentes et lumineuses.",
+            "category": "technique"
+        },
+        {
+            "input": "aquarelle",
+            "output": "L'aquarelle est une peinture sur papier avec des couleurs dilu\u00e9es \u00e0 l'eau, transparentes et lumineuses.",
+            "category": "technique"
+        },
+        {
+            "input": "qu'est ce que la renaissance",
+            "output": "La Renaissance est une p\u00e9riode de renouveau artistique du 15\u00e8me au 16\u00e8me si\u00e8cle, avec L\u00e9onard de Vinci comme g\u00e9nie.",
+            "category": "period"
+        },
+        {
+            "input": "renaissance",
+            "output": "La Renaissance est une p\u00e9riode de renouveau artistique du 15\u00e8me au 16\u00e8me si\u00e8cle, avec L\u00e9onard de Vinci comme g\u00e9nie.",
+            "category": "period"
+        },
+        {
+            "input": "qui est salvador dali",
+            "output": "Salvador Dal\u00ed (1904-1989) est le ma\u00eetre du surr\u00e9alisme, artiste excentrique et g\u00e9nial. \u0152uvre : La Persistance de la m\u00e9moire.",
+            "category": "artist"
+        },
+        {
+            "input": "salvador dali",
+            "output": "Salvador Dal\u00ed (1904-1989) est le ma\u00eetre du surr\u00e9alisme, artiste excentrique et g\u00e9nial. \u0152uvre : La Persistance de la m\u00e9moire.",
+            "category": "artist"
+        },
+        {
+            "input": "qu'est ce que la sculpture",
+            "output": "La sculpture est un art tridimensionnel cr\u00e9\u00e9 en taillant, modelant ou assemblant des mat\u00e9riaux comme pierre, bois ou m\u00e9tal.",
+            "category": "technique"
+        },
+        {
+            "input": "sculpture",
+            "output": "La sculpture est un art tridimensionnel cr\u00e9\u00e9 en taillant, modelant ou assemblant des mat\u00e9riaux comme pierre, bois ou m\u00e9tal.",
+            "category": "technique"
+        },
+        {
+            "input": "qu'est ce que le baroque",
+            "output": "Le baroque est un style du 17\u00e8me si\u00e8cle avec beaucoup de mouvement, de richesse et d'\u00e9motion intense.",
+            "category": "style"
+        },
+        {
+            "input": "baroque",
+            "output": "Le baroque est un style du 17\u00e8me si\u00e8cle avec beaucoup de mouvement, de richesse et d'\u00e9motion intense.",
+            "category": "style"
+        },
+        {
+            "input": "qui est andy warhol",
+            "output": "Andy Warhol (1928-1987) est le roi du pop art, c\u00e9l\u00e9brant la culture de masse. \u0152uvres : Campbell's Soup Cans, Marilyn Monroe.",
+            "category": "artist"
+        },
+        {
+            "input": "andy warhol",
+            "output": "Andy Warhol (1928-1987) est le roi du pop art, c\u00e9l\u00e9brant la culture de masse. \u0152uvres : Campbell's Soup Cans, Marilyn Monroe.",
+            "category": "artist"
+        },
+        {
+            "input": "qu'est ce que l'art abstrait",
+            "output": "L'art abstrait est un style qui ne repr\u00e9sente pas des objets r\u00e9els mais utilise formes et couleurs pour exprimer des \u00e9motions.",
+            "category": "style"
+        },
+        {
+            "input": "art abstrait",
+            "output": "L'art abstrait est un style qui ne repr\u00e9sente pas des objets r\u00e9els mais utilise formes et couleurs pour exprimer des \u00e9motions.",
+            "category": "style"
+        },
+        {
+            "input": "qu'est ce que la photographie",
+            "output": "La photographie est l'art de capturer des images avec un appareil photo, cr\u00e9\u00e9 au 19\u00e8me si\u00e8cle.",
+            "category": "technique"
+        },
+        {
+            "input": "photographie",
+            "output": "La photographie est l'art de capturer des images avec un appareil photo, cr\u00e9\u00e9 au 19\u00e8me si\u00e8cle.",
+            "category": "technique"
+        },
+        {
+            "input": "qu'est ce que le romantisme",
+            "output": "Le romantisme est un mouvement du d\u00e9but 19\u00e8me si\u00e8cle privil\u00e9giant l'\u00e9motion, l'imagination et la nature.",
+            "category": "style"
+        },
+        {
+            "input": "romantisme",
+            "output": "Le romantisme est un mouvement du d\u00e9but 19\u00e8me si\u00e8cle privil\u00e9giant l'\u00e9motion, l'imagination et la nature.",
+            "category": "style"
+        },
+        {
+            "input": "c'est quoi l'art",
+            "output": "L'art est une expression humaine de la cr\u00e9ativit\u00e9 \u00e0 travers diverses formes visuelles, sonores ou conceptuelles.",
+            "category": "definition"
+        },
+        {
             "input": "qui est picasso",
             "output": "Pablo Picasso (1881-1973) est le cofondateur du cubisme, artiste prolifique du 20\u00e8me si\u00e8cle avec des \u0153uvres comme Guernica.",
             "category": "artist"
@@ -1482,7 +1697,7 @@
             "response": "Pablo Picasso (1881-1973) est le cofondateur du cubisme, artiste prolifique du 20\u00e8me si\u00e8cle avec des \u0153uvres comme Guernica.",
             "category": "artist",
             "confidence": 0.9,
-            "usage_count": 0
+            "usage_count": 1
         },
         "1c2369e7895f6d06f32b38073244f9d7": {
             "response": "Pablo Picasso (1881-1973) est le cofondateur du cubisme, artiste prolifique du 20\u00e8me si\u00e8cle avec des \u0153uvres comme Guernica et Les Demoiselles d'Avignon.",
@@ -1725,6 +1940,6 @@
             "usage_count": 0
         }
     },
-    "last_updated": "2026-02-26 06:41:53",
-    "total_examples": 291
+    "last_updated": "2026-09-08 13:55:21",
+    "total_examples": 334
 }
