@@ -144,14 +144,19 @@ public class ServiceUser implements IService<User> {
                 }
             }
         } catch (SQLException e) {
+            lastError = e.getMessage();
             System.err.println(e.getMessage());
         }
         return null;
     }
 
     public User authenticate(String email, String rawPassword) {
+        lastError = null;
         User user = findByEmail(email);
         if (user == null || isBlank(rawPassword)) {
+            if (lastError == null) {
+                lastError = "Invalid email or password.";
+            }
             return null;
         }
         if ("SUSPENDED".equalsIgnoreCase(user.getStatus()) || "BANNED".equalsIgnoreCase(user.getStatus())) {
@@ -369,8 +374,8 @@ public class ServiceUser implements IService<User> {
         User user = new User();
         user.setId(rs.getInt("id"));
         user.setEmail(rs.getString("email"));
-        user.setProvider(rs.getString("provider"));
-        user.setGoogleSub(rs.getString("google_sub"));
+        user.setProvider(getOptionalString(rs, "provider"));
+        user.setGoogleSub(getOptionalString(rs, "google_sub"));
         user.setRoles(rs.getString("roles"));
         user.setPassword(rs.getString("password"));
         user.setUsername(rs.getString("username"));
@@ -384,6 +389,14 @@ public class ServiceUser implements IService<User> {
         user.setEmailVerificationToken(rs.getString("email_verification_token"));
         user.setEmailVerificationTokenExpiresAt(getDateTime(rs, "email_verification_token_expires_at"));
         return user;
+    }
+
+    private String getOptionalString(ResultSet rs, String column) throws SQLException {
+        try {
+            return rs.getString(column);
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     private LocalDateTime getDateTime(ResultSet rs, String column) throws SQLException {

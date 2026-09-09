@@ -19,7 +19,7 @@ public class ServiceArt {
         try (Connection conn = dbConnection.getConnection()) {
             // Vérifier si la colonne artist existe
             DatabaseMetaData meta = conn.getMetaData();
-            try (ResultSet rs = meta.getColumns(null, null, "art", "artist")) {
+            try (ResultSet rs = meta.getColumns(conn.getCatalog(), null, "art", "artist")) {
                 if (!rs.next()) {
                     // La colonne n'existe pas, l'ajouter
                     try (Statement stmt = conn.createStatement()) {

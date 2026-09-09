@@ -7,7 +7,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public final class DatabaseConfig {
-    private static final String DEFAULT_URL = "jdbc:mysql://127.0.0.1:3306/pegasus?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+    private static final String DEFAULT_URL = "jdbc:mysql://127.0.0.1:3306/pegasus_new?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String DEFAULT_USER = "root";
     private static final String DEFAULT_PASSWORD = "";
 

@@ -57,6 +57,7 @@ public final class dbConnection {
             }
 
             ensureUserIdAutoIncrement(connection);
+            ensureUserAuthSchema(connection);
             ensureArtReactionSchema(connection);
             schemaChecked = true;
         }
@@ -115,6 +116,38 @@ public final class dbConnection {
             statement.executeUpdate(
                     "UPDATE art SET dislikes = COALESCE((SELECT COUNT(*) FROM art_dislike WHERE art_dislike.art_id = art.id), 0)"
             );
+        }
+    }
+
+    private static void ensureUserAuthSchema(Connection connection) throws SQLException {
+        if (!tableExists(connection, "user")) {
+            return;
+        }
+
+        addColumnIfMissing(connection, "user", "provider", "VARCHAR(20) NOT NULL DEFAULT 'LOCAL'");
+        addColumnIfMissing(connection, "user", "google_sub", "VARCHAR(255) NULL");
+    }
+
+    private static void addColumnIfMissing(Connection connection, String tableName, String columnName, String definition)
+            throws SQLException {
+        if (columnExists(connection, tableName, columnName)) {
+            return;
+        }
+
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate("ALTER TABLE `" + tableName + "` ADD COLUMN `" + columnName + "` " + definition);
+        }
+    }
+
+    private static boolean columnExists(Connection connection, String tableName, String columnName) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?")) {
+            statement.setString(1, DB_NAME);
+            statement.setString(2, tableName);
+            statement.setString(3, columnName);
+            try (ResultSet rs = statement.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
         }
     }
 
